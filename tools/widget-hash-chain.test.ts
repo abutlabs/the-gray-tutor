@@ -49,3 +49,20 @@ test("lesson 5.1 places the widget once, after the 99 links line", () => {
   assert.ok(at > 0 && at === raw.lastIndexOf("<HashChain />"), "placed once");
   assert.ok(at > raw.indexOf("99 links, checked") && at < raw.indexOf("## Watch the chain"));
 });
+
+const PREIMAGES = join(ROOT, "vectors/traces/preimages");
+test("lesson 5.2's preimages trace carries what it says: 27 blocks with preimages (up to 10), 65 with a report, 99 with assurances", { skip: !existsSync(PREIMAGES) && "no vectors/" }, () => {
+  const counts = { preimages: 0, most: 0, guarantees: 0, assurances: 0 };
+  for (let n = 1; n <= 100; n++) {
+    const x = JSON.parse(readFileSync(join(PREIMAGES, `${String(n).padStart(8, "0")}.json`), "utf8")).block.extrinsic;
+    if (x.preimages.length) counts.preimages++;
+    counts.most = Math.max(counts.most, x.preimages.length);
+    if (x.guarantees.length) counts.guarantees++;
+    if (x.assurances.length) counts.assurances++;
+  }
+  assert.deepEqual(counts, { preimages: 27, most: 10, guarantees: 65, assurances: 99 });
+  const text = lessonText("05-hashing-and-signatures/02-the-extrinsic-hash.md").replace(/\s+/g, " ");
+  assert.match(text, /27 of them preimages \(up to 10 in one block\), 65 a report, 99 assurances/);
+  assert.match(text, /`process\.argv\[2\]` is that word, `"preimages"`; with none, `"fallback"`/);
+  assert.match(lessonCode("5.2"), /const trace = process\.argv\[2\] \?\? "fallback";/);
+});
