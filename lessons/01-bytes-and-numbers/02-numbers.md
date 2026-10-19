@@ -156,6 +156,11 @@ While it's paused, the *Debug Console* runs any JavaScript you type. Try
 > configuration of its own: copy one, then change its `name` and `program`. It's a good
 > habit on any system you build: the next time something goes wrong, you're one keypress
 > away from watching it happen.
+>
+> One trap. To run an npm script with a word after it, as `npm run chain preimages`, give
+> every word its own place: `"runtimeArgs": ["run", "chain", "preimages"]`. Written
+> `["run", "chain preimages"]`, npm looks for a script called "chain preimages", finds
+> none, and your breakpoints never hit.
 
 ## The same trap, in another language
 
