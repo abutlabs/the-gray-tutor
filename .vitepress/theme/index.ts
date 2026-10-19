@@ -39,6 +39,8 @@ import CryptoMap from "./CryptoMap.vue";
 import JamNetwork from "./JamNetwork.vue";
 import SlotPlayer from "./SlotPlayer.vue";
 import StfStep from "./StfStep.vue";
+import GrayPaperRefs from "./GrayPaperRefs.vue";
+import GrayPaperMap from "./GrayPaperMap.vue";
 import HashAvalanche from "./HashAvalanche.vue";
 import ExtrinsicCommit from "./ExtrinsicCommit.vue";
 import SignCheck from "./SignCheck.vue";
@@ -134,7 +136,8 @@ import "./custom.css";
 export default {
   extends: DefaultTheme,
   // the concepts-only switch at the top of every lesson (concepts.ts)
-  Layout: () => h(DefaultTheme.Layout, null, { "doc-before": () => h(ConceptsToggle) }),
+  // at the top of every lesson: the concepts-only switch, and the Gray Paper sections it covers
+  Layout: () => h(DefaultTheme.Layout, null, { "doc-before": () => [h(ConceptsToggle), h(GrayPaperRefs)] }),
   enhanceApp({ app, router }) {
     // the lessons' widgets, placed in a lesson as <HexByte /> and so on (WRITING.md, Interactive)
     app.component("PartFlow", PartFlow); // every Part's opening page
@@ -153,6 +156,7 @@ export default {
     app.component("JamNetwork", JamNetwork); // JAM at a glance
     app.component("SlotPlayer", SlotPlayer); // JAM at a glance
     app.component("StfStep", StfStep); // the start page
+    app.component("GrayPaperMap", GrayPaperMap); // the Gray Paper map
     app.component("CoreBitfield", CoreBitfield); // 4.2
     app.component("SlotClock", SlotClock); // 0.4
     app.component("NumberKinds", NumberKinds); // 1.2

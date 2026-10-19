@@ -11,6 +11,9 @@ By the end of this tutorial, your JAM client will be able to pass the official t
 Stuck on a word? Every JAM word, Gray Paper symbol and programming term is in the
 [glossary](./glossary.md).
 
+Which part of the Gray Paper is a lesson about? Its first line says, and
+[the Gray Paper, part by part](./gray-paper.md) maps every section to its lessons.
+
 Curious what a JAM network actually does, before you write any code?
 [JAM at a glance](./jam-at-a-glance.md) plays a real one in slow motion. It's optional: the
 lessons explain every piece as you need it.

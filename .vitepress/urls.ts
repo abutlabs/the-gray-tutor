@@ -136,6 +136,7 @@ export const PUBLISHED: string[] = [
   "symbols",
   "cryptography",
   "jam-at-a-glance",
+  "gray-paper",
   "",
   "scoreboard",
   "demo",

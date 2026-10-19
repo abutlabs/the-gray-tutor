@@ -2,6 +2,8 @@
 // buttons and dark mode. `npm run site` serves it at http://localhost:5173; GitHub Pages
 // serves it at https://abutlabs.github.io/the-gray-tutor/ (SITE_BASE, set by the workflow).
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { defineConfig } from "vitepress";
 import type MarkdownIt from "markdown-it";
 import type { ShikiTransformer } from "shiki";
@@ -13,11 +15,28 @@ import { albert } from "./albert.ts";
 import { lineRanges, linesOf, stepView } from "./whole.ts";
 import { writeEpub } from "./epub.ts";
 import { HEAD as CONCEPTS_HEAD } from "./theme/concepts-link.ts";
+import { BESIDE, cited, label, SECTIONS, sorted } from "./gray-paper.ts";
 import { unitCodes } from "./units.ts";
 import { snippetNumbers, wholeFiles } from "../tools/snapshots.ts";
 import type { Snapshot } from "../tools/snapshots.ts";
 
 const parts = readParts();
+// which Gray Paper sections each lesson cites, and each part (gray-paper.ts): for the line at
+// a lesson's top, the sidebar, and the Gray Paper map page
+const grayPaper = (() => {
+  const byPage: Record<string, string[]> = {};
+  for (const p of parts) {
+    for (const l of p.lessons) byPage[l.file] = cited(readFileSync(join("lessons", l.file), "utf8"));
+    byPage[`${p.dir}/index.md`] = sorted([...new Set(p.lessons.flatMap((l) => byPage[l.file]))]);
+  }
+  const lessons = parts.flatMap((p) => p.lessons.map((l) => ({ id: l.id, title: l.title.replace(/^[\d.]+\s+/, ""), link: `/${l.file.replace(/\.md$/, "")}` })));
+  return { sections: SECTIONS, byPage, lessons, beside: BESIDE };
+})();
+/** A part's sections, small, under its name in the sidebar. */
+const sectionsLine = (dir: string) => {
+  const ids = grayPaper.byPage[`${dir}/index.md`];
+  return ids.length ? `<span class="gp-ref">Gray Paper ${ids.map(label).join(" · ")}</span>` : "";
+};
 // every page in reading order, for the whole tutorial on one page (print.ts)
 const printPages: PrintPage[] = [
   { address: "", title: "Start here" },
@@ -34,6 +53,7 @@ const printPages: PrintPage[] = [
   { address: "symbols", title: "Gray Paper symbols", part: true },
   { address: "cryptography", title: "Cryptography we use", part: true },
   { address: "jam-at-a-glance", title: "JAM at a glance", part: true },
+  { address: "gray-paper", title: "The Gray Paper, part by part", part: true },
 ];
 // the whole file after each Add to / Replace in snippet, worked out once, shown in its place
 // (whole.ts; restart `npm run site` to see a lesson's edits in them)
@@ -76,6 +96,8 @@ export default defineConfig({
     if (process.env.EPUB) writeEpub(site.outDir, site.site.base, printPages);
   },
   themeConfig: {
+    // the Gray Paper sections, for GrayPaperRefs.vue and GrayPaperMap.vue
+    grayPaper,
     // the professor beside the title (lessons/public/logo.svg)
     logo: { src: "/logo.svg", alt: "" },
     // every word you type must match, so "ready queue" finds the ready queue first
@@ -99,7 +121,7 @@ export default defineConfig({
     sidebar: [
       { text: "Start here", link: "/" },
       ...parts.map((p) => ({
-        text: p.title,
+        text: `${p.title}${sectionsLine(p.dir)}`,
         link: `/${p.dir}/`,
         collapsed: false,
         items: p.lessons.map((l) => ({
@@ -113,6 +135,7 @@ export default defineConfig({
       { text: "Gray Paper symbols", link: "/symbols" },
       { text: "Cryptography we use", link: "/cryptography" },
       { text: "JAM at a glance", link: "/jam-at-a-glance" },
+      { text: "The Gray Paper, part by part", link: "/gray-paper" },
     ],
   },
 });
