@@ -190,6 +190,15 @@ function snippetLabels(md: MarkdownIt): void {
         words.splice(close + 1, 0, new state.Token("link_close", "a", -1));
         words.splice(open, 0, link);
       }
+      // every Run block runs in client/ (verify runs them there): the label says so, so a reader
+      // who types npm test at the repo root instead doesn't get the tutorial's own tests
+      if (m[1].startsWith("Run")) {
+        const where = new state.Token("text", "", 0);
+        where.content = " in ";
+        const folder = new state.Token("code_inline", "code", 0);
+        folder.content = "client/";
+        words.push(where, folder);
+      }
       const at = `${state.env.relativePath}:${(t[i].map?.[0] ?? -1) + 1}`;
       const n = numbers.get(at);
       if (n !== undefined) {
