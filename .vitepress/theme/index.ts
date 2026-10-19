@@ -152,7 +152,7 @@ export default {
     app.component("CryptoMap", CryptoMap); // the cryptography appendix
     app.component("JamNetwork", JamNetwork); // JAM at a glance
     app.component("SlotPlayer", SlotPlayer); // JAM at a glance
-    app.component("StfStep", StfStep); // Part 0
+    app.component("StfStep", StfStep); // the start page
     app.component("CoreBitfield", CoreBitfield); // 4.2
     app.component("SlotClock", SlotClock); // 0.4
     app.component("NumberKinds", NumberKinds); // 1.2

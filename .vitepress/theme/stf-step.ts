@@ -1,4 +1,4 @@
-// Part 0's At a glance: σ′ ≡ Υ(σ, B) on a real chain, one block at a time. Each step is a
+// The start page's At a glance: σ′ ≡ Υ(σ, B) on a real chain, one block at a time. Each step is a
 // block of the storage trace: the state it found (σ, by its root), the block (B), and the
 // state it left (σ′), which is the next block's σ. tools/widget-stf-step.test.ts checks it.
 

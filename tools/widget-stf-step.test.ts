@@ -1,4 +1,4 @@
-// Part 0's At a glance (.vitepress/theme/stf-step.ts, stf-trace.ts): σ′ ≡ Υ(σ, B) on the
+// The start page's At a glance (.vitepress/theme/stf-step.ts, stf-trace.ts): σ′ ≡ Υ(σ, B) on the
 // storage trace's first 12 blocks, each as it is in the trace, each σ′ the next block's σ;
 // the equation keyed to the symbols page, whose new entries' examples are these blocks.
 
@@ -10,7 +10,7 @@ import { carries, says, short, TRANSITIONS } from "../.vitepress/theme/stf-step.
 import { lessonText, ROOT } from "./lessons.ts";
 
 const TRACE = join(ROOT, "vectors/traces/storage");
-const PART = lessonText("00-start/index.md");
+const START = lessonText("index.md");
 const SYMBOLS = lessonText("symbols.md");
 
 test("the 12 transitions are the storage trace's first 12 blocks as they are", { skip: !existsSync(TRACE) && "no vectors/" }, () => {
@@ -38,13 +38,14 @@ test("each block in words: its slot, its author and what it carries", () => {
   assert.equal(short(TRANSITIONS[0][3]), "0x48dc323d…");
 });
 
-test("Part 0 opens with the equation, keyed to the symbols page, then the widget, then the part's map", () => {
-  assert.match(PART, /\$\$\n\\sigma' \\equiv \\Upsilon\(\\sigma, B\)\n\$\$/);
-  const keys = [...PART.matchAll(/^\| \[(.+?)\]\(\.\.\/symbols\.md#([\w-]+)\) \|/gm)].map((m) => [m[1], m[2]]);
+test("the start page shows the equation, keyed to the symbols page, then the widget", () => {
+  assert.match(START, /\$\$\n\\sigma' \\equiv \\Upsilon\(\\sigma, B\)\n\$\$/);
+  const keys = [...START.matchAll(/^\| \[(.+?)\]\(\.\/symbols\.md#([\w-]+)\) \|/gm)].map((m) => [m[1], m[2]]);
   assert.deepEqual(keys, [["σ", "state"], ["B", "block"], ["Υ", "transition"], ["σ′", "prime"], ["≡", "defined-as"]]);
   for (const [, id] of keys) assert.match(SYMBOLS, new RegExp(`^### .+ \\{#${id}\\}$`, "m"), id);
-  const at = PART.indexOf("<StfStep />");
-  assert.ok(at > PART.indexOf("## At a glance") && at < PART.indexOf("## This part, on one map") && PART.indexOf("<PartFlow") > at);
+  const at = START.indexOf("<StfStep />");
+  assert.ok(at > START.indexOf("## At a glance") && at < START.indexOf("## How to read it"));
+  assert.equal(START.split("<StfStep />").length, 2);
 });
 
 test("the symbol entries' examples are these blocks' real values", () => {

@@ -7,7 +7,13 @@ and your first piece of JAM, the clock.
 By the end of this part your client knows JAM's clock, has its first tests, and reports
 every run to Grafana, where you'll watch it from now on.
 
+## At a glance
 
+The whole part on one map. Boxes are what your client holds, and rounded cards are the
+steps between them; a dashed card happens outside your client. Tap any card, or walk
+through them in order with *next*.
+
+<PartFlow :part="0" />
 
 - [0.1 What you will build](./01-what-you-will-build.md)
 - [0.2 Set up the project](./02-set-up-the-project.md)

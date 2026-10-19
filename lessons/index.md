@@ -25,11 +25,11 @@ $$
 
 | Symbol | Say it | Here |
 | --- | --- | --- |
-| [σ](../symbols.md#state) | sigma | the chain's state before a block: everything it remembers |
-| [B](../symbols.md#block) | B | the block: a header and its extrinsic |
-| [Υ](../symbols.md#transition) | upsilon | the state-transition function: the rules |
-| [σ′](../symbols.md#prime) | sigma prime | the state after the block |
-| [≡](../symbols.md#defined-as) | is defined as | the left side is, by definition, the right |
+| [σ](./symbols.md#state) | sigma | the chain's state before a block: everything it remembers |
+| [B](./symbols.md#block) | B | the block: a header and its extrinsic |
+| [Υ](./symbols.md#transition) | upsilon | the state-transition function: the rules |
+| [σ′](./symbols.md#prime) | sigma prime | the state after the block |
+| [≡](./symbols.md#defined-as) | is defined as | the left side is, by definition, the right |
 
 Take a state and a block, apply the rules, get the next state. That's the whole of a
 blockchain, and your client is Υ: by the end, hand it a state and a block and it answers

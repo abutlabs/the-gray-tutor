@@ -107,7 +107,7 @@ curly φ the PVM's registers.
 - **Means:** everything the chain remembers, in seventeen parts, from the validators' keys
   to the services' accounts.
 - **Example:** after the storage trace's first block, the state whose root is
-  `0x48dc323d…` ([Part 0](./00-start/index.md#at-a-glance)).
+  `0x48dc323d…` ([the start page](./index.md#at-a-glance)).
 - **Gray Paper:** §4, *Overview*: *"σ is the prior state, σ′ is the posterior state, B is
   some valid block and Υ is our block-level state-transition function."*
 - **Built in:** [Part 6](./06-state-and-merklization/index.md) reads it, [Part 19](./19-block-import/index.md) keeps all of it.

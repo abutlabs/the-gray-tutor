@@ -1,4 +1,4 @@
-<!-- Part 0's At a glance: σ′ ≡ Υ(σ, B), one real block at a time. The state before (σ),
+<!-- The start page's At a glance: σ′ ≡ Υ(σ, B), one real block at a time. The state before (σ),
      the block (B), the rules (Υ), the state after (σ′); "next block" makes σ′ the new σ.
      Computed in stf-step.ts. -->
 <script setup lang="ts">

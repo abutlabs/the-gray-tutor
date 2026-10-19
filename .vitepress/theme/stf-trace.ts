@@ -1,4 +1,4 @@
-// Part 0's state-transition widget: the storage trace's first 12 tiny blocks, each as
+// The start page's state-transition widget: the storage trace's first 12 tiny blocks, each as
 // σ′ ≡ Υ(σ, B): the state root before, the block (its slot, its author, its parent, how
 // many of each extrinsic part it carries), and the state root after. Copied from
 // vectors/traces/storage as they are; tools/widget-stf-step.test.ts compares them with the
