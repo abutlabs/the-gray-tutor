@@ -107,6 +107,10 @@ The tour:
 
 - A `Run` is a little notebook. `event` writes down something that happened, `number`
   writes down something measured, and `report` mails the notebook to the stack.
+- `Run` is defined right here, in this file: TypeScript doesn't come with one. `new
+  Run("hello")` makes a fresh notebook. The word in brackets is the run's *kind*: Grafana
+  files the run under it, and its id starts with it, as `hello-1791724085683` does below.
+  Every program you write from here opens one, named for what it does.
 - Loki wants each event's time in nanoseconds. `Date.now()` gives milliseconds, so
   multiply by a million, then add the event's number, so two events in the same
   millisecond still come out in order.

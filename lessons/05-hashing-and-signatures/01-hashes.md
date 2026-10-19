@@ -338,6 +338,11 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+`Run` is your client's own, not TypeScript's: the notebook from
+[lesson 0.3](../00-start/03-watch-your-client.md#the-module), in `src/obs.ts`. `new Run("chain")` opens one for this program, and
+`"chain"` is its kind, which Grafana files it under and its id starts with:
+`chain-1791728701859` below.
+
 **Run**
 
 ```sh
