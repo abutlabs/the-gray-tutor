@@ -15,6 +15,28 @@ Curious what a JAM network actually does, before you write any code?
 [JAM at a glance](./jam-at-a-glance.md) plays a real one in slow motion. It's optional: the
 lessons explain every piece as you need it.
 
+## At a glance
+
+All of JAM, in one equation from the Gray Paper (§4, *Overview*):
+
+$$
+\sigma' \equiv \Upsilon(\sigma, B)
+$$
+
+| Symbol | Say it | Here |
+| --- | --- | --- |
+| [σ](../symbols.md#state) | sigma | the chain's state before a block: everything it remembers |
+| [B](../symbols.md#block) | B | the block: a header and its extrinsic |
+| [Υ](../symbols.md#transition) | upsilon | the state-transition function: the rules |
+| [σ′](../symbols.md#prime) | sigma prime | the state after the block |
+| [≡](../symbols.md#defined-as) | is defined as | the left side is, by definition, the right |
+
+Take a state and a block, apply the rules, get the next state. That's the whole of a
+blockchain, and your client is Υ: by the end, hand it a state and a block and it answers
+with σ′, byte for byte the same as every other JAM client. Here it is on real blocks:
+
+<StfStep />
+
 ## How to read it
 
 Each lesson builds on the ones before, and your client grows with

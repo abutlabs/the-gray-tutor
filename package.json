@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "description": "Build a JAM client in TypeScript, one Gray Paper rule at a time.",
-  "engines": { "node": ">=26" },
+  "engines": {
+    "node": ">=26"
+  },
   "scripts": {
     "site": "node tools/need-node.mjs && vitepress dev --open",
     "site:build": "node tools/need-node.mjs && vitepress build",
@@ -18,7 +20,7 @@
     "typecheck": "tsc -p tools",
     "check": "node tools/need-node.mjs && npm run typecheck && npm test && npm run site:build",
     "scoreboard": "node client/bin/scoreboard.ts",
-    "demo": "node tools/need-node.mjs && node tools/compare.ts --last --write --dir demo && npm install --prefix demo --no-audit --no-fund"
+    "demo": "node tools/need-node.mjs && node tools/compare.ts --last --write --dir demo && npm install --prefix demo --no-audit --no-fund",
   },
   "devDependencies": {
     "@noble/curves": "2.4.0",
