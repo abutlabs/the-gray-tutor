@@ -14,7 +14,7 @@ const LESSON = [0x01, 0x40, 0xff]; // the lesson's picture
 const MORE = [0x0b, 0x10, 0x80, 0xc0, 0x00, 0x02, 0x41, 0xfe]; // what "add an entry" reaches for
 const GOALS = [
   { id: "deep", say: "send a leaf down to depth 8: two keys that differ only in their last bit" },
-  { id: "hashed", say: "make a value too big for its leaf (over 32 bytes), so the leaf holds its hash" },
+  { id: "hashed", say: "type 33 or more in an entry's value box: too big for its leaf, so the leaf holds its hash" },
   { id: "single", say: "leave one entry: the root is then the hash of its leaf" },
 ];
 
