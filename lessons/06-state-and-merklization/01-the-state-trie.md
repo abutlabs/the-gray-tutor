@@ -75,6 +75,14 @@ shows *which* hashes change, not their bytes.)
 
 <TrieBuilder />
 
+Why hash a branch whose other side is empty, 32 zero bytes? Because M splits on one bit
+per level, always, even when every key goes the same way. That keeps the trie simple: a
+node's depth says which bit it split on, so no node has to record "skip these bits", and
+there are only two kinds of node, each 64 bytes. Ethereum's trie does skip, with a third
+kind of node that records the bits its keys share; JAM's costs one extra hash per shared
+bit instead. The Gray Paper just defines it this way; the trade is ours to read. A real
+state rarely pays much: of the tiny genesis state's 22 branches, only 2 have an empty side.
+
 ## The tests
 
 Two sets of vectors. The `trie` vectors are made for exactly this: entries in, root out,

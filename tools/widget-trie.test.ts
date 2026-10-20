@@ -147,5 +147,6 @@ test("6.1's counts: three keys take five hashes; the tiny genesis state's 21 ent
   const leaves = leavesOf(trie);
   const big = leaves.filter((l) => !fitsInLeaf(l.entry.size));
   assert.deepEqual([keyvals.length, leaves.length, branches.length, oneSided.length, Math.max(...leaves.map((l) => l.path.length)), big.length, hashesTaken(trie)], [21, 21, 22, 2, 11, 12, 55]);
+  assert.match(lessonText(TRIE).replace(/\s+/g, " "), /of the tiny genesis state's 22 branches, only 2 have an empty side\./);
   assert.match(lessonText(TRIE).replace(/\s+/g, " "), /has 21 entries, which make 21 leaves and 22 branches \(two with an empty side\), the deepest leaf 11 bits down\. Its 12 values over 32 bytes are hashed first, so its root takes 55 hashes\./);
 });
