@@ -94,16 +94,19 @@ watch(shape, () => {
       <div class="tile root"><span class="tile-label">the root is</span><span class="tile-value">{{ rootIs(trie) === "zeros" ? "32 zeros" : rootIs(trie) }}</span></div>
     </div>
     <p class="range">
-      Each entry is a 31-byte key and a value. Here each key is one byte you set, then 30 zero bytes (the …). The trie
-      sorts the keys by their bits, first bit first: 0 goes left, 1 goes right. Every node is 64 bytes; the root is a
-      32-byte hash of the top one.
+      Each entry is a key and a value. The key says where its leaf goes: 31 bytes, here one byte you set bit by bit
+      and then 30 zeros (the …), read first bit first, 0 left and 1 right. The value is what's filed under that key,
+      and the trie only cares how long it is: up to 32 bytes sit inside the leaf; more, and the leaf holds the value's
+      32-byte hash instead. In the tiny genesis state, key <code>0x0b…</code> holds the time, 4 bytes, inside its leaf;
+      key <code>0x08…</code> holds the validators, 2,017 bytes, so its leaf holds their hash. Every node is 64 bytes;
+      the root is a 32-byte hash of the top one.
     </p>
     <div class="controls">
       <button class="small" @click="reset">the lesson's three keys</button>
       <button class="small" :disabled="rows.length >= MAX_ENTRIES" @click="add">add an entry</button>
     </div>
     <div class="strip" tabindex="0" aria-label="the trie, drawn">
-      <svg :width="drawing.width + 2 * PAD" :height="py(drawing.depth) + 40" role="img"
+      <svg :width="drawing.width + 2 * PAD" :height="py(drawing.depth) + 48" role="img"
         :aria-label="`the trie: ${leaves.map((l) => `${hex(l.entry.key[0])} at depth ${l.path.length}`).join(', ') || 'no entries'}`">
         <g v-for="e in drawing.edges" :key="`e${e.to.node.path}`">
           <line class="edge" :class="{ redone: onPath(e.to.node) }" :x1="px(e.from.x)" :y1="py(e.from.depth)" :x2="px(e.to.x)" :y2="py(e.to.depth)" />
@@ -115,9 +118,10 @@ watch(shape, () => {
             <text class="label" :x="px(p.x)" :y="py(p.depth) + 4">{{ p.depth }}</text>
           </template>
           <template v-else-if="p.node.kind === 'leaf'">
-            <rect class="leaf" :x="px(p.x) - SLOT.leaf / 2 + 3" :y="py(p.depth) - 14" :width="SLOT.leaf - 6" height="34" rx="5" />
+            <rect class="leaf" :x="px(p.x) - SLOT.leaf / 2 + 3" :y="py(p.depth) - 14" :width="SLOT.leaf - 6" height="46" rx="5" />
             <text class="label hexkey" :x="px(p.x)" :y="py(p.depth) + 1">{{ hex(p.node.entry.key[0]) }}…</text>
             <text class="key" :x="px(p.x)" :y="py(p.depth) + 14">0b<tspan class="path">{{ p.node.path }}</tspan>{{ bitsOf(p.node.entry.key[0], 8).slice(p.node.path.length, 8) }}</text>
+            <text class="label small" :x="px(p.x)" :y="py(p.depth) + 27">{{ fitsInLeaf(p.node.entry.size) ? `${p.node.entry.size} B inside` : `H(${p.node.entry.size.toLocaleString("en-US")} B)` }}</text>
           </template>
           <template v-else>
             <rect class="empty" :x="px(p.x) - 9" :y="py(p.depth) - 9" width="18" height="18" rx="3" />
@@ -150,8 +154,8 @@ watch(shape, () => {
           <span class="hex bytes">{{ hex(r.first) }}…</span>
         </div>
         <div class="value">
-          <label>value <input :value="r.size" inputmode="numeric" spellcheck="false" :aria-label="`${hex(r.first)}'s value, in bytes`"
-            @input="setSize(r, ($event.target as HTMLInputElement).value)" /> bytes</label>
+          <label>value, <input :value="r.size" inputmode="numeric" spellcheck="false" :aria-label="`${hex(r.first)}'s value, in bytes`"
+            @input="setSize(r, ($event.target as HTMLInputElement).value)" /> bytes long</label>
           <span class="leafbyte">leaf starts <code class="bits">0b{{ bitsOf(leafFirstByte(r.size), 8).slice(0, 2) }}_{{ bitsOf(leafFirstByte(r.size), 8).slice(2) }}</code>:
             {{ fitsInLeaf(r.size) ? `the ${r.size} bytes inside` : "the value's hash" }}</span>
           <button class="small" :aria-label="`remove ${hex(r.first)}…`" @click="remove(r)">remove</button>

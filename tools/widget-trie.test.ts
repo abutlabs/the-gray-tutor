@@ -150,3 +150,14 @@ test("6.1's counts: three keys take five hashes; the tiny genesis state's 21 ent
   assert.match(lessonText(TRIE).replace(/\s+/g, " "), /of the tiny genesis state's 22 branches, only 2 have an empty side\./);
   assert.match(lessonText(TRIE).replace(/\s+/g, " "), /has 21 entries, which make 21 leaves and 22 branches \(two with an empty side\), the deepest leaf 11 bits down\. Its 12 values over 32 bytes are hashed first, so its root takes 55 hashes\./);
 });
+
+test("6.1's widget says what a value is, with the genesis state's own: 0x0b… the time, 4 bytes; 0x08… the validators, 2,017", { skip: !existsSync(GENESIS) && "no vectors/" }, () => {
+  const genesis = JSON.parse(readFileSync(GENESIS, "utf8"));
+  const keyvals: { key: string; value: string }[] = (genesis.state ?? genesis.pre_state).keyvals;
+  const size = (first: string) => fromHex(keyvals.find((k) => k.key.startsWith(first))!.value).length;
+  assert.equal(size("0x0b00"), 4);
+  assert.equal(size("0x0800"), 2017);
+  assert.ok(fitsInLeaf(4) && !fitsInLeaf(2017));
+  const widget = readFileSync(join(ROOT, ".vitepress/theme/TrieBuilder.vue"), "utf8").replace(/\s+/g, " ");
+  assert.match(widget, /key <code>0x0b…<\/code> holds the time, 4 bytes, inside its leaf; key <code>0x08…<\/code> holds the validators, 2,017 bytes, so its leaf holds their hash/);
+});
