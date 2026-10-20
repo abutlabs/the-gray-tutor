@@ -9,8 +9,9 @@ import { H } from "./hash.ts";
 /** A state key is 31 bytes. */
 export const KEY_BYTES = 31;
 
-/** One entry of the state: its key, how many bytes its value has, and (to hash it) the value. */
-export type Entry = { key: number[]; size: number; value?: number[] };
+/** One entry of the state: its key, how many bytes its value has, and (to hash it) the value,
+ *  or, for a value too big for its leaf, just the value's hash: all the trie needs of it. */
+export type Entry = { key: number[]; size: number; value?: number[]; hash?: number[] };
 
 /** A node of the trie, named by its path: the key bits that lead to it from the root, so a
  *  node's depth is its path's length, and a branch splits on bit `path.length`. */
@@ -73,8 +74,9 @@ export const SLOT = { leaf: 150, empty: 40 } as const; // a leaf fits its key, i
 export type Placed = { node: Node; x: number; depth: number };
 export type Edge = { from: Placed; to: Placed; bit: string };
 
-/** Where each node goes: x across, its depth down; and the edges between them. */
-export function layout(root: Node): { placed: Placed[]; edges: Edge[]; width: number; depth: number } {
+/** Where each node goes: x across, its depth down; and the edges between them. A leaf and an
+ *  empty side take `slot`'s room across. */
+export function layout(root: Node, slot: { leaf: number; empty: number } = SLOT): { placed: Placed[]; edges: Edge[]; width: number; depth: number } {
   const placed: Placed[] = [];
   const edges: Edge[] = [];
   let at = 0;
@@ -85,7 +87,7 @@ export function layout(root: Node): { placed: Placed[]; edges: Edge[]; width: nu
       here = { node, x: (left.x + right.x) / 2, depth: node.path.length };
       edges.push({ from: here, to: left, bit: "0" }, { from: here, to: right, bit: "1" });
     } else {
-      const w = SLOT[node.kind];
+      const w = slot[node.kind];
       here = { node, x: at + w / 2, depth: node.path.length };
       at += w;
     }
@@ -99,13 +101,14 @@ export function layout(root: Node): { placed: Placed[]; edges: Edge[]; width: nu
 // Hashing, as lesson 6.1's leaf, branch and merkle do.
 
 /** A leaf node, 64 bytes: its first byte says leaf (1) and value inside (0, then its length)
- *  or value hashed (1); then the key's 31 bytes; then the value, or its hash. */
-export function leafNode(key: number[], value: number[]): number[] {
+ *  or value hashed (1); then the key's 31 bytes; then the value, or its hash. A big value's
+ *  hash, when known, stands in for the value. */
+export function leafNode(key: number[], value: number[], hash?: number[]): number[] {
   const node = Array<number>(64).fill(0);
-  const inside = value.length <= 32;
+  const inside = !hash && value.length <= 32;
   node[0] = inside ? 0b10000000 | value.length : 0b11000000;
   key.slice(0, KEY_BYTES).forEach((b, i) => { node[1 + i] = b; });
-  (inside ? value : H(value)).forEach((b, i) => { node[32 + i] = b; });
+  (inside ? value : hash ?? H(value)).forEach((b, i) => { node[32 + i] = b; });
   return node;
 }
 
@@ -121,7 +124,7 @@ export function hashesOf(root: Node): Map<string, number[]> {
   const out = new Map<string, number[]>();
   const walk = (n: Node): number[] => {
     const h = n.kind === "empty" ? Array<number>(32).fill(0)
-      : n.kind === "leaf" ? H(leafNode(n.entry.key, n.entry.value ?? []))
+      : n.kind === "leaf" ? H(leafNode(n.entry.key, n.entry.value ?? [], n.entry.hash))
       : H(branchNode(walk(n.left), walk(n.right)));
     out.set(n.path, h);
     return h;

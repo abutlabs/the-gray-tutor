@@ -18,6 +18,7 @@ import VectorMap from "./VectorMap.vue";
 import CoreBitfield from "./CoreBitfield.vue";
 import AssuranceGrid from "./AssuranceGrid.vue";
 import TrieBuilder from "./TrieBuilder.vue";
+import StateRoot from "./StateRoot.vue";
 import StateKeyWeave from "./StateKeyWeave.vue";
 import MountainBelt from "./MountainBelt.vue";
 import VerdictVotes from "./VerdictVotes.vue";
@@ -252,6 +253,7 @@ export default {
     app.component("ExtrinsicCommit", ExtrinsicCommit); // 5.2
     app.component("SignCheck", SignCheck); // 5.3
     app.component("TrieBuilder", TrieBuilder); // 6.1
+    app.component("StateRoot", StateRoot); // 6.2
     app.component("StateKeyWeave", StateKeyWeave); // 6.2
     app.component("SafroleEpoch", SafroleEpoch); // 8.5
     app.component("MountainBelt", MountainBelt); // 9.1

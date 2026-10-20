@@ -80,6 +80,17 @@ storage as a map from key to value (read from the vectors in [lesson 14.2](../14
 by the `write` host call in [lesson 16.5](../16-host-calls/05-storage.md)), and needs these keys only to put that map
 into the state trie, which block import does ([lesson 19.2](../19-block-import/02-the-whole-state.md)).
 
+All three cases together make a real state. Here is the one `npm run state-fallback` reads
+in [lesson 6.1](./01-the-state-trie.md): one file, `fallback/00000001.json`, whose 21 entries the script builds into the trie
+and hashes up to one root, then checks against the `parent_state_root` in the same file's
+block header. Each leaf is named by its key's case. The 16 components sit together, as their
+keys all start with a few zero bits; the account is alone on the other side, as 255 starts
+with a 1; and service 0's four keys all start `0x00`, its id's first byte, so they sit
+deepest, told apart only by their hash bytes. Set τ to slot 1, four bytes in one leaf,
+and the root changes completely: that is why 32 bytes can stand for the whole state.
+
+<StateRoot />
+
 ## The tests
 
 **New file** `test/state.test.ts`
