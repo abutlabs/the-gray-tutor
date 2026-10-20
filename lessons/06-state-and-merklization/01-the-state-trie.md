@@ -67,11 +67,14 @@ official traces start from has 21 entries, which make 21 leaves and 22 branches 
 an empty side), the deepest leaf 11 bits down. Its 12 values over 32 bytes are hashed
 first, so its root takes 55 hashes.
 
-Try it below, starting from the same three keys. Flip a key's bits and watch its leaf
-move to its new route. Make two keys that differ only in their last bit, and the trie needs all eight bits
-to part them: a chain of branches with empty sides. Then change a value. Only the
-hashes on that leaf's path change, but the path always ends at the root. (The widget
-shows *which* hashes change, not their bytes.)
+Try it below, starting from the same three keys, each with a value to type: text, or hex
+from `0x`. Every node shows its real hash, made as your client's `merkle` makes it. Flip a
+key's bits and watch its leaf move to its new route. Make two keys that differ only in
+their last bit, and the trie needs all eight bits to part them: a chain of branches with
+empty sides. Then change a value. Only the hashes on that leaf's path change, but the path
+always ends at the root. Make a value longer than 32 bytes and the leaf doesn't split or
+move: it keeps its place and holds the value's hash, while the value is kept outside the
+trie.
 
 <TrieBuilder />
 

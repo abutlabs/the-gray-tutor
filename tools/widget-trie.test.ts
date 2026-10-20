@@ -7,9 +7,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { bitsOf, toHex } from "../.vitepress/theme/bytes.ts";
 import { accountKey, bytesOf, COMPONENTS, componentKey, HASH_BYTES_USED, LESSON_HASH, padHash, parseHashBytes, parseNumber, wovenKey } from "../.vitepress/theme/state-keys.ts";
-import { build, fitsInLeaf, hashesRedone, hashesTaken, keyOf, layout, leafFirstByte, leavesOf, nodesOf, rootIs } from "../.vitepress/theme/trie.ts";
+import { build, fitsInLeaf, hashesOf, hashesRedone, hashesTaken, keyOf, leafNode, rootOf, valueBytes, layout, leafFirstByte, leavesOf, nodesOf, rootIs } from "../.vitepress/theme/trie.ts";
 import type { Entry } from "../.vitepress/theme/trie.ts";
-import { lessonText, ROOT } from "./lessons.ts";
+import { lessonCode, lessonText, ROOT } from "./lessons.ts";
 
 const TRIE = "06-state-and-merklization/01-the-state-trie.md";
 const KEYS = "06-state-and-merklization/02-state-keys.md";
@@ -160,4 +160,40 @@ test("6.1's widget says what a value is, with the genesis state's own: 0x0b… t
   assert.ok(fitsInLeaf(4) && !fitsInLeaf(2017));
   const widget = readFileSync(join(ROOT, ".vitepress/theme/TrieBuilder.vue"), "utf8").replace(/\s+/g, " ");
   assert.match(widget, /key <code>0x0b…<\/code> holds the time, 4 bytes, inside its leaf; key <code>0x08…<\/code> holds the validators, 2,017 bytes, so its leaf holds their hash/);
+});
+
+const TRIE_VECTORS = join(ROOT, "vectors/trie/trie.json");
+test("6.1's widget hashes every node as the lesson's merkle does: all 11 official trie vectors' roots", { skip: !existsSync(TRIE_VECTORS) && "no vectors/" }, () => {
+  const code = lessonCode("6.1");
+  assert.match(code, /node\[0\] = 0b10000000 \| value\.length;/);
+  assert.match(code, /node\[0\] = 0b11000000;/);
+  assert.match(code, /node\[0\] = node\[0\] & 0b01111111;/);
+  const cases = JSON.parse(readFileSync(TRIE_VECTORS, "utf8")) as { input: Record<string, string>; output: string }[];
+  assert.equal(cases.length, 11);
+  for (const c of cases) {
+    const entries = Object.entries(c.input).map(([k, v]) => {
+      const value = fromHex(v);
+      return { key: fromHex(k).slice(0, 31), size: value.length, value };
+    });
+    assert.equal(toHex(rootOf(build(entries))), `0x${c.output}`);
+  }
+  // a 32-byte value sits inside its leaf, a 33-byte one is hashed: both edges are in the vectors
+  const sizes = cases.flatMap((c) => Object.values(c.input).map((v) => v.length / 2));
+  assert.ok(sizes.includes(32) && sizes.includes(33));
+});
+
+test("a typed value is its text's bytes, or hex from 0x; the leaf holds it inside up to 32 bytes", () => {
+  assert.deepEqual(valueBytes("hello"), { bytes: [104, 101, 108, 108, 111], as: "text" });
+  assert.deepEqual(valueBytes("0x2a00"), { bytes: [42, 0], as: "hex" });
+  assert.deepEqual(valueBytes("0x2a0"), { bytes: [...new TextEncoder().encode("0x2a0")], as: "text" }, "half a byte isn't hex");
+  const leaf = leafNode(keyOf(0x01), valueBytes("hello").bytes);
+  assert.equal(leaf.length, 64);
+  assert.equal(leaf[0], 0b10000000 | 5);
+  assert.deepEqual(leaf.slice(32, 37), [104, 101, 108, 108, 111]);
+  const big = Array<number>(33).fill(7);
+  assert.equal(leafNode(keyOf(0x01), big)[0], 0b11000000);
+  // the lesson's three keys with the widget's values: three leaves, two branches, five hashes
+  const three = build([0x01, 0x40, 0xff].map((first, i) => { const value = valueBytes(["hello", "JAM", "Gray Paper"][i]).bytes; return { key: keyOf(first), size: value.length, value }; }));
+  assert.equal(hashesTaken(three), 5);
+  assert.equal(hashesOf(three).size, 5);
 });
