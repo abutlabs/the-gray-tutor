@@ -197,3 +197,14 @@ test("a typed value is its text's bytes, or hex from 0x; the leaf holds it insid
   assert.equal(hashesTaken(three), 5);
   assert.equal(hashesOf(three).size, 5);
 });
+
+test("6.1 describes the trie vectors as they are: 11 cases of 0 to 10 entries, single values of 0, 1, 32, 33 and 60 bytes", { skip: !existsSync(TRIE_VECTORS) && "no vectors/" }, () => {
+  const cases = JSON.parse(readFileSync(TRIE_VECTORS, "utf8")) as { input: Record<string, string> }[];
+  const counts = cases.map((c) => Object.keys(c.input).length);
+  assert.deepEqual(counts, [0, 1, 1, 1, 1, 1, 2, 2, 2, 5, 10]);
+  const singles = cases.filter((c) => Object.keys(c.input).length === 1).map((c) => Object.values(c.input)[0].length / 2);
+  assert.deepEqual(singles, [0, 1, 32, 33, 60]);
+  const text = lessonText(TRIE).replace(/\s+/g, " ");
+  assert.match(text, /of 11 cases, each a set of entries, key → value in hex, and the root they must make/);
+  assert.match(text, /The cases hold 0, 1, 1, 1, 1, 1, 2, 2, 2, 5 and 10 entries, and the single entries' values are 0, 1, 32, 33 and 60 bytes long/);
+});

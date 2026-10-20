@@ -88,9 +88,13 @@ state rarely pays much: of the tiny genesis state's 22 branches, only 2 have an 
 
 ## The tests
 
-Two sets of vectors. The `trie` vectors are made for exactly this: entries in, root out,
-from no entries at all up to ten. (Their keys are 32 bytes, from when the Gray Paper's
-keys were. The trie only ever reads the first 31, so the test simply drops the 32nd.)
+Two sets of vectors. The `trie` vectors are made for exactly this: entries in, root out.
+They're one file, `vectors/trie/trie.json` (`vectorJson` reads names from `vectors/`), of
+11 cases, each a set of entries, key → value in hex, and the root they must make, its
+`output`. The cases hold 0, 1, 1, 1, 1, 1, 2, 2, 2, 5 and 10 entries, and the single
+entries' values are 0, 1, 32, 33 and 60 bytes long: either side of a leaf's 32. (Their
+keys are 32 bytes, from when the Gray Paper's keys were. The trie only ever reads the
+first 31, so the test simply drops the 32nd.)
 And then real states, from the four traces of [lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md): each trace step carries the
 state *before* its block, as key-value entries, and each block's header promises that
 state's root.
