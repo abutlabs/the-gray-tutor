@@ -9,9 +9,9 @@ import { join } from "node:path";
 import { toHex } from "../.vitepress/theme/bytes.ts";
 import { ENTRIES, PROMISED } from "../.vitepress/theme/fallback-state.ts";
 import { H } from "../.vitepress/theme/hash.ts";
-import { bytesOf, nameOf, stateRoot } from "../.vitepress/theme/state-root.ts";
+import { branchSays, bytesOf, leafSays, nameOf, stateRoot } from "../.vitepress/theme/state-root.ts";
 import { accountKey, bytesOf as cellBytes, componentKey, wovenKey } from "../.vitepress/theme/state-keys.ts";
-import { build, leavesOf, rootOf } from "../.vitepress/theme/trie.ts";
+import { build, hashesOf, leafFirstByte, leavesOf, nodesOf, rootOf } from "../.vitepress/theme/trie.ts";
 import { lessonText, ROOT } from "./lessons.ts";
 
 const FILE = join(ROOT, "vectors/traces/fallback/00000001.json");
@@ -80,4 +80,33 @@ test("the trie the page describes: the account alone at depth 1, service 0's key
   const text = PAGE.replace(/\s+/g, " ");
   assert.match(text, /one file, `fallback\/00000001\.json`, whose 21 entries the script builds into the trie and hashes up to one root, then checks against the `parent_state_root` in the same file's block header/);
   assert.ok(PAGE.indexOf("<StateRoot />") > 0 && PAGE.indexOf("<StateRoot />") < PAGE.indexOf("## The tests"));
+});
+
+test("every branch and leaf is a hash, and each says how it was made: the root's is the state root", () => {
+  for (const changed of [new Map<string, string>(), new Map([[TIME, "0x01000000"]])]) {
+    const { trie, root } = stateRoot(changed);
+    const hashes = hashesOf(trie);
+    for (const n of nodesOf(trie)) {
+      if (n.kind === "branch") {
+        const b = branchSays(trie, n.path);
+        const node = bytesOf(b.node);
+        assert.equal(node.length, 64);
+        assert.deepEqual(b.sides.map((x) => x.hash), [toHex(hashes.get(n.left.path)!), toHex(hashes.get(n.right.path)!)]);
+        assert.equal(b.first.after, b.first.before & 0x7f, "the first bit cleared, to say branch");
+        assert.equal(toHex(node.slice(1, 32)), b.sides[0].hash.replace(/^0x../, "0x"));
+        assert.equal(toHex(node.slice(32)), b.sides[1].hash);
+        assert.equal(b.hash, toHex(H(node)));
+        assert.equal(b.hash, toHex(hashes.get(n.path)!));
+        assert.equal(b.leaves, leavesOf(n).length);
+      } else if (n.kind === "leaf") {
+        const l = leafSays(trie, toHex(n.entry.key));
+        assert.equal(l.first, leafFirstByte(n.entry.size));
+        assert.equal(toHex(bytesOf(l.node).slice(1, 32)), toHex(n.entry.key));
+        assert.equal(l.hash, toHex(hashes.get(n.path)!));
+      }
+    }
+    assert.equal(branchSays(trie, "").hash, root);
+  }
+  assert.equal(branchSays(stateRoot().trie, "").hash, PROMISED);
+  assert.deepEqual(branchSays(stateRoot().trie, "0000000000").first, { before: 0xe2, after: 0x62 }); // a first bit that is cleared
 });

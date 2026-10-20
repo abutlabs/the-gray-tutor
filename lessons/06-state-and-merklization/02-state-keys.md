@@ -88,6 +88,9 @@ keys all start with a few zero bits; the account is alone on the other side, as 
 with a 1; and service 0's four keys all start `0x00`, its id's first byte, so they sit
 deepest, told apart only by their hash bytes. Set τ to slot 1, four bytes in one leaf,
 and the root changes completely: that is why 32 bytes can stand for the whole state.
+Every dot is a hash too: tap a branch to see the two 32-byte hashes it joins, the 64-byte
+node they make, and the hash of that, which the branch above joins in turn, all the way to
+the root.
 
 <StateRoot />
 

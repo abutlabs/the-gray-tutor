@@ -6,7 +6,8 @@
 import { toHex } from "./bytes.ts";
 import { ENTRIES, PROMISED, type StateEntry } from "./fallback-state.ts";
 import { COMPONENTS } from "./state-keys.ts";
-import { build, type Entry, type Node, rootOf } from "./trie.ts";
+import { H } from "./hash.ts";
+import { branchNode, build, type Entry, fitsInLeaf, hashesOf, leafNode, leavesOf, type Node, nodesOf, rootOf } from "./trie.ts";
 
 export const bytesOf = (hex: string): number[] => (hex.slice(2).match(/../g) ?? []).map((b) => parseInt(b, 16));
 const size = (n: number) => n.toLocaleString("en-US");
@@ -45,3 +46,36 @@ export function stateRoot(changed = new Map<string, string>()): { trie: Node; ro
 }
 
 export { ENTRIES, PROMISED };
+
+/** A side of a branch in a few words: a leaf by its name, a branch by its bits, or empty. */
+function sideName(n: Node): string {
+  if (n.kind === "empty") return "an empty side: no hash, 32 zero bytes";
+  if (n.kind === "branch") return `the branch at ${n.path}`;
+  return `${nameOf(ENTRIES.find((e) => e.key === toHex(n.entry.key))!).label}'s leaf`;
+}
+
+/** How a branch's hash is made, on real bytes: its two sides' hashes, the 64-byte node they
+ *  make (the first bit cleared, to say branch), and the hash of that. */
+export function branchSays(trie: Node, path: string) {
+  const node = nodesOf(trie).find((n) => n.path === path);
+  if (!node || node.kind !== "branch") throw new Error(`no branch at ${path}`);
+  const hashes = hashesOf(trie);
+  const [left, right] = [hashes.get(node.left.path)!, hashes.get(node.right.path)!];
+  const bytes = branchNode(left, right);
+  return {
+    depth: path.length,
+    leaves: leavesOf(node).length,
+    sides: [node.left, node.right].map((n, bit) => ({ bit, name: sideName(n), hash: toHex(bit ? right : left) })),
+    first: { before: left[0], after: bytes[0] },
+    node: toHex(bytes),
+    hash: toHex(H(bytes)),
+  };
+}
+
+/** How a leaf's hash is made: its 64-byte node (a first byte saying leaf and how its value is
+ *  held, the key's 31 bytes, the value padded to 32 or its hash), and the hash of that. */
+export function leafSays(trie: Node, key: string) {
+  const leaf = leavesOf(trie).find((l) => toHex(l.entry.key) === key)!;
+  const bytes = leafNode(leaf.entry.key, leaf.entry.value ?? [], leaf.entry.hash);
+  return { first: bytes[0], inside: fitsInLeaf(leaf.entry.size), node: toHex(bytes), hash: toHex(H(bytes)) };
+}
