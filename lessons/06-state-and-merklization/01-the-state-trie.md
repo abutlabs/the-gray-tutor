@@ -89,8 +89,9 @@ state rarely pays much: of the tiny genesis state's 22 branches, only 2 have an 
 ## The tests
 
 Two sets of vectors. The `trie` vectors are made for exactly this: entries in, root out.
-They're one file, `vectors/trie/trie.json` (`vectorJson` reads names from `vectors/`), of
-11 cases, each a set of entries, key → value in hex, and the root they must make, its
+They're one file, `vectors/trie/trie.json`: `vectorJson`, from your `test/vectors.ts` of
+[lesson 2.6](../02-codec/06-the-first-test-vectors.md), finds `vectors/` from its own file's place and reads names from there. It
+holds 11 cases, each a set of entries, key → value in hex, and the root they must make, its
 `output`. The cases hold 0, 1, 1, 1, 1, 1, 2, 2, 2, 5 and 10 entries, and the single
 entries' values are 0, 1, 32, 33 and 60 bytes long: either side of a leaf's 32. (Their
 keys are 32 bytes, from when the Gray Paper's keys were. The trie only ever reads the
