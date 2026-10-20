@@ -209,3 +209,13 @@ test("6.1 describes the trie vectors as they are: 11 cases of 0 to 10 entries, s
   assert.match(text, /`vectorJson`, from your `test\/vectors\.ts` of \[lesson 2\.6\]\(\.\.\/02-codec\/06-the-first-test-vectors\.md\), finds `vectors\/` from its own file's place/);
   assert.match(text, /The cases hold 0, 1, 1, 1, 1, 1, 2, 2, 2, 5 and 10 entries, and the single entries' values are 0, 1, 32, 33 and 60 bytes long/);
 });
+
+test("a leaf is 1 byte of kind, 31 of key and 32 of value or hash: why a state key is 31 bytes", () => {
+  const key = Array.from({ length: 31 }, (_, i) => i + 1);
+  const leaf = leafNode(key, [9, 9]);
+  assert.equal(leaf.length, 1 + 31 + 32);
+  assert.deepEqual(leaf.slice(1, 32), key);
+  assert.deepEqual(leaf.slice(32, 34), [9, 9]);
+  assert.match(lessonCode("6.1"), /node\.set\(key, 1\);/);
+  assert.match(lessonText(TRIE).replace(/\s+/g, " "), /a leaf is one byte saying what it is, then the key, then 32 bytes of value or hash, and 1 \+ 31 \+ 32 is the node's 64/);
+});
