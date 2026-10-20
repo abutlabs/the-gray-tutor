@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { FALLBACK_HEADERS } from "../.vitepress/theme/fallback-headers.ts";
 import { byteOf, encodeHeader, flip, hashOf, linkHolds, linksHolding, ORIGINAL, parentOf, SPOTS } from "../.vitepress/theme/hash-chain.ts";
@@ -65,4 +65,22 @@ test("lesson 5.2's preimages trace carries what it says: 27 blocks with preimage
   assert.match(text, /27 of them preimages \(up to 10 in one block\), 65 a report, 99 assurances/);
   assert.match(text, /`process\.argv\[2\]` is that word, `"preimages"`; with none, `"fallback"`/);
   assert.match(lessonCode("5.2"), /const trace = process\.argv\[2\] \?\? "fallback";/);
+});
+
+const TRACES = join(ROOT, "vectors/traces");
+test("the traces lessons 5.1 and 5.2 name are the vectors' folders, and fallback's 100 blocks carry nothing", { skip: !existsSync(TRACES) && "no vectors/" }, () => {
+  const folders = readdirSync(TRACES, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort();
+  assert.deepEqual(folders, ["fallback", "fuzzy", "fuzzy_light", "preimages", "preimages_light", "safrole", "storage", "storage_light"]);
+  const five = lessonText("05-hashing-and-signatures/02-the-extrinsic-hash.md").replace(/\s+/g, " ");
+  assert.match(five, /The folders are `fallback`, `safrole`, `storage`, `preimages` and `fuzzy`, and a lighter version of the last three/);
+  assert.match(lessonText(LESSON).replace(/\s+/g, " "), /The official vectors hold eight traces/);
+  for (const name of folders) {
+    const blocks = readdirSync(join(TRACES, name)).filter((f) => /^\d+\.json$/.test(f)).length;
+    assert.ok(blocks >= 100, `${name}: ${blocks} blocks, and chain.ts walks 100`);
+  }
+  for (let n = 1; n <= 100; n++) {
+    const x = JSON.parse(readFileSync(trace(n), "utf8")).block.extrinsic;
+    const items = x.tickets.length + x.preimages.length + x.guarantees.length + x.assurances.length + x.disputes.verdicts.length + x.disputes.culprits.length + x.disputes.faults.length;
+    assert.equal(items, 0, `fallback block ${n} carries nothing but its header`);
+  }
 });

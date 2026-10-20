@@ -212,15 +212,17 @@ What `npm run chain preimages` does:
 - `npm run chain` runs `node bin/chain.ts` (the script from [lesson 5.1](./01-hashes.md)), and npm passes
   on the word after it. `process.argv[2]` is that word, `"preimages"`; with none,
   `"fallback"`.
-- The word names a *trace*: a folder of the official vectors holding 100 real blocks in a
-  row, `00000001.json` to `00000100.json`, each with the state before and after it. This
-  one is `../vectors/traces/preimages/`.
+- The word names a *trace*: a folder of the official vectors holding real blocks in a row,
+  `00000001.json`, `00000002.json` and on, each with the state before and after it. This
+  one, `../vectors/traces/preimages/`, is 100 blocks of a chain where services ask for data
+  and blocks deliver it; `bin/chain.ts` walks the first 100 of any trace. The folders are `fallback`, `safrole`, `storage`, `preimages` and `fuzzy`,
+  and a lighter version of the last three: any of them works.
 - For each block, two checks: its `parent` is the hash of the block before ([lesson 5.1](./01-hashes.md)'s
   check), and the hash of the extrinsic it carries equals the `extrinsic_hash` its header
   promised (this lesson's).
 
-Why not plain `fallback`? Its blocks are all empty, so every extrinsic hash is the same,
-and the check hardly checks. The preimages trace's blocks carry things: 27 of them
+Why not plain `fallback`, [lesson 5.1](./01-hashes.md)'s trace? No work happens in it, so its blocks are all
+empty, every extrinsic hash is the same, and the check hardly checks. The preimages trace's blocks carry things: 27 of them
 preimages (up to 10 in one block), 65 a report, 99 assurances.
 
 **Run**

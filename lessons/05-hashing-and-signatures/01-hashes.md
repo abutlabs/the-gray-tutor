@@ -98,7 +98,11 @@ npm install
 ## The tests
 
 The first test pins the hash of *no bytes at all*, a classic known answer. The second
-walks the tiny `fallback` trace, blocks 1 to 100, and checks every link.
+walks the tiny `fallback` trace, blocks 1 to 100, and checks every link. The official
+vectors hold eight traces, each a short tiny chain built to try one thing, in its own
+folder of `vectors/traces/`. `fallback` is the simplest: no service sends any work, so its
+blocks carry nothing but their headers, and the block-makers are chosen by Safrole's
+fallback rule ([lesson 8.3](../08-safrole/03-the-fallback-sealers.md)), hence the name.
 
 **New file** `test/hash.test.ts`
 
