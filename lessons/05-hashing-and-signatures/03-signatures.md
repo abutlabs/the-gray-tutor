@@ -115,6 +115,12 @@ borrow just two things from them: the validators' keys (`pre_state.curr_validato
 and the assurances (`input.assurances`). In `some_assurances-1`, every signature is
 genuine. In `assurances_with_bad_signature-1`, one isn't.
 
+Here is that file: the fields the tests read, lit, and where the rest gets read. Step
+through its six assurances as the third test does, and set a breakpoint in
+`signedAssurances` to watch the same values go by:
+
+<VectorStep />
+
 **New file** `test/signature.test.ts`
 
 ```ts
