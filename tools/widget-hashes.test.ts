@@ -148,3 +148,30 @@ test("a proof of one report recomputes the root, and fails if any piece is chang
   const changed = apply(BLOCK, { kind: "report", guarantee: 1, byte: 4 });
   assert.ok(checkProof(proofOf(changed, 1), extrinsicHash(changed)).ok);
 });
+
+test("lesson 5.2's hash tree: its boxes are the block's real hashes, and proving report 1 hands over what proofOf does", async () => {
+  const { CHECK, PART_BODIES, PART_HASHES, REPORTS, ROOT, ROWS, SHOWN } = await import("../.vitepress/theme/extrinsic-tree.ts");
+  const hex3 = (b: number[]) => `${b.slice(0, 3).map((x) => x.toString(16).padStart(2, "0")).join("")}…`;
+  const hashes = partHashes(BLOCK);
+  const proof = proofOf(BLOCK, 0);
+  assert.equal(ROOT.value, hex3(extrinsicHash(BLOCK)));
+  assert.deepEqual(PART_HASHES.map((b) => b.value), hashes.map(hex3));
+  // handed over: the four other part hashes, the guarantees part with report 2 as its hash, report 1
+  assert.deepEqual(PART_HASHES.filter((b) => b.role === "given").map((b) => b.label), ["H(tickets)", "H(preimages)", "H(assurances)", "H(disputes)"]);
+  assert.deepEqual(proof.others.map(hex3), [0, 1, 3, 4].map((i) => hex3(hashes[i])));
+  assert.equal(ROWS[1].role, "given");
+  assert.equal(ROWS[1].value, hex3(proof.guarantees[1].report!));
+  assert.deepEqual(REPORTS.map((r) => r.role), ["given", "hidden"]);
+  assert.equal(REPORTS[0].value, String.fromCharCode(...proof.report));
+  // worked out by the checker: report 1's hash, the guarantees part's hash, the root
+  assert.deepEqual([ROWS[0].role, PART_HASHES[2].role, ROOT.role], ["worked out", "worked out", "worked out"]);
+  assert.equal(ROWS[0].value, hex3(CHECK.reportHash));
+  assert.equal(PART_HASHES[2].value, hex3(CHECK.guaranteesHash));
+  assert.ok(CHECK.ok);
+  // never shown: the other four parts' contents
+  assert.deepEqual(PART_BODIES.filter((b) => b.role === "hidden").map((b) => b.id), ["tickets", "preimages", "assurances", "disputes"]);
+  assert.deepEqual(SHOWN, { proof: proofSize(proof), block: extrinsicSize(BLOCK) });
+  const raw = lessonText("05-hashing-and-signatures/02-the-extrinsic-hash.md");
+  const at = raw.indexOf("<ExtrinsicTree />");
+  assert.ok(at > raw.indexOf("Nobody needs the other reports themselves") && at < raw.indexOf("<ExtrinsicCommit />"));
+});

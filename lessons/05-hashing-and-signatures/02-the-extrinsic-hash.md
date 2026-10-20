@@ -33,7 +33,10 @@ Two parts get a twist before step 1:
 Why? The Gray Paper calls the extrinsic hash a Merkle commitment that lets reports and
 preimages "individually have their inclusion proven". To prove one report was in a
 block, you show the report, the guarantees part (every other report shrunk to its 32-byte
-hash), and the other four parts' hashes. Nobody needs the other reports themselves.
+hash), and the other four parts' hashes. Nobody needs the other reports themselves. As a
+tree, from the root down:
+
+<ExtrinsicTree />
 
 Below is a small made-up block, with every hash real. Change a byte of its preimage, and
 two hashes change: the preimages part's, and the root. The other four stay as they were.
