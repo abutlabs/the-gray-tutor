@@ -3,12 +3,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { bitsOf, toHex } from "../.vitepress/theme/bytes.ts";
 import { accountKey, bytesOf, COMPONENTS, componentKey, HASH_BYTES_USED, LESSON_HASH, padHash, parseHashBytes, parseNumber, wovenKey } from "../.vitepress/theme/state-keys.ts";
-import { build, fitsInLeaf, hashesRedone, keyOf, layout, leafFirstByte, leavesOf, nodesOf, rootIs } from "../.vitepress/theme/trie.ts";
+import { build, fitsInLeaf, hashesRedone, hashesTaken, keyOf, layout, leafFirstByte, leavesOf, nodesOf, rootIs } from "../.vitepress/theme/trie.ts";
 import type { Entry } from "../.vitepress/theme/trie.ts";
-import { lessonText } from "./lessons.ts";
+import { lessonText, ROOT } from "./lessons.ts";
 
 const TRIE = "06-state-and-merklization/01-the-state-trie.md";
 const KEYS = "06-state-and-merklization/02-state-keys.md";
@@ -132,4 +133,19 @@ test("the state key widget reads what the reader types", () => {
   assert.equal(parseHashBytes("1fd"), null, "half a byte");
   assert.equal(parseHashBytes("00".repeat(28)), null, "more than the key uses");
   assert.deepEqual(padHash([1, 2]), [1, 2, ...Array(25).fill(0)]);
+});
+
+const GENESIS = join(ROOT, "vectors/traces/storage/genesis.json");
+test("6.1's counts: three keys take five hashes; the tiny genesis state's 21 entries take 55", { skip: !existsSync(GENESIS) && "no vectors/" }, () => {
+  const three = build([0x01, 0x40, 0xff].map((first) => ({ key: keyOf(first), size: 4 })));
+  assert.equal(hashesTaken(three), 5);
+  const genesis = JSON.parse(readFileSync(GENESIS, "utf8"));
+  const keyvals: { key: string; value: string }[] = (genesis.state ?? genesis.pre_state).keyvals;
+  const trie = build(keyvals.map((k) => ({ key: fromHex(k.key), size: fromHex(k.value).length })));
+  const branches = nodesOf(trie).filter((n) => n.kind === "branch");
+  const oneSided = branches.filter((b) => b.kind === "branch" && (b.left.kind === "empty" || b.right.kind === "empty"));
+  const leaves = leavesOf(trie);
+  const big = leaves.filter((l) => !fitsInLeaf(l.entry.size));
+  assert.deepEqual([keyvals.length, leaves.length, branches.length, oneSided.length, Math.max(...leaves.map((l) => l.path.length)), big.length, hashesTaken(trie)], [21, 21, 22, 2, 11, 12, 55]);
+  assert.match(lessonText(TRIE).replace(/\s+/g, " "), /has 21 entries, which make 21 leaves and 22 branches \(two with an empty side\), the deepest leaf 11 bits down\. Its 12 values over 32 bytes are hashed first, so its root takes 55 hashes\./);
 });

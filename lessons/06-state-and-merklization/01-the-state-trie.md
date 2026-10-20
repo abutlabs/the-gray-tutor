@@ -54,8 +54,21 @@ Three keys starting `0x01` (`0b0000_0001`), `0x40` (`0b0100_0000`) and `0xff`
 `0xff` is alone on the 1 side, so it becomes a leaf right away. The other two need a
 second bit to part ways.
 
+So a key's bits are its route down the trie: from its first bit on, 0 goes left and 1
+goes right, and its leaf sits as soon as no other key shares the route. `0xff` stops after
+one bit, `0x01` and `0x40` after two. Change a key's bits and you change its route: its
+leaf lands somewhere else, maybe deeper, and every hash above it changes with it.
+
+Nothing builds the trie first and hashes it after. M is one recursive function: split the
+entries on the next bit, work out each half's root, hash the branch. The hashing happens
+on the way back up, one hash per node: for these three keys, three leaves and two
+branches, five hashes. A real state is the same, only bigger: the tiny genesis state the
+official traces start from has 21 entries, which make 21 leaves and 22 branches (two with
+an empty side), the deepest leaf 11 bits down. Its 12 values over 32 bytes are hashed
+first, so its root takes 55 hashes.
+
 Try it below, starting from the same three keys. Flip a key's bits and watch its leaf
-move. Make two keys that differ only in their last bit, and the trie needs all eight bits
+move to its new route. Make two keys that differ only in their last bit, and the trie needs all eight bits
 to part them: a chain of branches with empty sides. Then change a value. Only the
 hashes on that leaf's path change, but the path always ends at the root. (The widget
 shows *which* hashes change, not their bytes.)

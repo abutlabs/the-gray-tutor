@@ -40,6 +40,11 @@ export function nodesOf(node: Node): Node[] {
 export const leavesOf = (node: Node): Leaf[] => nodesOf(node).filter((n): n is Leaf => n.kind === "leaf");
 export type Leaf = Extract<Node, { kind: "leaf" }>;
 
+/** The hashes M takes on the way back up: one per leaf and per branch, plus one for each
+ *  value too big for its leaf, hashed first. An empty side is 32 zeros, no hash. */
+export const hashesTaken = (root: Node): number =>
+  nodesOf(root).filter((n) => n.kind !== "empty").length + leavesOf(root).filter((l) => !fitsInLeaf(l.entry.size)).length;
+
 /** What the root is the hash of, or the 32 zero bytes of no entries at all (GP App. D's M). */
 export function rootIs(node: Node): "zeros" | "H(leaf)" | "H(branch)" {
   return node.kind === "empty" ? "zeros" : node.kind === "leaf" ? "H(leaf)" : "H(branch)";

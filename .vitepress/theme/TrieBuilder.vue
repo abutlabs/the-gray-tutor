@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { bitsOf, toHex } from "./bytes.ts";
-import { build, fitsInLeaf, hashesRedone, keyOf, layout, leafFirstByte, leavesOf, nodesOf, rootIs, SLOT } from "./trie.ts";
+import { build, fitsInLeaf, hashesRedone, hashesTaken, keyOf, layout, leafFirstByte, leavesOf, nodesOf, rootIs, SLOT } from "./trie.ts";
 import type { Node } from "./trie.ts";
 
 const MAX_ENTRIES = 6;
@@ -90,6 +90,7 @@ watch(shape, () => {
       <div class="tile"><span class="tile-label">entries</span><span class="tile-value">{{ rows.length }}</span></div>
       <div class="tile"><span class="tile-label">branches</span><span class="tile-value">{{ nodes.filter((n) => n.kind === "branch").length }}</span></div>
       <div class="tile"><span class="tile-label">deepest leaf</span><span class="tile-value">{{ leaves.length ? deepest : "–" }}</span></div>
+      <div class="tile"><span class="tile-label">hashes for the root</span><span class="tile-value">{{ hashesTaken(trie) }}</span></div>
       <div class="tile root"><span class="tile-label">the root is</span><span class="tile-value">{{ rootIs(trie) === "zeros" ? "32 zeros" : rootIs(trie) }}</span></div>
     </div>
     <p class="range">
