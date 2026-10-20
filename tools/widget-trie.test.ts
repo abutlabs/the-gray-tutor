@@ -217,5 +217,9 @@ test("a leaf is 1 byte of kind, 31 of key and 32 of value or hash: why a state k
   assert.deepEqual(leaf.slice(1, 32), key);
   assert.deepEqual(leaf.slice(32, 34), [9, 9]);
   assert.match(lessonCode("6.1"), /node\.set\(key, 1\);/);
-  assert.match(lessonText(TRIE).replace(/\s+/g, " "), /a leaf is one byte saying what it is, then the key, then 32 bytes of value or hash, and 1 \+ 31 \+ 32 is the node's 64/);
+  const table = /\| Part of a leaf \| Bytes \|\n\| --- \| --- \|\n((?:\|.*\|\n)+)/.exec(lessonText(TRIE));
+  assert.ok(table, "6.1 has the leaf's table");
+  const bytes = table[1].trim().split("\n").map((row) => Number(row.split("|")[2].replace(/\*/g, "").trim()));
+  assert.deepEqual(bytes, [1, 31, 32, 64]);
+  assert.equal(bytes[0] + bytes[1] + bytes[2], bytes[3]);
 });

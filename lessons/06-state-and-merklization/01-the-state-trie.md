@@ -40,9 +40,18 @@ node is exactly 64 bytes, and its first bit says what kind it is.
   next bit is 0, right for 1. Two hashes are 512 bits, though, and the branch needs one
   for its 0. So the left hash gives up its first bit.
 
-That's why a state key is 31 bytes, where everything so far has been 32: a leaf is one
-byte saying what it is, then the key, then 32 bytes of value or hash, and 1 + 31 + 32 is
-the node's 64. Hashes are still 32 bytes; only keys give up one, to make room.
+That's why a state key is 31 bytes, where everything so far has been 32. A leaf has to
+fit in one 64-byte node:
+
+| Part of a leaf | Bytes |
+| --- | --- |
+| what it is: a leaf, its value inside or hashed, and the value's length | 1 |
+| the key | **31** |
+| the value (up to 32 bytes) or its 32-byte hash | 32 |
+| **the whole node** | **64** |
+
+A 32-byte key would leave no room for the first byte. Hashes are still 32 bytes; only
+keys give one up, to make room.
 
 And the root, M, of some entries:
 
