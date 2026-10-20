@@ -43,6 +43,7 @@ import GrayPaperRefs from "./GrayPaperRefs.vue";
 import GrayPaperMap from "./GrayPaperMap.vue";
 import ExtrinsicTree from "./ExtrinsicTree.vue";
 import VectorStep from "./VectorStep.vue";
+import SafroleTimeline from "./SafroleTimeline.vue";
 import HashAvalanche from "./HashAvalanche.vue";
 import ExtrinsicCommit from "./ExtrinsicCommit.vue";
 import SignCheck from "./SignCheck.vue";
@@ -161,6 +162,7 @@ export default {
     app.component("GrayPaperMap", GrayPaperMap); // the Gray Paper map
     app.component("ExtrinsicTree", ExtrinsicTree); // 5.2
     app.component("VectorStep", VectorStep); // 5.3
+    app.component("SafroleTimeline", SafroleTimeline); // Part 8
     app.component("CoreBitfield", CoreBitfield); // 4.2
     app.component("SlotClock", SlotClock); // 0.4
     app.component("NumberKinds", NumberKinds); // 1.2
