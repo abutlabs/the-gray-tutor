@@ -223,3 +223,16 @@ test("a leaf is 1 byte of kind, 31 of key and 32 of value or hash: why a state k
   assert.deepEqual(bytes, [1, 31, 32, 64]);
   assert.equal(bytes[0] + bytes[1] + bytes[2], bytes[3]);
 });
+
+const GP_D = join(ROOT, "../graypaper/text/merklization.tex");
+test("6.2's C is the Gray Paper's: one state-key constructor, three cases, and the state hands the middle one only 255", { skip: !existsSync(GP_D) && "no Gray Paper beside the tutorial" }, () => {
+  const tex = readFileSync(GP_D, "utf8");
+  assert.match(tex, /We define the state-key constructor functions \$C\$ as:/);
+  assert.match(tex, /i \\in \\Nbits\{8\} &\\mapsto \\sq\{i, 0, 0, \\dots\}/);
+  assert.match(tex, /\\tup\{i, s \\in \\serviceid\} &\\mapsto/);
+  assert.match(tex, /\\tup\{s, h\} &\\mapsto/);
+  assert.deepEqual([...tex.matchAll(/C\(\s*(\d+),/g)].map((m) => m[1]), ["255"]);
+  const text = lessonText(KEYS).replace(/\s+/g, " ");
+  assert.match(text, /C is one function with three cases, and what you hand it picks the case/);
+  assert.match(text, /every service's account is C\(255, s\)/);
+});

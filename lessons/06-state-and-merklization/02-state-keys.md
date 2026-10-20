@@ -17,13 +17,19 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix D. Every key is 31 bytes, made one of three ways:
+Appendix D. Every key is 31 bytes, made by C, which the Gray Paper calls the *state-key
+constructor*. C is one function with three cases, and what you hand it picks the case,
+like a TypeScript function overloaded on its arguments: one number; a number and a
+service; or a service and some bytes.
 
-| Recipe | Where it puts | The 31 bytes |
-| --- | --- | --- |
-| C(i) | state component i | i, then 30 zeros |
-| C(255, s) | service s's account | 255, then ℰ₄(s) with a zero after each byte, then zeros |
-| C(s, h) | something service s keeps | ℰ₄(s) woven into H(h): n₀ a₀ n₁ a₁ n₂ a₂ n₃ a₃ a₄ … a₂₆ |
+| Case | You hand it | Where it puts | The 31 bytes |
+| --- | --- | --- | --- |
+| C(i) | a number i, 0 to 255 | state component i | i, then 30 zeros |
+| C(i, s), as C(255, s) | 255 and a service id s | service s's account | 255, then ℰ₄(s) with a zero after each byte, then zeros |
+| C(s, h) | a service id s and bytes h | something service s keeps | ℰ₄(s) woven into H(h): n₀ a₀ n₁ a₁ n₂ a₂ n₃ a₃ a₄ … a₂₆ |
+
+The middle case takes any number in the Gray Paper, but the state only ever hands it 255:
+every service's account is C(255, s).
 
 (In the last row, n = ℰ₄(s) and a = H(h): the service's four bytes take turns with the
 hash's first four, then 23 more bytes of the hash follow.)
