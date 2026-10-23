@@ -90,3 +90,15 @@ typeberry
 vrf
 abutlabs
 multicore
+
+# other networks, in JAM beside Aztec
+aztec
+chatbot
+coretime
+nullifier
+nvme
+prover
+rollup
+solana
+unstaked
+verifier

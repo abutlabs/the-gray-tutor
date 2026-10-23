@@ -18,6 +18,11 @@ Curious what a JAM network actually does, before you write any code?
 [JAM at a glance](./jam-at-a-glance.md) plays a real one in slow motion. It's optional: the
 lessons explain every piece as you need it.
 
+Wondering how JAM compares with a network built another way?
+[JAM beside Aztec](./jam-beside-aztec.md) sets it against Ethereum's privacy rollup: what
+the smallest validator of each must be, and whether JAM could have more than one kind of
+validator, or of core. Optional too.
+
 ## At a glance
 
 All of JAM, in one equation from the Gray Paper (§4, *Overview*):

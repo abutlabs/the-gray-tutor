@@ -53,6 +53,7 @@ const printPages: PrintPage[] = [
   { address: "symbols", title: "Gray Paper symbols", part: true },
   { address: "cryptography", title: "Cryptography we use", part: true },
   { address: "jam-at-a-glance", title: "JAM at a glance", part: true },
+  { address: "jam-beside-aztec", title: "JAM beside Aztec", part: true },
   { address: "gray-paper", title: "The Gray Paper, part by part", part: true },
 ];
 // the whole file after each Add to / Replace in snippet, worked out once, shown in its place
@@ -135,6 +136,7 @@ export default defineConfig({
       { text: "Gray Paper symbols", link: "/symbols" },
       { text: "Cryptography we use", link: "/cryptography" },
       { text: "JAM at a glance", link: "/jam-at-a-glance" },
+      { text: "JAM beside Aztec", link: "/jam-beside-aztec" },
       { text: "The Gray Paper, part by part", link: "/gray-paper" },
     ],
   },

@@ -942,3 +942,34 @@ panic is a crash, out of gas (oog) is running out of budget.
 given. It reports the page's address, so whoever runs the machine could add the page
 and go on. *Example:* a load from 0x30005 with no page there faults at 0x30000.
 ([15.4](./15-the-pvm/04-memory.md))
+
+## Beside JAM
+
+Words from [JAM beside Aztec](./jam-beside-aztec.md), the appendix that sets JAM against
+Aztec, Ethereum's privacy rollup. None of them is a JAM word.
+
+**Rollup.** A chain that does its work elsewhere and posts the result, with enough data to
+check it, to another chain. *Example:* Aztec posts to Ethereum.
+
+**Sequencer.** Aztec's name for a validator: a staked machine that proposes blocks and
+signs for others'. *Example:* 200,000 AZTEC to run one.
+
+**Committee.** The few validators drawn to check blocks for a while, out of the many who
+are staked. *Example:* 48 of Aztec's 3,000 or so, for 38 minutes.
+
+**Prover.** A machine that turns a batch of finished work into a zero-knowledge proof.
+*Example:* Aztec's provers hold no stake.
+
+**Zero-knowledge proof.** A small piece of data that shows a computation was done right,
+without redoing it and without showing its inputs. *Example:* a proof that a transfer
+balanced, with the amount hidden.
+
+**Client-side proving.** The user's own device makes the proof. *Example:* a phone proving
+its own payment before sending it.
+
+**Auditor.** In JAM, a validator drawn to re-run a work-report once its data is available,
+and to vote against it if it's wrong. Your client doesn't audit; §17 of the Gray Paper
+describes it. *Example:* about 30 auditors per report.
+
+**Stake and slashing.** Money a validator locks to take part, and loses some of for
+provable misbehaviour. *Example:* 2,000 AZTEC for a missed duty.
