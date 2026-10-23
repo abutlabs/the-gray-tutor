@@ -8,6 +8,39 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "State Fallback",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "state-fallback"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Chain Pre-images",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "chain", "preimages"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Chain Safrole",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "chain", "safrole"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
       "name": "Decode a Work Package",
       "type": "node",
       "request": "launch",
