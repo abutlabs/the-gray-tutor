@@ -19,9 +19,9 @@ Curious what a JAM network actually does, before you write any code?
 lessons explain every piece as you need it.
 
 Wondering how JAM compares with a network built another way?
-[JAM beside Aztec](./jam-beside-aztec.md) sets it against Ethereum's privacy rollup: what
-the smallest validator of each must be, and whether JAM could have more than one kind of
-validator, or of core. Optional too.
+[JAM beside Aztec](./jam-beside-aztec.md) sets it against Ethereum's privacy rollup: why
+one validator is cheap and the other isn't, and whether JAM could run Aztec's private
+transfers as a service. Optional too.
 
 ## At a glance
 
