@@ -215,6 +215,47 @@ the service's team one strong primitive, re-executed refine with 5 billion gas, 
 the stack to them. The circuit tooling carries over unchanged; the privacy runtime has to
 be built once, as a service.
 
+### Porting Aztec's stack
+
+Aztec is Apache-2.0, so "build once" can mean "port". By language, the code is about
+23 MB of C++ (Barretenberg, the prover), 19 MB of TypeScript (the node, sequencer, prover
+client, PXE, `aztec.js`), 6 MB of Noir (protocol circuits, Aztec.nr, contracts) and 3 MB
+of Solidity (the L1 contracts). Layer by layer:
+
+| Layer | On JAM | Work |
+| --- | --- | --- |
+| Noir compiler, Barretenberg prover, `bb.js` | Unchanged: runs on the user's device | None |
+| Private kernel circuits (init, inner, reset, tail) and Aztec.nr | Unchanged, if the service keeps Aztec's tree shapes and offers a header to anchor to | Small |
+| PXE | Kept; its node RPC is pointed at a JAM indexer | Medium |
+| Rollup circuits (tx base and merge, block, checkpoint, root, blob) | Not needed: refine re-executes. Kept only as the builder's proof folding | Delete, or keep as is |
+| Sequencer, prover node, archiver | Become the builder and the indexer | Trim and rewire |
+| L1 contracts: rollup, inbox and outbox, fee juice, staking | The service's accumulate and deferred transfers | Delete |
+| World state (C++: note, nullifier, public data and archive trees) | Rust, in refine from witnesses; roots in accumulate | Rewrite, moderate |
+| AVM (public functions): transpiler, circuit, simulator | No proof needed; an interpreter in refine, or Rust public logic | Largest rewrite, or skip at first |
+
+Three things are hard, and the first decides the shape of the rest:
+
+1. **Verifying CHONK in refine.** Kernel proofs are CHONK proofs, and Aztec itself verifies
+   them only inside another circuit (the tube). Either Barretenberg's C++ verifier is
+   compiled to the PVM, which is a RISC-V subset without floats that Barretenberg's WASM
+   build suggests is reachable but nobody has tried, or the builder folds a package's
+   proofs into one UltraHonk proof with Aztec's own tx-base and merge circuits, and refine
+   verifies that one with the `no_std` Rust verifier. An UltraHonk check costs several
+   times a Groth16 one, so folding is likely forced, and the 32-core prover tier stays, as
+   the builder. Measuring that gas is the first week's work.
+2. **Where the notes live.** PXEs sync by scanning encrypted logs for ever. Aztec keeps
+   them in Ethereum blobs; JAM's audit storage holds a package's data for hours. The
+   service stores logs in its state at 1 per byte, or the indexer archives them and users
+   trust it for discovery (not for funds).
+3. **Keeping up.** Kernel circuits, Aztec.nr and the PXE move together, V4 to V5 to V6 in a
+   year. A port tracks Aztec's releases or freezes at one.
+
+The sum: the part Aztec spent five years and three products learning, the privacy runtime
+in Noir, is the part that ports as is. What's rewritten is the chain glue, in Rust, and
+much of it (rollup proofs, the AVM proof, the L1 contracts) is deleted rather than ported,
+because re-execution replaces it. A team that knows both codebases is a year from a
+testnet service; the verifier measurement comes first and sets the architecture.
+
 ## zk.money on JAM: a shielded account as a service
 
 Why bother, if it's no cheaper and no faster: because it would be native. No bridge, no
@@ -267,9 +308,9 @@ with Aztec's own tools.**
 - The service brings its sequencer with it. One package a block per tree, proofs folded by
   the builder: Aztec's two heavy roles, unstaked, beside the protocol. About 60 transfers a
   second for a tree, by arithmetic nobody has run yet.
-- The circuits are written in Noir either way. What the service's team builds once is the
-  privacy runtime: trees, kernel rule, a PXE. Aztec's L2 has that stack today; JAM has a
-  trait with two functions and no mainnet date.
+- The circuits are written in Noir either way, and so is Aztec's privacy runtime, which is
+  open source and ports as is. What's rewritten is the chain glue, in Rust, and much of it
+  is deleted because refine re-executes. The open question is verifying CHONK on the PVM.
 - `zk.money` on JAM is one core privacy service with apps as circuits inside it, shielding
   and unshielding by deferred transfers from any other JAM service. A privacy pool for the
   whole ecosystem, on its own L1.
@@ -351,6 +392,11 @@ privacy pool with a check that doesn't depend on the proving system being bug-fr
   [Noir](https://aztec.network/noir) and [awesome-noir](https://github.com/noir-lang/awesome-noir)
   (backends and verifiers), and the
   [Soroban UltraHonk verifier](https://docs.rs/ultrahonk_soroban_verifier/latest/ultrahonk_soroban_verifier/).
+- Aztec's code: [aztec-packages](https://github.com/AztecProtocol/aztec-packages) (C++
+  prover, Noir protocol circuits, L1 contracts), [aztec-node](https://github.com/AztecProtocol/aztec-node)
+  (TypeScript: node, PXE, sequencer), [aztec-nr](https://github.com/AztecProtocol/aztec-nr),
+  the [private kernel](https://docs.aztec.network/developers/docs/foundational-topics/advanced/circuits/private_kernel)
+  and the [rollup circuits](https://docs.aztec.network/developers/docs/concepts/advanced/circuits/rollup_circuits).
 - JAM's tools: [jam-pvm-common](https://docs.rs/jam-pvm-common/latest/jam_pvm_common/),
   [PolkaJam releases](https://github.com/paritytech/polkajam-releases), the
   [JAM migration plan](https://www.tokenpost.com/news/technology/36995) (October 2026), and

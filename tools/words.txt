@@ -2,22 +2,16 @@
 # lower case, without plurals or 's (the spellcheck adds those), unless only the plural is
 # missing (extrinsic is English, extrinsics isn't). Keep it to words the lessons use:
 # tools/spelling.test.ts warns (without failing the build) about a word no longer needed.
-
 # JAM and the Gray Paper
-
 # the Gray Paper's names for its functions, written in the prose
-
 # names
-
 # software
-
 # plain English the dictionaries miss
-
 # a storage key a lesson quotes
-
 # other networks, in JAM beside Aztec
 abutlabs
 accone
+archiver
 arkworks
 async
 authorizer
@@ -35,6 +29,7 @@ burdges
 bytecode
 changelog
 checkable
+codebases
 codec
 config
 coretime
@@ -61,6 +56,7 @@ grafana
 hosseini
 immediates
 implementers
+init
 keccak
 keypress
 lasair
@@ -101,11 +97,14 @@ smod
 sonobe
 soroban
 subtrie
+testnet
 there'd
 timeslot
+transpiler
 trezor
 trie
 tsc
+tx
 typeberry
 unbuilt
 unshield
