@@ -973,3 +973,15 @@ describes it. *Example:* about 30 auditors per report.
 
 **Stake and slashing.** Money a validator locks to take part, and loses some of for
 provable misbehaviour. *Example:* 2,000 AZTEC for a missed duty.
+
+**Noir.** Aztec's language for writing what a zero-knowledge proof proves, with Rust's look
+and privacy as the default. It compiles to a form several provers take, so it isn't tied to
+Aztec. *Example:* a transfer circuit of a few dozen lines.
+
+**PXE.** Aztec's private execution environment: the library on the user's device that holds
+keys and notes, runs private functions and proves them. *Example:* a wallet's PXE proving a
+payment in 2.5 seconds on a laptop.
+
+**Shield and unshield.** Moving value from a public account into a private one, and back
+out. On JAM, a deferred transfer into the privacy service and one out of it. *Example:*
+`zk.money`'s three buttons: shield, send, unshield.

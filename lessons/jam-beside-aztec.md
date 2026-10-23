@@ -2,8 +2,9 @@
 
 Optional, and no code: a comparison, not a lesson. [Aztec](https://aztec.network/) is a
 privacy network on Ethereum where users prove their own transactions and the network only
-checks the proofs. This page sets it beside JAM and answers one question: could JAM run
-Aztec's privacy functions as a service?
+checks the proofs. This page sets it beside JAM and answers three questions: could JAM run
+Aztec's privacy functions as a service, what would building on that service be like next
+to building on Aztec, and what would `zk.money`, Aztec's shielded account, look like on JAM?
 
 Numbers are as of October 2026 and will date. The reasoning is what to keep; the
 [conclusions](#conclusions) put it in one place.
@@ -27,8 +28,15 @@ Numbers are as of October 2026 and will date. The reasoning is what to keep; the
   available, and to vote against it if it's wrong. *Example:* about 30 auditors per report.
 - **Stake and slashing.** Money a validator locks to take part, and loses some of for
   provable misbehaviour. *Example:* 2,000 AZTEC for a missed duty.
+- **Noir.** Aztec's language for writing what a zero-knowledge proof proves, with Rust's
+  look and privacy as the default. *Example:* a transfer circuit of a few dozen lines.
+- **PXE.** Aztec's private execution environment: the library on the user's device that
+  holds keys and notes, runs private functions and proves them. *Example:* a wallet's PXE
+  proving a payment in 2.5 seconds on a laptop.
+- **Shield and unshield.** Moving value from a public account into a private one, and back
+  out. *Example:* `zk.money`'s three buttons: shield, send, unshield.
 
-All eight are in the [glossary](./glossary.md), with JAM's own words: validator, core,
+All eleven are in the [glossary](./glossary.md), with JAM's own words: validator, core,
 guarantor, assurance, refine and accumulate.
 
 ## The two networks in one table
@@ -150,9 +158,104 @@ but the epoch proof, Ethereum's blobs, and an alpha throttled on purpose.
   ([lesson 17.10](./17-accumulation/10-upgrading-a-service.md)). After July 2026, answer
   that first.
 
+## Building on it: Noir, the PXE and JAM's tooling
+
+Aztec's developer stack is the product. It took the team three tries: `zk.money` launched
+on 15 March 2021 and was retired for Aztec Connect in July 2022; Connect was retired in
+2023 to 2024, with 100,000 users, "to focus on building the next iteration of the
+network", the one with *Noir* as its language. `zk.money` came back on 29 September 2026
+as a wallet on the Alpha network. What a developer gets today:
+
+- **Noir.** A language for circuits, Rust-like, privacy by default. A function marked
+  `#[external("private")]` runs on the user's device and is proved; one marked
+  `#[external("public")]` runs on the network. Notes and nullifiers are library types in
+  Aztec.nr, the contract framework. A private function can queue a public one; the call
+  is asynchronous, because the two run in different places.
+- **The PXE.** A TypeScript library in the wallet or browser: holds the keys, finds and
+  decrypts the user's notes, simulates the private function, proves it, sends the proof.
+  "Private inputs never leave the client-side PXE."
+- **Kernel circuits.** Protocol circuits that wrap every private call so the network sees
+  note hashes, nullifiers and encrypted logs, not which function ran.
+- **One installer.** `aztec` (compile, test, local network), `aztec-wallet`,
+  `aztec-nargo` (the Noir compiler) and `aztec-bb` (the prover), versioned together.
+
+JAM's developer stack is one trait. A service is Rust without the standard library: a
+type that implements `Service` with `refine` and `accumulate`, passed to a
+`declare_service!` macro (`jam-pvm-common` 0.1.29) and built with `cargo-jam-build` into a
+PVM blob. JAM knows nothing above that: no user accounts, no keys, no notes. Parity's
+node, PolkaJam, ships as binaries only until the implementers' prize is settled, and the
+October 2026 migration plan sets no mainnet date. Our own measure of the skeleton: the
+voting service in `zk-jam-service` is 1,670 lines of Rust, a Groth16 verifier (arkworks)
+in refine and a nullifier set in accumulate. That is the privacy service's core, and it is
+small. Everything Aztec lists above sits on top of it.
+
+**Would a JAM privacy service need Noir?** It needs a circuit language, and Noir is the
+one to use. Noir isn't Aztec-only: "learn Noir once and use it anywhere". It compiles to
+an intermediate form (ACIR) that several provers take: Barretenberg (UltraHonk, Aztec's;
+a `no_std` Rust verifier of it already exists, written for Stellar's Soroban), Sunspot
+(Groth16), Sonobe (Nova). A Rust verifier compiled to the PVM is what refine runs; the
+one measured is Groth16's. What can't be lifted is Aztec.nr and the PXE: both are built
+on Aztec's kernel circuits and trees. The service rebuilds those, once, and that is the
+whole cost of the usability gap.
+
+| | Building on Aztec's L2 | Building on a JAM privacy service |
+| --- | --- | --- |
+| Circuits | Noir | Noir, the same |
+| Contracts | Aztec.nr: private and public functions in one file | A circuit registered in the service; public logic in the service's Rust |
+| Private state rules | The protocol's: note tree, nullifier tree, kernel circuits | The service's own, written once |
+| Client | The PXE, `aztec-wallet`, `aztec.js` | To be written: a PXE for the service |
+| Private calls public | Queued, lands in the same transaction | Accumulate, or a transfer to another service, lands the next block |
+| Proving on the device | CHONK, 2.5 s for a transfer on a laptop | The same circuits and cost, if CHONK's verifier runs on the PVM |
+| Fees | Fee juice, under $0.05 a transfer | The service buys coretime and sets its own fees |
+| Network | Live, in alpha | No mainnet date, October 2026 |
+| Who maintains it | Aztec Labs, since 2021 | The service's team |
+
+For an app developer, Aztec's L2 wins today by the whole stack above the proof. JAM gives
+the service's team one strong primitive, re-executed refine with 5 billion gas, and leaves
+the stack to them. The circuit tooling carries over unchanged; the privacy runtime has to
+be built once, as a service.
+
+## zk.money on JAM: a shielded account as a service
+
+Why bother, if it's no cheaper and no faster: because it would be native. No bridge, no
+Ethereum, JAM's own finality and availability, and one privacy pool that every JAM
+service could pay into. `zk.money` had three moves. On JAM:
+
+1. **Shield.** A public token service sends a deferred transfer
+   ([lesson 17.3](./17-accumulation/03-sending-a-transfer.md)) to the privacy service: the
+   amount, and in the 128-byte memo the 32-byte note commitment the user computed. It
+   arrives in accumulate, which inserts the commitment into the tree. The deposit is
+   public, as `zk.money`'s were.
+2. **Send.** The user's PXE proves a Noir circuit: the notes it spends are in the tree and
+   unspent, the new notes balance them, here are the nullifiers. The builder puts the proof
+   in a work-package; refine verifies it and computes the new root; accumulate checks the
+   nullifiers are new, writes them and the root, and stores the encrypted notes (1 per
+   byte) for the receiver's PXE to find. Nobody sees sender, receiver or amount.
+3. **Unshield.** A proof that spends a note and names a public receiver; accumulate sends
+   a deferred transfer back to the token service with the receiver in the memo. Public.
+
+A cap like `zk.money`'s 1 ETH is one line of the service's rule. JAM's native balance
+moves this way today; a token that lives inside another service (an asset on a chain run
+by the Parachain Service) needs that service to hold it and send a message, which is Aztec
+Connect's bridge by another name.
+
+**One core service, not many.** Privacy is the size of the crowd: a second tree is a
+second, smaller crowd. So the shape is Aztec's own. One service holds the trees, the
+verifier and the kernel rule; apps are circuits registered inside it, a verification key
+in its storage, the way an Aztec contract is. `zk.money` is the transfer circuit and a
+wallet; a private exchange is another circuit in the same service, spending the same
+notes. Other JAM services connect at the edges, by transfers in and out: shield and
+unshield. Two apps as two JAM services would each need their own tree, their own builder
+and their own crowd, and the proofs can't cross between them without an unshield.
+
+The limits are the ones above: one package a block for the tree, so one builder orders
+and folds, about 60 transfers a second, and a verifier for whatever Noir backend the
+circuits use, measured on the PVM.
+
 ## Conclusions
 
-**Yes to the function, no to the economics, and no faster.**
+**Yes to the function, no to the economics, and no faster. Native, though, and buildable
+with Aztec's own tools.**
 
 - Aztec's private transfers fit JAM as one service among many: the user proves, refine
   checks, accumulate writes the root and the nullifiers. No protocol change, nothing
@@ -164,11 +267,18 @@ but the epoch proof, Ethereum's blobs, and an alpha throttled on purpose.
 - The service brings its sequencer with it. One package a block per tree, proofs folded by
   the builder: Aztec's two heavy roles, unstaked, beside the protocol. About 60 transfers a
   second for a tree, by arithmetic nobody has run yet.
+- The circuits are written in Noir either way. What the service's team builds once is the
+  privacy runtime: trees, kernel rule, a PXE. Aztec's L2 has that stack today; JAM has a
+  trait with two functions and no mainnet date.
+- `zk.money` on JAM is one core privacy service with apps as circuits inside it, shielding
+  and unshielding by deferred transfers from any other JAM service. A privacy pool for the
+  whole ecosystem, on its own L1.
 
-For an Aztec fan, in three sentences: JAM could run your private transfers as a service
-today, checked by every validator rather than by 48. It wouldn't be cheaper to validate or
-faster to transact. What it would give you is a check that doesn't depend on the proving
-system being bug-free.
+For an Aztec fan, in four sentences: JAM could run your private transfers as a service,
+checked by every validator rather than by 48. It wouldn't be cheaper to validate or faster
+to transact. Your Noir circuits would run unchanged; your Aztec.nr contracts and PXE would
+not, because the service has to be its own kernel. What it would give you is a native
+privacy pool with a check that doesn't depend on the proving system being bug-free.
 
 ## Check your understanding
 
@@ -217,6 +327,10 @@ system being bug-free.
 - The transfer rate is arithmetic on the 48 KB result and one package a block for a tree.
   The tree's depth, the cost of folding proofs and accumulate's real cost per note are
   unmeasured.
+- Nobody has compiled a Noir verifier to the PVM. The Soroban one shows a `no_std` Rust
+  UltraHonk verifier exists; its gas on the PVM is unknown.
+- The zk.money sketch is a design, not a service. Encrypted-note storage at 1 per byte,
+  the kernel rule and the wallet are the unbuilt parts.
 
 ## Sources
 
@@ -227,7 +341,20 @@ system being bug-free.
   [Alpha network security](https://aztec.network/blog/alpha-network-security-what-to-expect),
   [Alpha V5 proving system vulnerability](https://aztec.network/blog/alpha-v5-proving-system-vulnerability),
   [the end of Aztec Connect](https://medium.com/aztec-protocol/sunsetting-aztec-connect-a786edce5cae),
+  [launching Aztec 2.0 and zk.money](https://aztec.network/blog/launching-aztec-2-0-rollup),
+  [zk.money's return](https://decrypt.co/379621/ethereum-privacy-aztec-brings-back-zk-money),
   and [L2BEAT's page](https://l2beat.com/scaling/projects/aztecnetwork).
+- Aztec's tools: [getting started](https://docs.aztec.network/developers/getting_started),
+  [the PXE](https://docs.aztec.network/developers/docs/concepts/pxe),
+  [function attributes](https://docs.aztec.network/developers/docs/concepts/smart_contracts/functions/attributes),
+  [notes](https://docs.aztec.network/developers/contracts/writing_contracts/storage/notes),
+  [Noir](https://aztec.network/noir) and [awesome-noir](https://github.com/noir-lang/awesome-noir)
+  (backends and verifiers), and the
+  [Soroban UltraHonk verifier](https://docs.rs/ultrahonk_soroban_verifier/latest/ultrahonk_soroban_verifier/).
+- JAM's tools: [jam-pvm-common](https://docs.rs/jam-pvm-common/latest/jam_pvm_common/),
+  [PolkaJam releases](https://github.com/paritytech/polkajam-releases), the
+  [JAM migration plan](https://www.tokenpost.com/news/technology/36995) (October 2026), and
+  [zk-jam-service](https://github.com/abutlabs/zk-jam-service).
 - Polkadot: [validator requirements](https://docs.polkadot.com/node-infrastructure/run-a-validator/requirements/).
 - JAM: the [Gray Paper](https://graypaper.com/), §14, §17, §19 and §20, and
   [ELVES](https://eprint.iacr.org/2024/961).
