@@ -46,3 +46,11 @@ test("lesson 7.2 places the widget once, after the shuffle figure", () => {
   assert.ok(at > 0 && at === raw.lastIndexOf("<ShuffleSteps />"), "placed once");
   assert.ok(at > raw.indexOf("02-shuffle-steps.svg") && at < raw.indexOf("**Q_l(h)**"));
 });
+
+test("every pick's division checks: quotient × l + index is the number, and the index is under l", () => {
+  for (const deck of DECKS) for (const splice of [false, true]) for (const s of picks(deck, splice)) {
+    assert.equal(s.quotient * s.l + s.index, s.number, `${deck.name}: ${s.number} ÷ ${s.l}`);
+    assert.ok(s.index >= 0 && s.index < s.l);
+    assert.equal(s.after.length, s.l - 1);
+  }
+});

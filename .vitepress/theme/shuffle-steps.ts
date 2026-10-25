@@ -15,8 +15,9 @@ export const DECKS: Deck[] = [
   },
 ];
 
-/** One pick: what was left, the number, l, the index, the item picked, and what filled the gap. */
-export type Pick = { left: string[]; number: number; l: number; index: number; picked: string; filler: string | null; after: string[] };
+/** One pick: what was left, the number, l, the quotient and remainder of number ÷ l (the
+ *  remainder is the index), the item picked, what filled the gap, and what's left after. */
+export type Pick = { left: string[]; number: number; l: number; quotient: number; index: number; picked: string; filler: string | null; after: string[] };
 
 /** Every pick of a deck, in order: JAM's way (the last item fills the gap), or the obvious
  *  way (splice: close the gap up), which the lesson's Break it on purpose tries. */
@@ -35,7 +36,7 @@ export function picks(deck: Deck, splice = false): Pick[] {
       left[index] = left[l - 1];
       left.pop();
     }
-    out.push({ left: before, number, l, index, picked, filler, after: [...left] });
+    out.push({ left: before, number, l, quotient: Math.floor(number / l), index, picked, filler, after: [...left] });
   }
   return out;
 }
