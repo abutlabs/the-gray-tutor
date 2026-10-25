@@ -12,7 +12,7 @@ import { keccak_256, sha3_256 } from "@noble/hashes/sha3.js";
 import { BLOCK, BLOCK_JSON } from "../.vitepress/theme/block-parcel.ts";
 import { encodeMapped, flatten, type Json } from "../.vitepress/theme/codec-map.ts";
 import { ALGORITHMS, BLOCK_BYTES, FIELDS, inBlock, madeBy } from "../.vitepress/theme/crypto-map.ts";
-import { lessonText, ROOT } from "./lessons.ts";
+import { clientPackages, lessonText, ROOT } from "./lessons.ts";
 
 const PAGE = lessonText("cryptography.md");
 const plain = PAGE.replace(/\s+/g, " ");
@@ -51,8 +51,7 @@ test("the hash examples are real: Blake2b-256 of JAM and JAN, Keccak-256 and SHA
 });
 
 test("each algorithm's library is the one its lesson installs, and the page says so", () => {
-  const offline = lessonText("00-start/02-set-up-the-project.md");
-  const pins = Object.fromEntries([...offline.matchAll(/(@[\w-]+\/[\w-]+)@([\w.-]+)/g)].map(([, name, version]) => [name, version]));
+  const pins = clientPackages();
   for (const name of ["@noble/hashes", "@noble/curves", "@typeberry/native"]) {
     const short = pins[name].replace(/-.*/, "");
     assert.ok(PAGE.includes(`- **\`${name}\` ${short}**`), `${name} ${short}`);

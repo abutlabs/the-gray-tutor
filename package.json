@@ -20,7 +20,8 @@
     "typecheck": "tsc -p tools",
     "check": "node tools/need-node.mjs && npm run typecheck && npm test && npm run site:build",
     "scoreboard": "node client/bin/scoreboard.ts",
-    "demo": "node tools/need-node.mjs && node tools/compare.ts --last --write --dir demo && npm install --prefix demo --no-audit --no-fund"
+    "demo": "node tools/need-node.mjs && node tools/compare.ts --last --write --dir demo && npm install --prefix demo --no-audit --no-fund",
+    "offline": "node tools/need-node.mjs && node tools/offline.ts"
   },
   "devDependencies": {
     "@noble/curves": "2.4.0",

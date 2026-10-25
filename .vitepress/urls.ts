@@ -141,6 +141,7 @@ export const PUBLISHED: string[] = [
   "",
   "scoreboard",
   "demo",
+  "offline",
 ];
 
 /** Pages that moved: old address to new. The build leaves a page at the old address that

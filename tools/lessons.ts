@@ -140,6 +140,27 @@ export function parseLesson(id: string, file: string): Lesson {
   return { id, file, title: titleOf(text, file), steps };
 }
 
+/** Every package any lesson puts in client/package.json, name to version: what the client
+ * needs from npm, all tutorial long (npm run offline). Throws if two lessons pin one
+ * package at different versions, since one install can't hold both. */
+export function clientPackages(): Record<string, string> {
+  const pinned: Record<string, { version: string; by: string }> = {};
+  for (const lesson of readLessons()) {
+    for (const step of lesson.steps) {
+      if (step.kind !== "file" || step.path !== "package.json") continue;
+      const pkg = JSON.parse(step.code);
+      for (const [name, version] of Object.entries<string>({ ...pkg.dependencies, ...pkg.devDependencies })) {
+        const before = pinned[name];
+        if (before && before.version !== version) {
+          throw new Error(`${name} is ${before.version} in lesson ${before.by} but ${version} in ${lesson.id}`);
+        }
+        pinned[name] ??= { version, by: lesson.id };
+      }
+    }
+  }
+  return Object.fromEntries(Object.entries(pinned).map(([name, p]) => [name, p.version]));
+}
+
 /** A lesson's Markdown, by its file under lessons/ ("02-codec/02-compact-naturals.md"). */
 export const lessonText = (file: string): string => readFileSync(join(LESSONS, file), "utf8");
 

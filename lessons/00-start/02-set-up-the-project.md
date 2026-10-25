@@ -192,23 +192,20 @@ When something here doesn't work, it's almost always one of these:
 
 ## Working offline
 
-Everything runs on your own machine, so a flight is fine, if you fetch four things
-while you're still online:
-
-1. **The test vectors**: `npm run vectors`, done above.
-2. **The stack's Docker images**: `./obs up` once, done above too. Docker keeps them.
-3. **The three packages later lessons add** ([lessons 5.1](../05-hashing-and-signatures/01-hashes.md),
-   [5.3](../05-hashing-and-signatures/03-signatures.md) and [8.8](../08-safrole/08-the-ring-root.md)): in `client/`, run the command
-   below. It fills npm's cache without changing your `package.json`.
+Everything runs on your own machine, so a flight is fine, if you download what the
+tutorial needs while you're still online. One command, in the tutorial's folder, does it
+all:
 
 ```sh
-npm install --no-save @noble/hashes@2.4.0 @noble/curves@2.4.0 @typeberry/native@0.5.1-4e90642
+npm run offline
 ```
 
-4. **The tutorial's own packages, up to date**: after every `git pull`, run `npm install`
-   at the repo root again, while you're online. A new version of the tutorial can bring a
-   new package (the website's maths came that way), and the website won't start without
-   it.
+It installs the tutorial's packages, puts every package the lessons will add to your
+client into npm's cache (without touching `client/`), fetches the test vectors, and runs
+`./obs up` so that Docker keeps the stack's images. Then it checks that npm can install
+your client's packages without the network. Run it again after every `git pull`, while
+you're online: a new lesson can bring a new package. The appendix
+[Working offline](../offline.md) explains each step.
 
 On the plane, where a lesson says `npm install`, type `npm install --offline`: npm takes
 everything from its cache. The lessons, in VS Code or on the website (`npm run site`),
@@ -257,9 +254,9 @@ need no network at all.
   > No: the lessons don't, but the code does. The vectors, the Docker images and the
   > packages have to be on your machine first.
 - [x] The vectors, the stack's Docker images, and every package, yours and the tutorial's
-  > Yes: `npm run vectors`, `./obs up` once, the `npm install --no-save` line, and a fresh
-  > `npm install` at the repo root. On the plane, `npm install --offline` takes packages
-  > from npm's cache.
+  > Yes: `npm run offline` fetches all of them, and checks that npm's cache holds your
+  > client's packages. On the plane, `npm install --offline` takes packages from that
+  > cache.
 - [ ] Only the test vectors, since they're the big download
   > No: size isn't the problem. A small package missing from npm's cache stops a lesson
   > just as surely as missing vectors.

@@ -10,13 +10,14 @@
    the stack up) and `npm run compare -- <last lesson> --dir reference` (the lessons give
    exactly the reference's code).
 
-**A new package is an offline question.** Readers work on flights, so whenever a package
-is added, check lesson 0.2's *Working offline* and update it. A package a lesson adds to
-the client goes in 0.2's `npm install --no-save` line, at the version the lesson pins
-(checked). A package of the tutorial's own (the root `package.json`: the website, the
-tools) comes with the root `npm install`, which 0.2 tells readers to rerun after every
-pull; if it needs more than that (a download, a cache), 0.2 says so. *Why:* a package
-found missing in the air can't be fetched.
+**A new package is an offline question.** Readers work on flights, and `npm run offline`
+(`tools/offline.ts`, explained in the appendix `lessons/offline.md`) fetches everything
+before they board. A package a lesson adds to the client comes with it for free: the tool
+reads every lesson's `package.json` steps, so pin one version of a package across the
+whole tutorial (checked). A package of the tutorial's own (the root `package.json`: the
+website, the tools) comes with the root `npm install` the tool runs. Anything that needs
+more than that (a download, a cache, an image) goes into the tool and the appendix in the
+same change. *Why:* a package found missing in the air can't be fetched.
 
 ## Observability in every lesson
 

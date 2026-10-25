@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
-import { LESSONS, ROOT, lessonsThrough, readParts } from "./lessons.ts";
+import { LESSONS, ROOT, clientPackages, lessonsThrough, readParts } from "./lessons.ts";
 
 const parts = readParts();
 const home = readFileSync(join(LESSONS, "index.md"), "utf8");
@@ -281,27 +281,18 @@ test("every lesson closes with What you have", () => {
   }
 });
 
-// Readers work on flights (0.2, Working offline): every package a later lesson adds to the
-// client is in 0.2's command that fills npm's cache, at the version the lesson pins.
-test("every package a lesson adds is in 0.2's offline command, at its version", () => {
-  const SETUP = "00-start/02-set-up-the-project.md";
-  const offline = /^npm install --no-save (.+)$/m.exec(readFileSync(join(LESSONS, SETUP), "utf8"));
-  const cached = new Set(offline?.[1].split(" "));
-  const atSetup = new Set<string>();
-  const missing: string[] = [];
-  for (const lesson of parts.flatMap((p) => p.lessons)) {
-    for (const step of lesson.steps) {
-      if (step.kind !== "file" || step.path !== "package.json") continue;
-      const pkg = JSON.parse(step.code);
-      for (const [name, version] of Object.entries({ ...pkg.dependencies, ...pkg.devDependencies })) {
-        const at = `${name}@${version}`;
-        if (lesson.file === SETUP) atSetup.add(at);
-        else if (!atSetup.has(at) && !cached.has(at)) missing.push(`${lesson.id}: ${at}`);
-      }
-    }
+// Readers work on flights (offline.md): npm run offline caches every package the lessons
+// add to the client, read from their package.json steps, so each must have one version.
+test("npm run offline knows every package a lesson adds, each at one version", () => {
+  const packages = clientPackages(); // throws on two versions of one package
+  const setup = parts[0].lessons.find((l) => l.id === "0.2")!;
+  const atSetup = setup.steps.find((s) => s.kind === "file" && s.path === "package.json");
+  assert.ok(atSetup?.kind === "file", "0.2 writes client/package.json");
+  for (const [name, version] of Object.entries<string>(JSON.parse(atSetup.code).devDependencies)) {
+    assert.equal(packages[name], version, `${name} from 0.2`);
   }
-  assert.ok(atSetup.size > 0, `${SETUP} writes client/package.json`);
-  assert.deepEqual(missing, []);
+  assert.ok(Object.keys(packages).length > Object.keys(JSON.parse(atSetup.code).devDependencies).length,
+    "later lessons add packages too");
 });
 
 // A formula is only as clear as its symbols (WRITING.md, Formulas): a What the Gray Paper
