@@ -40,5 +40,14 @@ export function picks(deck: Deck, splice = false): Pick[] {
   }
   return out;
 }
+/** Why a pick's item isn't the one its index started with, or null if it is. JAM's way, an
+ *  item moves only to fill a gap; splice shifts it left once for each earlier pick in front. */
+export function movedHere(deck: Deck, p: Pick, splice: boolean): string | null {
+  const shift = deck.items.indexOf(p.picked) - p.index;
+  if (shift === 0) return null;
+  return splice ? `${p.picked} has shifted ${shift} ${shift === 1 ? "place" : "places"} left, one for each earlier pick in front of it`
+    : `an earlier pick moved ${p.picked} into this gap`;
+}
+
 /** The shuffled sequence: the picks in order. */
 export const shuffled = (deck: Deck, splice = false): string[] => picks(deck, splice).map((p) => p.picked);

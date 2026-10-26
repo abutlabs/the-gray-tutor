@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DECKS, picks, shuffled } from "../.vitepress/theme/shuffle-steps.ts";
+import { DECKS, movedHere, picks, shuffled } from "../.vitepress/theme/shuffle-steps.ts";
 import { lessonCode, lessonText } from "./lessons.ts";
 
 const LESSON = "07-time-and-shuffling/02-the-shuffle.md";
@@ -52,5 +52,27 @@ test("every pick's division checks: quotient × l + index is the number, and the
     assert.equal(s.quotient * s.l + s.index, s.number, `${deck.name}: ${s.number} ÷ ${s.l}`);
     assert.ok(s.index >= 0 && s.index < s.l);
     assert.equal(s.after.length, s.l - 1);
+  }
+});
+
+// Stage 2 says why an index holds an item it didn't start with: true to how each way moves items.
+test("why an item sits where it does: JAM's filled this gap, splice's shifted once per earlier pick in front", () => {
+  for (const deck of DECKS) {
+    const jam = picks(deck);
+    jam.forEach((s, n) => {
+      const filledBy = jam.slice(0, n).findLast((e) => e.filler !== null && e.index === s.index);
+      const why = movedHere(deck, s, false);
+      assert.equal(why, s.picked === deck.items[s.index] ? null : `an earlier pick moved ${s.picked} into this gap`);
+      if (why) assert.equal(filledBy?.filler, s.picked, `${deck.name}, pick ${n + 1}: ${s.picked} filled index ${s.index}`);
+    });
+    const spliced = picks(deck, true);
+    spliced.forEach((s, n) => {
+      const from = deck.items.indexOf(s.picked);
+      const inFront = spliced.slice(0, n).filter((e) => deck.items.indexOf(e.picked) < from).length;
+      assert.equal(from - s.index, inFront, `${deck.name}, pick ${n + 1}`);
+      const why = movedHere(deck, s, true);
+      assert.equal(why === null, inFront === 0);
+      if (why) assert.match(why, new RegExp(`^${s.picked} has shifted ${inFront} places? left`));
+    });
   }
 });

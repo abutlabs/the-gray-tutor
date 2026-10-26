@@ -5,7 +5,7 @@
      shuffle-steps.ts. -->
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { DECKS, picks, shuffled } from "./shuffle-steps.ts";
+import { DECKS, movedHere, picks, shuffled } from "./shuffle-steps.ts";
 
 const deck = ref(DECKS[0]);
 const splice = ref(false);
@@ -17,8 +17,9 @@ const result = computed(() => shuffled(deck.value, splice.value));
 const jam = computed(() => shuffled(deck.value, false));
 const choose = (d: typeof DECKS[number]) => { deck.value = d; at.value = 0; };
 const fmt = (n: number) => n.toLocaleString("en-US");
-// the item this index held before any pick: different once an earlier pick moved one in
+// the item this index held before any pick, and why another sits there now (null: it doesn't)
 const first = computed(() => deck.value.items[pick.value.index]);
+const why = computed(() => movedHere(deck.value, pick.value, splice.value));
 // in the row after the pick, the items that moved: JAM's filler, or everything splice shifted
 const moved = (i: number) => splice.value ? i >= pick.value.index : pick.value.filler !== null && i === pick.value.index;
 </script>
@@ -57,7 +58,7 @@ const moved = (i: number) => splice.value ? i >= pick.value.index : pick.value.f
         <div class="row" aria-label="the items left, before this pick, with their indexes">
           <span v-for="(x, i) in pick.left" :key="i" class="slot"><span class="item" :class="{ picked: i === pick.index, filler: !splice && pick.filler !== null && i === pick.l - 1 }">{{ x }}</span><span class="idx">{{ i }}</span></span>
         </div>
-        <p class="why">Index {{ pick.index }} holds {{ pick.picked }}<template v-if="first !== pick.picked">, not {{ first }}: an earlier pick moved {{ pick.picked }} into this gap</template>. {{ pick.picked }} goes to the picks.</p>
+        <p class="why">Index {{ pick.index }} holds {{ pick.picked }}<template v-if="why">, not {{ first }}: {{ why }}</template>. {{ pick.picked }} goes to the picks.</p>
       </li>
       <li class="stage">
         <p class="stage-says"><strong>3 · Fill the gap.</strong> {{ splice ? "Splice: close it up." : "The last item moves into it; the last place goes." }}</p>
