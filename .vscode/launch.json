@@ -8,6 +8,17 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Entropy",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "entropy-new-epoch"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
       "name": "State Fallback",
       "type": "node",
       "request": "launch",
@@ -15,6 +26,17 @@
       "runtimeVersion": "26",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "state-fallback"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Epochs",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "epochs"],
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**"]
     },
