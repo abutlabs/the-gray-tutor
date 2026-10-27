@@ -20,9 +20,9 @@ lessons explain every piece as you need it.
 
 Wondering how JAM compares with a network built another way?
 [JAM beside Aztec](./jam-beside-aztec.md) sets it against Ethereum's privacy rollup: why
-one validator is cheap and the other isn't, whether JAM could run Aztec's private
-transfers as a service, what building on it would take, and what a shielded account would
-look like on JAM. Optional too.
+one validator is cheap and the other isn't, and whether JAM could run Aztec's private
+transfers as a service. We built one to find out: what it does, measured, and what isn't
+solved. Optional too.
 
 ## At a glance
 

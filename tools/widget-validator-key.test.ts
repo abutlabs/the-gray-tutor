@@ -44,6 +44,7 @@ test("κ0's Ed25519 key is the lesson's 0x4418fb8c…, and swapping the fields r
   assert.deepEqual(s.map((p) => p.name), ["ed25519", "bandersnatch", "bls", "metadata"]);
   assert.equal(readsAs(s, 0, "ed25519"), `${KEYS[0].bandersnatch.slice(0, 10)}…`, "the Bandersnatch bytes, read as Ed25519");
   assert.equal(readsAs(s, 0, "bls"), "144 bytes");
+  assert.deepEqual(swapped(s), PARTS, "swapping again puts the fields back");
 });
 
 test("the six keys are the ones in κ before block 12 of the safrole trace, where vectors/ is downloaded", { skip: !existsSync(TRACE) && "no vectors/" }, () => {

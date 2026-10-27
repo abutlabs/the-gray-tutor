@@ -985,3 +985,17 @@ payment in 2.5 seconds on a laptop.
 **Shield and unshield.** Moving value from a public account into a private one, and back
 out. On JAM, a deferred transfer into the privacy service and one out of it. *Example:*
 `zk.money`'s three buttons: shield, send, unshield.
+
+**Note.** A private coin: its owner's key, an amount and a random number, hashed together.
+The chain sees only the hash. *Example:* a note of 40 for B.
+
+**Nullifier.** A second hash of a note that only its owner can make, published when the
+note is spent, so it can't be spent twice. *Example:* a transfer spends two notes and
+publishes two nullifiers.
+
+**Sealed note.** A note's contents encrypted to its receiver and kept on chain, so the
+receiver finds it by trying their key on every one. *Example:* 88 bytes a note.
+
+**Kernel circuit.** Aztec's protocol circuits that wrap every private call, so the network
+sees note hashes and nullifiers, not which function ran. *Example:* a token transfer whose
+fee is sponsored is 6 circuits folded into one proof.

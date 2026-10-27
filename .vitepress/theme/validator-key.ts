@@ -27,8 +27,12 @@ export function rangeOf(order: Part[], name: Part["name"]): { start: number; end
 }
 /** Where validator i's key starts inside κ: after the count byte and i keys. */
 export const keyStart = (i: number): number => 1 + i * KEY_BYTES;
-/** The same order with Bandersnatch and Ed25519 swapped: the lasair box's experiment. */
-export const swapped = (order: Part[]): Part[] => order.map((p) => (p.name === "bandersnatch" ? order[1] : p.name === "ed25519" ? order[0] : p));
+/** The same order with Bandersnatch and Ed25519 swapped: the lasair box's experiment. Looked
+ *  up by name, not by position, so swapping twice puts the fields back. */
+export const swapped = (order: Part[]): Part[] => {
+  const byName = (name: Part["name"]) => order.find((p) => p.name === name)!;
+  return order.map((p) => (p.name === "bandersnatch" ? byName("ed25519") : p.name === "ed25519" ? byName("bandersnatch") : p));
+};
 
 /** The six validators' Bandersnatch and Ed25519 keys: the vectors' one cast (header-map.ts). */
 export const KEYS: { bandersnatch: string; ed25519: string }[] = VALIDATORS.map(([bandersnatch, ed25519]) => ({ bandersnatch, ed25519 }));

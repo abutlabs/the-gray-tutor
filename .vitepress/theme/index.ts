@@ -118,6 +118,7 @@ import ProvideRound from "./ProvideRound.vue";
 import BlessOrder from "./BlessOrder.vue";
 import EpochTallies from "./EpochTallies.vue";
 import CoreLoad from "./CoreLoad.vue";
+import RefineBudget from "./RefineBudget.vue";
 import WholeState from "./WholeState.vue";
 import EntryKey from "./EntryKey.vue";
 import ImportSteps from "./ImportSteps.vue";
@@ -268,6 +269,7 @@ export default {
     app.component("CheckpointRun", CheckpointRun); // 16.6
     app.component("ReadyQueue", ReadyQueue); // 17.2
     app.component("ImportWaves", ImportWaves); // 19.1
+    app.component("RefineBudget", RefineBudget); // JAM beside Aztec
     // a lesson's understanding check, from its ::: check block (../checks.ts)
     app.component("CheckYourself", CheckYourself);
     app.component("UnitText", UnitText); // the widgets' sentences, their bits and bytes in colour (units.ts)
