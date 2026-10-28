@@ -28,7 +28,11 @@ better.
 
 **Y** (not 8.1's Y(·), the VRF output: the Gray Paper uses two different letters) is the
 phase at which the lottery closes: slot 500 of a 600-slot epoch on full, 10
-of 12 on tiny. Then two things can happen:
+of 12 on tiny. Slots tick with the clock whether or not their block arrives: a slot whose
+sealer stays silent is simply empty, so there may be no block *at* slot 10 to make the
+announcement. Both rules below therefore compare two consecutive *blocks*: the parent, at
+phase m of its epoch, and the block itself, at phase m′, however many empty slots lie
+between them. Then two things can happen:
 
 - **The tickets mark** (*The Markers*): the block that crosses phase Y, in the same epoch
   (m < Y ≤ m′), puts the winners in its header, if the lottery filled up, with all E

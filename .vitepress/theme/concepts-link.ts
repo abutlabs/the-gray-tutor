@@ -1,7 +1,8 @@
 // Concepts only's rules that need no browser (concepts.ts does the rest): a link's choice,
 // the <head> script that applies it before the page draws, and the address that shares it.
-// A link's choice lasts the visit and leaves the reader's own saved choice alone.
-// tools/concepts.test.ts runs them.
+// A link's choice lasts the visit and leaves the reader's own saved choice alone. The
+// choice is kept for the visit only (sessionStorage): every fresh visit starts with the
+// code shown. tools/concepts.test.ts runs them.
 
 export const KEY = "the-gray-tutor:concepts";
 export const PARAM = "concepts";
@@ -17,7 +18,7 @@ export function fromLink(search: string): boolean | null {
  *  in <head>; fromLink is the same rule, and tools/concepts.test.ts runs both. */
 export const HEAD = `try{var q=new URLSearchParams(location.search).get("${PARAM}");`
   + `var on=q!==null?["off","0","false"].indexOf(q)<0:null;`
-  + `try{if(on===null)on=localStorage.getItem("${KEY}")==="on"}catch(e){}`
+  + `try{if(on===null)on=sessionStorage.getItem("${KEY}")==="on"}catch(e){}`
   + `if(on)document.documentElement.classList.add("${CLASS}")}catch(e){}`;
 
 /** The address with ?concepts while the mode is on, without it while off: keeps the

@@ -146,10 +146,10 @@ stand without it: VS Code's preview shows nothing there, and print.html only its
 state. *Why:* a reader stuck on a step can poke at it until it clicks (Aodh, on 127 being
 `01111111`). A widget works on a phone: 375 px wide with no sideways scroll, nothing
 behind a hover, buttons at least 32 px. Concept widgets teach a Gray Paper idea, not the
-code: a reader can learn Parts 2 to 19 on a phone with *Concepts only* on (the switch at
-the top of every lesson folds the code away, `theme/concepts.ts`; a link ending `?concepts`
-opens a lesson that way), so a lesson's idea must come across in its prose, its diagrams and
-its widgets alone.
+code: a reader can learn Parts 2 to 19 on a phone with *Concepts only* on (the switch in
+the site's header folds the code away, `theme/concepts.ts`; off by default, kept for the
+visit; a link ending `?concepts` opens a lesson that way), so a lesson's idea must come
+across in its prose, its diagrams and its widgets alone.
 
 ## Formulas
 

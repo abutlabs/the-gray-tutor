@@ -4,7 +4,7 @@ Optional, and no code: a comparison, not a lesson. [Aztec](https://aztec.network
 privacy network on Ethereum where users prove their own transactions and the network only
 checks the proofs. This page asks one question: could JAM run Aztec's private transfers as
 a service? In October 2026 we built one to find out,
-[jam-privacy-service](https://github.com/abutlabs/jam-privacy-service), and ran it on
+[aztec-on-jam](https://github.com/abutlabs/aztec-on-jam), and ran it on
 six-validator test networks of lasair, of PolkaJam, and of both.
 
 The answer, measured: **yes to the function, no to cheaper or faster.** A payment proved in
@@ -336,11 +336,11 @@ depend on the proving system being bug-free.
 
 ## Sources
 
-- Our service: [jam-privacy-service](https://github.com/abutlabs/jam-privacy-service)
-  (start with its [ten-minute tour](https://github.com/abutlabs/jam-privacy-service/blob/main/docs/DEMO.md);
+- Our service: [aztec-on-jam](https://github.com/abutlabs/aztec-on-jam)
+  (start with its [ten-minute tour](https://github.com/abutlabs/aztec-on-jam/blob/main/docs/DEMO.md);
   every step and number with the command behind it in its
-  [ledger](https://github.com/abutlabs/jam-privacy-service/blob/main/docs/LEDGER.md); Aztec's kernels
-  measured in [spikes/chonk](https://github.com/abutlabs/jam-privacy-service/blob/main/spikes/chonk/RESULTS.md)),
+  [ledger](https://github.com/abutlabs/aztec-on-jam/blob/main/docs/LEDGER.md); Aztec's kernels
+  measured in [spikes/chonk](https://github.com/abutlabs/aztec-on-jam/blob/main/spikes/chonk/RESULTS.md)),
   and the wallet page on the `jam` branch of
   [demo-wallet](https://github.com/abutlabs/demo-wallet/tree/jam/jam).
 - Aztec: [operator guide](https://docs.aztec.network/operate/operators),

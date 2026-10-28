@@ -5,8 +5,9 @@ block. Normally a lottery decides, with secret tickets ([lesson 8.4](./04-the-lo
 fizzle: too few tickets get entered, or no blocks arrive in the epoch's closing slots
 when the lottery would close, or the chain skips whole epochs. JAM never
 lets a slot go unclaimed, so there's a Plan B: pick the sealers straight from the
-validators, by hash. Everyone can work it out, so it isn't secret, but nobody could have
-steered it. This lesson builds Plan B.
+validators, by hash — one throw of the dice per slot, except the dice is a hash, so every
+node throws the same numbers and fills in the same list. Everyone can work it out, so it
+isn't secret, but nobody could have steered it. This lesson builds Plan B.
 
 ## New words
 
@@ -28,6 +29,13 @@ In words: for each slot number i, hash η′₂ with i, read the first four byte
 and take that validator of the *new* active set, wrapping round with `mod`. Two inputs,
 both fixed before the epoch begins: η′₂, randomness from two epochs back ([lesson 8.1](./01-stirring-the-entropy.md)),
 and κ′, the validators who'll be active ([lesson 8.2](./02-rotating-the-validators.md)).
+
+How far the `mod` wraps is however many validators the network runs: six on tiny, so every
+draw lands on 0 to 5; 1,023 on full. The same formula, counted round a bigger set. And at
+the moment the epoch turns, both inputs are already in the state under other names: η′₂ is
+the η₁ the old epoch left behind ([lesson 8.1](./01-stirring-the-entropy.md)'s shift), and
+κ′ is the pending set γ_P that just became active. `bin/sealers.ts` below reads them
+straight from those fields.
 
 Here is F on the run's real epoch, one slot at a time:
 

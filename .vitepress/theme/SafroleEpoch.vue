@@ -50,6 +50,9 @@ const isChosen = (id: number) => chosen.value.some((t) => t.id === id);
 function why(): string {
   if (!next.value.open) return `slot ${nextSlot.value} is phase ${phaseOf(TINY, nextSlot.value)}: the lottery is closed to it, so it carries no tickets`;
   if (next.value.newEpoch) return `slot ${nextSlot.value} starts epoch ${epochOf(TINY, nextSlot.value)}: its tickets open the new lottery, ids from the new η′₂`;
+  if (state.value.accumulator.length === E) {
+    return `slot ${nextSlot.value}'s block may carry ${K}: the lottery is full, but it keeps the ${E} lowest ids, so a lower id still knocks the highest winner out`;
+  }
   return `slot ${nextSlot.value}'s block may carry ${K}: pick up to ${K}. Lower ids are better`;
 }
 function toggle(by: string, attempt: number, id: number) {

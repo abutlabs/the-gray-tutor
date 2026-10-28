@@ -140,9 +140,15 @@ import "./custom.css";
 
 export default {
   extends: DefaultTheme,
-  // the concepts-only switch at the top of every lesson (concepts.ts)
-  // at the top of every lesson: the concepts-only switch, and the Gray Paper sections it covers
-  Layout: () => h(DefaultTheme.Layout, null, { "doc-before": () => [h(ConceptsToggle), h(GrayPaperRefs)] }),
+  // the concepts-only switch in the header and the phone menu, riding along from page to
+  // page like the theme switch (concepts.ts); at the top of every lesson, the Gray Paper
+  // sections it covers
+  Layout: () =>
+    h(DefaultTheme.Layout, null, {
+      "nav-bar-content-after": () => h(ConceptsToggle),
+      "nav-screen-content-after": () => h(ConceptsToggle, { screen: true }),
+      "doc-before": () => h(GrayPaperRefs),
+    }),
   enhanceApp({ app, router }) {
     // the lessons' widgets, placed in a lesson as <HexByte /> and so on (WRITING.md, Interactive)
     app.component("PartFlow", PartFlow); // every Part's opening page

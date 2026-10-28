@@ -20,11 +20,11 @@ test("a link's choice: ?concepts, =on or =1 is on; =off, =0 or =false is off; no
 function head(search: string, saved: string | null | "throws"): { folded: boolean; savedAfter: string | null | "throws" } {
   const classes = new Set<string>();
   let store = saved;
-  const localStorage = {
+  const sessionStorage = {
     getItem: (k: string) => { if (store === "throws") throw new Error("private window"); return k === KEY ? store : null; },
     setItem: (_k: string, v: string) => { store = v; },
   };
-  runInNewContext(HEAD, { URLSearchParams, location: { search }, localStorage, document: { documentElement: { classList: { add: (c: string) => classes.add(c) } } } });
+  runInNewContext(HEAD, { URLSearchParams, location: { search }, sessionStorage, document: { documentElement: { classList: { add: (c: string) => classes.add(c) } } } });
   return { folded: classes.has("concepts"), savedAfter: store };
 }
 

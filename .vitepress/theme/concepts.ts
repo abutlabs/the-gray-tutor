@@ -1,8 +1,9 @@
 // Concepts only: a reader who wants the Gray Paper's ideas first, the code later (on a phone,
 // say), folds every code block away. A snippet keeps its label line, which a tap opens and
 // closes; the byte tables and a run's output stay, since they show the concept. The choice
-// is kept in the browser, and HEAD (config.ts puts it in <head>) applies it before the page
-// draws, so a folded page never flashes its code first.
+// is kept for the visit (off by default: a fresh visit always shows the code), and HEAD
+// (config.ts puts it in <head>) applies it before the page draws, so a folded page never
+// flashes its code first.
 //
 // A link can carry the mode, ?concepts (concepts-link.ts has the rules); while the mode is on,
 // the address bar says ?concepts, so a reader shares a folded page by copying it.
@@ -20,11 +21,12 @@ export function showInAddress(on: boolean): void {
 /** Whether the page is in concepts-only mode. */
 export const conceptsOn = (): boolean => document.documentElement.classList.contains(CLASS);
 
-/** Turns concepts-only mode on or off, remembers it, and says so in the address. */
+/** Turns concepts-only mode on or off, remembers it for the visit, and says so in the
+ *  address. Off by default: a fresh visit always starts with the code shown. */
 export function setConcepts(on: boolean): void {
   document.documentElement.classList.toggle(CLASS, on);
   try {
-    localStorage.setItem(KEY, on ? "on" : "off");
+    sessionStorage.setItem(KEY, on ? "on" : "off");
   } catch {} // no storage (a private window): it lasts until the page is closed
   showInAddress(on);
 }
