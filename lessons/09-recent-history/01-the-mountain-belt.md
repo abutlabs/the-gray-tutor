@@ -1,7 +1,12 @@
 # The mountain belt
 
 Every JAM block remembers a little of the blocks before it, and one thing it keeps is a
-running commitment to *every accumulation output ever*. Bridges to other chains read it
+running commitment to *every accumulation output ever*. An accumulation output is 32
+bytes: the hash a service hands back when its finished work lands on the chain, usually
+a commitment to its new state. Each block rolls all of its services' outputs into one
+32-byte root — [lesson 17.11](../17-accumulation/11-what-a-service-yields.md) builds
+them — and *that* root is the one item each block appends to the belt here, the
+vectors' `accumulate_root`. Bridges to other chains read it
 (a bridge is a program on another chain, Ethereum say, that checks what happened on
 JAM), so it has to be small, cheap to extend, and checkable with tools those chains already
 have. JAM's answer is a *Merkle mountain belt*: a row of perfect little Merkle trees,
