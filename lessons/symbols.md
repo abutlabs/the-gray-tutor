@@ -106,22 +106,22 @@ plain word, and the test vectors' field name. Nobody tells you they're the same 
 not knowing makes you look lost in a room that does — the super-peak *is* the
 `beefy_root`. The ones worth knowing cold:
 
-| Symbol | The one thing | Also answers to | Taught in |
-| --- | --- | --- | --- |
-| M_R | the whole belt in one hash | the **super-peak**; the vectors' `beefy_root` | [9.1](./09-recent-history/01-the-mountain-belt.md) |
-| β_B | the Merkle mountain belt | the history vectors' `mmr` | [9.2](./09-recent-history/02-recent-blocks.md) |
-| M_B(θ′) | a block's accumulation-outputs root | the history vectors' `accumulate_root`: the item the belt appends | [17.11](./17-accumulation/11-what-a-service-yields.md), [9.1](./09-recent-history/01-the-mountain-belt.md) |
-| θ | the accumulation outputs | each one a service's **yield** | [17.11](./17-accumulation/11-what-a-service-yields.md) |
-| γ_P | the pending validator set, the next epoch's | the vectors' `gamma_k`, after an older Gray Paper's name γ_k | [8.2](./08-safrole/02-rotating-the-validators.md) |
-| η′₂ | the entropy the next epoch's lottery uses | `epoch_mark.tickets_entropy` | [8.3](./08-safrole/03-the-fallback-sealers.md) |
-| 𝒴(its proof) | a ticket's id | its lottery score: the VRF output of its ring proof | [8.6](./08-safrole/06-the-vrf-output.md) |
-| H_S, H_V | the header's two signatures | `seal` and `entropy_source` | [8.9](./08-safrole/09-seals.md) |
-| — | a work digest | the vectors' **work result** (`result`) | [3.2](./03-work-and-reports/02-work-digests.md) |
-| — | the authorizer's output | the report vectors' `auth_output`; the operand's **trace** (`auth_trace`) | [3.3](./03-work-and-reports/03-a-work-report.md), [16.7](./16-host-calls/07-a-services-inputs.md) |
-| χ_M, χ_A, χ_V, χ_R | the manager, the assigners, the delegator, the registrar | the vectors name each after its host call: `bless`, `assign`, `designate`, `register` (whose call is `new`) | [17.5](./17-accumulation/05-privileges.md) |
-| ψ_O | the offenders | the header's offenders mark carries a block's new ones | [10.2](./10-disputes/02-culprits-and-faults.md) |
-| — | a judgement | a vote; a verdict with a third voting valid is **wonky**, a split | [10.1](./10-disputes/01-votes-and-verdicts.md) |
-| — | the pipeline | the report vectors' `known_packages` | [12.5](./12-guarantees/05-bad-reports.md) |
+| Symbol | Say it | The one thing | Also answers to | Taught in |
+| --- | --- | --- | --- | --- |
+| M_R | M sub R | the whole belt in one hash | the **super-peak**; the vectors' `beefy_root` | [9.1](./09-recent-history/01-the-mountain-belt.md) |
+| β_B | beta sub B | the Merkle mountain belt | the history vectors' `mmr` | [9.2](./09-recent-history/02-recent-blocks.md) |
+| M_B(θ′) | M sub B of theta prime | a block's accumulation-outputs root | the history vectors' `accumulate_root`: the item the belt appends | [17.11](./17-accumulation/11-what-a-service-yields.md), [9.1](./09-recent-history/01-the-mountain-belt.md) |
+| θ | theta | the accumulation outputs | each one a service's **yield** | [17.11](./17-accumulation/11-what-a-service-yields.md) |
+| γ_P | gamma sub P | the pending validator set, the next epoch's | the vectors' `gamma_k`, after an older Gray Paper's name γ_k | [8.2](./08-safrole/02-rotating-the-validators.md) |
+| η′₂ | eta prime two | the entropy the next epoch's lottery uses | `epoch_mark.tickets_entropy` | [8.3](./08-safrole/03-the-fallback-sealers.md) |
+| 𝒴(its proof) | script Y of its proof | a ticket's id | its lottery score: the VRF output of its ring proof | [8.6](./08-safrole/06-the-vrf-output.md) |
+| H_S, H_V | H sub S, H sub V | the header's two signatures | `seal` and `entropy_source` | [8.9](./08-safrole/09-seals.md) |
+| — | | a work digest | the vectors' **work result** (`result`) | [3.2](./03-work-and-reports/02-work-digests.md) |
+| — | | the authorizer's output | the report vectors' `auth_output`; the operand's **trace** (`auth_trace`) | [3.3](./03-work-and-reports/03-a-work-report.md), [16.7](./16-host-calls/07-a-services-inputs.md) |
+| χ_M, χ_A, χ_V, χ_R | chi sub M, A, V, R | the manager, the assigners, the delegator, the registrar | the vectors name each after its host call: `bless`, `assign`, `designate`, `register` (whose call is `new`) | [17.5](./17-accumulation/05-privileges.md) |
+| ψ_O | psi sub O | the offenders | the header's offenders mark carries a block's new ones | [10.2](./10-disputes/02-culprits-and-faults.md) |
+| — | | a judgement | a vote; a verdict with a third voting valid is **wonky**, a split | [10.1](./10-disputes/01-votes-and-verdicts.md) |
+| — | | the pipeline | the report vectors' `known_packages` | [12.5](./12-guarantees/05-bad-reports.md) |
 
 And two traps that look like synonyms but aren't: a block's *extrinsic* (its five-part
 contents) and a work-item's *extrinsics* (data blobs for refine) are different things
