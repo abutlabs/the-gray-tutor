@@ -320,6 +320,21 @@ test("every Gray Paper formula has a key, its symbols linked to symbols.md", () 
   assert.deepEqual(problems, []);
 });
 
+// One thing, several names: the symbols page groups JAM's synonyms (symbol, plain word,
+// vector field), each row linking the lesson that teaches it, and the glossary points there.
+test("the symbols page's synonyms: every row has a lesson link, and the big three are grouped", () => {
+  const text = readFileSync(join(LESSONS, "symbols.md"), "utf8");
+  const section = /^## Synonyms[\s\S]*?(?=^## )/m.exec(text)?.[0];
+  assert.ok(section, "a Synonyms section on the symbols page");
+  const rows = section!.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| Symbol") && !l.startsWith("| ---"));
+  assert.ok(rows.length >= 12, `${rows.length} synonym rows`);
+  for (const row of rows) assert.match(row, /\[\d+\.\d+\]\(\.\/[\w./-]+\.md\)/, `a lesson link: ${row}`);
+  // the group that started this: M_R = super-peak = beefy_root, in one row
+  const peak = rows.find((r) => r.includes("M_R"));
+  assert.ok(peak && peak.includes("super-peak") && peak.includes("`beefy_root`"), "M_R's row holds all three names");
+  assert.match(readFileSync(join(LESSONS, "glossary.md"), "utf8"), /\(\.\/symbols\.md#synonyms\)/, "the glossary points to it");
+});
+
 // The symbols page's tables are its index: every full entry is in them, linked.
 test("every entry on the symbols page is linked from its tables", () => {
   const text = readFileSync(join(LESSONS, "symbols.md"), "utf8");

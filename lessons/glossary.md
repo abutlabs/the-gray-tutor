@@ -12,6 +12,13 @@ from the most everyday words to the most JAM-specific ones.
 The Gray Paper's symbols, from ℕ and ⌢ to σ and Ψ, have a page of their own: [Gray Paper
 symbols](./symbols.md), with how to say each one, what it means, and where it's used.
 
+## Synonyms
+
+One thing in JAM often answers to three names — the Gray Paper's symbol, this tutorial's
+plain word, and the test vectors' field: the super-peak M_R *is* the `beefy_root`, a work
+digest *is* the vectors' work result. The symbols page gathers every such group:
+[one thing, several names](./symbols.md#synonyms).
+
 ## The big picture
 
 **JAM.** A blockchain protocol that blends ideas from Polkadot and Ethereum: anyone can put
