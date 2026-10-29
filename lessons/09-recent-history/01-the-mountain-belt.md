@@ -1,5 +1,7 @@
 # The mountain belt
 
+<AlbertClimber />
+
 Every JAM block remembers a little of the blocks before it, and one thing it keeps is a
 running commitment to *every accumulation output ever*. An accumulation output is 32
 bytes: the hash a service hands back when its finished work lands on the chain, usually

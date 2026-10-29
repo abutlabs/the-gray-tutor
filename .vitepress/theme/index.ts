@@ -140,6 +140,11 @@ import GuaranteeParcel from "./GuaranteeParcel.vue";
 import DisputesParcel from "./DisputesParcel.vue";
 import CheckYourself from "./CheckYourself.vue";
 import UnitText from "./UnitText.vue";
+import AlbertChalkboard from "./AlbertChalkboard.vue";
+import AlbertChemist from "./AlbertChemist.vue";
+import AlbertClimber from "./AlbertClimber.vue";
+import AlbertGambler from "./AlbertGambler.vue";
+import AlbertJailbird from "./AlbertJailbird.vue";
 import AlbertJudge from "./AlbertJudge.vue";
 import PartFlow from "./PartFlow.vue";
 import "./custom.css";
@@ -159,6 +164,11 @@ export default {
     // the lessons' widgets, placed in a lesson as <HexByte /> and so on (WRITING.md, Interactive)
     app.component("PartFlow", PartFlow); // every Part's opening page
     app.component("AlbertJudge", AlbertJudge); // Part 10's opening page: the court
+    app.component("AlbertChalkboard", AlbertChalkboard); // the symbols page: mid-proof
+    app.component("AlbertChemist", AlbertChemist); // Part 2's opening page: the vector says what comes out
+    app.component("AlbertGambler", AlbertGambler); // Part 8's opening page: the ticket lottery
+    app.component("AlbertClimber", AlbertClimber); // 9.1: mountains of 1, 2 and 4
+    app.component("AlbertJailbird", AlbertJailbird); // 10.5: his keys went into ψ_O
     app.component("HexByte", HexByte); // 1.1
     app.component("BitsAndBytes", BitsAndBytes); // 1.1
     app.component("FixedWidth", FixedWidth); // 2.1

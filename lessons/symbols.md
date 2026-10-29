@@ -1,5 +1,7 @@
 # Gray Paper symbols
 
+<AlbertChalkboard />
+
 The Gray Paper writes its rules in maths. This page is the key to it: every symbol the
 tutorial uses, how to say it out loud, what it means, an example, where the Gray Paper
 defines it, and where it shows up. Every formula in a lesson has a small key under it that

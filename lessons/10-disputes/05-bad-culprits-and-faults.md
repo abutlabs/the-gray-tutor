@@ -1,5 +1,7 @@
 # Bad culprits and faults
 
+<AlbertJailbird />
+
 [Lesson 10.4](./04-bad-verdicts.md) checked the verdicts. Now the accusations: a culprit says "this validator
 vouched for a bad report", a fault "this validator voted the wrong way", and either gets
 a validator punished. So they had better be true: about a real validator, backed by its

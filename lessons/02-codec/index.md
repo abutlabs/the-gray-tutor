@@ -1,5 +1,7 @@
 # Part 2 · The codec
 
+<AlbertChemist />
+
 Appendix C of the Gray Paper defines the codec ℰ, which turns any JAM value into bytes,
 and its inverse, which reads the value back. It matters more than it looks. JAM hashes
 encodings: a block's hash is the hash of its header's encoding, a work-report is known

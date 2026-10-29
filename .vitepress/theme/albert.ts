@@ -124,6 +124,7 @@ export const drawLogo = (): string => head("The Gray Tutor", "", "neutral", LOGO
 export const drawFace = (face: Face): string => head(LOOKS[face], ' width="64" height="64"', face, BOLD);
 
 const WOOD = "#b08354", WOOD_DARK = "#7c5733";
+const BOARD = "#3a4f46", CHALK = "#e8e6df";
 
 /**
  * Albert the judge, for Part 10: one eyebrow up, a gavel raised over its block. The gavel
@@ -157,6 +158,187 @@ export function drawJudge(): string {
   ${block}
   ${bang}
   ${gavel}
+</svg>
+`;
+}
+
+/**
+ * Albert at the chalkboard, for the symbols page: looking up, mid-proof, σ′ = Υ(σ, B) on
+ * the board. The hand with the chalk is <g class="chalk">, the line he's drawing is
+ * .chalk-line, so AlbertChalkboard.vue can have him write it on hover.
+ */
+export function drawChalkboard(): string {
+  const label = "Albert at a chalkboard of Gray Paper formulas, chalk in hand";
+  const cardigan = `<g class="cardigan">`
+    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${BROW}"/>`
+    + `<path d="M27 50.5 L32 57 L37 50.5 Z" fill="${MOUSTACHE}"/>`
+    + `<path d="M32 51 L32 57" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`
+    + `</g>`;
+  const board = `<g>`
+    + `<rect x="62" y="3" width="58" height="48" rx="2" fill="${BOARD}" stroke="${WOOD_DARK}" stroke-width="2"/>`
+    + `<text x="68" y="17" font-family="ui-monospace, monospace" font-size="8.5" fill="${CHALK}">σ′ = Υ(σ, B)</text>`
+    + `<text x="68" y="29" font-family="ui-monospace, monospace" font-size="7" fill="${CHALK}" opacity="0.85">η′₀ = H(η₀ ⌢ 𝒴)</text>`
+    + `<path d="M68 34 Q76 32 82 34 Q90 36 96 34" fill="none" stroke="${CHALK}" stroke-width="1.1" opacity="0.55"/>`
+    + `<path class="chalk-line" d="M68 44 L112 44" fill="none" stroke="${CHALK}" stroke-width="1.5" stroke-linecap="round"/>`
+    + `</g>`;
+  const arm = `<path d="M48 58 Q58 54 64 47" fill="none" stroke="${BROW}" stroke-width="5.8" stroke-linecap="round"/>`;
+  const chalk = `<g class="chalk">`
+    + `<circle cx="66" cy="46" r="3.6" fill="${SKIN}"/>`
+    + `<rect x="66.5" y="42.2" width="2.6" height="6" rx="1" fill="${CHALK}" transform="rotate(32 67.8 45.2)"/>`
+    + `</g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 64" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <path fill="${HAIR}" d="${HAIR_PATH}"/>
+  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
+  ${features("hmm", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
+  ${cardigan}
+  ${board}
+  ${arm}
+  ${chalk}
+</svg>
+`;
+}
+
+/**
+ * Albert the chemist, for Part 2: lab coat, a test tube over a flask. The tube (with the
+ * fist) is <g class="tube">, hinged at the fist, and the falling drops are <g class="drops">,
+ * so AlbertChemist.vue can pour on hover. The vector says what must come out.
+ */
+export function drawChemist(): string {
+  const label = "Albert the chemist in a lab coat, tipping a test tube over a flask";
+  const coat = `<g class="coat">`
+    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${MOUSTACHE}" stroke="${BROW}" stroke-width="1"/>`
+    + `<path d="M28 51 L32 56 L36 51" fill="none" stroke="${BROW}" stroke-width="1"/>`
+    + `<circle cx="32" cy="59" r="0.9" fill="${BROW}"/><circle cx="32" cy="62.5" r="0.9" fill="${BROW}"/>`
+    + `</g>`;
+  const arm = `<path d="M50 60 Q62 54 68 44" fill="none" stroke="${MOUSTACHE}" stroke-width="6.2" stroke-linecap="round"/>`;
+  const tube = `<g class="tube">`
+    + `<circle cx="69" cy="42" r="4" fill="${SKIN}"/>`
+    + `<g transform="rotate(24 70 38)">`
+    + `<rect x="67.6" y="24" width="5" height="15" rx="2.4" fill="none" stroke="${INK}" stroke-width="1.3"/>`
+    + `<rect x="68.3" y="30.5" width="3.6" height="7.8" rx="1.8" fill="${TONGUE}"/>`
+    + `</g></g>`;
+  const flask = `<g>`
+    + `<path d="M82 40 L82 46 L76.5 58.5 Q76 61 79 61 L93 61 Q96 61 95.5 58.5 L90 46 L90 40" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>`
+    + `<path d="M78.6 54 L93.4 54 L95.2 58.5 Q95.8 61 93 61 L79 61 Q76.2 61 76.8 58.5 Z" fill="${TONGUE}" opacity="0.85"/>`
+    + `</g>`;
+  const drops = `<g class="drops" fill="${TONGUE}">`
+    + `<circle class="d1" cx="81" cy="34" r="1.3"/><circle class="d2" cx="83" cy="40" r="1.3"/><circle class="d3" cx="85" cy="47" r="1.3"/>`
+    + `</g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 64" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <path fill="${HAIR}" d="${HAIR_PATH}"/>
+  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
+  ${features("oh", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
+  ${coat}
+  ${arm}
+  ${flask}
+  ${drops}
+  ${tube}
+</svg>
+`;
+}
+
+/**
+ * Albert the gambler, for Part 8: winking, a fan of lottery tickets in hand. Each ticket is
+ * its own rect in <g class="tickets"> (the red-dotted one is the winner, .winner), so
+ * AlbertGambler.vue can spread the fan and pop the winner on hover.
+ */
+export function drawGambler(): string {
+  const label = "Albert the croupier, winking, bow tie on, a fan of lottery tickets in hand";
+  const vest = `<g class="vest">`
+    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${INK}"/>`
+    + `<path d="M26.5 50 L32 58.5 L37.5 50 Z" fill="${MOUSTACHE}"/>`
+    + `<path d="M27.8 50.6 L31 52.4 L27.8 54.2 Z M36.2 50.6 L33 52.4 L36.2 54.2 Z" fill="${TONGUE}"/>`
+    + `<circle cx="32" cy="52.4" r="1" fill="${TONGUE_LINE}"/>`
+    + `</g>`;
+  const arm = `<path d="M50 60 Q60 56 66 50" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>`;
+  const ticket = (angle: number, winner = false) =>
+    `<g class="ticket${winner ? " winner" : ""}" style="--lean: ${angle}deg">`
+    + `<rect x="66" y="30" width="11" height="17" rx="1.6" fill="${MOUSTACHE}" stroke="${INK}" stroke-width="1.1"/>`
+    + `<circle cx="71.5" cy="35.5" r="1.7" fill="${winner ? TONGUE : BROW}"/>`
+    + `</g>`;
+  const tickets = `<g class="tickets">${ticket(-24)}${ticket(-8)}${ticket(8, true)}${ticket(24)}`
+    + `<circle cx="69" cy="49" r="4" fill="${SKIN}"/></g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 64" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <path fill="${HAIR}" d="${HAIR_PATH}"/>
+  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
+  ${features("wink", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
+  ${vest}
+  ${arm}
+  ${tickets}
+</svg>
+`;
+}
+
+/**
+ * Albert the climber, for lesson 9.1: helmet over the hair, jacket on, roped to the
+ * biggest of three mountains — of 1, 2 and 4, like the belt's. The summit flag is
+ * <g class="flag">, so AlbertClimber.vue can plant it on hover: M_R, over all of them.
+ */
+export function drawClimber(): string {
+  const label = "Albert the climber, helmet on, roped to the biggest of three mountains";
+  const jacket = `<g class="jacket">`
+    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${BOARD}"/>`
+    + `<path d="M32 54.5 L32 63" fill="none" stroke="${CHALK}" stroke-width="1" opacity="0.7"/>`
+    + `</g>`;
+  const helmet = `<path d="M21.5 12 A10.5 9 0 0 1 42.5 12 Z" fill="${TONGUE}" stroke="${TONGUE_LINE}" stroke-width="1"/>`
+    + `<path d="M26 6.4 L38 6.4" fill="none" stroke="${TONGUE_LINE}" stroke-width="1" stroke-linecap="round"/>`;
+  const mountains = `<g>`
+    + `<path d="M62 64 L70 50 L78 64 Z" fill="${HAIR}" stroke="${BROW}" stroke-width="1.2" stroke-linejoin="round"/>`
+    + `<path d="M74 64 L86 42 L98 64 Z" fill="${HAIR}" stroke="${BROW}" stroke-width="1.2" stroke-linejoin="round"/>`
+    + `<path d="M90 64 L108 16 L126 64 Z" fill="${HAIR}" stroke="${BROW}" stroke-width="1.2" stroke-linejoin="round"/>`
+    + `</g>`;
+  const rope = `<path d="M56 56 Q84 52 106.5 18.5" fill="none" stroke="${WOOD}" stroke-width="1.6" stroke-linecap="round"/>`;
+  const arm = `<path d="M48 59 Q52 57 55 56" fill="none" stroke="${BOARD}" stroke-width="6" stroke-linecap="round"/>`
+    + `<circle cx="56" cy="56" r="3.6" fill="${SKIN}"/>`;
+  const flag = `<g class="flag">`
+    + `<path d="M108 16 L108 4" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linecap="round"/>`
+    + `<path d="M108 4.5 L117 7.75 L108 11 Z" fill="${TONGUE}"/>`
+    + `</g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 64" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <path fill="${HAIR}" d="${HAIR_PATH}"/>
+  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
+  ${features("oh", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
+  ${helmet}
+  ${jacket}
+  ${mountains}
+  ${rope}
+  ${arm}
+  ${flag}
+</svg>
+`;
+}
+
+/**
+ * Albert the jailbird, for lesson 10.5: striped suit, behind the bars of his cell, fists
+ * on two of them. The bars and fists are <g class="cell">, so AlbertJailbird.vue can
+ * rattle them on hover. His keys went into ψ_O.
+ */
+export function drawJailbird(): string {
+  const label = "Albert the jailbird in stripes, puzzled, gripping the bars of his cell";
+  const suit = `<g class="suit">`
+    + `<clipPath id="albert-jail-suit"><path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z"/></clipPath>`
+    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${MOUSTACHE}"/>`
+    + `<g clip-path="url(#albert-jail-suit)" stroke="${INK}" stroke-width="3" fill="none">`
+    + `<path d="M9 53.5 L56 53.5"/><path d="M9 60 L56 60"/>`
+    + `</g></g>`;
+  const bar = (x: number) => `<path d="M${x} 3 L${x} 62" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/>`;
+  const cell = `<g class="cell">`
+    + `<path d="M2 5 L70 5" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/>`
+    + bar(6) + bar(22) + bar(42) + bar(58)
+    + `<circle cx="22" cy="46" r="3.8" fill="${SKIN}"/>`
+    + `<circle cx="42" cy="46" r="3.8" fill="${SKIN}"/>`
+    + `</g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 64" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <path fill="${HAIR}" d="${HAIR_PATH}"/>
+  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
+  ${features("puzzled", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
+  ${suit}
+  ${cell}
 </svg>
 `;
 }
