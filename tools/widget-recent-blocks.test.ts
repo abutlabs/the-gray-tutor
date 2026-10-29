@@ -15,11 +15,24 @@ const raw = lessonText(LESSON);
 const trace = (n: number) => join(ROOT, `vectors/traces/preimages/${String(n).padStart(8, "0")}.json`);
 
 test("β before block 50 is the lesson's history run, line for line, and the belt reads 49", () => {
-  const lines = [...raw.matchAll(/^slot\s+(\d+)\s+header (0x[0-9a-f]+…)\s+state root (0x[0-9a-f]+…)\s+reported: (\d)$/gm)];
+  const lines = [...raw.matchAll(/^slot\s+(\d+)\s+header (0x[0-9a-f]+…)\s+state root (0x[0-9a-f]+…)\s+beefy (0x[0-9a-f]+…)\s+reported: (\d)\s+belt ([●· ]+)$/gm)];
   assert.equal(lines.length, 8);
   const before = STEPS[0].before;
-  assert.deepEqual(before.history.map((b) => [b.slot, b.header_hash, b.state_root, b.reported]), lines.map(([, s, h, r, n]) => [Number(s), h, r, Number(n)]));
+  assert.deepEqual(
+    before.history.map((b) => [b.slot, b.header_hash, b.state_root, b.beefy_root, b.reported]),
+    lines.map(([, s, h, r, by, n]) => [Number(s), h, r, by, Number(n)]),
+  );
+  // the belt column is each block's count in binary: 42 to 49 items, newest = the stored belt
+  for (const [k, [, s, , , , , shape]] of lines.entries()) {
+    const expected = [...(42 + k).toString(2)].reverse().map((b) => (b === "1" ? "●" : "·")).join(" ");
+    assert.equal(shape, expected, `slot ${s}'s shape is its count in binary`);
+  }
+  assert.equal(lines.at(-1)![6], drawBelt(before.belt), "the newest row's shape is the stored belt's");
   assert.match(raw, /^the belt: ● · · · ● ●$/m);
+  // the live fold's line lands on the newest block's beefy, as the program checks itself
+  const fold = /^its super-peak, folded live: (0x[0-9a-f]+…) — the newest block's beefy ✓$/m.exec(raw);
+  assert.ok(fold, "the folded-live line, with its check mark");
+  assert.equal(fold![1], before.history.at(-1)!.beefy_root);
   assert.equal(drawBelt(before.belt), "● · · · ● ●");
   assert.equal(beltCount(before.belt), 49, "110001 in binary is 49");
   assert.match(lessonCode("9.2"), /export const RECENT_BLOCKS = 8;/);

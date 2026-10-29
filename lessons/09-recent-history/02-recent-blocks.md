@@ -288,14 +288,16 @@ reported 92 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 **New file** `bin/history.ts`
 
 ```ts
-// Reads β from the state before a trace's block: the blocks the chain remembers, and its
-// belt of accumulation outputs.
+// Reads β from the state before a trace's block: the blocks the chain remembers, each with
+// the belt's super-peak as it stood after that block (its beefy_root), and the one belt,
+// its super-peak folded live and checked against the newest block's.
 // Usage: npm run history <trace.json>, e.g.
 //        npm run history ../vectors/traces/preimages/00000050.json
 
 import { readFileSync } from "node:fs";
 import type { Bytes } from "../src/bytes.ts";
 import { fromHex, toHex } from "../src/bytes.ts";
+import { superPeak } from "../src/belt.ts";
 import { Run } from "../src/obs.ts";
 import { readRecent } from "../src/state.ts";
 
@@ -307,15 +309,27 @@ const entries = trace.pre_state.keyvals.map((e: { key: string; value: string }) 
 }));
 const { history, belt } = readRecent(entries);
 const short = (bytes: Bytes) => `${toHex(bytes).slice(0, 10)}…`;
+/** The belt's shape after n items: n in binary, smallest mountain first. */
+const dot = (bit: string) => (bit === "1" ? "●" : "·");
+const dots = (n: number) => [...n.toString(2)].reverse().map(dot).join(" ");
+const items = belt.reduce((n: number, peak, i) => (peak === null ? n : n + 2 ** i), 0);
 const run = new Run("history");
-for (const { slot, header_hash, state_root, reported } of history) {
+for (const [i, { slot, header_hash, state_root, beefy_root, reported }] of history.entries()) {
+  const onBelt = items - (history.length - 1 - i); // every block appended one item
   const roots = `header ${short(header_hash)}  state root ${short(state_root)}`;
-  console.log(`slot ${String(slot).padStart(3)}  ${roots}  reported: ${reported.length}`);
-  run.event("block", { slot, header_hash, state_root, reported: reported.length });
+  const line = `slot ${String(slot).padStart(3)}  ${roots}  beefy ${short(beefy_root)}`;
+  console.log(`${line}  reported: ${reported.length}  belt ${dots(onBelt)}`);
+  const counted = { reported: reported.length, belt: dots(onBelt) };
+  run.event("block", { slot, header_hash, state_root, beefy_root, ...counted });
 }
 const peaks = belt.map((peak) => (peak === null ? "·" : "●")).join(" ");
+const top = superPeak(belt);
+const newest = history[history.length - 1];
+const same = toHex(top) === toHex(newest.beefy_root);
+const agrees = same ? "the newest block's beefy ✓" : "NOT the newest block's beefy ✗";
 console.log(`the belt: ${peaks}`);
-run.event("belt", { peaks });
+console.log(`its super-peak, folded live: ${short(top)} — ${agrees}`);
+run.event("belt", { peaks, superPeak: top });
 const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
@@ -329,21 +343,30 @@ npm run history-preimages
 ```
 
 ```text
-slot  42  header 0x8492038c…  state root 0x85e2f9da…  reported: 0
-slot  43  header 0x083e87af…  state root 0x92b349ae…  reported: 0
-slot  44  header 0x0193a9f8…  state root 0xf3d9561f…  reported: 2
-slot  45  header 0xdf827752…  state root 0x1e90a7be…  reported: 1
-slot  46  header 0xb3711eed…  state root 0xa61f6f99…  reported: 0
-slot  47  header 0x12d04d3e…  state root 0x2f529bd8…  reported: 1
-slot  48  header 0x1beca774…  state root 0xd095c60f…  reported: 1
-slot  49  header 0x7c7ee195…  state root 0x00000000…  reported: 1
+slot  42  header 0x8492038c…  state root 0x85e2f9da…  beefy 0xd33299c9…  reported: 0  belt · ● · ● · ●
+slot  43  header 0x083e87af…  state root 0x92b349ae…  beefy 0xf25da2b7…  reported: 0  belt ● ● · ● · ●
+slot  44  header 0x0193a9f8…  state root 0xf3d9561f…  beefy 0xddaed19c…  reported: 2  belt · · ● ● · ●
+slot  45  header 0xdf827752…  state root 0x1e90a7be…  beefy 0x8e61f98d…  reported: 1  belt ● · ● ● · ●
+slot  46  header 0xb3711eed…  state root 0xa61f6f99…  beefy 0xbede1624…  reported: 0  belt · ● ● ● · ●
+slot  47  header 0x12d04d3e…  state root 0x2f529bd8…  beefy 0x524e191c…  reported: 1  belt ● ● ● ● · ●
+slot  48  header 0x1beca774…  state root 0xd095c60f…  beefy 0xebfeb74b…  reported: 1  belt · · · · ● ●
+slot  49  header 0x7c7ee195…  state root 0x00000000…  beefy 0x41063bd0…  reported: 1  belt ● · · · ● ●
 the belt: ● · · · ● ●
-reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=history-1791731472054
+its super-peak, folded live: 0x41063bd0… — the newest block's beefy ✓
+reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=history-1793314582825
 ```
 
 Eight blocks, slots 42 to 49, and only the newest still waiting for its state root. Now
 read the belt backwards, as [lesson 9.1](./01-the-mountain-belt.md) taught you: 110001 in binary is 49, one
-accumulation root for each block so far. The *Recent history* panel, on the **3 ·
+accumulation root for each block so far. The `beefy` column is the super-peak as it stood
+after each block — eight snapshots of the one belt, a fresh M_R every block because every
+block appends. The `belt` column is where [lesson 9.1](./01-the-mountain-belt.md)'s
+one-way street gets precise: the old belts' *hashes* are gone for good — only the stored
+belt, the newest line's, has real peaks behind its dots — but their *shapes* cost
+nothing, because a shape is only the item count in binary, and each block's count is one
+less than the next. So the program draws every shape and could recover no peak but the
+last row's. Watch slot 47 → 48: `● ● ● ● · ●` collapses to `· · · · ● ●`, four merges
+in one block, 101111 + 1 = 110000. The *Recent history* panel, on the **3 ·
 Consensus** dashboard, shows it all.
 
 Now let block 50 arrive, then 51 and 52: the three steps, on the trace's own β.
