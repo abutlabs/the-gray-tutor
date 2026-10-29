@@ -4,21 +4,54 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import { appendSteps, beltOf, beltPartway, itemsIn, label, mergeMountains, peaksIn } from "../.vitepress/theme/belt.ts";
+import { keccak_256 } from "@noble/hashes/sha3.js";
+import { appendSteps, beltOf, beltPartway, beltSuperPeak, itemMountain, itemsIn, label, mergeMountains, peaksIn, shortHash } from "../.vitepress/theme/belt.ts";
 import type { Belt, Mountain } from "../.vitepress/theme/belt.ts";
+import { fromHex, toHex } from "../.vitepress/theme/super-peak.ts";
 import { count, judge, votesNeeded, votesOf, wonkyCount } from "../.vitepress/theme/verdict.ts";
 import { lessonText, lessonCode } from "./lessons.ts";
 
 const BELT = "09-recent-history/01-the-mountain-belt.md";
 const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4 };
 
-test("the belt widget grows lesson 9.1's belt: bin/belt.ts's dots, after each of 16 items", () => {
-  const rows = [...lessonText(BELT).matchAll(/^after\s+(\d+): ([●· ]+?)\s+super-peak/gm)];
+test("the belt widget grows lesson 9.1's belt: bin/belt.ts's dots and super-peaks, after each of 16 items", () => {
+  const rows = [...lessonText(BELT).matchAll(/^after\s+(\d+): ([●· ]+?)\s+super-peak (0x[0-9a-f]{8})…/gm)];
   assert.equal(rows.length, 16, "read bin/belt.ts's output");
-  for (const [, n, dots] of rows) {
-    const shape = beltOf(Number(n)).map((peak) => (peak === null ? "·" : "●")).join(" ");
+  for (const [, n, dots, top] of rows) {
+    const belt = beltOf(Number(n));
+    const shape = belt.map((peak) => (peak === null ? "·" : "●")).join(" ");
     assert.equal(shape, dots, `after ${n}`);
+    // the widget's hashes are real: its super-peak is the one the lesson's terminal printed
+    assert.equal(beltSuperPeak(belt).slice(0, 10), top, `super-peak after ${n}`);
   }
+});
+
+test("the widget's mountains hold bin/belt.ts's real 32-byte hashes: item i is H(the byte i), a merge is H(peak ⌢ carried)", () => {
+  const five = itemMountain(5);
+  assert.equal(five.hash, toHex(keccak_256(new Uint8Array([5]))));
+  assert.equal(five.hash.length, 2 + 64, "0x and 32 bytes");
+  assert.equal(shortHash(five), `${five.hash.slice(0, 10)}…`);
+  const merged = mergeMountains(itemMountain(1), itemMountain(2));
+  assert.equal(merged.hash, toHex(keccak_256(new Uint8Array([...fromHex(itemMountain(1).hash), ...fromHex(itemMountain(2).hash)]))));
+  assert.deepEqual([merged.first, merged.last], [1, 2]);
+  // after 1 item the belt's one peak is the item itself, and M_R of one peak is that peak:
+  // bin/belt.ts's first line, "after 1: ● super-peak 0x5fe7f977…", is H(the byte 1)
+  assert.equal(beltSuperPeak([itemMountain(1)]), itemMountain(1).hash);
+});
+
+test("take one back: the 32-item belt alone cannot give the 31-item belt's five peaks", () => {
+  const b31 = beltOf(31);
+  const b32 = beltOf(32);
+  assert.deepEqual(b31.map((p) => (p === null ? "·" : "●")), ["●", "●", "●", "●", "●"], "31 is 11111");
+  assert.deepEqual(b32.map((p) => (p === null ? "·" : "●")), ["·", "·", "·", "·", "·", "●"], "32 is 100000");
+  const { steps } = appendSteps(b31, itemMountain(32), mergeMountains);
+  assert.equal(steps.filter((s) => s.action === "merge").length, 5, "five merges eat the five peaks");
+  // nothing in the 32-item belt equals any of the five peaks: they were hashed away, not kept
+  for (const p of b31) assert.ok(!b32.some((q) => q !== null && q.hash === p!.hash));
+  // after 33, the one step back is easy: item 33 rests alone in place 0, unhashed
+  const b33 = beltOf(33);
+  assert.equal(b33[0]!.hash, itemMountain(33).hash);
+  assert.deepEqual([null, ...b33.slice(1)], b32, "clear place 0 and 32 items remain");
 });
 
 test("the belt widget agrees with 9.1's words: 5 items, the 7 → 8 carry, H(peak ⌢ carried)", () => {
@@ -33,8 +66,14 @@ test("the belt widget agrees with 9.1's words: 5 items, the 7 → 8 carry, H(pea
   // "the 7 → 8 append carries all the way up, three merges in a row"
   const [, from, to, merges] = /the (\d+) → (\d+) append carries all the way up, (\w+) merges/.exec(text)!;
   assert.equal(Number(to), Number(from) + 1);
-  const { steps } = appendSteps(beltOf(Number(from)), { first: Number(to), last: Number(to) }, mergeMountains);
+  const { steps } = appendSteps(beltOf(Number(from)), itemMountain(Number(to)), mergeMountains);
   assert.equal(steps.filter((s) => s.action === "merge").length, WORDS[merges]);
+  // the lesson teaches going backwards right after the widget, and why the super-peak is labelled
+  assert.ok(text.indexOf("<MountainBelt />") < text.indexOf("take one back"), "backwards follows the widget");
+  assert.ok(text.indexOf("take one back") < text.indexOf("Why the label?"), "the label's why follows");
+  assert.ok(text.indexOf("Why the label?") < text.indexOf("<SuperPeak />"), "before the super-peak widget");
+  assert.match(text, /Can the client compute the 31-item belt/, "the check asks the backwards question");
+  assert.match(text.replace(/\s+/g, " "), /no merge can ever produce/, "68 bytes vs 64");
   // the merge is H(peak ⌢ carried): the peak first, as the lesson's code concatenates
   assert.match(lessonCode("9.1"), /keccak256\(concatBytes\(peak, carry\)\)/);
   let belt: Belt<string> = [];
@@ -51,7 +90,7 @@ test("peaks are the 1 bits of n, for n = 0 to 1,000, and each step of a carry is
   let belt: Belt<Mountain> = [];
   for (let n = 0; n <= 1000; n++) {
     if (n > 0) {
-      const { steps, belt: after } = appendSteps(belt, { first: n, last: n }, mergeMountains);
+      const { steps, belt: after } = appendSteps(belt, itemMountain(n), mergeMountains);
       // a carry merges at every 1 bit from the bottom, then rests in the first 0
       const trailingOnes = (n - 1).toString(2).split("").reverse().join("").indexOf("0");
       const merges = trailingOnes === -1 ? (n - 1).toString(2).length : trailingOnes;
@@ -75,8 +114,8 @@ test("peaks are the 1 bits of n, for n = 0 to 1,000, and each step of a carry is
     });
     assert.equal(last, 0, `${n}: every item is in a mountain`);
   }
-  assert.equal(label({ first: 1, last: 4 }), "1–4");
-  assert.equal(label({ first: 5, last: 5 }), "5");
+  assert.equal(label({ first: 1, last: 4, hash: "" }), "1–4");
+  assert.equal(label({ first: 5, last: 5, hash: "" }), "5");
 });
 
 const VERDICTS = "10-disputes/01-votes-and-verdicts.md";

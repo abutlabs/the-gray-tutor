@@ -1,7 +1,12 @@
 // Lesson 9.1's widget: a Merkle mountain belt (Gray Paper, Appendix E), appended to one item
 // at a time. Appending carries the item up from place 0, merging with every peak it meets,
-// until it rests in an empty place: adding 1 in binary. tools/widget-belt-verdicts.test.ts checks it
-// against the lesson's own values.
+// until it rests in an empty place: adding 1 in binary — except that each "digit" is a real
+// 32-byte Keccak hash, computed live. The items are bin/belt.ts's own (item i is Keccak-256
+// of the byte i), so every peak and super-peak here matches what `npm run belt` prints.
+// tools/widget-belt-verdicts.test.ts checks it against the lesson's own values.
+
+import { keccak_256 } from "@noble/hashes/sha3.js";
+import { fromHex, superPeakSteps, toHex } from "./super-peak.ts";
 
 /** A belt: peak i is the root of a mountain of 2^i items, or null (∅) if there's none. */
 export type Belt<T> = (T | null)[];
@@ -47,21 +52,34 @@ export function beltPartway<T>(belt: Belt<T>, steps: Step<T>[], taken: number): 
   return peaks;
 }
 
-/** A mountain in the widget: items first to last (counting from 1), not real hashes. */
-export type Mountain = { first: number; last: number };
+/** A mountain in the widget: items first to last (counting from 1), and its real 32-byte peak. */
+export type Mountain = { first: number; last: number; hash: string };
 
 /** A mountain's label: "5" for one item, "1–4" for items 1 to 4. */
 export const label = (m: Mountain): string => (m.first === m.last ? `${m.first}` : `${m.first}–${m.last}`);
 
-/** H(peak ⌢ carried), as the widget draws it: the older mountain's items, then the carried ones. */
-export const mergeMountains = (peak: Mountain, carried: Mountain): Mountain => ({ first: peak.first, last: carried.last });
+/** The first 4 of a peak's 32 bytes, for a narrow box: "0x3ef0aafe…". */
+export const shortHash = (m: Mountain): string => `${m.hash.slice(0, 10)}…`;
+
+/** Item i as bin/belt.ts makes it: Keccak-256 of the one byte i — any 32 bytes will do. */
+export const itemMountain = (i: number): Mountain => ({ first: i, last: i, hash: toHex(keccak_256(new Uint8Array([i]))) });
+
+/** H(peak ⌢ carried): real Keccak-256 over the two 32-byte peaks, 64 bytes in, 32 out. */
+export const mergeMountains = (peak: Mountain, carried: Mountain): Mountain => ({
+  first: peak.first,
+  last: carried.last,
+  hash: toHex(keccak_256(new Uint8Array([...fromHex(peak.hash), ...fromHex(carried.hash)]))),
+});
 
 /** The belt of items 1 to n, appended one at a time. */
 export function beltOf(n: number): Belt<Mountain> {
   let belt: Belt<Mountain> = [];
-  for (let item = 1; item <= n; item++) belt = appendSteps(belt, { first: item, last: item }, mergeMountains).belt;
+  for (let item = 1; item <= n; item++) belt = appendSteps(belt, itemMountain(item), mergeMountains).belt;
   return belt;
 }
+
+/** M_R of the widget's belt, with super-peak.ts's live fold: what bin/belt.ts prints per line. */
+export const beltSuperPeak = (belt: Belt<Mountain>): string => superPeakSteps(belt.map((p) => (p === null ? null : p.hash))).root;
 
 /** How many items a belt holds: 2^i for each place i holding a peak. */
 export const itemsIn = <T>(belt: Belt<T>): number => belt.reduce((n: number, peak, i) => (peak === null ? n : n + 2 ** i), 0);

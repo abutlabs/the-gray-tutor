@@ -91,6 +91,7 @@ trezor
 trie
 tsc
 typeberry
+unhashed
 unshield
 unstaked
 untyped

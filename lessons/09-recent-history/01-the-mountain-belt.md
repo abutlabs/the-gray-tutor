@@ -37,20 +37,46 @@ P, that calls itself once per place): start at place 0, carrying l.
 - If you run off the end, the carried hash becomes a new, biggest mountain.
 
 That's binary addition, with mountains for 1s, empty places for 0s, and merging for
-"carry the one".
+"carry the one". One difference, and it's the whole point: a counter's digit is a bare
+1, and carrying throws its 1s away — nothing about 1000 remembers the eight 1s that
+made it. Here every held place stores exactly 32 bytes, a Keccak-256 hash, and a carry
+hashes the two peaks it eats, so the one peak of 1000 still commits to all 8 items.
+A binary counter whose digits are receipts.
 
-Try it. Each tap appends one item. The items are numbered here, not hashed, so a peak
-reads as the items under it: 1–4 is the mountain over items 1 to 4. It starts at 5
-items, a mountain of 4 and a mountain of 1. Turn on step by step and watch the carry
-climb one place at a time, merging or resting, just as the 1s carried in
+Try it. Each tap appends one item. A peak's label reads as the items under it — 1–4 is
+the mountain over items 1 to 4 — and the bytes beneath the label are the peak itself,
+hashed live on this page with the same items `npm run belt` uses, so every hash and
+super-peak here matches what your terminal prints. It starts at 5 items, a mountain of
+4 and a mountain of 1. Turn on step by step and watch the carry climb one place at a
+time, merging or resting, just as the 1s carried in
 [lesson 2.2](../02-codec/02-compact-naturals.md). Then append up to 8, for three merges in a row:
 
 <MountainBelt />
+
+And backwards? Jump to 32 items and the belt is one peak: `· · · · · ●`, 100000, five
+mountains collapsed into one by five merges. Now *take one back*. The page manages it
+only by cheating — it kept the items and replays 1 to 31 from an empty belt. Your
+client never could: each merge's H(peak ⌢ carried) destroyed the two 32-byte peaks it
+read, and Keccak has no reverse, so the five peaks of 31 items are not derivable from
+the 32-item belt alone. (After 33 the one step back *is* easy — item 33 sits alone in
+place 0, unhashed; it's the merges that lock the door.) The belt is a commitment, not
+an archive: it can prove the past it was shown, never replay it. And that's fine,
+because nothing in JAM ever rewinds the belt — it only appends, one accumulate root
+per block.
 
 The *super-peak*, M_R, squeezes a belt into one hash: take the peaks that exist, in
 order. None gives 32 zero bytes, and one gives itself. Otherwise it's
 H(`$peak` ⌢ M_R(all but the last) ⌢ the last). The `$` marks an ASCII string, as in
 [lesson 5.3](../05-hashing-and-signatures/03-signatures.md): the bytes hashed are the four letters `peak`, without the `$`.
+
+Why the label? Without it, the super-peak of two peaks would be H(peak₀ ⌢ peak₁) — the
+same 64 bytes a merge hashes. One value would then mean two things: "a belt of two
+mountains" and "one mountain twice the size" would hash identically, and a bridge
+signing the super-peak couldn't say which it had signed. The four letters make the
+super-peak's input 68 bytes, which no merge can ever produce. It's the same trick as
+the signing contexts of [lesson 8.9](../08-safrole/09-seals.md): every hash first states what it is. Like
+writing TOTAL beside the sum on a receipt, so the total can never be read as one more
+item.
 
 Here is M_R on the history vectors' real belts, hashed live on this page — the belt of 9
 items is the one with a merge to watch, and every answer is the vector's own `beefy_root`:
@@ -405,6 +431,19 @@ same `history` vectors. OCaml's `match` makes the binary counter almost a poem.
 - [ ] 32 zero bytes
   > No: zeros are for a belt with no peaks at all. This one has a mountain over all 4
   > items.
+
+**Appending item 32 merges five times and leaves one peak: [∅, ∅, ∅, ∅, ∅, a hash]. Can the client compute the 31-item belt — the five peaks that were there — from the 32-item belt alone?**
+
+- [ ] Yes: split the hash back into the five peaks it was built from
+  > No: Keccak-256 is one-way. Each merge's H(peak ⌢ carried) read 64 bytes and kept
+  > 32; no amount of work recovers the inputs from the output.
+- [ ] Yes: the hash still contains all 31 items, so decode them back out
+  > No: 32 bytes *commit* to the items, they don't *contain* them. The belt can prove
+  > a past it was shown, never replay one — a receipt, not a copy.
+- [x] No: only replaying items 1 to 31 onto an empty belt rebuilds those peaks
+  > Yes: the items themselves are the only road back, and the belt doesn't keep them.
+  > That's fine — JAM only ever appends. After 33, though, one step back would be easy:
+  > item 33 sits alone in place 0, unhashed, so clearing the place is the whole step.
 
 **Why does the belt hash with Keccak-256, not Blake2b like the rest of JAM?**
 
