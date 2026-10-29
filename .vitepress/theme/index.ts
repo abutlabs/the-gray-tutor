@@ -21,6 +21,7 @@ import TrieBuilder from "./TrieBuilder.vue";
 import StateRoot from "./StateRoot.vue";
 import StateKeyWeave from "./StateKeyWeave.vue";
 import MountainBelt from "./MountainBelt.vue";
+import SuperPeak from "./SuperPeak.vue";
 import VerdictVotes from "./VerdictVotes.vue";
 import ReportLife from "./ReportLife.vue";
 import GuarantorSeats from "./GuarantorSeats.vue";
@@ -272,6 +273,7 @@ export default {
     app.component("StateKeyWeave", StateKeyWeave); // 6.2
     app.component("SafroleEpoch", SafroleEpoch); // 8.5
     app.component("MountainBelt", MountainBelt); // 9.1
+    app.component("SuperPeak", SuperPeak); // 9.1
     app.component("VerdictVotes", VerdictVotes); // 10.1
     app.component("AssuranceGrid", AssuranceGrid); // 11.1
     app.component("ReportLife", ReportLife); // 11.2

@@ -52,6 +52,11 @@ order. None gives 32 zero bytes, and one gives itself. Otherwise it's
 H(`$peak` ⌢ M_R(all but the last) ⌢ the last). The `$` marks an ASCII string, as in
 [lesson 5.3](../05-hashing-and-signatures/03-signatures.md): the bytes hashed are the four letters `peak`, without the `$`.
 
+Here is M_R on the history vectors' real belts, hashed live on this page — the belt of 9
+items is the one with a merge to watch, and every answer is the vector's own `beefy_root`:
+
+<SuperPeak />
+
 And the hash? Not Blake2b, for once. §7 says the belt uses *Keccak-256*, Ethereum's
 hash, "to maximize compatibility with legacy systems": a bridge contract on Ethereum can
 check JAM's belt with a hash it has built in.
