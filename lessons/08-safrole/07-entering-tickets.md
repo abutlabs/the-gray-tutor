@@ -31,6 +31,13 @@ proof). In plain steps:
 6. **The lottery keeps the E lowest ids** of its old tickets and the new ones together; at
    a new epoch it starts empty.
 
+Steps 1, 2 and 6 are three different caps, and two of them both read as "max tickets": n
+is what one *validator* may make for the epoch, K is what one *block* may carry. Here are
+the numbers side by side — flip to full and step the blocks to see the whole supply flow
+through the pipe:
+
+<TicketBudget />
+
 The test vectors name what's broken: `bad_slot` (the block's slot isn't after the last
 one's, from [lesson 7.1](../07-time-and-shuffling/01-epochs.md)), `unexpected_ticket` (step 1), `bad_ticket_attempt` (step 2),
 `bad_ticket_order` (step 4), `duplicate_ticket` (step 5). The Gray Paper itself names no

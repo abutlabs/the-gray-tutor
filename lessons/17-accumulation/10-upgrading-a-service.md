@@ -28,6 +28,11 @@ the service doesn't hold that preimage yet, it can't run at all until it does. U
 safely (asking for the new code first, with `solicit`) is the service's job, not the
 chain's.
 
+Walk both roads with the vector's own record. Upgrade right away and ask for the next run,
+or solicit the new code first — one road runs `0xc0f2…`, the other stalls the service:
+
+<UpgradeSwap />
+
 ## The tests
 
 **Add to** `test/host.test.ts`

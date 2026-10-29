@@ -39,6 +39,20 @@ All three are in the [glossary](../glossary.md).
 
 That's [lesson 8.7](./07-entering-tickets.md)'s last missing rule.
 
+You already built a commitment like this: [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s state root squeezes the whole
+state into 32 bytes you can check facts against. γ_Z squeezes the validator list into 144
+bytes you can check *membership* against — anonymously, which a plain hash can't offer.
+Here is the real ring the tiny vector `enact-epoch-change-with-padding-1.json` rotates in,
+and its real γ′_Z. Tap a seat to zero its key, the way [lesson 8.2](./02-rotating-the-validators.md) zeroes an offender's,
+and the root answers:
+
+<RingRoot />
+
+One seat is strange on purpose: validator 3's key isn't a point on the curve at all, so
+the ring holds the padding point there whether you zero it or not — the vector exists to
+test exactly that. And the root's last 48 bytes never move: that third point comes from
+the fixed setup, not from the keys.
+
 ### A library, not code of your own
 
 Making a ring root and checking a ring proof is serious cryptography: elliptic curves,
@@ -52,6 +66,11 @@ as WebAssembly. Your client calls three of its functions: `ringCommitment`,
 Two honest notes. The library makes rings of 6 or 1,023 keys only, the two sizes the
 official networks use; that's all your client needs. And it checks a block's ring proofs
 all together, in one go: when one fails it can't say which, so neither can your client.
+
+The wrapper is the only borrowed part, and it's small. lasair, an OCaml client, writes
+its own: a hundred lines of FFI glue calling the same ark-vrf, compiled to native code
+instead of WebAssembly. Every client ends at that one Rust library; teams differ only in
+the bridge to it. [Cryptography we use](../cryptography.md) compares the two bridges.
 
 ## Install it
 

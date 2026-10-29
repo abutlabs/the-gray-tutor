@@ -17,6 +17,14 @@ plus 248 per KiB asked for.
 Reading another service's preimages is fine: preimages are public by nature. Anyone
 holding the data could check it against the hash.
 
+Three questions in one call, answered on real values: the test's "hello, JAM" under
+service 0, and the 8-byte blob service 1729 keeps in the `lookup_foreign_preimage` vector
+(its bytes spell "preimage"). Pick whose, which hash, and the window, and watch φ₇ and the
+gas answer — the gas is for the bytes *asked for*, and it's charged before the preimage is
+even found:
+
+<LookupCall />
+
 ## The tests
 
 The tests' account gets an empty set of preimages:

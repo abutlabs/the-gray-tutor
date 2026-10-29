@@ -66,6 +66,10 @@ import Rotation from "./Rotation.vue";
 import LotteryClose from "./LotteryClose.vue";
 import OutsideIn from "./OutsideIn.vue";
 import TicketRules from "./TicketRules.vue";
+import TicketBudget from "./TicketBudget.vue";
+import LookupCall from "./LookupCall.vue";
+import UpgradeSwap from "./UpgradeSwap.vue";
+import RingRoot from "./RingRoot.vue";
 import SealCheck from "./SealCheck.vue";
 import Offenders from "./Offenders.vue";
 import RecentBlocks from "./RecentBlocks.vue";
@@ -190,6 +194,10 @@ export default {
     app.component("LotteryClose", LotteryClose); // 8.4
     app.component("OutsideIn", OutsideIn); // 8.4
     app.component("TicketRules", TicketRules); // 8.7
+    app.component("TicketBudget", TicketBudget); // 8.7
+    app.component("LookupCall", LookupCall); // 16.8
+    app.component("UpgradeSwap", UpgradeSwap); // 17.10
+    app.component("RingRoot", RingRoot); // 8.8
     app.component("SealCheck", SealCheck); // 8.9
     app.component("RecentBlocks", RecentBlocks); // 9.2
     app.component("Offenders", Offenders); // 10.2
