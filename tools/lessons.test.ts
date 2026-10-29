@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { LESSONS, ROOT, clientPackages, lessonsThrough, readParts } from "./lessons.ts";
+import { FACES } from "../.vitepress/theme/albert.ts";
 
 const parts = readParts();
 const home = readFileSync(join(LESSONS, "index.md"), "utf8");
@@ -109,6 +110,9 @@ test("visual tutorial verification: every picture exists, is used, has alt text,
       shown.add(path);
     }
   }
+  // Albert's faces are used without markdown: .vitepress/albert.ts draws them onto code
+  // blocks, checks and quotes at render time, across the whole site
+  for (const face of FACES) shown.add(join(LESSONS, `00-start/images/01-albert-${face}.svg`));
   // public/ is the website's own files (the logo), served as they are, not a lesson's pictures
   for (const f of files.filter((f) => /\.(png|jpe?g|gif|webp|svg)$/i.test(f) && !f.startsWith("public/"))) {
     assert.ok(shown.has(join(LESSONS, f)), `lessons/${f} is shown by a lesson`);

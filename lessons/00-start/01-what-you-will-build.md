@@ -100,15 +100,9 @@ lines*, which a tap opens. The eye in its corner shows just the step's lines, an
 
 ### Meet Albert {#albert}
 
-Meet Albert. You'll probably see him around class, and he can't keep a straight face.
+Meet Albert. You'll probably see him around class.
 
 ![Albert sticking his tongue out](./images/01-albert-tongue.svg)
-
-**Tongue out:** You're on the scoreboard, an official milestone achieved!
-
-![Albert, eyebrows up, mouth in a little O](./images/01-albert-oh.svg) ![Albert frowning under a question mark](./images/01-albert-puzzled.svg) ![Albert winking](./images/01-albert-wink.svg) ![Albert with one eyebrow raised](./images/01-albert-eyebrow.svg) ![Albert looking up, thinking](./images/01-albert-hmm.svg)
-
-**Any other face:** Albert is cheering you on.
 
 ## You will see everything
 

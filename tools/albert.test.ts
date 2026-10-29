@@ -86,11 +86,13 @@ test("Albert perches on the block, linking to where he's met, his picture relati
   assert.match(html, /^<p>.*<\/p>\n<div class="language-sh vp-adaptive-theme has-albert"><a class="albert" href="\.\.\/00-start\/01-what-you-will-build#albert" title="[^"]+"><img src="\.\.\/00-start\/images\/01-albert-\w+\.svg" alt="Albert: [^"]+" width="60" height="60"><\/a><button title="Copy Code" class="copy">/s);
 });
 
-test("lesson 0.1 meets every face, as his pictures describe it, under the heading he links to", () => {
+test("lesson 0.1 meets Albert under the heading he links to; his other faces wait in class", () => {
   const intro = readFileSync(join(LESSONS, "00-start/01-what-you-will-build.md"), "utf8");
   assert.match(intro, /^### Meet Albert \{#albert\}$/m);
-  for (const face of FACES) {
-    assert.ok(intro.includes(`![${LOOKS[face]}](./images/01-albert-${face}.svg)`), `0.1 shows ${face}`);
+  assert.ok(intro.includes(`![${LOOKS.tongue}](./images/01-albert-tongue.svg)`), "0.1 shows the tongue");
+  // the roster of faces was cut (Aodh, 2026-10-30): the reader meets the rest on the blocks
+  for (const face of FACES.filter((f) => f !== "tongue")) {
+    assert.ok(!intro.includes(`01-albert-${face}.svg`), `0.1 no longer lists ${face}`);
   }
 });
 
