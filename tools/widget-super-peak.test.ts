@@ -47,6 +47,8 @@ test("the lesson shows the widget after M_R's definition", () => {
   assert.match(raw, /M_R = H\("peak" ⌢ acc ⌢ peak₃\)/, "the 15-item trace's last line");
   assert.ok(raw.indexOf("acc = peak₀") < raw.indexOf("<SuperPeak />"), "the trace comes before the widget");
   assert.match(raw.replace(/\s+/g, " "), /∅ places are skipped/);
+  // the three names are equated in one place: M_R = super-peak = beefy_root
+  assert.match(raw.replace(/\s+/g, " "), /One value, three names: \*\*M_R\*\*/);
   assert.ok(raw.indexOf("<MountainBelt />") < raw.indexOf("<SuperPeak />"));
   assert.match(raw.replace(/\s+/g, " "), /hashed live on this page/);
   assert.match(raw.replace(/\s+/g, " "), /every answer is the vector's own `beefy_root`/);

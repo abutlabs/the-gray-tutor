@@ -94,6 +94,10 @@ the signing contexts of [lesson 8.9](../08-safrole/09-seals.md): every hash firs
 writing TOTAL beside the sum on a receipt, so the total can never be read as one more
 item.
 
+One value, three names: **M_R** is the Gray Paper's symbol for it, the **super-peak**
+this tutorial's plain word, and **`beefy_root`** the field it fills in state — in every
+recent block's history entry, where validators sign it for bridges.
+
 Here is M_R on the history vectors' real belts, hashed live on this page — the belt of 9
 items is the one with a merge to watch, and every answer is the vector's own `beefy_root`:
 
