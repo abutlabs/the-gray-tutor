@@ -140,6 +140,7 @@ import GuaranteeParcel from "./GuaranteeParcel.vue";
 import DisputesParcel from "./DisputesParcel.vue";
 import CheckYourself from "./CheckYourself.vue";
 import UnitText from "./UnitText.vue";
+import AlbertJudge from "./AlbertJudge.vue";
 import PartFlow from "./PartFlow.vue";
 import "./custom.css";
 
@@ -157,6 +158,7 @@ export default {
   enhanceApp({ app, router }) {
     // the lessons' widgets, placed in a lesson as <HexByte /> and so on (WRITING.md, Interactive)
     app.component("PartFlow", PartFlow); // every Part's opening page
+    app.component("AlbertJudge", AlbertJudge); // Part 10's opening page: the court
     app.component("HexByte", HexByte); // 1.1
     app.component("BitsAndBytes", BitsAndBytes); // 1.1
     app.component("FixedWidth", FixedWidth); // 2.1

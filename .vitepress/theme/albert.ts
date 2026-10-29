@@ -122,3 +122,41 @@ export const drawLogo = (): string => head("The Gray Tutor", "", "neutral", LOGO
 
 /** One of Albert's faces, in the bold cut, 64 px unless shown smaller. */
 export const drawFace = (face: Face): string => head(LOOKS[face], ' width="64" height="64"', face, BOLD);
+
+const WOOD = "#b08354", WOOD_DARK = "#7c5733";
+
+/**
+ * Albert the judge, for Part 10: one eyebrow up, a gavel raised over its block. The gavel
+ * (with the fist holding it) is its own <g class="gavel">, hinged at the fist, and the
+ * impact lines are <g class="bang">, so AlbertJudge.vue can slam it on hover.
+ */
+export function drawJudge(): string {
+  const label = "Albert the judge in his robe, one eyebrow up, gavel raised";
+  const robe = `<g class="robe">`
+    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${INK}"/>`
+    + `<path d="M29.4 49.8 L34.6 49.8 L33.5 58 L30.5 58 Z" fill="${MOUSTACHE}" stroke="${BROW}" stroke-width="0.8"/>`
+    + `<path d="M32 49.8 L32 58" fill="none" stroke="${BROW}" stroke-width="0.8"/>`
+    + `</g>`;
+  const arm = `<path d="M50 60 Q62 54 68 42" fill="none" stroke="${INK}" stroke-width="6.6" stroke-linecap="round"/>`;
+  const gavel = `<g class="gavel">`
+    + `<circle cx="69" cy="40" r="4.2" fill="${SKIN}"/>`
+    + `<path d="M71 37 L83 23" fill="none" stroke="${WOOD_DARK}" stroke-width="3" stroke-linecap="round"/>`
+    + `<rect x="78" y="16.75" width="14" height="8.5" rx="2.6" fill="${WOOD}" stroke="${WOOD_DARK}" stroke-width="1.2" transform="rotate(41 85 21)"/>`
+    + `</g>`;
+  const block = `<ellipse cx="84" cy="58.5" rx="9" ry="3.2" fill="${WOOD}" stroke="${WOOD_DARK}" stroke-width="1.2"/>`;
+  const bang = `<g class="bang" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round">`
+    + `<path d="M73 51 L69.5 47.5"/><path d="M83 48.5 L83 44"/><path d="M93 51 L96.5 47.5"/>`
+    + `</g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 64" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <path fill="${HAIR}" d="${HAIR_PATH}"/>
+  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
+  ${features("eyebrow", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
+  ${robe}
+  ${arm}
+  ${block}
+  ${bang}
+  ${gavel}
+</svg>
+`;
+}
