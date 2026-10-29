@@ -69,6 +69,22 @@ order. None gives 32 zero bytes, and one gives itself. Otherwise it's
 H(`$peak` ⌢ M_R(all but the last) ⌢ the last). The `$` marks an ASCII string, as in
 [lesson 5.3](../05-hashing-and-signatures/03-signatures.md): the bytes hashed are the four letters `peak`, without the `$`.
 
+Unrolled, on the 15-item belt `● ● ● ●`, the fold reads top to bottom:
+
+```text
+acc = peak₀                        (the mountain of 1)
+acc = H("peak" ⌢ acc ⌢ peak₁)      (fold in the mountain of 2)
+acc = H("peak" ⌢ acc ⌢ peak₂)      (fold in the mountain of 4)
+M_R = H("peak" ⌢ acc ⌢ peak₃)      (fold in the mountain of 8)
+```
+
+peak₀ is the leftmost dot — the smallest mountain — joined as it is, no label, and the
+fold climbs toward the biggest. The subscripts count only the peaks that *exist*: ∅
+places are skipped, so on the 9-item belt `● · · ●` the whole fold is one line,
+M_R = H(`peak` ⌢ peak₀ ⌢ peak₁), where peak₀ is the single newest item in place 0 and
+peak₁ is the mountain of 8 over in place 3. The widget below writes these same lines
+and names each dot's peak, so you can see the subscripts slide across the gaps.
+
 Why the label? Without it, the super-peak of two peaks would be H(peak₀ ⌢ peak₁) — the
 same 64 bytes a merge hashes. One value would then mean two things: "a belt of two
 mountains" and "one mountain twice the size" would hash identically, and a bridge

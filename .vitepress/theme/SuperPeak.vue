@@ -10,6 +10,12 @@ const b = computed(() => BELTS[k.value]);
 const fold = computed(() => superPeakSteps(b.value.peaks));
 const short = (hex: string) => `${hex.slice(0, 10)}…`;
 const matches = computed(() => fold.value.root === b.value.beefy);
+const sub = (n: number) => String(n).split("").map((d) => "₀₁₂₃₄₅₆₇₈₉"[+d]).join("");
+/** The fold's name for a place's peak: peak₀ is the smallest existing mountain, ∅ skipped. */
+const peakName = (place: number) => {
+  const i = fold.value.places.indexOf(place);
+  return i === -1 ? "" : `peak${sub(i)}`;
+};
 
 const note = computed(() => {
   if (fold.value.there.length === 0) return "No peaks at all: M_R is 32 zero bytes, before any block has accumulated anything.";
@@ -32,11 +38,19 @@ const note = computed(() => {
       <span v-for="(p, place) in b.peaks" :key="place" class="place" :class="{ empty: p === null }">
         <span class="place-label">2{{ "⁰¹²³"[place] }}</span>
         <code>{{ p === null ? "∅" : short(p) }}</code>
+        <span class="who">{{ p === null ? "skipped" : peakName(place) }}</span>
       </span>
       <span v-if="b.peaks.length === 0" class="place empty"><code>an empty belt</code></span>
     </div>
+    <p v-if="fold.steps.length > 0" class="start">
+      acc = peak₀ — place {{ fold.places[0] }}'s mountain, joined as it is, no label. Then, smallest to biggest:
+    </p>
     <ol v-if="fold.steps.length > 0" class="steps">
       <li v-for="(s, i) in fold.steps" :key="i">
+        <p class="who">
+          {{ i === fold.steps.length - 1 ? "M_R" : "acc" }} = H("peak" ⌢ acc ⌢ peak{{ sub(i + 1) }}) — fold in place
+          {{ s.place }}'s mountain of {{ 2 ** s.place }}
+        </p>
         <p class="what">H(<span class="seg tag">"peak" · 4</span><span class="seg acc">{{ short(s.acc) }} · 32</span><span class="seg next">{{ short(s.next) }} · 32</span>)</p>
         <code class="hex">{{ s.hash }}</code>
       </li>
@@ -56,6 +70,10 @@ const note = computed(() => {
 .place.empty { border-style: dashed; color: var(--vp-c-text-3); }
 .place-label { font-size: 11px; color: var(--vp-c-text-3); }
 .place code { font-size: 12px; background: none; padding: 0; }
+.who { font-size: 11px; color: var(--vp-c-text-3); font-family: var(--vp-font-family-mono); }
+.place .who { min-height: 14px; }
+.steps .who { margin: 0 0 4px; color: var(--vp-c-text-2); }
+.start { margin: 0 0 6px; font-size: 12px; color: var(--vp-c-text-2); font-family: var(--vp-font-family-mono); }
 .steps { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .steps li { padding: 6px 8px; border: 1px solid var(--vp-c-divider); border-radius: 4px; }
 .what { margin: 0 0 4px; font-size: 13px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px; }

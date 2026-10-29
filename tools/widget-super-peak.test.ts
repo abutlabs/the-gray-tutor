@@ -15,10 +15,15 @@ const TINY_HISTORY = join(ROOT, "vectors/stf/history/tiny");
 
 test("every belt's fold lands on its beefy_root, and the three cases behave", () => {
   for (const b of BELTS) {
-    const { there, steps, root } = superPeakSteps(b.peaks);
+    const { there, places, steps, root } = superPeakSteps(b.peaks);
     assert.equal(root, b.beefy, b.says);
     assert.equal(steps.length, Math.max(0, there.length - 1), `${b.says}: one merge per peak after the first`);
+    // peak i of the fold is the i-th existing peak: ∅ places are skipped, subscripts slide
+    assert.deepEqual(places, b.peaks.flatMap((p, i) => (p === null ? [] : [i])), `${b.says}: places`);
+    assert.deepEqual(steps.map((s) => s.place), places.slice(1), `${b.says}: each step folds the next place in`);
   }
+  // the 9-item belt of the lesson's prose: peak₀ is place 0, peak₁ is place 3
+  assert.deepEqual(superPeakSteps(BELTS[4].peaks).places, [0, 3]);
   assert.equal(PEAK_LABEL, "peak");
   assert.match(BELTS[0].beefy, /^0x0{64}$/, "no peaks: 32 zero bytes");
   assert.equal(BELTS[1].beefy, BELTS[1].peaks[0], "one peak: itself, no hashing");
@@ -38,6 +43,10 @@ test("the belts and roots are the tiny history vectors', where vectors/ is downl
 test("the lesson shows the widget after M_R's definition", () => {
   assert.match(raw, /<SuperPeak \/>/);
   assert.ok(raw.indexOf("the four letters `peak`") < raw.indexOf("<SuperPeak />"));
+  // the fold is unrolled visually, and the subscript rule is said where the trace is
+  assert.match(raw, /M_R = H\("peak" ⌢ acc ⌢ peak₃\)/, "the 15-item trace's last line");
+  assert.ok(raw.indexOf("acc = peak₀") < raw.indexOf("<SuperPeak />"), "the trace comes before the widget");
+  assert.match(raw.replace(/\s+/g, " "), /∅ places are skipped/);
   assert.ok(raw.indexOf("<MountainBelt />") < raw.indexOf("<SuperPeak />"));
   assert.match(raw.replace(/\s+/g, " "), /hashed live on this page/);
   assert.match(raw.replace(/\s+/g, " "), /every answer is the vector's own `beefy_root`/);

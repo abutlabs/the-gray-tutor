@@ -44,20 +44,26 @@ export const BELTS: VectorBelt[] = [
 export const toHex = (b: Uint8Array): string => `0x${Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("")}`;
 export const fromHex = (h: string): Uint8Array => Uint8Array.from(h.slice(2).match(/../g)!.map((b) => parseInt(b, 16)));
 
-/** One merge of the fold: the hash so far, the next peak, and H("peak" ⌢ acc ⌢ next). */
-export type FoldStep = { acc: string; next: string; hash: string };
+/** One merge of the fold: the place the next peak came from, and H("peak" ⌢ acc ⌢ next). */
+export type FoldStep = { place: number; acc: string; next: string; hash: string };
 
-/** M_R, one step at a time: the peaks that exist, in order, folded left to right. */
-export function superPeakSteps(peaks: (string | null)[]): { there: string[]; steps: FoldStep[]; root: string } {
-  const there = peaks.filter((p): p is string => p !== null);
-  if (there.length === 0) return { there, steps: [], root: toHex(new Uint8Array(32)) };
+/**
+ * M_R, one step at a time: the peaks that exist, in belt order (smallest mountain first),
+ * folded left to right. `places` are their belt places — ∅ places are skipped, so peak i
+ * of the fold is the i-th existing peak, not the peak of place i.
+ */
+export function superPeakSteps(peaks: (string | null)[]): { there: string[]; places: number[]; steps: FoldStep[]; root: string } {
+  const indexed = peaks.flatMap((p, i) => (p === null ? [] : [{ p, i }]));
+  const there = indexed.map((x) => x.p);
+  const places = indexed.map((x) => x.i);
+  if (there.length === 0) return { there, places, steps: [], root: toHex(new Uint8Array(32)) };
   const label = new TextEncoder().encode(PEAK_LABEL);
   let acc = there[0];
   const steps: FoldStep[] = [];
-  for (const next of there.slice(1)) {
+  for (const { p: next, i: place } of indexed.slice(1)) {
     const hash = toHex(keccak_256(new Uint8Array([...label, ...fromHex(acc), ...fromHex(next)])));
-    steps.push({ acc, next, hash });
+    steps.push({ place, acc, next, hash });
     acc = hash;
   }
-  return { there, steps, root: acc };
+  return { there, places, steps, root: acc };
 }
