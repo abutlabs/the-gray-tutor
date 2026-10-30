@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { LAST_WAVE, STEPS, WAVES, dependentsOf, makerOf, waveOf } from "../.vitepress/theme/import-waves.ts";
 import {
@@ -15,6 +15,10 @@ import { ROOT, lessonText } from "./lessons.ts";
 const text = lessonText("00-start/06-how-a-block-is-ordered.md");
 const families = lessonText("00-start/05-understanding-the-vectors.md");
 const reference = (file: string) => readFileSync(join(ROOT, "reference/src", file), "utf8");
+// the reference client is the author's own copy (reference/ is gitignored), and the Gray Paper's
+// source sits beside the repo: neither is in CI, so the tests that read them are skipped there
+const NO_REFERENCE = !existsSync(join(ROOT, "reference/src/import.ts")) && "no reference client";
+const OVERVIEW = join(ROOT, "..", "graypaper/text/overview.tex");
 
 test("every step of the graph is on exactly one lane", () => {
   const keys = LANES.flatMap((l) => l.keys);
@@ -86,7 +90,7 @@ test("the header's values: each is known in the wave of the step it waits for", 
   assert.equal(COLUMNS.at(-1), "end");
 });
 
-test("the header values are the reference importer's: its checks, and where it makes them", () => {
+test("the header values are the reference importer's: its checks, and where it makes them", { skip: NO_REFERENCE }, () => {
   const source = reference("import.ts");
   // before any step: the four checks in checkHeader
   for (const name of ["bad_parent", "bad_parent_state_root", "bad_slot", "bad_extrinsic_hash"]) assert.ok(source.includes(`"${name}"`), name);
@@ -124,17 +128,21 @@ test("describe: ω′ waits for 𝐑* and the clock, feeds four, and cannot wait
   assert.deepEqual(describe("η′").waitsFor, [], "needs only the block and the old state");
 });
 
-test("lesson 0.6 quotes the Gray Paper and places the widget once, after the timeline section opens", () => {
-  const overview = readFileSync(join(ROOT, "..", "graypaper/text/overview.tex"), "utf8");
+test("lesson 0.6 quotes the Gray Paper's §4.2 word for word", { skip: !existsSync(OVERVIEW) && "no Gray Paper beside the tutorial" }, () => {
+  const overview = readFileSync(OVERVIEW, "utf8");
   const quote = /we minimize the depth of the\s+dependency graph/.exec(text)?.[0].replace(/\s+/g, " ");
   assert.ok(quote, "the lesson quotes §4.2's reason");
   assert.ok(overview.replace(/\s+/g, " ").includes(quote!), "and it is the Gray Paper's, word for word (overview.tex)");
+});
+
+test("lesson 0.6 quotes §4.2's reason and places the widget once, after the timeline section opens", () => {
+  assert.match(text.replace(/\s+/g, " "), /we minimize the depth of the dependency graph/);
   assert.equal(text.split("<ImportGantt />").length - 1, 1);
   assert.ok(text.indexOf("<ImportGantt />") > text.indexOf("## The timeline"));
   assert.ok(text.indexOf("<ImportGantt />") < text.indexOf("## What the block gives and what the importer works out"));
 });
 
-test("the roles: what the block gives is read as an input; a check is one the importer makes itself", () => {
+test("the roles: what the block gives is read as an input; a check is one the importer makes itself", { skip: NO_REFERENCE }, () => {
   const source = reference("import.ts");
   // given: the header's slot, entropy source and author index are read, not compared with anything made
   assert.match(source, /vrfOutput\(header\.entropy_source\)/, "the entropy source is read as an input");
