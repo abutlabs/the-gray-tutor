@@ -8,6 +8,17 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "seals",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "seals"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
       "name": "safrole-no-tickets",
       "type": "node",
       "request": "launch",
