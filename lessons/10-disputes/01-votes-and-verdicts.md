@@ -35,14 +35,17 @@ before. Its *judges* are κ, the current validators, if the age is the current e
 notation, as always: the bytes are `jam_valid` and `jam_invalid`. The prefix is part of
 the message, so a "valid" signature can't be passed off as an "invalid" one.
 
-**What it decides.** Count the "valid" votes, t, out of the judges' number, |K|. That
-count is the *vote split*:
+**What it decides.** A verdict never carries a vote from every judge: it carries exactly
+⌊2·|K|/3⌋ + 1 of them, a supermajority — 5 of tiny's 6 judges, 683 of full's 1,023.
+Count how many of those carried votes say "valid". That count, t, is the *vote split*,
+and only three splits mean anything:
 
-| t | The report is |
-| --- | --- |
-| ⌊2·\|K\|/3⌋ + 1 (5 on tiny, 683 on full) | **good** |
-| 0 | **bad** |
-| ⌊\|K\|/3⌋ (2 on tiny, 341 on full) | **wonky**: nobody can tell |
+| the votes saying "valid" | on tiny | on full | the report is |
+| --- | --- | --- | --- |
+| all of them: t = ⌊2·\|K\|/3⌋ + 1 | 5 of 5 | 683 of 683 | **good** — a supermajority swears it's right |
+| none: t = 0 | 0 of 5 | 0 of 683 | **bad** — the same supermajority, swearing it's wrong |
+| a third of the judges: t = ⌊\|K\|/3⌋ | 2 of 5 | 341 of 683 | **wonky** — truly split, nobody can tell |
+| anything else | 1, 3 or 4 of 5 | any other count | no verdict at all: the block is refused, as [lesson 10.4](./04-bad-verdicts.md)'s `bad_vote_split` |
 
 **What the state keeps.** ψ (C(5), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)) holds three sets of report hashes, good,
 bad and wonky, plus the offenders' keys ([next lesson](./02-culprits-and-faults.md)). Each verdict's report joins the

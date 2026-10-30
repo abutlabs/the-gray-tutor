@@ -127,12 +127,18 @@ test("the verdict widget decides 10.1's test values: with 6 judges, 5 is good, 0
   assert.equal(judge(Number(good), votes, judges), "good");
   assert.equal(judge(Number(bad), votes, judges), "bad");
   assert.equal(judge(Number(wonky), votes, judges), "wonky");
-  // the table: "(5 on tiny, 683 on full) | **good**" and the wonky row
-  const rows = [...text.matchAll(/\((\d+) on tiny, (\d+) on full\) \| \*\*(good|wonky)\*\*/g)];
-  assert.equal(rows.length, 2, "read the table's good and wonky rows");
+  // the table's tiny and full columns: every outcome row judged as the widget judges it
+  const rows = [...text.matchAll(/\| (\d+) of \d+ \| (\d+) of \d+ \| \*\*(good|bad|wonky)\*\*/g)];
+  assert.deepEqual(rows.map((r) => r[3]), ["good", "bad", "wonky"], "the table's three outcome rows");
   for (const [, tiny, full, outcome] of rows) {
     assert.equal(judge(Number(tiny), votesNeeded(6), 6), outcome, `tiny ${outcome}`);
     assert.equal(judge(Number(full), votesNeeded(1023), 1023), outcome, `full ${outcome}`);
+  }
+  // the carried-votes counts beside them are votesNeeded, the supermajority
+  assert.match(text, /it carries exactly\s+⌊2·\|K\|\/3⌋ \+ 1 of them/);
+  for (const [, of6, of1023] of text.matchAll(/\| \d+ of (\d+) \| \d+ of (\d+) \|/g)) {
+    assert.equal(Number(of6), votesNeeded(6), "5 votes on tiny");
+    assert.equal(Number(of1023), votesNeeded(1023), "683 votes on full");
   }
   // "on tiny, 6 judges, so a verdict needs ⌊2·6/3⌋ + 1 = 5 votes"
   const [, j, needed] = /(\d+) judges, so a verdict needs ⌊2·\d+\/3⌋ \+ 1 = (\d+) votes/.exec(text)!;

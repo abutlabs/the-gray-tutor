@@ -85,6 +85,7 @@ shamir
 shorthands
 smod
 subtrie
+supermajority
 there'd
 timeslot
 trezor
