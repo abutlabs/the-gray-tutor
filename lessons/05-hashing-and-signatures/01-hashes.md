@@ -347,6 +347,34 @@ if (link) console.log(`reported to Grafana: ${link}`);
 `"chain"` is its kind, which Grafana files it under and its id starts with:
 `chain-1791728701859` below.
 
+What flows through the walk:
+
+::: code-group
+
+```text [what goes in]
+00000001.json … 00000100.json — the tiny fallback trace, one block each.
+Block 2's header, the two fields the walk reads:
+  slot    2
+  parent  0x5592b088d8760232d1…   which must be the hash of block 1's whole header
+```
+
+```ts [what it computes]
+const walk = {
+  blocks: 100, // each header hashed, then compared with the next block's parent
+  linked: 99, // toHex(header.parent) === toHex(previous), ninety-nine times
+  unchecked: 1, // block 1's parent is the genesis header, which this walk never reads
+};
+```
+
+```text [what comes out]
+99 of 99 links hold.
+```
+
+:::
+
+Block 2's `parent` really is Blake2b-256 of block 1's encoded header — that one
+equality, checked down the whole trace, is what makes the hundred files a chain.
+
 **Run**
 
 ```sh

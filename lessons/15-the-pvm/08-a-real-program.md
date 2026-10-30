@@ -339,6 +339,42 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the code and arguments going in, the
+world Y builds for them, and the lines printed. Tab across them:
+
+::: code-group
+
+```text [what goes in]
+service 0's unpacked code — the 159,322-byte preimage of the fallback trace —
+and accumulation's argument blob, three compact naturals:
+  01 00 00   the slot, 1; the service, 0; its inputs, 0
+Y turns those into memory and registers; the machine starts at byte 5
+```
+
+```ts [what it computes]
+// what Y laid out, before the first step
+const computed = {
+  readOnly: "0x00010000, 3 pages R", // the program's constant data
+  stack: "0xfefde000, 2 pages W", // ending under r1, the stack pointer
+  args: "0xfeff0000, 1 page R", // the 3 argument bytes, where r7 points
+  r8: 3n, // the arguments' length
+  stops: '{"host":2}', // step 38, ecalli 2: the fetch host call
+};
+```
+
+```text [what comes out]
+registers: r0 = 0xffff0000, r1 = 0xfefe0000, r7 = 0xfeff0000, r8 = 3
+the machine stops: {"host":2}, with r10 = 0
+```
+
+:::
+
+Read the input into the output: the three argument bytes end up in memory at
+`0xfeff0000`, and r7 and r8 point the program at them — address and length. r0 holds
+the halt address, r1 the top of Y's stack. Thirty-eight steps later the program asks
+the host its first question, `ecalli 2`, and everything it knows it read from those
+pages.
+
 **Run**
 
 ```sh

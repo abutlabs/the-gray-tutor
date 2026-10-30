@@ -246,6 +246,39 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it, at the first boundary it finds:
+
+::: code-group
+
+```text [what goes in]
+00000001.json … 00000100.json — the tiny safrole trace. Block 12's pieces:
+  header.slot         12                       the new block's moment
+  header.epoch_mark   present                  only an epoch's first block carries one
+  state τ             11                       the time before it, still in epoch 0
+  state η₀            0xcf7f084efbeefbda…      the entropy about to retire
+```
+
+```ts [what it computes]
+const boundary = {
+  epoch: 1, // ⌊12 / 12⌋: twelve slots to a tiny epoch
+  phase: 0, // 12 mod 12: the epoch's first slot
+  newEpoch: true, // epoch 1 > epoch ⌊11 / 12⌋ = 0, the state's time
+  mark: true, // the header carries its epoch mark, as it must
+};
+```
+
+```text [what comes out]
+slot 12: epoch 1 begins. Epoch mark: true. η₁ is now 0xcf7f084efbeefbda…
+8 new epochs in 100 blocks.
+```
+
+:::
+
+The walk reads each block's header beside the state before it: when the header's slot
+lands in a later epoch than the state's τ, an epoch begins — twelve times a tiny hour,
+eight times in this trace's hundred blocks — and the η₀ of the old epoch is found one
+slot later living in η₁.
+
 **Run**
 
 ```sh

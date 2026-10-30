@@ -140,6 +140,35 @@ if (link) console.log(`reported to Grafana: ${link}`);
 The file is a module, so it can `await` at the top level: Node waits for the report
 before it exits.
 
+Every program in this tutorial has three faces: what goes in, what it computes, and
+what comes out. Here they are for the smallest program there will ever be:
+
+::: code-group
+
+```text [what goes in]
+nothing — no file, no argument. The program carries its own cargo:
+an event   { message: "my JAM client is alive" }
+a number   hellos = 1
+```
+
+```ts [what it computes]
+const report = {
+  kind: "hello", // the Run's kind: Grafana files the run under it, the run id starts with it
+  client: "you", // whose run this is: OBS_CLIENT's default
+  events: 1, // the one hello event
+  numbers: { hellos: 1 }, // the first metric your client ever pushes
+};
+```
+
+```text [what comes out]
+{"step":"hello","message":"my JAM client is alive"}
+```
+
+:::
+
+The terminal itself only prints the report's link: what really comes out lands in
+Grafana, and the line above is how *Everything your client reported* will show it.
+
 `node bin/hello.ts` would run it. Give it a *script* instead, a name in `package.json`
 that npm runs for you, the way `npm run typecheck` runs `tsc -p .`. `npm pkg set` writes
 the line into `package.json`, and `npm run hello` runs it:

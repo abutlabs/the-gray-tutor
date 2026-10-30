@@ -288,6 +288,43 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The block arrives at slot 12 carrying *no* assurances at
+all, and both cores hold a pending report — one old, one fresh:
+
+::: code-group
+
+```json [what goes in]
+{
+  "slot": 12,
+  "assurances": [],
+  "avail_assignments": [
+    { "guarantee": { … core 0's report … }, "registered_slot": 7 },
+    { "guarantee": { … core 1's report … }, "registered_slot": 11 }
+  ]
+}
+```
+
+```ts [what it computes]
+// bin/release.ts's fate for each core, nobody assuring either
+const computed = {
+  available: [], // no assurances, so no core crosses two thirds
+  core0: "timed out", // 12 >= 7 + 5, the availability timeout: waited its five slots
+  core1: "stays", // 12 < 11 + 5: only one slot so far
+  resized: false, // κ stays 6 validators, so no sweep
+};
+```
+
+```text [what comes out]
+core   0 at slot 12: timed out (waiting since 7)
+core   1 at slot 12: stays
+```
+
+:::
+
+With `assurances` empty, availability can't release anything; what decides each core's
+fate is arithmetic on two slots. Core 0 has sat since slot 7, and 12 ≥ 7 + 5, the
+timeout. Core 1 has sat since slot 11: four slots still to wait.
+
 **Run**
 
 ```sh

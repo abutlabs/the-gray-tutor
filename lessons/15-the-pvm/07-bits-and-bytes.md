@@ -221,6 +221,37 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — one number going in, one
+instruction's answer, and the lines printed. Tab across them:
+
+::: code-group
+
+```text [what goes in]
+one number, 0x1f0 (496): five 1 bits with four 0s below them
+  0000…000111110000 as 64 bits, preset into r0
+ten one-instruction programs, opcodes 101 to 110, each writing r1 from r0
+```
+
+```ts [what it computes]
+// the sign_extend_8 case: only r0's lowest byte matters
+const computed = {
+  lowByte: 0xf0, // 240 unsigned — but the top bit of the byte is set
+  r1: 0xfffffffffffffff0n, // that bit copied up through all 64
+  signed: -16n, // the same byte read signed
+};
+```
+
+```text [what comes out]
+sign_extend_8          0xfffffffffffffff0 = -16
+```
+
+:::
+
+Read the input into the output: every program starts from the same r0 and runs one
+`step`; only the opcode differs. `sign_extend_8` looks at nothing but the lowest byte,
+`0xf0`, sees its top bit set, and copies that bit up through all 64 — the whole
+register becomes −16, however big r0 was.
+
 **Run**
 
 ```sh

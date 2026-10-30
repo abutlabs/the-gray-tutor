@@ -233,6 +233,52 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the vector fields the program reads,
+the values it computes from them, and the lines the terminal prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 15, "entropy": "0x92e69aed566b11bf…" },
+  "pre_state": {
+    "tau": 10,
+    "eta": [
+      "0xf164ce89b1048859…",
+      "0xee155ace9c402920…",
+      "0xbb30a42c1e62f0af…",
+      "0xe88bd757ad5b9bed…"
+    ]
+  }
+}
+```
+
+```ts [what it computes]
+// bin/entropy.ts's values, once the slots are placed and η is stirred
+const computed = {
+  epochs: "slot 10 is epoch 0, slot 15 is epoch 1", // ⌊slot / 12⌋ on tiny
+  newEpoch: true, // an epoch boundary: the history moves along one place
+  eta0: "0x760612c571119ba1…", // H(η₀ ⌢ the VRF output), brand new
+  eta1to3: "the old η₀, η₁, η₂, each down one row", // the staircase
+  matches: true, // η′ equals the vector's post_state.eta, all four
+};
+```
+
+```text [what comes out]
+slot 10 → 15: a new epoch
+VRF output 0x92e69aed566b11bf…
+η0  0xf164ce89b1048859…  →  0x760612c571119ba1…
+η′ matches the vector: true
+```
+
+:::
+
+Read the input into the output: `input.slot` 15 against `pre_state.tau` 10 crosses an
+epoch boundary — 12 slots an epoch on tiny — which is the `: a new epoch` on the first
+line. `input.entropy` is the block's VRF output, the only fresh randomness; `pre_state.eta`
+is the η the last block left. The program stirs η₀ with the output and, because the epoch
+turned, steps every old value down one row.
+
 **Run**
 
 ```sh

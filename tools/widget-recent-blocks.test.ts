@@ -15,7 +15,10 @@ const raw = lessonText(LESSON);
 const trace = (n: number) => join(ROOT, `vectors/traces/preimages/${String(n).padStart(8, "0")}.json`);
 
 test("β before block 50 is the lesson's history run, line for line, and the belt reads 49", () => {
-  const lines = [...raw.matchAll(/^slot\s+(\d+)\s+header (0x[0-9a-f]+…)\s+state root (0x[0-9a-f]+…)\s+beefy (0x[0-9a-f]+…)\s+reported: (\d)\s+belt ([●· ]+)$/gm)];
+  const all = [...raw.matchAll(/^slot\s+(\d+)\s+header (0x[0-9a-f]+…)\s+state root (0x[0-9a-f]+…)\s+beefy (0x[0-9a-f]+…)\s+reported: (\d)\s+belt ([●· ]+)$/gm)];
+  // the what-comes-out tab repeats slot 42's row verbatim: keep each row once
+  const seen = new Set<string>();
+  const lines = all.filter((m) => !seen.has(m[0]) && (seen.add(m[0]), true));
   assert.equal(lines.length, 8);
   const before = STEPS[0].before;
   assert.deepEqual(

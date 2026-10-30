@@ -322,6 +322,53 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** A block at slot 14 carrying one guarantee made back at slot
+10, with the entropy and validator sets the assignments are dealt from:
+
+::: code-group
+
+```json [what goes in]
+{
+  "slot": 14,
+  "guarantees": [
+    {
+      "report": { "core_index": 0, … },
+      "slot": 10,
+      "signatures": [
+        { "validator_index": 1, "signature": "0x9e387b2c…" },
+        { "validator_index": 2, "signature": "0xad62f1bf…" },
+        { "validator_index": 5, "signature": "0x53476a6a…" }
+      ]
+    }
+  ],
+  "entropy": ["0x11da6d1f…", "0xe12c22d4…", "0x7b0aa173…", "0x8c039ff7…"],
+  "offenders": []
+}
+```
+
+```ts [what it computes]
+// bin/guarantors.ts's two dealt hands, and the guarantee checked against the right one
+const computed = {
+  rotation: 3, // ⌊14 / 4⌋: the block's own rotation
+  current: { core0: [1, 4, 5], core1: [0, 2, 3] }, // dealt from κ′ for this rotation
+  last: { core0: [1, 2, 5], core1: [0, 3, 4] }, // slot 10 was last epoch: dealt from λ′, η′₃
+  checked: "the last rotation", // the guarantee's slot 10 picks which hand must answer
+  assigned: true, // signers 1, 2 and 5 all sat on core 0 back then
+};
+```
+
+```text [what comes out]
+guarantee for core 0, made at slot 10 (the last rotation):
+  signed by 1, 2, 5: all assigned to core 0? true
+```
+
+:::
+
+The guarantee's own `slot` decides which hand it answers to: made at 10, it's checked
+against the *last* rotation's seats, where 1, 2 and 5 were core 0's trio — even though
+this rotation has dealt validator 2 to core 1. The `entropy` list is η; the last
+rotation's hand is shuffled from its fourth entry.
+
 **Run**
 
 ```sh

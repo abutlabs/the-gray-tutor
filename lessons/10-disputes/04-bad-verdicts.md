@@ -263,6 +263,39 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** No single vector this time: the program walks every tiny
+disputes vector in turn. Two of the ones it refuses, trimmed to the broken verdict:
+
+::: code-group
+
+```text [what goes in]
+progress_with_bad_votes_count-1.json, input.disputes.verdicts[0]:
+  { "target": "0x0e5751c0…", "age": 0, "votes": [ …only 4 votes, none "vote": true… ] }
+
+progress_with_verdicts-5.json, input.disputes.verdicts[0]:
+  { "target": "0xe12c22d4…", "age": 0, "votes": [ …5 votes, 1 of them "vote": true… ] }
+```
+
+```ts [what it computes]
+// verdictError's answer for each, printed beside the vector's own output.err
+const computed = {
+  bad_votes_count: "4 votes carried, not ⌊2·6/3⌋ + 1 = 5", // counted before any signature
+  bad_vote_split: "5 carried but t = 1: not all, not none, not a third", // no such split
+};
+```
+
+```text [what comes out]
+progress_with_bad_votes_count-1: bad_votes_count (the vector: bad_votes_count)
+progress_with_verdicts-5: bad_vote_split (the vector: bad_vote_split)
+```
+
+:::
+
+The first vector's verdict carries 4 votes where a verdict carries exactly 5: refused
+by count alone, before a single signature is read. The second carries 5 of which one
+says valid — a split [lesson 10.1](./01-votes-and-verdicts.md)'s table doesn't have. Each output line shows your
+rules' answer beside the vector's, so a disagreement reads instantly.
+
 **Run**
 
 ```sh

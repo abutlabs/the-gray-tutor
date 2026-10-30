@@ -315,6 +315,48 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Tab across one run's three faces — the vector's first report
+going in, the arguments the program assembles for service 1729, and its terminal lines:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43, "reports": [ { "results": [ {
+    "service_id": 1729,
+    "code_hash": "0xfd3f1355…",
+    "payload_hash": "0x487cbf65…",
+    "accumulate_gas": 200000,
+    "result": { "ok": "0x033fde3d" }
+  } ] }, "… a second report, its one digest for service 1730 …" ] }
+}
+```
+
+```ts [what it computes]
+// bin/accumulate.ts's arguments for service 1729, built from that report
+const computed = {
+  inputs: 1, // one operand: the digest above, result ok
+  gas: 200_000n, // the digest's accumulate_gas (always_acc is empty: no free gas)
+  codeBytes: 19_049, // the blob behind the account's code_hash, 0xfd3f1355…
+  slot: 43, // input.slot, handed to accumulate
+  checkpoint: "a copy of the accounts", // to roll back to, lesson 16.6
+};
+```
+
+```text [what comes out]
+service 1729: 1 input(s), 200000 gas, "halt"
+  gas used 29643; the vector says 29643
+  storage: 0x6c617374 = 0x033fde3d
+```
+
+:::
+
+Read the input into the output: the digest's `service_id` picks who accumulates, its
+`accumulate_gas` is the 200,000 the first line shows, and its `result.ok` — the 4 bytes
+`0x033fde3d` refine produced — comes out the other side as the value 1729 writes under
+its "last" key, `0x6c617374`. The gas used, 29,643, must equal the vector's
+`accumulate_gas_used` statistic, and does.
+
 **Run**
 
 ```sh

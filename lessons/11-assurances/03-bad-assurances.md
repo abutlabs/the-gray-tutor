@@ -260,6 +260,39 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The program walks every tiny assurances vector. Two of the
+refused ones, trimmed to the assurance that breaks a rule:
+
+::: code-group
+
+```text [what goes in]
+assurances_with_bad_signature-1.json, input.assurances[0]:
+  { "anchor": "0xd61a38a0…", "bitfield": "0x03", "validator_index": 0,
+    "signature": "0x3dbe32bd…" }
+
+assurance_for_not_engaged_core-1.json, input.assurances[0]:
+  { … "bitfield": "0x03" … } with avail_assignments [ a pending report, null ]
+```
+
+```ts [what it computes]
+// assuranceError's answer per vector, printed beside the vector's own output.err
+const computed = {
+  bad_signature: "validator 0's Ed25519 fails over jam_available ⌢ H(parent ⌢ bitfield)",
+  core_not_engaged: "bitfield 0x03 sets core 1's bit, but core 1 has nothing pending",
+};
+```
+
+```text [what comes out]
+assurances_with_bad_signature-1: bad_signature
+assurance_for_not_engaged_core-1: core_not_engaged
+```
+
+:::
+
+The first assurance looks perfect and fails invisibly: only the signature check over
+its bytes catches it. The second fails by shape alone — a set bit for a core with no
+pending report is an assurance of nothing.
+
 **Run**
 
 ```sh

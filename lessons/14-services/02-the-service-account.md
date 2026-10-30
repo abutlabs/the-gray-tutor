@@ -258,6 +258,46 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the state entry going in, the account
+the program decodes from it, and the lines it prints. Tab across them:
+
+::: code-group
+
+```json [what goes in]
+{ "pre_state": { "keyvals": [
+  {
+    "key": "0xff000000000000000000000000000000000000000000000000000000000000",
+    "value": "0x00128fc8f0578f393b…ffffffffffffffff…"
+  },
+  … the service's code and storage, entries under keys of their own …
+] } }
+```
+
+```ts [what it computes]
+// bin/service.ts's account for service 0, decoded from that one 89-byte value
+const computed = {
+  created: 0, // creation_slot, by parent_service 0: there from genesis
+  codeHash: "0x128fc8f0578f393b…", // the 32 bytes after the value's leading tag
+  codeBytes: 159322, // the preimage those bytes name, stored under a key of its own
+  items: 4, // what it keeps: 4 items in 159534 bytes
+  balance: 18446744073709551615n, // ffffffffffffffff little-endian: 2^64 - 1
+  mustKeep: 0n, // minimumBalance: the bootstrap service never runs short
+};
+```
+
+```text [what comes out]
+service 0, created at slot 0 by service 0
+code hash 0x128fc8f0578f393b…: 159322 bytes of code
+```
+
+:::
+
+Read the input into the output: the key's first byte is `0xff`, 255, the account-record
+recipe, and the zeros after it are the service id, 0. The 89-byte value packs the whole
+record — a tag byte, the code hash, the balance (`ffff…` read little-endian is
+2^64 − 1), the gas minimums and the counts. The code itself isn't here: those 159,322
+bytes sit under another key, found by the hash.
+
 **Run**
 
 ```sh

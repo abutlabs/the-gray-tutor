@@ -60,6 +60,33 @@ whenever you like. Every run in the lessons that names a file gets a script like
 named for what it shows. By the end, `npm run` on its own lists them all: a menu of
 everything your client can show, with nothing to retype.
 
+What flows through this run:
+
+::: code-group
+
+```text [what goes in]
+../vectors/codec/tiny/work_item.bin    236 bytes: the work item, encoded
+52                                     how many to show — its first four fields exactly
+```
+
+```ts [what it computes]
+const dump = {
+  file: "../vectors/codec/tiny/work_item.bin", // argv: whose bytes
+  count: 52, // argv: 4 + 32 + 8 + 8, the first four fields
+  rows: 4, // 16 bytes to a line: three full rows, then one of 4
+};
+```
+
+```text [what comes out]
+04 03 02 01 70 a5 08 29 85 1e 8f 6a 8c 80 f9 28
+```
+
+:::
+
+The first row of the dump: `service`'s four bytes, then the first twelve of
+`code_hash`. The run below also prints the item's JSON first, so you can read each
+field's bytes against its name.
+
 **Run**
 
 ```sh

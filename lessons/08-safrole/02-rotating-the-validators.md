@@ -252,6 +252,50 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The vector fields the program reads (each entry of the four
+sets is really a whole 336-byte validator key; the program shows its Ed25519 part's
+first four hex digits), what it computes, and what it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 48 },
+  "pre_state": {
+    "tau": 45,
+    "post_offenders": ["0xab0084d01534b31c…"],
+    "iota":    ["cab2…", "ab00…", "4418…", "8b8c…", "ad93…", "f30a…"],
+    "gamma_k": ["4418…", "ad93…", "cab2…", "f30a…", "8b8c…", "ab00…"],
+    "kappa":   ["ab00…", "f30a…", "8b8c…", "4418…", "ad93…", "cab2…"],
+    "lambda":  ["4418…", "cab2…", "8b8c…", "f30a…", "ab00…", "ad93…"]
+  }
+}
+```
+
+```ts [what it computes]
+// bin/rotation.ts's values, once the sets are read and the epoch checked
+const computed = {
+  epochs: "slot 45 is epoch 3, slot 48 is epoch 4", // ⌊slot / 12⌋ on tiny
+  newEpoch: true, // so the sets move along one: ι → γ_P → κ → λ
+  pending: "Φ(ι): iota's keys, with the offender ab00 zeroed", // the one changed tile
+  active: "the old pending, exactly", // no filtering on the way to κ
+  previous: "the old active, exactly",
+};
+```
+
+```text [what comes out]
+slot 45 → 48: a new epoch
+pending   4418 ad93 cab2 f30a 8b8c ab00  →  cab2 0000 4418 8b8c ad93 f30a
+active    ab00 f30a 8b8c 4418 ad93 cab2  →  4418 ad93 cab2 f30a 8b8c ab00
+```
+
+:::
+
+Read the input into the output: `slot` 48 against `tau` 45 turns the epoch, so each set's
+*after* is the set above's *before* — `pending`'s new row is `iota`'s old one, `active`'s
+is `pending`'s. The one exception comes from `post_offenders`: its key is `ab00…`, so
+where `iota`'s row slides into `pending`, that tile arrives as `0000`.
+
 **Run**
 
 ```sh

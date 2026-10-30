@@ -315,6 +315,38 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — a basic block going in, one
+instruction's price tag, and the lines printed. Tab across them:
+
+::: code-group
+
+```text [what goes in]
+service 0's code from the fallback trace, cut into basic blocks;
+the block shown is the one accumulation's first jump lands on, at 92078 —
+seven instructions: make stack room, save three registers, call on
+```
+
+```ts [what it computes]
+// instructionCost for one of the three store_ind_u64s
+const computed = {
+  cycles: 25, // a store's latency on the model CPU
+  slots: 1, // decode slots it occupies
+  units: "ALU+store", // an address to add, a value to store
+  blockTotal: 91, // all seven added up — the pipeline will beat it
+};
+```
+
+```text [what comes out]
+the basic block at 92078:
+store_ind_u64    cycles  25  slots 1  ALU+store
+```
+
+:::
+
+Read the input into the output: the program only needs the code — no machine runs here.
+It walks the block instruction by instruction, prices each one (cycles, decode slots,
+the execution units it would occupy), and stops where the next basic block begins.
+
 **Run**
 
 ```sh

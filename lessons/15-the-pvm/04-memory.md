@@ -327,6 +327,41 @@ const link = await report.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the page and registers going in, the
+memory and registers after, and the lines printed. Tab across them:
+
+::: code-group
+
+```text [what goes in]
+a writable page at 0x20000, 4096 zeroed bytes, and three preset registers:
+  r0 = HALT_ADDRESS   r1 = 0x20000   r2 = 0x1122334455667780
+the round-trip program: store_ind_u64 [r1] = r2, load_ind_u64 r3 = [r1],
+  load_ind_i8 r4 = [r1], jump_ind r0
+then a second machine: load_u8 r1, [0x30005] — and no page is there
+```
+
+```ts [what it computes]
+// after the round trip: one store, two loads of different widths
+const computed = {
+  page: "0x8077665544332211", // the 8 bytes at 0x20000: r2's bytes, lowest first
+  r3: 0x1122334455667780n, // load_ind_u64: all 8 bytes back, order restored
+  r4: -128n, // load_ind_i8: the byte at 0x20000 is 0x80, sign-extended
+  fault: 0x30000, // the second machine stops at the missing page's start
+};
+```
+
+```text [what comes out]
+page 0x20000 after:  0x8077665544332211  (little-endian: the lowest byte first)
+load from 0x30005, where there's no page: a fault at 0x30000
+```
+
+:::
+
+Read the input into the output: r2's value goes to memory lowest byte first, so the
+page reads backwards; loading 8 bytes undoes the reversal, loading 1 byte picks up
+`0x80` alone and sign-extends it to −128. The second machine's address has no page
+behind it, and the fault names the page's start, 0x30000, not the byte it reached for.
+
 **Run**
 
 ```sh

@@ -204,6 +204,47 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The same vector [lesson 10.1](./01-votes-and-verdicts.md)'s program read, but this
+program reads the *other* two parts of `input.disputes` — the accusations:
+
+::: code-group
+
+```json [what goes in]
+{
+  "culprits": [
+    { "target": "0x7b0aa173…", "key": "0xad93247b…", "signature": "0x1558f9e1…" },
+    { "target": "0x7b0aa173…", "key": "0xcab2b9ff…", "signature": "0x4a1ed409…" }
+  ],
+  "faults": [
+    { "target": "0x11da6d1f…", "vote": false, "key": "0x4418fb8c…", "signature": "0x04a8e50e…" }
+  ]
+}
+```
+
+```ts [what it computes]
+// bin/offenders.ts's values, once each piece of evidence is checked
+const computed = {
+  culprits: 2, // two guarantors of the report judged bad, 0x7b0aa173…
+  faults: 1, // one vote against the report judged good, 0x11da6d1f…
+  culpritsSigned: true, // both $jam_guarantee signatures are really theirs (culpritSigned)
+  faultSigned: true, // the "invalid" vote is really κ0's (faultSigned)
+  offendersMark: ["0xad93247b…", "0xcab2b9ff…", "0x4418fb8c…"], // every proven offender's key
+};
+```
+
+```text [what comes out]
+culprit 0xad93247b…: guaranteed report 0x7b0aa173…
+  the guarantee is really theirs: true
+offenders mark: 0xad93247b…, 0xcab2b9ff…, 0x4418fb8c…
+```
+
+:::
+
+Each accusation names its `target`, the disputed report, and the accused validator by
+Ed25519 `key`. A culprit's `signature` is the guarantee they signed over that report; a
+fault adds `vote`, the way they had voted, and its `signature` is that vote. The program
+checks every signature and prints the mark: the keys of everyone proven an offender.
+
 **Run**
 
 ```sh

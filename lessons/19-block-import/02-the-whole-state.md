@@ -356,6 +356,43 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The three faces of the run — the trace's raw key-value
+pairs going in, the state the program reads out of them, its terminal lines:
+
+::: code-group
+
+```json [what goes in]
+{ "pre_state": { "keyvals": [
+  { "key": "0x0b000000…", "value": "0x31000000" },
+  { "key": "0x0002009b00be00…", "value": "… 34 bytes of a service 0 entry …" },
+  "… 169 more entries, components and service entries mixed …"
+] } }
+```
+
+```ts [what it computes]
+// readState sorts 171 raw entries into sixteen components and the accounts
+const computed = {
+  tau: 49, // the 0x0b… key is C(11), its 4 bytes 0x31000000 little-endian
+  components: 16, // C(1) α to C(16) θ, every letter found under its key
+  service0: { balance: 2n ** 64n - 1n, entries: 154 }, // the rest of the 171
+  read: 171, // nothing in the state goes unexplained
+};
+```
+
+```text [what comes out]
+C(11) τ: 4 bytes
+service 0: balance 18446744073709551615, 154 entries
+171 entries in all, every one read
+```
+
+:::
+
+Read the input into the output: the first pair's key starts `0x0b` — the byte 11, so
+it's C(11), τ, and its 4-byte value `0x31000000` is 49 little-endian, the slot before
+block 50. The second key starts with a `0x00` marker pattern instead: one of service
+0's own 154 entries. The program's last line is the point: 16 components plus the
+accounts explain all 171 pairs, with nothing left over.
+
 **Run**
 
 ```sh

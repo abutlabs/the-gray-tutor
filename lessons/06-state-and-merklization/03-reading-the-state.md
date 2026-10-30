@@ -234,6 +234,38 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it — three state entries in, three components out:
+
+::: code-group
+
+```json [what goes in]
+{ "pre_state": { "keyvals": [
+  { "key": "0x0b00000000…", "value": "0x0b000000" },
+  { "key": "0x0600000000…", "value": "0xcf7f084efbeefbda10df…" },
+  { "key": "0x0800000000…", "value": "0x06ff71c6c03ff88adb5e…" }
+] } }
+```
+
+```ts [what it computes]
+const components = {
+  tau: 11, // C(11)'s 4-byte value, 0x0b000000, read as a u32: slot 11
+  eta: 4, // C(6)'s 128 bytes: four 32-byte hashes, η₀ first
+  kappa: 6, // C(8)'s list of validator keys, 336 bytes each
+};
+```
+
+```text [what comes out]
+τ, the time: slot 11
+η0: 0xcf7f084efbeefbda10df98970c403993cfc0039f1c240ba4f2ff075890a1a83b
+```
+
+:::
+
+The key of each `keyvals` entry begins with its component's number — 0x0b is 11, τ; 0x06 is 6, η;
+0x08 is 8, κ — and the value is that component's encoding, which the readers decode:
+the time's four little-endian bytes say slot 11, and η's first 32 bytes are η₀ exactly
+as the output prints it.
+
 **Run**
 
 ```sh

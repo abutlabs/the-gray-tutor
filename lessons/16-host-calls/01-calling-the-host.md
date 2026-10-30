@@ -240,6 +240,49 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the vector going in, what the program
+builds from it, the lines the terminal prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43, "reports": [] },
+  "pre_state": { "accounts": [ {
+    "id": 1729,
+    "data": {
+      "service": { "code_hash": "0xfd3f1355…" },
+      "preimage_blobs": [ { "hash": "0xfd3f1355…", "blob": "… 19,049 bytes of code …" } ]
+    }
+  } ] }
+}
+```
+
+```ts [what it computes]
+// bin/host.ts's values, once the service's code is found and the machine built
+const computed = {
+  service: 1729n, // s, the account's id, one of accumulate's arguments
+  slot: 43n, // t, input.slot, another
+  inputs: 0n, // and the third: no operands or transfers are handed over
+  codeBytes: 19_049, // the blob whose hash is the account's code_hash
+  gas: 100_000n, // the always-accumulate gas the vector grants 1729
+  entry: 5, // machine.pc: accumulation's entry point
+};
+```
+
+```text [what comes out]
+host call 2 (fetch): WHAT, 98757 gas left
+the service stops: "panic", with 98733 gas left
+```
+
+:::
+
+Read the input into the output: the account's `code_hash` picks the 19,049-byte blob out
+of its own `preimage_blobs` (same hash — a service holds its code as a preimage of
+itself), `slot` and `id` become the argument bytes, and the machine starts with the
+100,000 gas. The output's one host call is number 2, `fetch` — which this lesson's host
+doesn't know, so WHAT — and the service, refused, panics with 98,733 gas unspent.
+
 **Run**
 
 ```sh

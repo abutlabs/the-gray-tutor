@@ -339,6 +339,44 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** A block at slot 45 where each core's guarantee used one
+authorizer, with each core's pool of 8 and its queue of 80 in the state:
+
+::: code-group
+
+```json [what goes in]
+{
+  "slot": 45,
+  "auths": [
+    { "core": 0, "auth_hash": "0xb6abd7a7…" },
+    { "core": 1, "auth_hash": "0x510d8116…" }
+  ],
+  "auth_pools": [ [ "0xb6ab…", "0xbaad…", … 8 per core … ], [ … ] ],
+  "auth_queues": [ [ … 80 per core; entry 45 is "0x5b83b4f5…" … ], [ … entry 45: "0x9c890e5c…" … ] ]
+}
+```
+
+```ts [what it computes]
+// bin/pools.ts: what leaves each pool, what joins from the queue, per core
+const computed = {
+  entry: 45, // slot mod 80: where every queue is up to this block
+  core0: { gone: "b6ab", joined: "5b83" }, // used its oldest; queue entry 45 joins at the back
+  core1: { gone: "510d", joined: "9c89" }, // used its second: just that one goes
+};
+```
+
+```text [what comes out]
+slot 45: each core's next authorizer is queue entry 45
+core 0: b6ab baad dbe5 1989 6d74 8da3 332d f9e9
+  − b6ab, + 5b83  →  baad dbe5 1989 6d74 8da3 332d f9e9 5b83
+```
+
+:::
+
+`auths` says which authorizer each core's work consumed; the pool drops exactly that
+one. What joins is nobody's choice: entry `slot mod 80` of the core's queue — at slot
+45, entry 45 — so the queue turns like a wheel, one notch per block.
+
 **Run**
 
 ```sh

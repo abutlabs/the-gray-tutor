@@ -351,6 +351,46 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the trace's block going in, what the
+program makes of each preimage, and the lines it prints. Here they are for the block's
+3-byte preimage; tab across them:
+
+::: code-group
+
+```json [what goes in]
+{
+  "header": { "slot": 8 },
+  "extrinsic": { "preimages": [
+    { "requester": 0, "blob": "0x06cf2d8f02…" },
+    { "requester": 0, "blob": "0xaef804" },
+    … two more blobs, 84 and 223 bytes, every requester 0 …
+  ] }
+}
+```
+
+```ts [what it computes]
+// bin/preimages.ts's values for the 3-byte preimage, once hashed and looked up
+const computed = {
+  service: 0, // requester: the service that asked for these bytes
+  bytes: 3, // the blob's length: 0xaef804, shown whole above
+  hash: "0xd0c7d4d8…", // blake2b256 of the blob; hash and length name the request
+  was: "[]", // the request's history before: asked for, never provided
+  now: "[8]", // after: provided at this block's slot
+};
+```
+
+```text [what comes out]
+block at slot 8: 4 preimages
+service 0: 3 bytes, hash 0xd0c7d4d8…  request [] → [8]
+```
+
+:::
+
+Read the input into the output: `requester` names the service, and the `blob` is the
+data itself — the 3-byte one is `0xaef804` in full. The program hashes each blob with
+Blake2b, finds the request filed under that service, hash and length, and prints its
+history stepping from `[]`, asked for, to `[8]`, provided at the block's slot.
+
 **Run**
 
 ```sh

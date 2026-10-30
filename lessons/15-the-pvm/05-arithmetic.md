@@ -421,6 +421,37 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — a one-instruction program going in,
+the bits it leaves in r2, and the line printed. Here is the −7 ÷ 2 case:
+
+::: code-group
+
+```text [what goes in]
+nine one-instruction programs, written in bin/alu.ts itself; this one:
+  [204, 0x10, 2]   div_s_64 r2 = r0 ÷ r1
+  r0 = 2^64 − 7 (−7, as unsigned bits)   r1 = 2
+```
+
+```ts [what it computes]
+// the −7 ÷ 2 case, after its one step
+const computed = {
+  name: "div_s_64", // opcode 204, decoded back for the printout
+  r2: 0xfffffffffffffffdn, // the raw 64 bits the division left
+  signed: -3n, // the same bits read signed: towards zero, not −4
+};
+```
+
+```text [what comes out]
+div_s_64       −7 ÷ 2: towards zero             0xfffffffffffffffd = -3
+```
+
+:::
+
+Read the input into the output: the operand byte `0x10` packs the sources, r0 and r1,
+and the `2` names the destination, r2. One `step` runs the division; the program prints
+r2 twice, as raw bits and as a signed number, which is the whole lesson of this table —
+same bits, two readings.
+
 **Run**
 
 ```sh

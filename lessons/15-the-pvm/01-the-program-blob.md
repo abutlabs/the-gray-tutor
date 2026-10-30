@@ -275,6 +275,47 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the state entry holding the code, the
+layers the program peels from it, and the lines it prints. Tab across them:
+
+::: code-group
+
+```json [what goes in]
+{ "pre_state": { "keyvals": [
+  {
+    "key": "0x003f00f4004e00375cb1b4c052ebb735f8db5d35cced61f8c918fd873aaa80",
+    "value": "0x5000156a616d2d626f6f7473747261702d73657276696365…"
+  },
+  … the value runs on: 159,322 bytes, the whole code preimage …
+] } }
+```
+
+```ts [what it computes]
+// bin/program.ts's layers, peeled from those 159,322 bytes
+const computed = {
+  metadata: 80, // the first layer: name, version, licence
+  readOnly: 9904, // data mapped read-only; then readWrite: 48
+  heapPages: 2, // and stackSize: 8192
+  blob: 149274, // the PVM blob: jump table, code, bitmask
+  jumpTable: 1601, // entries
+  instructions: 39849, // in 128,413 bytes of code: about 3.2 bytes each
+  commonest: "130 (6871×)", // one opcode starts a sixth of them
+};
+```
+
+```text [what comes out]
+the code preimage: 159322 bytes
+  metadata: 80 bytes
+    code: 128413 bytes, 39849 instructions
+```
+
+:::
+
+Read the input by eye before the program does: the value opens `0x50`, which is 80, the
+metadata's length — and a few bytes later `6a 61 6d…` is ASCII for `jam-bootstrap-service`.
+Everything the output lists is sliced from that one state entry, layer by layer, down to
+the bitmask that says where instructions start.
+
 **Run**
 
 ```sh

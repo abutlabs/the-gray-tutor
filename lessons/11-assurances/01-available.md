@@ -220,6 +220,43 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Six assurances, one per validator, each a bitfield with one
+bit per core; both tiny cores have a report pending in `pre_state.avail_assignments`:
+
+::: code-group
+
+```json [what goes in]
+{
+  "assurances": [
+    { "validator_index": 0, "bitfield": "0x02", "anchor": "0xd61a38a0…", "signature": "0xf23ddcfb…" },
+    { "validator_index": 1, "bitfield": "0x01", "anchor": "0xd61a38a0…", "signature": "0x3b00faaf…" },
+    … four more: validators 2, 3 and 4 say "0x03", validator 5 says "0x01" …
+  ],
+  "avail_assignments": [ { … core 0's pending report … }, { … core 1's pending report … } ]
+}
+```
+
+```ts [what it computes]
+// bin/available.ts's tally: a bitfield's bit c set means "I hold my share of core c"
+const computed = {
+  core0: 5, // bit 0 set in 0x01 and 0x03: validators 1, 2, 3, 4 and 5
+  core1: 4, // bit 1 set in 0x02 and 0x03: validators 0, 2, 3 and 4
+  needed: "3·assured > 2·6, so 5 or more of 6", // more than two thirds
+  available: 1, // core 0 crosses the line; core 1 misses it by one
+};
+```
+
+```text [what comes out]
+core   0: 5 of 6 hold its data: available!
+core   1: 4 of 6 hold its data: still waiting
+```
+
+:::
+
+Read a `bitfield` in binary and the tabs connect: `0x03` is both cores, `0x01` core 0
+only, `0x02` core 1 only. Five validators set core 0's bit and 3·5 > 2·6, so its
+report crosses the supermajority line; four set core 1's, one short, still waiting.
+
 **Run**
 
 ```sh

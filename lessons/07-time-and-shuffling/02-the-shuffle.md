@@ -264,6 +264,34 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it:
+
+::: code-group
+
+```text [what goes in]
+8                      argv: shuffle the numbers 0 to 7
+0xffffffffffffffff…    argv: the hash the picks are read from — 32 bytes of ff,
+                       the second shuffle vector's own entropy
+```
+
+```ts [what it computes]
+const shuffle = {
+  numbers: 8, // one u32 read from the hash per pick, 3180133873 first
+  firstPick: 1, // 3180133873 mod 8: the item at index 1
+  order: [1, 2, 6, 0, 7, 4, 3, 5], // every pick in turn: the vector's answer
+};
+```
+
+```text [what comes out]
+3180133873 mod   8 = 1: pick 1
+shuffled: 1, 2, 6, 0, 7, 4, 3, 5
+```
+
+:::
+
+Two arguments in, eight picks out: each line is one number read from the hash, taken
+mod the items still left, and the pick it lands on.
+
 **Run**
 
 ```sh

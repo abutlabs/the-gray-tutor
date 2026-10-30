@@ -232,6 +232,50 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The vector fields the program reads, the values it computes,
+and the lines it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "pre_state": {
+    "eta": ["…", "0xee155ace9c402920…", "…", "…"],
+    "gamma_k": [
+      { "bandersnatch": "0xff71c6c03f…", "…": "five more keys follow" }
+    ]
+  },
+  "post_state": {
+    "gamma_s": { "keys": ["0x9326edb21e…", "0xdee6d555b8…", "… ten more …"] }
+  }
+}
+```
+
+```ts [what it computes]
+// bin/sealers.ts's values: F run on the new epoch's randomness and keys
+const computed = {
+  seed: "the old η₁, about to become η′₂", // what F draws from at the epoch's turn
+  active: "κ′ = the old pending set γ_P", // whose Bandersnatch keys F deals out
+  sealers: 12, // one key per slot of the new epoch, repeats allowed
+  slot0: "0x9326edb21e…", // γ_P[2]'s Bandersnatch key: validator 2
+  matches: true, // every dealt key equals post_state.gamma_s.keys, in order
+};
+```
+
+```text [what comes out]
+slot   0 of the epoch: validator 2
+slot   1 of the epoch: validator 1
+the sealers match the vector: true
+```
+
+:::
+
+Read the input into the output: the seed is `eta[1]` — the old η₁, which the epoch's turn
+makes η′₂ — and the keys dealt are `gamma_k`'s Bandersnatch ones, since at a new epoch the
+pending set becomes κ′. F picks one per slot: slot 0 gets `0x9326edb21e…`, which is
+`gamma_k[2]`'s key, so the program prints `validator 2`. The vector's own answer sheet is
+`post_state.gamma_s.keys`, and the last line says the twelve match.
+
 **Run**
 
 ```sh

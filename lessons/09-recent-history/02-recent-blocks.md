@@ -334,6 +334,50 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The input is a whole state this time: the trace file's
+`pre_state.keyvals`, where β sits under C(3)'s key. One entry in, a decoded β computed,
+the rows printed:
+
+::: code-group
+
+```json [what goes in]
+{
+  "pre_state": {
+    "keyvals": [
+      {
+        "key": "0x0300000000…",
+        "value": "0x088492038c11a08a79…"
+      },
+      { "…": "every other component and account entry, not read here" }
+    ]
+  }
+}
+```
+
+```ts [what it computes]
+// bin/history.ts's values, once C(3)'s bytes decode as Recent
+const computed = {
+  component: "the 0x03… entry is β", // its value: 0x08, a count, then 8 blocks
+  blocks: 8, // slots 42 to 49: header hash, state root, beefy, reported, each
+  items: 49, // the belt's held places read as binary: 110001
+  shapes: "each row's belt is one item fewer than the next", // drawn, not rewound
+  foldedLive: "0x41063bd0…", // superPeak(belt), equal to slot 49's stored beefy
+};
+```
+
+```text [what comes out]
+slot  42  header 0x8492038c…  state root 0x85e2f9da…  beefy 0xd33299c9…  reported: 0  belt · ● · ● · ●
+the belt: ● · · · ● ●
+its super-peak, folded live: 0x41063bd0… — the newest block's beefy ✓
+```
+
+:::
+
+Read the input into the output: the `value`'s first byte, `0x08`, is `seq`'s count — 8
+remembered blocks — and the very next 32 bytes are slot 42's `header_hash`, the
+`0x8492038c…` that opens the first printed row. Everything the program shows is decoded
+out of that one entry's bytes by the codecs this lesson builds.
+
 **Run**
 
 ```sh

@@ -299,6 +299,35 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it — bytes in, a trace of named fields out:
+
+::: code-group
+
+```text [what goes in]
+work_item                              argv: which structure these bytes are
+../vectors/codec/tiny/work_item.bin    argv: its 236 encoded bytes
+04 03 02 01 70 a5 08 29 …              the same first bytes the hex dump showed
+```
+
+```ts [what it computes]
+const trace = {
+  structure: "work_item", // CODECS[name]: the WorkItem codec does the reading
+  length: 236, // every byte of the file, each one read exactly once
+  fields: 18, // the innermost fields the decoder reports, service first
+  service: 16909060, // the first four bytes, 04 03 02 01, as ℰ₄
+};
+```
+
+```text [what comes out]
+    0..4     service                        0x04030201
+    4..36    code_hash                      0x70a50829851e8f6a8c80f92806ae0e95eb7c06ad064e311cc39107b3219e532e
+```
+
+:::
+
+One line per innermost field: where its bytes sit, its name, and the bytes themselves.
+The full run prints all eighteen:
+
 **Run**
 
 ```sh

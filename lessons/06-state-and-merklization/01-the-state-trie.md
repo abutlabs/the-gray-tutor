@@ -367,6 +367,41 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it:
+
+::: code-group
+
+```json [what goes in]
+{
+  "pre_state": { "keyvals": [
+    { "key": "0x050000000000…", "value": "0x00000000" },
+    { "key": "0xff0000000000…", "value": "0x00128fc8f0578f393bd1…" }
+  ] },
+  "block": { "header": { "parent_state_root": "0xd6e78dc07a9ae915…" } }
+}
+```
+
+```ts [what it computes]
+const trie = {
+  entries: 21, // the keyvals, each filed by its key's bits
+  small: 9, // values of 32 bytes or fewer live inside their leaf
+  hashed: 12, // bigger ones leave only their hash in it
+  root: "0xd6e78dc07a9ae915…", // the one hash over all of them
+  matches: true, // the header's parent_state_root is that root exactly
+};
+```
+
+```text [what comes out]
+depth  8  0x05000000000000000000000000000000000000000000000000000000000000  4-byte value, in the leaf
+21 entries, state root 0xd6e78dc07a9ae915ada8306bf0da89b11044a2d4ee71ae0c5faf61f34f6b3a0c
+```
+
+:::
+
+Two of the twenty-one entries going in: the 4-byte value at key `0x05…` is small enough
+to sit in its leaf, the 89-byte one at `0xff…` leaves only its hash. The root the trie
+builds from all of them is exactly the root the block's header promises.
+
 **Run**
 
 ```sh

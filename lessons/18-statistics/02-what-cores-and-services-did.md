@@ -372,6 +372,52 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The three faces of the guarantees run — the two reports'
+refine loads going in, the tallies the program adds up, its terminal lines:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "guarantees": [
+    { "report": { "core_index": 0, "package_spec": { "length": 17180 }, "results": [ {
+      "service_id": 42,
+      "refine_load": { "gas_used": 821, "imports": 8, "extrinsic_count": 8,
+                       "extrinsic_size": 1526, "exports": 17 }
+    } ] } },
+    { "report": { "core_index": 1, "package_spec": { "length": 12487 }, "results": [ {
+      "service_id": 42,
+      "refine_load": { "gas_used": 697, "imports": 1, "extrinsic_count": 3,
+                       "extrinsic_size": 1926, "exports": 18 }
+    } ] } }
+  ] }
+}
+```
+
+```ts [what it computes]
+// coreStats and serviceStats, from those two refine loads
+const computed = {
+  core0: { bundle_size: 17180, gas_used: 821 }, // its own report's load, as it stands
+  core1: { bundle_size: 12487, gas_used: 697 },
+  service42: { refinement_count: 2, refinement_gas_used: 821 + 697 }, // both reports, added
+  availability: "nothing", // no assurances in this vector: that's the second run below
+};
+```
+
+```text [what comes out]
+core 0: imports 8, extrinsic_count 8, extrinsic_size 1526, exports 17, bundle_size 17180, gas_used 821
+core 1: imports 1, extrinsic_count 3, extrinsic_size 1926, exports 18, bundle_size 12487, gas_used 697
+service 42: refinement_count 2, refinement_gas_used 1518, imports 9, extrinsic_count 11, extrinsic_size 3452, exports 35
+```
+
+:::
+
+Read the input into the output: each core's line is its own report's `refine_load` plus
+the `package_spec.length` as `bundle_size`, kept apart; service 42's line is the same
+two loads *added*, because both reports carry its work — 821 + 697 = 1518 gas, 8 + 1 = 9
+imports, 1526 + 1926 = 3452 extrinsic bytes, 17 + 18 = 35 exports. One block, two views:
+per core, and per service.
+
 **Run**
 
 ```sh

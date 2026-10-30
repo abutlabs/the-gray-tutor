@@ -261,6 +261,48 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** This vector has a report pending on *both* tiny cores
+(`pre_state.rho`) and both on trial in `input.disputes`:
+
+::: code-group
+
+```json [what goes in]
+{
+  "verdicts": [
+    { "target": "0xa78b526a…", "age": 0, "votes": [ … 5 of 5 "vote": true … ] },
+    { "target": "0xf9076864…", "age": 0, "votes": [ … 0 of 5 "vote": true … ] }
+  ],
+  "rho": [
+    { "guarantee": { "report": { … core 0's pending report … } }, "registered_slot": 42 },
+    { "guarantee": { "report": { … core 1's pending report … } }, "registered_slot": 42 }
+  ]
+}
+```
+
+```ts [what it computes]
+// bin/cores.ts's values: each verdict judged, then rho with the condemned cleared
+const judged = [
+  { target: "0xa78b526a…", outcome: "good" }, // 5 of 5 say valid
+  { target: "0xf9076864…", outcome: "bad" }, // 0 of 5 say valid
+];
+const computed = {
+  cleared: [0], // core 0's pending report hashes to 0xf9076864…: judged bad, it leaves
+  kept: 1, // core 1's hashes to 0xa78b526a…: judged good, it stays
+};
+```
+
+```text [what comes out]
+core 0: its report 0xf9076864… was judged bad
+1 of 2 cores keep their reports
+```
+
+:::
+
+The link between the tabs is a hash: a verdict's `target` names a report, and `rho`
+holds whole reports, so the program hashes each pending report
+(`blake2b256(encode(WorkReport, …))`) and looks for that hash among the condemned.
+Core 0's report hashes to the bad verdict's target; core 1's to the good one's.
+
 **Run**
 
 ```sh

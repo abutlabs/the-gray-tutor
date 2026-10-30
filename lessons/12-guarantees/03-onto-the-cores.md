@@ -193,6 +193,46 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** A block at slot 14 with both cores empty and a guarantee
+for each:
+
+::: code-group
+
+```json [what goes in]
+{
+  "slot": 14,
+  "avail_assignments": [null, null],
+  "guarantees": [
+    { "report": { "core_index": 0,
+        "package_spec": { "hash": "0x63c03371…", "exports_root": "0x5c9dca80…", … } } },
+    { "report": { "core_index": 1,
+        "package_spec": { "hash": "0x316504b8…", "exports_root": "0x5c9dca80…", … } } }
+  ]
+}
+```
+
+```ts [what it computes]
+// bin/placed.ts: ρ after the block, and the block's reported-packages list
+const computed = {
+  core0: { was: "empty", holds: "0x63c03371…", since: 14 },
+  core1: { was: "empty", holds: "0x316504b8…", since: 14 },
+  reported: ["0x316504b8…", "0x63c03371…"], // the same two packages, sorted by hash
+};
+```
+
+```text [what comes out]
+core 0 (empty): now holds package 0x63c03371…, since 14
+cores holding a report now: 2 of 2
+reported: package 0x316504b8…, exports root 0x5c9dca80…
+```
+
+:::
+
+Each guarantee lands on the core its report names, stamped with the block's `slot` for
+[lesson 11.2](../11-assurances/02-timeouts.md)'s timeout clock. Notice the two orders: `avail_assignments` fills in core
+order, the reported list sorts by package hash — which is why `0x316504b8…` leads it
+while core 0 holds `0x63c03371…`.
+
 **Run**
 
 ```sh

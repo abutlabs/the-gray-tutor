@@ -415,6 +415,41 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the raw code bytes going in, the
+instruction decoded from them, and the lines printed. Tab across them:
+
+::: code-group
+
+```text [what goes in]
+argv: ../vectors/traces/fallback/00000001.json 0 4
+code bytes 0 to 15 of the unpacked blob:
+  28 9a 39 01 00   28 a9 67 01   95 11 a0   7b 10 58
+bitmask: 21 92 … — its 1 bits mark bytes 0, 5, 9 and 12 as instruction starts
+```
+
+```ts [what it computes]
+// bin/disassemble.ts's first instruction, decoded from 28 9a 39 01 00
+const computed = {
+  opcode: 0x28, // 40: jump
+  immediates: [80282n], // 9a 39 01 00 read little-endian
+  next: 5, // the bitmask's next 1 bit: this instruction took 5 bytes
+  target: 80282, // where the jump goes: refine's front door
+};
+```
+
+```text [what comes out]
+      0  jump             → 80282
+      5  jump             → 92078
+```
+
+:::
+
+Read the input into the output: the gaps drawn between the bytes are the bitmask's
+doing — `21 92` in bits puts a 1 at 0, 5, 9 and 12, so the decoder knows `28` at byte 0
+starts an instruction, opcode 40, `jump`, and the four bytes after it, `9a 39 01 00`,
+are its immediate, 80,282 read little-endian. Without the bitmask the same sixteen
+bytes could be sliced a dozen ways.
+
 **Run**
 
 ```sh

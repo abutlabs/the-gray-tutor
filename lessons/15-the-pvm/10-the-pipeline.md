@@ -302,6 +302,40 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the same basic block going in as
+[lesson 15.9](./09-what-instructions-cost.md) priced, the model CPU's buffer mid-flight, and the lines printed. Tab
+across them:
+
+::: code-group
+
+```text [what goes in]
+the basic block at 92078 of service 0's code (the fallback trace):
+  add_imm_64, three store_ind_u64s, two move_regs, load_imm_jump —
+  91 cycles if each instruction waited for the one before
+```
+
+```ts [what it computes]
+// the reorder buffer at cycle 3, one column per buffered instruction
+const computed = {
+  rob: "F E E E E", // the add finished; three stores and the call, side by side
+  why: "the stores needed the add's r1; from here they overlap", // cycle 2's W W W W
+  retired: 29, // everything finished at 28, retired at 29
+  gas: 26, // 29 - 3: far under the 91 of one-at-a-time
+};
+```
+
+```text [what comes out]
+cycle  3  F E E E E
+the block at 92078 costs 26 gas
+```
+
+:::
+
+Read the input into the output: the block's seven instructions become five columns (the
+two `move_reg` instructions cost nothing and never enter the buffer). Each printed row is the buffer in
+one cycle where something changed, and the gas at the end is the cycle count the whole
+dance took — the pipeline's price, not the sum of the price tags.
+
 **Run**
 
 ```sh

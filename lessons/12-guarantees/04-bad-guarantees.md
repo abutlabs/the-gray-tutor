@@ -312,6 +312,39 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The program walks every tiny reports vector. Two of the
+refused ones, trimmed to what breaks:
+
+::: code-group
+
+```text [what goes in]
+bad_core_index-1.json, input.guarantees[0]:
+  { "report": { "core_index": 3, … }, "signatures": [ seats 0, 2 and 3 ] }
+
+banned_validator_guarantee-1.json:
+  input.guarantees[0] signed by seats 1, 4 and 5, with pre_state.offenders holding
+  one Ed25519 key: "0xcab2b9ff…"
+```
+
+```ts [what it computes]
+// guaranteeError's answer per vector, printed beside the vector's own output.err
+const computed = {
+  bad_core_index: "core 3 on tiny, where only cores 0 and 1 exist",
+  banned_validator: "a signer's key is in the offenders list: Φ zeroed their seat",
+};
+```
+
+```text [what comes out]
+bad_core_index-1: bad_core_index (the vector: bad_core_index)
+banned_validator_guarantee-1: banned_validator (the vector: banned_validator)
+```
+
+:::
+
+One refusal is pure range — a core number tiny doesn't have. The other needs the
+state: the guarantee's shape is perfect, but one signer's key sits in ψ_O, and an
+offender's signature counts for nothing.
+
 **Run**
 
 ```sh

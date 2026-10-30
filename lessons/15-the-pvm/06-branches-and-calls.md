@@ -314,6 +314,38 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — sixteen tiny programs going in, one
+comparison's two readings, and the lines printed. Tab across them:
+
+::: code-group
+
+```text [what goes in]
+sixteen one-branch programs, one per branch_ opcode, each with
+  r0 = 2^64 − 1 — which is −1 read signed, the biggest number read unsigned —
+  against r1 = 1 (or ν_X = 1 for the _imm forms); every branch targets byte 5
+```
+
+```ts [what it computes]
+// the lt pair: the same bits, compared two ways
+const computed = {
+  branch_lt_u: false, // unsigned: 2^64 − 1 is the biggest number, never < 1
+  branch_lt_s: true, // signed: the same bits read −1, and −1 < 1
+  taken: "machine.pc === 5", // a taken branch lands the machine on byte 5
+};
+```
+
+```text [what comes out]
+branch_lt_u      falls through
+branch_lt_s      jumps
+```
+
+:::
+
+Read the input into the output: every program holds the same two values; only the
+opcode changes. After one `step` the program checks where the machine stands — on byte
+5 the branch jumped, just past it the branch fell through — and the signed and unsigned
+twins split exactly where reading the bits differently changes the answer.
+
 **Run**
 
 ```sh

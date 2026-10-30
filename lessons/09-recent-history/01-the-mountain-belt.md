@@ -363,6 +363,40 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** No vector this time: the program makes its own items, one
+per append — item i is Keccak-256 of the single byte i, any 32 bytes would do. What
+goes in, what each append computes, and what it prints:
+
+::: code-group
+
+```text [what goes in]
+item  1 = Keccak-256(0x01) = 0x5fe7f977e7…   the byte 1, hashed to 32 bytes
+item  2 = Keccak-256(0x02) = 0xf2ee15ea63…
+…
+item 16 = Keccak-256(0x10) = 0x967f2a2c7f…
+```
+
+```ts [what it computes]
+// appendToBelt, on the 16th item: 15 is 1111, so the carry climbs all four places
+const computed = {
+  before: "● ● ● ●", // 15 items: mountains of 1, 2, 4 and 8
+  merges: 4, // H(peak ⌢ carried) at places 0, 1, 2, 3 — each eats two peaks
+  after: "· · · · ●", // one mountain of 16, resting in new place 4
+  superPeak: "0x77a03478…", // M_R of one peak is the peak itself
+};
+```
+
+```text [what comes out]
+after  15: ● ● ● ●      super-peak 0xc4c91480…
+after  16: · · · · ●    super-peak 0x77a03478…
+```
+
+:::
+
+Read the input into the output: item 1's hash *is* the `after 1` super-peak — one peak,
+no folding — and every later line is the belt after one more append. The 15 → 16 step
+above is the biggest collapse on the page: four merges, 1111 + 1 = 10000.
+
 **Run**
 
 ```sh

@@ -305,6 +305,51 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One block's three faces — the extrinsic going in, the tally
+moves the program derives, the lines it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 123456,
+    "author_index": 1,
+    "extrinsic": {
+      "tickets": [ { "attempt": 0 }, { "attempt": 1 } ],
+      "preimages": [ "… three blobs of 16, 17 and 18 bytes …" ],
+      "guarantees": [ "… one signed by validators 0 and 1 …", "… one by 2 and 3 …" ],
+      "assurances": [ "… two, but they count toward the epoch that just closed …" ]
+    }
+  },
+  "pre_state": { "slot": 123455 }
+}
+```
+
+```ts [what it computes]
+// updateValidatorStats' moves for this block, from that extrinsic
+const computed = {
+  epochTurned: true, // ⌊123455/12⌋ ≠ ⌊123456/12⌋: every tally restarts from zero
+  author: 1, // +1 block, +2 tickets, +3 preimages of 16 + 17 + 18 = 51 bytes
+  reporters: [0, 1, 2, 3], // the guarantees' credentials: one guarantee counted each
+  assurances: 0, // this block's two belong to the tally that just closed
+};
+```
+
+```text [what comes out]
+slot 123455 → 123456: a new epoch begins
+author: validator 1
+validator 1: fresh → 1 2 3 51 1 0
+```
+
+:::
+
+Read the input into the output: slot 123455 to 123456 crosses an epoch boundary (12
+slots an epoch on tiny), so every row starts `fresh`. The author, validator 1, collects
+the block, both tickets and all three preimages — 51 bytes between them — plus the
+guarantee it co-signed; validators 0, 2 and 3 each get their guarantee; and the two
+assurances change nothing here, because assurances land in the epoch being closed.
+
 **Run**
 
 ```sh

@@ -275,6 +275,46 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Two guarantees in one block at slot 18, signed by the *same
+three seats* — one guarantee from this rotation, one made at slot 14, the rotation
+before:
+
+::: code-group
+
+```json [what goes in]
+{
+  "slot": 18,
+  "guarantees": [
+    { "report": { "core_index": 0, … }, "slot": 14,
+      "signatures": [ { "validator_index": 1, "signature": "0x236ff161…" }, … 4, … 5 … ] },
+    { "report": { "core_index": 1, … }, "slot": 18,
+      "signatures": [ { "validator_index": 1, "signature": "0x52ddd0bb…" }, … 4, … 5 … ] }
+  ]
+}
+```
+
+```ts [what it computes]
+// bin/reporters.ts: each guarantee's signer keys looked up in its own rotation's hand
+const computed = {
+  core0: { signedBy: "seats 1, 4, 5 of the slot-14 hand", allReal: true },
+  core1: { signedBy: "seats 1, 4, 5 of the slot-18 hand", allReal: true },
+  signatures: 6, // three per guarantee
+  reporters: 3, // 𝐆 counts each key once, however often it signed
+};
+```
+
+```text [what comes out]
+core 0: signed by 0xad93247b…, 0x8b8c5d43…, 0xab0084d0…; all real: true
+core 1: signed by 0xad93247b…, 0x8b8c5d43…, 0xab0084d0…; all real: true
+𝐆, the reporters: 3 of 6 signatures' keys
+```
+
+:::
+
+Both guarantees carry `validator_index` 1, 4 and 5 — but each is resolved against the
+hand of *its own* `slot`, and the two hands seat those numbers on different cores, so
+both check out. Six signatures become three reporters: 𝐆 counts people, not autographs.
+
 **Run**
 
 ```sh

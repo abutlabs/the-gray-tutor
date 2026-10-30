@@ -589,6 +589,49 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The three faces of the run, at its first block — after this
+one, the trace's states are never touched again, only its blocks:
+
+::: code-group
+
+```json [what goes in]
+{
+  "pre_state": { "keyvals": [ "… block 1's 21 pairs: the only state ever taken …" ] },
+  "block": { "header": {
+    "slot": 1,
+    "parent": "0x245becfe…",
+    "parent_state_root": "0xd6e78dc0…",
+    "author_index": 0,
+    "entropy_source": "0x62bc9d23…",
+    "seal": "0x39ca4523…"
+  }, "extrinsic": "… empty: no tickets, preimages, guarantees, assurances, disputes …" },
+  "post_state": { "state_root": "0x48dc323d…" }
+}
+```
+
+```ts [what it computes]
+// importBlock, then stateRoot, for block 1
+const computed = {
+  checks: "header first", // parent known, slot later, state root the state's (19.4's rules)
+  imported: true, // every wave of the plan runs; the new state replaces the old
+  root: "0x48dc323d…", // stateRoot(state): the whole state merklized, lesson 6.1
+  same: true, // it equals the trace's post_state.state_root, byte for byte
+};
+```
+
+```text [what comes out]
+block 1, slot 1: imported; root 0x48dc323d… = the trace's
+100 of 100 state roots as the trace's
+```
+
+:::
+
+Read the input into the output: the header's checks pass (its `parent_state_root`
+fingerprints the 21-pair pre-state your client holds), the empty extrinsic flows through
+every wave, and the root your client computes from its *own* new state — `0x48dc323d…`
+— must equal the trace's `post_state.state_root`. From block 2 on, the comparison is the
+only thing taken from the trace: the state is yours.
+
 **Run**
 
 ```sh

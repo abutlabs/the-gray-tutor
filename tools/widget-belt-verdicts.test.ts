@@ -17,7 +17,8 @@ const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4 };
 
 test("the belt widget grows lesson 9.1's belt: bin/belt.ts's dots and super-peaks, after each of 16 items", () => {
   const rows = [...lessonText(BELT).matchAll(/^after\s+(\d+): ([●· ]+?)\s+super-peak (0x[0-9a-f]{8})…/gm)];
-  assert.equal(rows.length, 16, "read bin/belt.ts's output");
+  // the what-comes-out tab repeats two rows verbatim; every copy must agree with the belt
+  assert.equal(new Set(rows.map((r) => r[1])).size, 16, "read bin/belt.ts's output");
   for (const [, n, dots, top] of rows) {
     const belt = beltOf(Number(n));
     const shape = belt.map((peak) => (peak === null ? "·" : "●")).join(" ");
@@ -193,8 +194,9 @@ test("10.1 shows what goes into bin/verdicts.ts: the vector's own first verdict,
   assert.match(text, /valid: 5, \/\/ t,/);
   assert.match(text, /decided: "good"/);
   // the what-comes-out tab's lines are the verified run output's own, repeated
-  const out = /```text \[what comes out\]\n([\s\S]*?)```/.exec(text)![1].trimEnd().split("\n");
+  const rawText = readFileSync(join(ROOT, "lessons", VERDICTS), "utf8");
+  const out = /```text \[what comes out\]\n([\s\S]*?)```/.exec(rawText)![1].trimEnd().split("\n");
   for (const line of out) {
-    assert.ok(text.split(line).length > 2, `shown twice, tab and verified output: ${line}`);
+    assert.ok(rawText.split(line).length > 2, `shown twice, tab and verified output: ${line}`);
   }
 });

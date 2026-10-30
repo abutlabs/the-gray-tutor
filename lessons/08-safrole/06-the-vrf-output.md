@@ -242,6 +242,46 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** This program reads real blocks, not a state-transition vector: each trace
+file holds a block and the state before it. What block 1 gives, what the program makes
+of it, and what it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "block": {
+    "header": { "slot": 1, "entropy_source": "0x62bc9d2311da…" }
+  },
+  "pre_state": {
+    "keyvals": ["…", "the state's entries: η and τ read from their components"]
+  }
+}
+```
+
+```ts [what it computes]
+// bin/vrf.ts's values for block 1
+const computed = {
+  output: "0x83199eec…", // 𝒴(entropy_source): the 32-byte output point, hashed
+  newEpoch: false, // slot 0 → 1 stays in epoch 0: no staircase
+  eta0: "0x5b8e9d7c…", // H(the old η₀ ⌢ output)
+  theirs: "0x5b8e9d7c…", // η₀ in the next trace file's state: the same bytes
+};
+```
+
+```text [what comes out]
+block 1, slot 1: entropy source 0x62bc9d23…
+  VRF output 0x83199eec…, η′₀ 0x5b8e9d7c… (the trace: 0x5b8e9d7c…)
+```
+
+:::
+
+Read the input into the output: the 96-byte `entropy_source` is the header's VRF
+signature, and 𝒴 of it — first 32 bytes through SHA-512, as this lesson built — is the
+output the program stirs into the η₀ it read from `pre_state.keyvals`
+(`../vectors/traces/safrole/00000001.json` is the file). The parenthesis is the check:
+the next file's state holds the η₀ the real chain got, and yours must be byte-identical.
+
 **Run**
 
 ```sh

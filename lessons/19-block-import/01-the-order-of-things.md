@@ -278,6 +278,40 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** This program reads no vector — its input is `STEPS`, the
+dependency table you just wrote. The three faces of its run:
+
+::: code-group
+
+```text [what goes in]
+STEPS, 16 entries of src/import.ts, each "makes ← from", such as:
+
+  { makes: ["τ′"], from: ["H"], lesson: "4.6" }
+  { makes: ["γ′"], from: ["H", "τ", "E_T", "γ", "ι", "η′", "κ′", "ψ′"], lesson: "8.5" }
+```
+
+```ts [what it computes]
+// waves(STEPS): every step whose ingredients are all ready goes in the next wave
+const computed = {
+  waves: 4, // the whole block import, four rounds of independent steps
+  sizes: [7, 3, 2, 4], // how many steps run side by side in each
+  example: "γ′ waits for wave 2", // its from list names η′, κ′ and ψ′, made in wave 1
+};
+```
+
+```text [what comes out]
+wave 2:
+  γ′ ← H, τ, E_T, γ, ι, η′, κ′, ψ′  (lesson 8.5)
+```
+
+:::
+
+Read the input into the output: a step's `from` is everything it's made of; `waves`
+seats a step as soon as every name in its `from` exists, so τ′ (made only from H, the
+header) runs in wave 1, while γ′ — whose `from` names η′, κ′ and ψ′, all wave-1 products
+— must wait for wave 2. The printed plan is just that seating order, with each step's
+lesson beside it.
+
 **Run**
 
 ```sh

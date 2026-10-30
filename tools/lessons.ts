@@ -162,7 +162,14 @@ export function clientPackages(): Record<string, string> {
 }
 
 /** A lesson's Markdown, by its file under lessons/ ("02-codec/02-compact-naturals.md"). */
-export const lessonText = (file: string): string => readFileSync(join(LESSONS, file), "utf8");
+/**
+ * A lesson's text for tests that read its prose and its verified output. The output tabs
+ * of a three-tab group (what comes out, console) echo the verified Output block on
+ * purpose (tools/bin-io.test.ts checks that against the raw file), so here their lines
+ * are left out: each output line reads once, as the verified block's, not twice.
+ */
+export const lessonText = (file: string): string =>
+  readFileSync(join(LESSONS, file), "utf8").replace(/(```text \[(?:what comes out|console)\]\n)[\s\S]*?\n```/g, "$1```");
 
 /** The code of lesson id's file snippets, all together: what the widget tests check
  * a widget's logic against, so a widget can't teach what the lesson's code doesn't do. */

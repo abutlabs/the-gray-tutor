@@ -365,6 +365,46 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** One run, three faces — the program going in (no file this
+time: it's written in the bin itself), the machine mid-loop, and the lines printed. Tab
+across them:
+
+::: code-group
+
+```text [what goes in]
+the SUM program, seven hand-assembled instructions:
+  [51, 0x02]         0: load_imm r2, 0
+  [51, 0x03, 10]     2: load_imm r3, 10
+  [1]                5: fallthrough
+  [200, 0x32, 0x02]  6: add_64 r2 = r2 + r3
+  [149, 0x33, 0xff]  9: add_imm_64 r3 = r3 + (-1)
+  [82, 0x03, 0xfa]  12: branch_ne_imm r3, 0, back to 6
+  [50, 0x00]        15: jump_ind r0 + 0
+```
+
+```ts [what it computes]
+// the machine after step 7, mid-loop: the second add_64 just ran
+const computed = {
+  pc: 9, // add_64 at 6 finished; add_imm_64 is next
+  r2: 19n, // the sum so far: 10 + 9
+  r3: 9n, // the counter, on its way down to 0
+  trips: 10, // the loop runs ten times, three instructions a trip
+  stops: "halt", // jump_ind through r0, which held HALT_ADDRESS from the start
+};
+```
+
+```text [what comes out]
+step  7  at  6  add_64         r2 = 19
+the machine stops: halt, with r2 = 55
+```
+
+:::
+
+Read the input into the output: each step decodes one instruction at `pc`, runs it, and
+prints only the registers it changed — so the loop reads as r2 climbing while r3 falls.
+The last `jump_ind` adds 0 to r0, which `newMachine` set to the halt address at the
+start, and the machine stops with the answer, 10 + 9 + … + 1 = 55, sitting in r2.
+
 **Run**
 
 ```sh

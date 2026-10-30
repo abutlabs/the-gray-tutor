@@ -305,6 +305,51 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The vector fields the program reads — the accumulator is
+already sorted, lowest id first — the values it computes, and the lines it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 11 },
+  "pre_state": {
+    "tau": 3,
+    "gamma_a": [
+      { "id": "0x00e51b1c…", "attempt": 0 },
+      { "id": "0x015d2d6f…", "attempt": 1 },
+      { "…": "nine more, in id order" },
+      { "id": "0xff0aa173…", "attempt": 2 }
+    ]
+  }
+}
+```
+
+```ts [what it computes]
+// bin/lottery.ts's values, once Z decides whether and how the lottery closes
+const computed = {
+  closesAt: 10, // Y, the epoch's tail: phase 3 is before it, phase 11 after
+  crossed: true, // this block steps over the close with a full accumulator
+  mark: "12 tickets, outside in", // Z zips the sorted list: best, worst, 2nd best…
+  slot0: "ticket 0, 0x00e51b1c…", // the lowest id of all: the epoch's first sealer
+  slot1: "ticket 11, 0xff0aa173…", // the highest: the outside-in partner
+};
+```
+
+```text [what comes out]
+slot 3 → 11, the lottery closes at phase 10
+12 of 12 tickets: a tickets mark
+slot   0 of the next epoch: ticket 0, 0x00e51b1c…
+slot   1 of the next epoch: ticket 11, 0xff0aa173…
+```
+
+:::
+
+Read the input into the output: `tau` 3 to `slot` 11 steps over phase 10 — Y, where the
+lottery closes — and `gamma_a` holds all 12 tickets, so there *is* a mark. The order the
+output shows is Z on the input's order: `gamma_a[0]`, the `0x00e5…` id, takes slot 0;
+`gamma_a[11]`, the `0xff0a…` one, takes slot 1; and the zip walks inwards from there.
+
 **Run**
 
 ```sh

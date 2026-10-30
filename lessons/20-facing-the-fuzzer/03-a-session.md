@@ -170,6 +170,43 @@ may not be listening yet.
 
 ## Run a session
 
+**What flows through it.** The three faces of a session — the trace replayed as
+`fuzz-proto` messages going down the socket, what the fuzzer tracks, the lines it prints:
+
+::: code-group
+
+```text [what goes in]
+the fuzzy trace, as fuzz-proto messages, each in its length-prefixed frame:
+
+  peer_info     who's calling: names and versions
+  initialize    the genesis header, and its state's 21 key-value pairs
+  import_block  slot 1 — then one more per trace step, 100 in all
+```
+
+```ts [what it computes]
+// the fuzzer's session bookkeeping, family "fuzzy"
+const computed = {
+  genesisRoot: "0x7cbff2a9…", // the root the target must answer to initialize
+  blocks: 100, // one import_block per trace step
+  expected: "state_root, or error", // the trace's post root; 3 blocks are made to be refused
+  matched: 100, // every answer as the trace has it
+};
+```
+
+```text [what comes out]
+target: the-gray-tutor
+initialize: the genesis root
+100 of 100 blocks as the trace has them
+```
+
+:::
+
+Read the input into the output: `peer_info` comes back with the target's name, the
+first line. `initialize` hands over genesis whole, and the target's answering
+`state_root` must be the genesis root, `0x7cbff2a9…` — the second line. Then a hundred
+`import_block` messages, each answered with the root the trace promises — or, for the three
+blocks built to be refused, an `error` — and the last line counts them all matched.
+
 **Run**
 
 ```sh

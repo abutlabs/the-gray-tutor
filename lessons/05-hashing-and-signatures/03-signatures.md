@@ -332,6 +332,40 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it — the forged assurance, what the check makes of it, the line it
+earns:
+
+::: code-group
+
+```json [what goes in]
+{
+  "anchor": "0xd61a38a0f73b…",
+  "bitfield": "0x02",
+  "validator_index": 1,
+  "signature": "0x44e668f7d744…"
+}
+```
+
+```ts [what it computes]
+const checked = {
+  keys: 6, // pre_state.curr_validators: one Ed25519 key per validator
+  prefix: "jam_available", // the domain every assurance signature must cover
+  validator1: "FORGED", // this signature never came from validator 1's key
+  valid: 5, // of 6: every other assurance checks out
+};
+```
+
+```text [what comes out]
+validator 1: FORGED
+5 of 6 signatures are valid.
+```
+
+:::
+
+`validator_index` says whose key to check — the vector's `curr_validators[1]`, key
+`0xad93247bd0130755…` — and the signature under it was made by someone else, so the
+check says so. The other five verify.
+
 **Run**
 
 ```sh

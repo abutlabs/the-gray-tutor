@@ -290,6 +290,56 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The vector fields the one step reads — this one's extrinsic
+is empty, which is what lets the program run it — the values it computes, and the lines
+it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 48,
+    "entropy": "0x8c2e6d327dfaa6ff…",
+    "extrinsic": []
+  },
+  "pre_state": {
+    "tau": 45,
+    "eta": ["0x03170a2e75…", "…", "…", "…"],
+    "post_offenders": ["0xab0084d01534b31c…"],
+    "…": "the four validator sets and the sealers, as safroleFromJson reads them"
+  }
+}
+```
+
+```ts [what it computes]
+// bin/safrole.ts's step, the whole engine turned once
+const computed = {
+  newEpoch: true, // slot 45 is epoch 3, slot 48 epoch 4: everything turns at once
+  eta0: "0xa0243a82…", // H(η₀ ⌢ input.entropy); the other three step down
+  zeroed: 1, // Φ: post_offenders' key arrives in pending as zeros
+  sealers: "fallback keys", // no full lottery closed, so F deals from η′₂ and κ′
+  ticketsMark: false, // and the header gets no mark for it
+  matches: true, // the whole state after equals the vector's post_state
+};
+```
+
+```text [what comes out]
+slot 45 → 48
+η₀ stirred: 0x03170a2e… → 0xa0243a82…
+a new epoch: true
+the whole state after matches the vector: true
+```
+
+:::
+
+Read the input into the output: an empty `extrinsic` is the program's admission ticket —
+tickets would need Bandersnatch, [lesson 8.7](./07-entering-tickets.md)'s work. `slot` 48 against `tau` 45 turns
+the epoch, so every piece of the last four lessons fires in one step: `input.entropy`
+stirs η₀, `post_offenders` zeroes one pending key, and with no closed lottery the sealers
+fall back. The final line is the point of the program: your step's entire state equals
+the vector's.
+
 **Run**
 
 ```sh

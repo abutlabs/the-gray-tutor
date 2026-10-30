@@ -288,6 +288,33 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through it — the input, the values worked out, the line printed:
+
+::: code-group
+
+```text [what goes in]
+new Date()        the wall clock — say 13:00:00 UTC on 1 January 2025, an hour into the era
+JAM_COMMON_ERA    1735732800, seconds from the Unix epoch to 12:00 UTC that day
+SLOT_SECONDS      6
+```
+
+```ts [what it computes]
+const computed = {
+  sinceEra: 3600, // seconds from 12:00 to 13:00 UTC on 1 January 2025
+  slot: 600, // ⌊3600 / 6⌋: the test's own "an hour is 600 slots"
+};
+```
+
+```text [what comes out]
+It is JAM timeslot ….
+```
+
+:::
+
+At that moment the line would read `It is JAM timeslot 600.`; run it today and the
+number is in the millions, which is why the output below leaves it as `…` — your clock
+decides.
+
 **Run**
 
 ```sh

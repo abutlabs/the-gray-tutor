@@ -320,6 +320,48 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Real blocks again: each trace file holds a block, and the
+*next* file holds the state after it, where the author's key, γ′_S and η′₃ live. Block
+46's share, what the program computes, and what it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "block": {
+    "header": {
+      "slot": 46,
+      "author_index": 5,
+      "entropy_source": "0xe10ff5e2736f…",
+      "seal": "0x53564eb6d683…"
+    }
+  }
+}
+```
+
+```ts [what it computes]
+// bin/seals.ts's values for block 46, checked against the state after it
+const computed = {
+  author: "0x21056509…", // κ′[5]'s Bandersnatch key, read from the next file's state
+  sealers: "fallback keys", // γ′_S holds keys, not tickets: slot 46 ends a fallback epoch
+  context: "X_F ⌢ η′₃", // what the 96-byte seal must sign, under that key
+  entropySource: "signs X_E ⌢ 𝒴(seal)", // the second VRF, chained to the first
+  error: null, // sealError found nothing wrong: both signatures verify
+};
+```
+
+```text [what comes out]
+block 46, slot 46: validator 5 (0x21056509…), by a fallback key: seal and entropy source check out
+```
+
+:::
+
+Read the input into the output: `author_index` 5 names the sealer, and the state after
+the block (`../vectors/traces/safrole/00000046.json` is the block; 47's file holds that
+state) gives κ′[5]'s Bandersnatch key, the `0x2105…` in the line. γ′_S for slot 46 holds
+a fallback *key*, so the 96-byte `seal` must be that validator's VRF over X_F ⌢ η′₃, and
+`entropy_source` must sign X_E ⌢ the seal's own output — the chain this lesson built.
+
 **Run**
 
 ```sh
