@@ -44,8 +44,21 @@ and only three splits mean anything:
 | --- | --- | --- | --- |
 | all of them: t = ⌊2·\|K\|/3⌋ + 1 | 5 of 5 | 683 of 683 | **good** — a supermajority swears it's right |
 | none: t = 0 | 0 of 5 | 0 of 683 | **bad** — the same supermajority, swearing it's wrong |
-| a third of the judges: t = ⌊\|K\|/3⌋ | 2 of 5 | 341 of 683 | **wonky** — truly split, nobody can tell |
+| a third of the judges say "valid", the rest of the carried votes "invalid": t = ⌊\|K\|/3⌋ | 2 of 5 | 341 of 683 | **wonky** — a genuine split, nobody can tell |
 | anything else | 1, 3 or 4 of 5 | any other count | no verdict at all: the block is refused, as [lesson 10.4](./04-bad-verdicts.md)'s `bad_vote_split` |
+
+And a middling split — 200 of the 683 swearing the report is bad? It never reaches this
+table. A judgement isn't an opinion: a judge votes after re-running the report's work on
+the same data (*auditing*, in the [glossary](../glossary.md) — your client never audits,
+it only checks verdicts), and that computation is deterministic, so honest judges all
+come out the same door. The verdict is the *proof* an accuser assembles from the signed
+judgements afterwards: to write **good** they must present ⌊2·|K|/3⌋ + 1 signatures
+saying "valid"; to write **bad**, that many saying "invalid" — which is what the
+0-of-683 row is, every carried vote an "invalid" one; to write **wonky**, exactly a
+third saying "valid", evidence of a true split. If the signatures to complete one of
+those three patterns don't exist, no verdict can be written at all, and the chain
+records nothing — there are no tiers, only proven right, proven wrong, and a proven
+stalemate.
 
 **What the state keeps.** ψ (C(5), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)) holds three sets of report hashes, good,
 bad and wonky, plus the offenders' keys ([next lesson](./02-culprits-and-faults.md)). Each verdict's report joins the

@@ -136,6 +136,9 @@ test("the verdict widget decides 10.1's test values: with 6 judges, 5 is good, 0
   }
   // the carried-votes counts beside them are votesNeeded, the supermajority
   assert.match(text, /it carries exactly\s+⌊2·\|K\|\/3⌋ \+ 1 of them/);
+  // middling splits are answered: a verdict is an assembled proof, not a poll
+  assert.match(text.replace(/\s+/g, " "), /A judgement isn't an opinion/);
+  assert.match(text.replace(/\s+/g, " "), /a third of the judges say "valid", the rest of the carried votes "invalid"/);
   for (const [, of6, of1023] of text.matchAll(/\| \d+ of (\d+) \| \d+ of (\d+) \|/g)) {
     assert.equal(Number(of6), votesNeeded(6), "5 votes on tiny");
     assert.equal(Number(of1023), votesNeeded(1023), "683 votes on full");
