@@ -45,7 +45,7 @@ through them in order with *next*.
 
 <PartFlow :part="1" />
 
-**Starting here?** At the repo root, `npm run catch-up -- 0.4` makes your client the one
+**Starting here?** At the repo root, `npm run catch-up -- 0.6` makes your client the one
 this part starts from; [How to read it](../index.md#how-to-read-it) says more.
 
 - [1.1 Bytes and hex](./01-bytes-and-hex.md)

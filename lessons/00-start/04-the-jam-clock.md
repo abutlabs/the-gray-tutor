@@ -477,8 +477,9 @@ clock, without sending a single message.
 ## What you have
 
 Your first JAM rule, its tests, and a clock that reports every slot as it begins. From
-here on, every lesson's `npm test` lands in Grafana. The clock was a single number; nearly
-everything else in JAM is bytes, and numbers too big for JavaScript's own. [Part 1](../01-bytes-and-numbers/index.md) starts
-there.
+here on, every lesson's `npm test` lands in Grafana. The clock was one number you could
+check by hand. Everything after it is checked against the official test vectors, so
+[the next lesson](./05-understanding-the-vectors.md) opens that folder and shows what each kind of
+vector asks, and which file of your client will answer it.
 
-Next: [Part 1 · Bytes and numbers](../01-bytes-and-numbers/index.md)
+Next: [0.5 Understanding the vectors](./05-understanding-the-vectors.md)

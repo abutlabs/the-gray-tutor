@@ -12,6 +12,8 @@ export const PUBLISHED: string[] = [
   "00-start/02-set-up-the-project",
   "00-start/03-watch-your-client",
   "00-start/04-the-jam-clock",
+  "00-start/05-understanding-the-vectors",
+  "00-start/06-how-a-block-is-ordered",
   "00-start/",
   "01-bytes-and-numbers/01-bytes-and-hex",
   "01-bytes-and-numbers/02-numbers",

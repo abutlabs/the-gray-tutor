@@ -33,6 +33,7 @@ import PvmStepper from "./PvmStepper.vue";
 import PipelineCycles from "./PipelineCycles.vue";
 import GasMeter from "./GasMeter.vue";
 import ImportWaves from "./ImportWaves.vue";
+import ImportGantt from "./ImportGantt.vue";
 import ResultTag from "./ResultTag.vue";
 import ShardRebuild from "./ShardRebuild.vue";
 import ShardJourney from "./ShardJourney.vue";
@@ -297,6 +298,7 @@ export default {
     app.component("CheckpointRun", CheckpointRun); // 16.6
     app.component("ReadyQueue", ReadyQueue); // 17.2
     app.component("ImportWaves", ImportWaves); // 19.1
+    app.component("ImportGantt", ImportGantt); // 0.6
     app.component("RefineBudget", RefineBudget); // JAM beside Aztec
     // a lesson's understanding check, from its ::: check block (../checks.ts)
     app.component("CheckYourself", CheckYourself);

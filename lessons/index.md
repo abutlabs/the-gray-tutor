@@ -79,6 +79,8 @@ This tutorial is built with reference to [Lasair](https://github.com/abutlabs/la
 - [0.2 Set up the project](./00-start/02-set-up-the-project.md)
 - [0.3 Watch your client](./00-start/03-watch-your-client.md)
 - [0.4 The JAM clock](./00-start/04-the-jam-clock.md)
+- [0.5 Understanding the vectors](./00-start/05-understanding-the-vectors.md)
+- [0.6 How a block is ordered](./00-start/06-how-a-block-is-ordered.md)
 
 **[Part 1 · Bytes and numbers](./01-bytes-and-numbers/index.md)**
 

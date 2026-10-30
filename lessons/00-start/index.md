@@ -2,7 +2,8 @@
 
 What JAM is, what a client has to do, how these lessons work, and a project that watches
 itself from the start: the observability stack, a client that reports every run to it,
-and your first piece of JAM, the clock.
+your first piece of JAM, the clock, and a map of the official test vectors you will be
+checked against.
 
 By the end of this part your client knows JAM's clock, has its first tests, and reports
 every run to Grafana, where you'll watch it from now on.
@@ -19,6 +20,8 @@ through them in order with *next*.
 - [0.2 Set up the project](./02-set-up-the-project.md)
 - [0.3 Watch your client](./03-watch-your-client.md)
 - [0.4 The JAM clock](./04-the-jam-clock.md)
+- [0.5 Understanding the vectors](./05-understanding-the-vectors.md)
+- [0.6 How a block is ordered](./06-how-a-block-is-ordered.md)
 
 **Test yourself:** [F0 · Start here: JAM in five minutes](https://abutlabs.github.io/jam-learning/lasair/exam.html?chapter=f00-start-here),
 self-test cards on JAM learning.

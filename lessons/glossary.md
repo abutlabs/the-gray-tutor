@@ -62,6 +62,21 @@ a correct client must produce, as files. Matching them is how you know your clie
 right. *Example:* `codec/tiny/work_item.bin` and its `.json`.
 ([2.6](./02-codec/06-the-first-test-vectors.md))
 
+**Vector family.** A folder of test vectors that all test one rule. *Example:* `stf/disputes`
+holds 29 tiny vectors, all about disputes. ([0.5](./00-start/05-understanding-the-vectors.md))
+
+**Pre-state and post-state.** The state before a step, and the state a correct client must
+have after it. *Example:* a disputes vector's `pre_state` has no bad reports listed, and its
+`post_state` has one. ([0.5](./00-start/05-understanding-the-vectors.md))
+
+**Round trip.** Changing something into another form and back, and getting exactly what you
+started with. *Example:* a work item to bytes and back to the same work item.
+([0.5](./00-start/05-understanding-the-vectors.md))
+
+**Slack.** How many waves a block-import step could wait without making anything late.
+*Example:* the guarantees' step finishes in wave 3, but nothing in the block needs it, so it
+has 1 wave of slack. ([0.6](./00-start/06-how-a-block-is-ordered.md))
+
 **Vector family.** One kind of test vector, in a folder of its own, all checked the same
 way. *Example:* `codec`, `stf/safrole`, `traces/fallback`.
 ([2.6](./02-codec/06-the-first-test-vectors.md))
