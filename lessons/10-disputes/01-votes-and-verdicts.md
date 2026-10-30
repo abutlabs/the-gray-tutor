@@ -53,7 +53,9 @@ the same data (*auditing*, in the [glossary](../glossary.md) — your client nev
 it only checks verdicts), and that computation is deterministic, so honest judges all
 come out the same door. The verdict is the *proof* an accuser assembles from the signed
 judgements afterwards: to write **good** they must present ⌊2·|K|/3⌋ + 1 signatures
-saying "valid"; to write **bad**, that many saying "invalid" — which is what the
+saying "valid" — and *exactly* that many, never more: all 6 of 6 is refused too
+(`bad_votes_count`), because a sixth signature proves nothing five haven't already put
+beyond challenge, and a fixed count gives every verdict exactly one shape on the wire; to write **bad**, that many saying "invalid" — which is what the
 0-of-683 row is, every carried vote an "invalid" one; to write **wonky**, exactly a
 third saying "valid", evidence of a true split. If the signatures to complete one of
 those three patterns don't exist, no verdict can be written at all, and the chain
