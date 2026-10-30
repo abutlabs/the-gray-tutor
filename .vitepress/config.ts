@@ -109,11 +109,6 @@ export default defineConfig({
       { text: "Scoreboard", link: "/scoreboard" },
       { text: "Glossary", link: "/glossary" },
       { text: "Symbols", link: "/symbols" },
-      // a plain page outside the app (print.ts): `target` makes the link load it in full
-      { text: "One page", link: "/print.html", target: "_self" },
-      // the e-book's latest release (.github/workflows/epub.yml)
-      { text: "E-book", link: "https://github.com/abutlabs/the-gray-tutor/releases/latest" },
-      { text: "JAM learning", link: "https://abutlabs.github.io/jam-learning/" },
     ],
     socialLinks: [{ icon: "github", link: "https://github.com/abutlabs/the-gray-tutor" }],
     outline: { level: [2, 3] },
