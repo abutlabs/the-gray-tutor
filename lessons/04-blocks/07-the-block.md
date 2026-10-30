@@ -190,6 +190,32 @@ import { FULL, TINY } from "../src/config.ts";
 const configOf = (name: string): Config => (name.includes("/full/") ? FULL : TINY);
 ```
 
+The whole block is the biggest codec vector. Its header and the five-part extrinsic, trimmed:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/codec/tiny/block.json",
+  "header": {
+    "parent": "0x5c743dbc51\u2026",
+    "slot": 42,
+    "author_index": 3,
+    "seal": "0x31dc5b1e94\u2026"
+  },
+  "extrinsic": "{ tickets, preimages, guarantees, assurances, disputes }"
+}
+```
+
+```text [console]
+codec                    30 of 30  ✔
+30 of 1,428 vectors pass.
+```
+
+:::
+
+Run whole, a vector like this one decodes to a header and an extrinsic, then encodes back to its exact bytes. Every one of the 30 does that now, hence the family row.
+
 **Run**
 
 ```sh

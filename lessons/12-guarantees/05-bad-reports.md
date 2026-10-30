@@ -455,6 +455,54 @@ export const FAMILIES: Family[] = [
 ];
 ```
 
+One of the refusals the milestone counts, a guarantee for a core that does not exist:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/reports/tiny/bad_core_index-1.json",
+  "input": {
+    "slot": 14,
+    "guarantees": [
+      {
+        "slot": 14,
+        "report": {
+          "core_index": 3,
+          "package_spec.hash": "0x63c03371b9dad9f1c60473ec0326c970984e9c90c0b5ed90eba6ada471ba4d86"
+        },
+        "signatures": [
+          {
+            "validator_index": 0,
+            "signature": "0xed25d1700e…"
+          },
+          {
+            "validator_index": 2,
+            "signature": "0xd979bfe3b6…"
+          },
+          {
+            "validator_index": 3,
+            "signature": "0x434cf33017…"
+          }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "err": "bad_core_index"
+  }
+}
+```
+
+```text [console]
+stf/reports              62 of 92
+230 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* means every rule on a report is checked, and a vector that should be refused only counts when it is refused for its own reason: here core 3 on tiny, which has only cores 0 and 1. The row's `62 of 92` is the 62 refusals; the other 30 vectors are accepted, and wait for the statistics.
+
 **Run**
 
 ```sh

@@ -615,6 +615,35 @@ export const FAMILIES: Family[] = [
 `safroleFromJson` reads every part of Safrole's state, so one `deepEqual` compares nine
 of them at once. Every vector runs at its own size, `configOf` reading it from the folder.
 
+The vector that needs the ring root most is an epoch change: the staging keys become the new ring, and the state must end with the matching `gamma_z`.
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/safrole/tiny/enact-epoch-change-with-padding-1.json",
+  "input": {
+    "slot": 48,
+    "entropy": "0x8c2e6d327d\u2026"
+  },
+  "pre_state": {
+    "gamma_z": "0xaf39b7de5fcf\u2026"
+  },
+  "post_state": {
+    "gamma_z": "0xa6c2f622ccf6\u2026"
+  }
+}
+```
+
+```text [console]
+stf/safrole              46 of 46  ✔
+78 of 1,428 vectors pass.
+```
+
+:::
+
+Run whole means the state after slot 48 equals the vector's, `gamma_z` included, byte for byte; a ring root that was one key off would fail it, and with it the family row.
+
 **Run**
 
 ```sh

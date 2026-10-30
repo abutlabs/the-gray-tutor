@@ -560,6 +560,32 @@ function checkPreimages(name: string) {
 A reports block counts only the work it brings: no report becomes available in it and it
 carries no assurances, so `coreStats` gets two empty lists, as in the tests above.
 
+The milestone's vectors are the `reports` ones. Here is one, two guarantees at slot 14, and the board's row for the family:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/reports/tiny/multiple_reports-1.json",
+  "input.slot": 14,
+  "input.guarantees": [
+    { "core_index": 0, "package": "0x63c03371…", "length": 17180, "signed_by": [1, 4, 5] },
+    { "core_index": 1, "package": "0xc7e675b7…", "length": 12487, "signed_by": [0, 2] }
+  ],
+  "output.ok.reported": ["0x63c03371…", "0xc7e675b7…"]
+}
+```
+
+```text [console]
+stf/reports              92 of 92  ✔
+
+406 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* here means the vector's answer is the reports list in `output`, two packages, and the state after it, `cores_statistics` included, matching to the byte. All 92 `reports` vectors do that, and the row says `92 of 92`.
+
 **Run**
 
 ```sh

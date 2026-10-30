@@ -696,6 +696,36 @@ export const FAMILIES: Family[] = [
 ];
 ```
 
+The milestone's vectors are the traces. Here is the first block of `fallback`, trimmed to what the importer reads and checks, and the board's rows for the two traces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/traces/fallback/00000001.json",
+  "pre_state.state_root": "0xd6e78dc0…",
+  "block.header": {
+    "slot": 1,
+    "parent": "0x245becfe…",
+    "parent_state_root": "0xd6e78dc0…",
+    "author_index": 0,
+    "seal": "0x39ca4523…"
+  },
+  "post_state.state_root": "0x48dc323d…"
+}
+```
+
+```text [console]
+traces/fallback        100 of 100  ✔
+traces/safrole         100 of 100  ✔
+
+606 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* for a trace block: import the block into the state before it, with every rule, and your client's state root must be `post_state.state_root`. The header's `parent_state_root` is the root before the block, the same root `pre_state` starts at. A hundred blocks of `fallback` and a hundred of `safrole` do that in a row.
+
 **Run**
 
 ```sh

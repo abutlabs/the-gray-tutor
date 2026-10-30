@@ -380,6 +380,43 @@ export const FAMILIES: Family[] = [
 ];
 ```
 
+One of the 22 that the milestone counts, a block whose assurances include a forged signature:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/assurances/tiny/assurances_with_bad_signature-1.json",
+  "input.assurances": [
+    {
+      "validator_index": 0,
+      "bitfield": "0x03",
+      "anchor": "0xd61a38a0f7…",
+      "signature": "0x3dbe32bd0a…"
+    },
+    {
+      "validator_index": 1,
+      "bitfield": "0x02",
+      "anchor": "0xd61a38a0f7…",
+      "signature": "0x44e668f7d7…"
+    },
+    "… more assurances, one with a signature that is not its validator's …"
+  ],
+  "output": {
+    "err": "bad_signature"
+  }
+}
+```
+
+```text [console]
+stf/assurances           22 of 22  ✔
+168 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* means your client reads every assurance, checks every signature and bitfield, and must refuse this block with the vector's own reason, `bad_signature`; the `stf/assurances` row counts it only then.
+
 **Run**
 
 ```sh

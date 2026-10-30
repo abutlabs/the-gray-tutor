@@ -18,7 +18,7 @@ const lessons = readParts().flatMap((p) => p.lessons)
 const TABS = /```(?:json|text|sh) \[what goes in\]\n([\s\S]*?)\n```\s+```(?:ts|js) \[what it computes\]\n([\s\S]*?)\n```\s+```text \[what comes out\]\n([\s\S]*?)\n```/g;
 
 /** A scoreboard run's two tabs: a vector of the family crossing the line, and the console. */
-const SCORE_TABS = /```json \[what goes in\]\n([\s\S]*?)\n```\s+```text \[console\]\n([\s\S]*?)\n```/g;
+const SCORE_TABS = /```json \[what goes in\]\n((?:(?!```)[\s\S])*?)\n```\s+```text \[console\]\n((?:(?!```)[\s\S])*?)\n```/g;
 
 /** Lessons whose bins still await their three tabs. Convert one, remove it here. #87. */
 const PENDING = new Set([
@@ -26,26 +26,8 @@ const PENDING = new Set([
   "20-facing-the-fuzzer/02-a-target.md",
 ]);
 
-/** Scoreboard milestones still awaiting their what-goes-in + console tabs. #87's second half. */
-const PENDING_SCOREBOARD = new Set([
-  "02-codec/06-the-first-test-vectors.md",
-  "04-blocks/07-the-block.md",
-  "06-state-and-merklization/01-the-state-trie.md",
-  "07-time-and-shuffling/02-the-shuffle.md",
-  "08-safrole/08-the-ring-root.md",
-  "09-recent-history/02-recent-blocks.md",
-  "10-disputes/05-bad-culprits-and-faults.md",
-  "11-assurances/03-bad-assurances.md",
-  "12-guarantees/05-bad-reports.md",
-  "13-authorization/01-the-authorizer-pools.md",
-  "14-services/01-providing-preimages.md",
-  "17-accumulation/13-blessing-and-designating.md",
-  "18-statistics/01-who-did-what.md",
-  "18-statistics/02-what-cores-and-services-did.md",
-  "19-block-import/04-importing-a-block.md",
-  "19-block-import/06-blocks-to-refuse.md",
-  "20-facing-the-fuzzer/04-ready-to-be-fuzzed.md",
-]);
+/** Scoreboard milestones still awaiting their what-goes-in + console tabs (none: #87's second half is done). */
+const PENDING_SCOREBOARD = new Set<string>([]);
 
 test("every scoreboard milestone shows the vector going in and the console, or is still pending (#87)", () => {
   const missing: string[] = [];

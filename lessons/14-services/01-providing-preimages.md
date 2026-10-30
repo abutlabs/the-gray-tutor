@@ -462,6 +462,49 @@ export const FAMILIES: Family[] = [
 ];
 ```
 
+Here is a vector from the `stf/preimages` family, whose first rows the scoreboard now counts:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/preimages/tiny/preimage_needed-2.json",
+  "input": {
+    "slot": 43,
+    "preimages": [
+      {
+        "requester": 3,
+        "blob": "0x92cdf578c470… (46 bytes)"
+      }
+    ]
+  },
+  "pre_state request": {
+    "hash": "0x9e0e7d324d129dfbd86462546e6c3aaa533bb6f2079c639f85943c95a53a70a9",
+    "length": 46,
+    "value": []
+  },
+  "post_state request": {
+    "hash": "0x9e0e7d324d129dfbd86462546e6c3aaa533bb6f2079c639f85943c95a53a70a9",
+    "length": 46,
+    "value": [
+      43
+    ]
+  },
+  "output": {
+    "ok": null
+  }
+}
+```
+
+```text [console]
+stf/preimages             2 of 16
+238 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* means the block's one preimage is checked against the request waiting for it, and the request's history must move from `[]` to `[43]`, the slot it was provided in. Only 2 of the family's 16 pass at this point: the console row says so, and the failing ones, listed under it in the full output, are about statistics and an unneeded preimage.
+
 **Run**
 
 ```sh

@@ -327,6 +327,31 @@ if (link) console.log(`reported to Grafana: ${link}`);
 `next` gives it the next vector, until there are none left and the worker is stopped.
 Everything else, the folders, the rows and the board, is as it was.
 
+The milestone's vectors include the traces that carry bad blocks. Here is block 37 of `fuzzy`, one of the three refused, and the board's rows for the two `fuzzy` families:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/traces/fuzzy/00000037.json",
+  "pre_state.state_root": "0xe9a2c0ff…",
+  "block.header": { "slot": 37, "parent_state_root": "0xe9a2c0ff…", "author_index": 4 },
+  "block.extrinsic.guarantees": "2 guarantees, a result of the first naming 0xa0b28a40…",
+  "post_state.state_root": "0xe9a2c0ff…"
+}
+```
+
+```text [console]
+traces/fuzzy           200 of 200  ✔
+traces/fuzzy_light     200 of 200  ✔
+
+1,406 of 1,428 vectors pass.
+```
+
+:::
+
+A refused block *runs whole* when it is refused and the state stays put: the trace's `post_state.state_root` is the same `0xe9a2c0ff…` as the `pre_state`'s, so there is no new root to match, only the refusal itself. The board counts a refusal where the trace calls for one as a pass.
+
 **Run**
 
 ```sh

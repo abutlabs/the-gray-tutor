@@ -386,6 +386,51 @@ export const FAMILIES: Family[] = [
 The full vectors carry verdicts of 683 signed votes, so the board takes a little longer
 from here: about 20 seconds, nearly all of it checking signatures.
 
+Here is one of those 60, the vector the scoreboard counts as passed once your client refuses it for its own reason:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/disputes/tiny/progress_with_bad_signatures-1.json",
+  "input.disputes": {
+    "verdicts": [
+      {
+        "target": "0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
+        "age": 0,
+        "votes": [
+          {
+            "vote": false,
+            "index": 0,
+            "signature": "0xd602b17036…"
+          },
+          "… four more, every vote false …"
+        ]
+      }
+    ],
+    "culprits": [
+      {
+        "target": "0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
+        "key": "0x4418fb8c85bb3985394a8c2756d3643457ce614546202a2f50b093d762499ace",
+        "signature": "0x124a711741…"
+      }
+    ]
+  },
+  "output": {
+    "err": "bad_signature"
+  }
+}
+```
+
+```text [console]
+stf/disputes             60 of 60  ✔
+146 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* means all of it: the verdict, its culprits and every signature are checked, and for this vector the right answer is the refusal, `bad_signature`, not a state. The `stf/disputes` row counts it only when your client says exactly that.
+
 **Run**
 
 ```sh

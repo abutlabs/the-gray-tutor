@@ -368,6 +368,39 @@ test("the shuffle vectors: 0 to 341 items, shuffled by a hash", () =>
   checkShuffle("shuffle/shuffle_tests.json"));
 ```
 
+The shuffle vector is a list of cases: how many items, the entropy to deal with, and the order that must come out. One of them:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/shuffle/shuffle_tests.json",
+  "case 1": {
+    "input": 8,
+    "entropy": "ffffffffffffff\u2026",
+    "output": [
+      1,
+      2,
+      6,
+      0,
+      7,
+      4,
+      3,
+      5
+    ]
+  }
+}
+```
+
+```text [console]
+shuffle                    1 of 1  ✔
+32 of 1,428 vectors pass.
+```
+
+:::
+
+Run whole means every case deals exactly its listed order, from no items to 341. This case, 8 items on all-`ff` entropy, is the one the lesson's own run printed; the row counts the file as one vector.
+
 **Run**
 
 ```sh

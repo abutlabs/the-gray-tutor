@@ -511,6 +511,41 @@ test("α′ through 99 real blocks, with the authorizers their own guarantees us
 });
 ```
 
+One of the 6 that the milestone counts, a block that uses an authorizer on each core:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/authorizations/tiny/progress_authorizations-2.json",
+  "input": {
+    "slot": 45,
+    "auths": [
+      {
+        "core": 0,
+        "auth_hash": "0xb6abd7a763…"
+      },
+      {
+        "core": 1,
+        "auth_hash": "0x510d811639…"
+      }
+    ]
+  },
+  "pre_state.auth_pools[0] (first of 8)": "0xb6abd7a763…",
+  "post_state.auth_pools[0] (first of 8)": "0xbaad1dabb3…",
+  "output": null
+}
+```
+
+```text [console]
+stf/authorizations         6 of 6  ✔
+236 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* means your client takes the pools before, the authorizers the block used, and the queue, and must land on the vector's pools after: core 0's `0xb6abd7a7…` was first in its pool, was used, and is gone from the front of `post_state`.
+
 **Run**
 
 ```sh

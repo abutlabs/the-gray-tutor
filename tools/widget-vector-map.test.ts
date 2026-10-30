@@ -90,7 +90,9 @@ test("the lesson's read-the-bytes bullets and diagram are the widget's ranges", 
 });
 
 test("the widget's values are the JSON the lesson shows", () => {
-  const shown = [...text.matchAll(/^ {4}"(\w+)": (.+?),?$/gm)];
+  // the lesson's work item JSON, not the scoreboard group's excerpt of another vector
+  const workItem = text.replace(/::: code-group[\s\S]*?\n:::/g, "");
+  const shown = [...workItem.matchAll(/^ {4}"(\w+)": (.+?),?$/gm)];
   assert.ok(shown.length >= 3, "read the JSON");
   const json = WORK_ITEM_JSON as Record<string, unknown>;
   for (const [, field, value] of shown) assert.equal(json[field], JSON.parse(value), field);

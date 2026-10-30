@@ -194,6 +194,35 @@ to changing validator sets) go further than any trace, and the rows of
 
 ## The scoreboard
 
+The whole board rests on vectors like this one, block 50 of the `storage` trace, and the board's rows for the two storage traces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/traces/storage/00000050.json",
+  "pre_state.keyvals": "171 entries",
+  "block.header": {
+    "slot": 50,
+    "parent": "0xdc20a8a8…",
+    "parent_state_root": "0x9a67c892…",
+    "author_index": 2
+  },
+  "post_state.state_root": "0x112c2842…"
+}
+```
+
+```text [console]
+traces/storage         100 of 100  ✔
+traces/storage_light   100 of 100  ✔
+
+1,406 of 1,428 vectors pass.
+```
+
+:::
+
+Same rule as every trace: import the block into the state before it, and your root must be the trace's. The `storage` and `storage_light` rows are 100 blocks each of exactly that, and the totals line below them is the whole board's.
+
 One last look at the board, with everything your client does:
 
 **Run**

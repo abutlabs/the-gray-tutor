@@ -514,6 +514,31 @@ test("each header promises the state before its block, by its root: 400 real sta
 });
 ```
 
+The trie vector is a list of cases, each some key-value entries and the root they must make. One case:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/trie/trie.json",
+  "case 1": {
+    "input": {
+      "16c72e0c2e0b\u2026": ""
+    },
+    "output": "99ecb1509d2c\u2026"
+  }
+}
+```
+
+```text [console]
+trie                       1 of 1  ✔
+31 of 1,428 vectors pass.
+```
+
+:::
+
+Run whole means every case in the list, from no entries (a root of all zeros) up to ten, builds the root the vector names. The console row counts the file as one vector, passed.
+
 **Run**
 
 ```sh

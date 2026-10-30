@@ -493,6 +493,37 @@ test("β in real states: the newest block remembered is the block before", () =>
 });
 ```
 
+A history vector is one block's news going into β: its header hash, the item for the belt, and the slot. This one is the ninth item:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/history/tiny/progress_blocks_history-4.json",
+  "input": {
+    "header_hash": "0xad68628754\u2026",
+    "accumulate_root": "0xa983417440\u2026",
+    "slot": 8
+  },
+  "post_state.beta.mmr.peaks": [
+    "0xa983417440\u2026",
+    null,
+    null,
+    "0x658b919f73\u2026"
+  ],
+  "beefy_root": "0xebdb6db060\u2026"
+}
+```
+
+```text [console]
+stf/history                8 of 8  ✔
+86 of 1,428 vectors pass.
+```
+
+:::
+
+Run whole means β after the block, history entries and belt peaks together, equals the vector's, and the new entry's `beefy_root` too. Here the belt ends as `● · · ●`, nine items.
+
 **Run**
 
 ```sh

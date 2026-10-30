@@ -743,6 +743,61 @@ export const FAMILIES: Family[] = [
 The full vectors run the same services under the full network's parameters: 341 cores'
 worth of gas budget, and a full epoch's queue.
 
+One of the 126 that the milestone counts, `bless_from_non_manager-1`, shown by its input and its privileges before and after:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/accumulate/tiny/bless_from_non_manager-1.json",
+  "input": {
+    "slot": 43,
+    "reports[0]": {
+      "package_spec.hash": "0x774935b629cc42513a66c8ed1a09f88b00fe35689032bafd5a26d52f464c4808",
+      "core_index": 0,
+      "results": [
+        {
+          "service_id": 1,
+          "accumulate_gas": 2000000
+        }
+      ]
+    }
+  },
+  "pre_state.privileges": {
+    "bless": 0,
+    "assign": [
+      0,
+      0
+    ],
+    "designate": 1,
+    "register": 0,
+    "always_acc": []
+  },
+  "post_state.privileges": {
+    "bless": 0,
+    "assign": [
+      0,
+      0
+    ],
+    "designate": 2,
+    "register": 0,
+    "always_acc": []
+  },
+  "output": {
+    "ok": "0x0000000000…"
+  }
+}
+```
+
+```text [console]
+stf/accumulate         126 of 126  ✔
+364 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* means your client runs service 1's real code on the PVM and must land on every part of the vector: the privileges after (here the delegator `designate` moves from 1 to 2, the manager `bless` stays 0), and the yielded root in `output`. The `stf/accumulate` row counts it only when every part matches.
+
 **Run**
 
 ```sh

@@ -402,6 +402,29 @@ export const FAMILIES: Family[] = [
 ];
 ```
 
+The milestone's vectors are the `statistics` ones. Here is one, the first block of an epoch with nothing in it, and the board's row for the whole family:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/stf/statistics/tiny/stats_with_empty_extrinsic-1.json",
+  "input": { "slot": 123457, "author_index": 1, "extrinsic": "empty: nothing in any of the five parts" },
+  "pre_state.vals_curr_stats[1]": { "blocks": 15610, "tickets": 17650, "pre_images": 39, "guarantees": 1319 },
+  "post_state.vals_curr_stats[1]": { "blocks": 15611, "tickets": 17650, "pre_images": 39, "guarantees": 1319 }
+}
+```
+
+```text [console]
+stf/statistics             8 of 8  ✔
+
+372 of 1,428 vectors pass.
+```
+
+:::
+
+*Run whole* for this vector means validator 1's `blocks` tally moves from 15610 to 15611 and nothing else changes, every one of the vector's `vals_curr_stats` and `vals_last_stats` entries equal to the state it names after the block. All 8 `statistics` vectors do that, and the row says `8 of 8`.
+
 **Run**
 
 ```sh
