@@ -341,6 +341,50 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Don't run it blind: one run has three faces — the vector
+JSON going in, the structures the code computes from it, and the lines the terminal
+prints. Here are all three for the vector's first verdict; tab across them:
+
+::: code-group
+
+```json [what goes in]
+{
+  "target": "0x11da6d1f761ddf9bdb4c9d6e5303ebd41f61858d0a5647a1a7bfe089bf921be9",
+  "age": 0,
+  "votes": [
+    { "vote": true, "index": 0, "signature": "0x370cc0cc…" },
+    { "vote": true, "index": 1, "signature": "0xeec6859e…" },
+    … three more votes, every one of the five "vote": true …
+  ]
+}
+```
+
+```ts [what it computes]
+// bin/verdicts.ts's values for that verdict, once decoded and judged
+const computed = {
+  set: "κ", // age 0 in epoch 0: judged by the current validators
+  judges: 6, // |K|: κ's six keys
+  votes: 5, // carried: ⌊2·6/3⌋ + 1, the supermajority
+  valid: 5, // t, how many of them say "valid"
+  signed: true, // all 5 Ed25519 checks pass (votesSigned)
+  decided: "good", // t equals every carried vote
+};
+```
+
+```text [what comes out]
+report 0x11da6d1f…: 5 of 5 say valid, judged by κ
+  every vote signed by its judge: true. The report is good.
+```
+
+:::
+
+Read the input left to right: `target` is the accused report's hash — the first word of
+the output. `age` 0 with `pre_state.tau` at 0 is the same epoch, so the judges are κ.
+Each of the 5 votes is one judge's judgement: `vote`, true for "valid"; `index`, which
+judge cast it — 0 to 4, judge 5 is the one left out; `signature`, that judge's Ed25519
+over the prefix and the target, what `votesSigned` checks. The vector's second verdict
+is the same shape with every `vote` false: the 0-of-5 the run below calls bad.
+
 **Run**
 
 ```sh

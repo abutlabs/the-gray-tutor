@@ -3,13 +3,14 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { appendSteps, beltOf, beltPartway, beltSuperPeak, itemMountain, itemsIn, label, mergeMountains, peaksIn, shortHash } from "../.vitepress/theme/belt.ts";
 import type { Belt, Mountain } from "../.vitepress/theme/belt.ts";
 import { fromHex, toHex } from "../.vitepress/theme/super-peak.ts";
 import { count, judge, votesNeeded, votesOf, wonkyCount } from "../.vitepress/theme/verdict.ts";
-import { lessonText, lessonCode } from "./lessons.ts";
+import { lessonText, lessonCode, ROOT } from "./lessons.ts";
 
 const BELT = "09-recent-history/01-the-mountain-belt.md";
 const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4 };
@@ -166,4 +167,34 @@ test("the verdict thresholds, for every V from 3 to 1,023: two thirds plus one, 
   }
   assert.deepEqual(count(votesOf(6, 2, 3)), { votes: 5, valid: 2 });
   assert.deepEqual(votesOf(4, 1, 2), ["valid", "invalid", "invalid", null]);
+});
+
+const DISPUTES_VECTOR = join(ROOT, "vectors/stf/disputes/tiny/progress_with_verdicts-4.json");
+
+test("10.1 shows what goes into bin/verdicts.ts: the vector's own first verdict, field for field", { skip: !existsSync(DISPUTES_VECTOR) && "no vectors/" }, () => {
+  const v = JSON.parse(readFileSync(DISPUTES_VECTOR, "utf8"));
+  const [first, second] = v.input.disputes.verdicts;
+  const text = lessonText(VERDICTS);
+  assert.ok(text.includes(`"target": "${first.target}"`), "the first verdict's target, whole");
+  for (const vote of first.votes.slice(0, 2)) {
+    assert.ok(text.includes(`"signature": "${vote.signature.slice(0, 10)}…"`), `vote ${vote.index}'s signature prefix`);
+  }
+  // what the excerpt's prose claims of the vector is true of the vector
+  assert.deepEqual(first.votes.map((x: { index: number }) => x.index), [0, 1, 2, 3, 4], "judge 5 left out");
+  assert.ok(first.votes.every((x: { vote: boolean }) => x.vote === true), "every one of the five vote: true");
+  assert.ok(second.votes.every((x: { vote: boolean }) => x.vote === false), "the second verdict all false");
+  assert.equal(first.age, v.pre_state.tau, "age 0 in epoch 0: judged by κ");
+  // the three tabs: input, computed, output — placed before the verified run
+  for (const tab of ["```json [what goes in]", "```ts [what it computes]", "```text [what comes out]"]) {
+    assert.ok(text.indexOf(tab) > 0 && text.indexOf(tab) < text.indexOf("npm run verdicts-progress"), tab);
+  }
+  // the computed tab agrees with the widget's own judging of 5 valid of 5 carried, 6 judges
+  assert.equal(judge(5, votesNeeded(6), 6), "good");
+  assert.match(text, /valid: 5, \/\/ t,/);
+  assert.match(text, /decided: "good"/);
+  // the what-comes-out tab's lines are the verified run output's own, repeated
+  const out = /```text \[what comes out\]\n([\s\S]*?)```/.exec(text)![1].trimEnd().split("\n");
+  for (const line of out) {
+    assert.ok(text.split(line).length > 2, `shown twice, tab and verified output: ${line}`);
+  }
 });
