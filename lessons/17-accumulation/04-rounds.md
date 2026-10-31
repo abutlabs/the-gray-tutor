@@ -418,6 +418,58 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The same block as [lesson 17.3](./03-sending-a-transfer.md)'s, this time whole: one
+report for service 0, nothing waiting, and service 1 there to receive. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ {
+      "package_spec": { "hash": "0x774935b629cc4251…" },
+      "results": [ { "service_id": 0, "accumulate_gas": 400000 } ]
+    } ]
+  },
+  "pre_state": {
+    "ready_queue": [ [], [], [], [], [], [], [], [], [], [], [], [] ],
+    "accounts": [ { "id": 0 }, { "id": 1, "data": { "service": { "balance": 227714 } } } ]
+  }
+}
+```
+
+```ts [what it computes]
+// accumulateBlock's rounds for this block, as bin/accumulate.ts reads them back
+const computed = {
+  rounds: [
+    { services: [0], operands: 1, transfersIn: 0, sent: 1 }, // round 1: service 0 runs its digest
+    { services: [1], operands: 0, transfersIn: 1, sent: 0 }, // round 2: the transfer arrives
+  ], // round 2 sent nothing, so Δ+ stops
+  accumulated: ["0x774935b6…"], // the package that went, this slot's entry in ξ′
+  waiting: 0, // nothing left in the ready queue
+  balance1: 227_814n, // service 1's, 227,714 + 100: paid before its code ran
+  statistics: {
+    0: { count: 1, transfers: 0, gasUsed: 255_437n },
+    1: { count: 0, transfers: 1, gasUsed: 61_711n }, // its run on the transfer
+  },
+};
+```
+
+```text [what comes out]
+accumulated: 0x774935b6
+service 0: 1 digest(s), 0 transfer(s), 255437 gas
+service 1: 0 digest(s), 1 transfer(s), 61711 gas
+```
+
+:::
+
+The one report goes straight to accumulation, since nothing waits ahead of it. Round 1
+runs service 0, which sends the transfer; round 2 delivers it, the 100 into service 1's
+balance first, then service 1's code on its one transfer input; round 3 would have
+nothing to run, so there isn't one. Each service's line is its statistics, next to the
+vector's.
+
 **Run**
 
 ```sh

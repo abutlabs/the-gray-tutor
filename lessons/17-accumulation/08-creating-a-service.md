@@ -340,6 +340,63 @@ reported 569 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
+**What flows through it.** Service 0, the registrar, is told to create a service with 1,000
+bytes of code and give it 500. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ { "results": [ {
+      "service_id": 0,
+      "accumulate_gas": 2000000,
+      "result": { "ok": "0x0100c0f2ef8d435ea95467e5e1a5e0e768e3555044487699c625dbc2fd11e407761ce803…" }
+    } ] } ]
+  },
+  "pre_state": {
+    "privileges": { "bless": 0, "register": 0 },
+    "accounts": [ { "id": 0, "data": { "service": { "balance": 1127714 } } }, { "id": 1729 } ]
+  }
+}
+```
+
+```ts [what it computes]
+// service 0's run: host call 19, new, then 21, transfer, to the service it made
+const computed = {
+  codeHash: "0xc0f2ef8d…", // the 32 bytes at φ₇: the new service's code, still to come
+  codeLength: 1000n, // φ₈, the output's e803: 1,000
+  minItemGas: 10n, // φ₉
+  minMemoGas: 10n, // φ₁₀
+  gratis: 0n, // φ₁₁: none, so no manager needed
+  wanted: 5n, // φ₁₂: an id below S = 2^16, which only the registrar may ask for
+  account5: {
+    items: 2, // one request for its code
+    bytes: 1081, // 81 + 1,000
+    balance: 1201n, // its minimum: 100 + 2 × 10 + 1,081, paid by service 0
+    creationSlot: 43, // created now
+    parent: 0, // by service 0
+  },
+  answer: 5n, // φ₇ after new: the id it got
+  transfer: { dest: 5, amount: 500n, gas: 10n, memo: "welcome" },
+  balance0: 1_126_013n, // 1,127,714 − 1,201 − 500
+};
+```
+
+```text [what comes out]
+host call 19 (new): φ₇ = 5, 1858461 gas left
+sent 500 to service 5, with 10 gas and the memo "welcome"
+the service stops: "halt", using 196983 gas
+```
+
+:::
+
+The output's bytes carry the order: the code's hash `c0f2ef8d…`, its length `e803`
+(1,000), then the rest. Service 0 is the registrar and asks for id 5, so it gets id 5,
+pays the new account's 1,201 minimum, and sends it 500 more: the vector's service 5
+ends the block with 1,701, and service 0 with 1,126,013.
+
 **Run**
 
 ```sh

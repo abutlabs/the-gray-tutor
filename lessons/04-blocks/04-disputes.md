@@ -163,6 +163,39 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
+What flows through this run — the file's bytes, the disputes they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+disputes_extrinsic.bin (full), 91,986 bytes; the first 40:
+02 dd 1b 65 c0 36 54 77 50 d2 f8 4f f4 c6 fa c7 de 56 94 46
+58 53 0a 62 e8 1c 6c c2 90 08 74 40 d0 03 00 00 00 82 ab 01 …
+```
+
+```ts [what it computes]
+// DisputesExtrinsic.decode(r): two verdicts, two culprits, one fault
+const computed = {
+  verdicts: [ // 02 in front
+    { target: "0xdd1b65c0…", age: 3, votes: 683 }, // 82 ab: 683 votes, every one "valid"
+    { target: "0x2bdbba47…", age: 3, votes: 683 }, // 683 again, every one "invalid"
+  ],
+  culprits: 2, // the guarantors of the report judged bad
+  faults: 1, // a judge whose vote went against its verdict
+};
+```
+
+```text [what comes out]
+    0..1     verdicts.length                0x02
+   37..39    verdicts.0.votes.length        0x82ab
+```
+
+:::
+
+After the count `02` come the first verdict's 32-byte target and its age, `03 00 00 00`;
+then `82 ab`, a compact natural for 683, and that many votes. The full jury is why the
+file is 92 kilobytes.
+
 **Run**
 
 ```sh

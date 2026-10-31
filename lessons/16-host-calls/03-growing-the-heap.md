@@ -281,6 +281,49 @@ console.log(`the test vector says: ${vector.post_state.statistics[0].record.accu
 run.event("stop", { exit: JSON.stringify(exit), gas: Number(machine.gas) });
 ```
 
+**What flows through it.** The new answer is `grow_heap`'s, and the program now reads the
+vector's own count of the gas. The vector's side, then your host's:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43 },
+  "pre_state": { "accounts": [ { "id": 1729, "data": {
+    "service": { "code_hash": "0xfd3f1355…" },
+    "preimage_blobs": [ { "hash": "0xfd3f1355…", "blob": "… 19,049 bytes of code …" } ]
+  } } ] },
+  "post_state": { "statistics": [ { "id": 1729, "record": { "accumulate_gas_used": 16417 } } ] }
+}
+```
+
+```ts [what it computes]
+// the first grow_heap, and the run's total
+const computed = {
+  growHeap: {
+    asked: 51n, // φ₇: make the heap reach page 51
+    a: 48, // the read-write zone's first page, from the code's sizes
+    answer: 51n, // φ₇ after: the heap already ends at 51, so nothing grows
+    gas: [99_003n, 98_728n], // the cheap kind: 275
+  },
+  used: 16_417n, // 100,000 less the gas left at the halt
+  vectorSays: 16_417, // post_state's accumulate_gas_used for 1729
+};
+```
+
+```text [what comes out]
+host call 1 (grow_heap): φ₇ = 51, 98728 gas left
+the service stops: "halt", using 16417 gas
+the test vector says: 16417
+```
+
+:::
+
+The vector is still the bin's own, `../vectors/stf/accumulate/tiny/always_accumulate-1.json`.
+Page 51 asked for, page 51 already the end: the call changes nothing and costs 275, not an
+unknown call's 1,000. Twice that saving is the 1,450 [lesson 16.2](./02-fetch.md) was missing, and the total
+lands on the vector's 16,417.
+
 **Run**
 
 ```sh

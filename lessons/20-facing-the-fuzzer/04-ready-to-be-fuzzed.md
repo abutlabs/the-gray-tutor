@@ -127,6 +127,47 @@ JAM_FUZZ=1 npm run target
 refusing to start: JAM_FUZZ_SPEC, JAM_FUZZ_DATA_PATH, JAM_FUZZ_SOCK_PATH not set
 ```
 
+Two programs this time: the target reads its setup from the environment, and your fuzzer
+from the `safrole` trace, which it sends to the target one message at a time:
+
+::: code-group
+
+```text [what goes in]
+the target's environment (target-tiny):
+  JAM_FUZZ=1  JAM_FUZZ_SPEC=tiny  JAM_FUZZ_DATA_PATH=/tmp/jam  JAM_FUZZ_SOCK_PATH=/tmp/jam/fuzz.sock
+
+what the fuzzer sends it (fuzz-target, from traces/safrole/):
+  peer_info     app_name "the-gray-tutor-fuzzer", jam_version 0.8.0
+  initialize    genesis.json: header (slot 0), 21 keyvals, root 0xd6e78dc07a…
+  import_block  00000001.json: slot 1, parent 0x245becfe7f…; the trace's root after: 0x48dc323d05…
+  …
+  import_block  00000100.json: slot 100; the trace's root after: 0x109f30f234…
+```
+
+```ts [what it computes]
+// the target's side, then the fuzzer's, for the whole session
+const computed = {
+  fuzzing: true, // JAM_FUZZ is set, so every setting comes from the environment
+  config: "tiny", // JAM_FUZZ_SPEC
+  path: "/tmp/jam/fuzz.sock", // JAM_FUZZ_SOCK_PATH: where the target listens, mode 0o666
+  hello: "the-gray-tutor", // the target's peer_info reply, its app_name
+  genesisOk: true, // the state_root after initialize is genesis.json's root
+  agreed: 100, // each import_block's state_root is the trace's post_state root
+};
+```
+
+```text [what comes out]
+target: the-gray-tutor
+initialize: the genesis root
+100 of 100 blocks as the trace has them
+```
+
+:::
+
+The target never sees a file name: all it knows comes from four variables and the socket.
+Everything your fuzzer checks comes back over that socket, as a state root it compares
+with the trace's.
+
 **Run**
 
 ```sh

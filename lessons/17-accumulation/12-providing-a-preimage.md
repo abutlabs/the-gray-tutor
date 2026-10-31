@@ -491,6 +491,64 @@ reported 581 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
+**What flows through it.** Two vectors, one difference: whom service 0 provides the bytes to.
+The first, with service 1729's waiting request; the second is the same but for one id.
+Two runs, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ { "results": [ {
+      "service_id": 0,
+      "accumulate_gas": 2000000,
+      "result": { "ok": "0x0111000000000108707265696d6167650000" }
+    } ] } ]
+  },
+  "pre_state": { "accounts": [ { "id": 1729, "data": { "preimage_requests": [ {
+    "key": { "hash": "0x943e3d42cf248c99…", "length": 8 },
+    "value": []
+  } ] } } ] }
+}
+```
+
+```ts [what it computes]
+// service 0's runs, at host call 27, provide; the second vector has c1060000 (1729) for 00000000
+const computed = {
+  bytes: "preimage", // the φ₉ = 8 bytes at φ₈ = 206,752: 707265696d616765
+  hash: "0x943e3d42…", // their Blake2b-256: what a request is keyed by
+  first: {
+    to: 0, // φ₇: service 0, itself
+    request: undefined, // service 0 never asked for these bytes
+    answer: HUH, // φ₇ after: nothing to provide to
+    gasUsed: 134_567n,
+  },
+  second: {
+    to: 1729, // φ₇
+    request: [], // asked for, not yet provided: so it may
+    answer: 0n, // OK: joins the run's provisions
+    delivered: [44], // the request after the round: provided in slot 44
+    gasUsed: 138_939n,
+  },
+};
+```
+
+```text [what comes out]
+host call 27 (provide): φ₇ = HUH, 1891713 gas left
+the test vector says: 134567
+host call 27 (provide): φ₇ = 0, 1887193 gas left
+the test vector says: 138939
+```
+
+:::
+
+The work output names the target and the bytes: `00000000` (service 0) then `08` and
+`7072…` ("preimage"). Service 0 has no request for them, so `HUH`. In the second vector
+the target is `c1060000`, 1729, whose request for exactly that hash and length is `[]`:
+`OK`, and at the end of the round the bytes land and the request reads `[44]`.
+
 **Run**
 
 ```sh

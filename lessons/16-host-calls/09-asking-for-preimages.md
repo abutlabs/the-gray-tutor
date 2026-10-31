@@ -426,6 +426,50 @@ storage, requests, items and bytes, all as the vectors leave them.
 
 ## Watch it
 
+**What flows through it.** Service 0 is handed a hash and a length, and asks for the
+preimage with that length. What goes in, its `solicit`, and the lines it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43, "reports": [ { "results": [ {
+    "service_id": 0,
+    "accumulate_gas": 2000000,
+    "result": { "ok": "0x0106943e3d42cf248c99…" }
+  } ] } ] },
+  "pre_state": { "accounts": [ { "id": 0, "data": {
+    "service": { "code_hash": "0xdd0eb77dee67…" },
+    "preimage_requests": [ { "key": { "hash": "0xdd0eb77dee67…", "length": 127513 }, "value": [0] } ]
+  } } ] },
+  "post_state": { "statistics": [ { "id": 0, "record": { "accumulate_gas_used": 133691 } } ] }
+}
+```
+
+```ts [what it computes]
+// service 0's solicit, as your host handles it
+const computed = {
+  solicit: {
+    hash: "0x943e3d42…", // the 32 bytes at φ₇, from the operand
+    z: 4_294_967_296n, // φ₈: the length asked for, 2^32, one past the largest a blob may be
+    answer: 2n ** 64n - 9n, // HUH: checked before the hash is even read
+    gas: [1_894_363n, 1_892_170n], // before and after
+  },
+  requests: 1, // service 0's requests after: still only its own code's, nothing filed
+  used: 133_691n, // 2,000,000 − 1,866,309 left at the halt
+};
+```
+
+```text [what comes out]
+service 0: 1 input(s), 2000000 gas, "halt"
+  gas used 133691; the vector says 133691
+```
+
+:::
+
+The length in the operand is 2^32, and a blob can't be that long: HUH, no request filed,
+and the service goes on to halt on the vector's 133,691 gas.
+
 **Run**
 
 ```sh

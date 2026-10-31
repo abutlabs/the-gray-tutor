@@ -101,6 +101,11 @@ export function writePrintPage(outDir: string, base: string, pages: PrintPage[])
     .one-page .note, .header-anchor, .snippet-anchor, button.copy, span.lang { display: none; }
     .one-page section.part { break-before: page; border: 0; }
     .one-page div[class*="language-"] pre { white-space: pre-wrap; word-break: break-word; }
+    /* a run's tabs (run-views.ts) all at once on paper, each under its title */
+    .one-page .vp-code-group .tabs { display: none; }
+    .one-page .vp-code-group div[class*="language-"] { display: block; }
+    .one-page .vp-code-group div[data-tab]::before { content: attr(data-tab); display: block; font: 600 12px sans-serif; margin: 8px 0 2px; }
+    .one-page .run-widget { border: 2px solid #888; border-left-width: 6px; border-radius: 10px; padding: 8px 12px; margin: 16px 0; }
   }
 </style>
 </head>

@@ -290,6 +290,44 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
+What flows through this run — the file's 82 bytes, the digest they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+work_result_1.bin, 82 bytes:
+08 07 06 05 fc fc 85 7d ab 21 6d af 41 f4 09 c2
+01 26 85 84 6e 4d 34 ae df ea ca f8 4d 9a df eb
+da 73 fa e6 d5 5e 07 43 8a ee eb 0d 65 09 ab 28
+af 8a 75 8d 1f b7 04 24 db 6b 27 c7 e1 ef 64 73
+e7 21 c3 28 21 00 00 00 00 00 00 00 02 00 00 00
+00 00
+```
+
+```ts [what it computes]
+// WorkDigest.decode(r): the value it returns, field by field
+const computed = {
+  service_id: 84281096, // 08 07 06 05, little end first: 0x05060708
+  code_hash: "0xfcfc857d…", // 32 bytes, as they are
+  payload_hash: "0xd55e0743…", // 32 bytes, as they are
+  accumulate_gas: 33, // 8 bytes, 21 00 00 00 00 00 00 00
+  result: { error: "panic" }, // tag 02: ERRORS[2 − 1], no bytes follow
+  refine_load: { gas_used: 0, imports: 0, extrinsic_count: 0, extrinsic_size: 0, exports: 0 },
+};
+```
+
+```text [what comes out]
+    0..4     service_id                     0x08070605
+   68..76    accumulate_gas                 0x2100000000000000
+   76..77    result                         0x02
+```
+
+:::
+
+Read left to right: four fixed bytes of service, two hashes, eight bytes of gas, then
+the tag `02`, which `WorkResult`'s codec turns into `{ error: "panic" }` with nothing
+after it. The five zeros left are the load's compact naturals, a byte each.
+
 **Run**
 
 ```sh

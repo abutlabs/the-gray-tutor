@@ -367,6 +367,50 @@ The account check goes *first* for a reason: service 0's account key is `0xff` a
 zeros, which also looks like a component 255. There's no component 255, so it's the
 account.
 
+What flows through this run — two of the state's 21 entries by their keys, what `describe` makes of them, and the lines printed:
+
+::: code-group
+
+```json [what goes in]
+{
+  "pre_state": {
+    "keyvals": [
+      …,
+      { "key": "0x08000000000000000000000000000000000000000000000000000000000000", "value": …2,017 bytes… },
+      …,
+      { "key": "0xff000000000000000000000000000000000000000000000000000000000000", "value": …89 bytes… },
+      …21 entries in all…
+    ]
+  },
+  "block": { "header": { "parent_state_root": …the root the state must hash to… } }
+}
+```
+
+```ts [what it computes]
+// bin/state.ts's values (vectors/traces/fallback/00000001.json)
+const computed = {
+  kappa: { first: 8, zerosAfter: 1, name: "C(8): κ, the validators" }, // a component
+  account: { // checked first: it also looks like a component 255
+    first: 255, zerosAfter: 8, service: 0n, name: "C(255, 0): an account",
+  },
+  entries: 21, // the state's keys, each named by describe
+  root: "0xd6e78dc0…", // stateRoot(entries), as in lesson 6.1
+  matches: true, // equal to header.parent_state_root
+};
+```
+
+```text [what comes out]
+depth  8    2017-byte value  C(8): κ, the validators
+depth  1      89-byte value  C(255, 0): an account
+the header promises it: true
+```
+
+:::
+
+`describe` reads each key backwards: `08` and then zeros is component 8, κ; `ff` and
+zeros from byte 8 is an account, service 0. The names are printed beside the depth each
+key reached in the trie.
+
 **Run**
 
 ```sh

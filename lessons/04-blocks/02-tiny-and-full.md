@@ -198,6 +198,46 @@ if (!codec || !file) {
 }
 ```
 
+What flows through these two runs — one assurance list in each size, decoded, then traced:
+
+::: code-group
+
+```text [what goes in]
+tiny/assurances_extrinsic.bin, 199 bytes; the first 34:
+02 0c ff bf 67 aa e5 0a ee d3 c6 f8 f0 d9 bf 7d 85
+4f fd 87 ce f8 35 8c bb aa 58 7a 9e 3b d1 a7 76 01 …
+
+full/assurances_extrinsic.bin, 283 bytes; the same anchor, then the bitfield:
+… 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+  55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 15 …
+```
+
+```ts [what it computes]
+// AssurancesExtrinsic(config).decode(r): the first assurance, in each configuration
+const tiny = { // 2 cores: the bitfield is ⌈2 / 8⌉ = 1 byte
+  anchor: "0x0cffbf67…", // the parent block's hash
+  bitfield: "0x01", // core 0: available
+  validator_index: 0,
+};
+const full = { // 341 cores: the bitfield is ⌈341 / 8⌉ = 43 bytes
+  anchor: "0x0cffbf67…", // the same anchor
+  bitfield: "0x5555…5515", // 0b01010101 per byte: every other core, 171 of 341
+  validator_index: 0,
+};
+```
+
+```text [what comes out]
+    0..1     length                         0x02
+   33..34    0.bitfield                     0x01
+   33..76    0.bitfield                     0x55555555555555555555555555555555555555555555555555555555555555555555555555555555555515
+```
+
+:::
+
+Both files start the same: `02` assurances, then the same 32-byte anchor. What differs
+is the bitfield's size, set by the configuration's cores: one byte on tiny, 43 on full,
+which is why the codec is `AssurancesExtrinsic(config)`, not one fixed shape.
+
 **Run**
 
 ```sh

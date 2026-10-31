@@ -140,6 +140,44 @@ The three refusals, as the trace has them, and every other root right.
 
 ## Watch it
 
+The same program on the `fuzzy` trace. The block to watch is the first one it should
+refuse, block 37:
+
+::: code-group
+
+```json [what goes in]
+{
+  "traces/fuzzy/00000037.json": {
+    "pre_state.state_root": "0xe9a2c0ff1d…",
+    "block.header": { "slot": 37, "parent": "0x82df38b84f…", "parent_state_root": "0xe9a2c0ff1d…" },
+    "block.extrinsic.guarantees": [
+      { "report": { "core_index": 0, "results": "… 4 results, each code_hash 0xa0b28a40dc… …" } },
+      { "report": { "core_index": 1, "results": "… 3 results, each code_hash 0xa0b28a40dc… …" } }
+    ],
+    "post_state.state_root": "0xe9a2c0ff1d…"
+  }
+}
+```
+
+```ts [what it computes]
+// one turn of the loop, on the state your client made from blocks 1 to 36
+const computed = {
+  result: { error: "bad_code_hash" }, // importBlock refuses: the reports step's rule
+  state: "unchanged", // "error" in result, so state stays the state after block 36
+  root: "0xe9a2c0ff1d…", // stateRoot(state): the same root as before the block
+  same: true, // the trace's post_state root is that root too: matched still counts it
+};
+```
+
+```text [what comes out]
+block 37, slot 37: refused: bad_code_hash; root 0xe9a2c0ff… = the trace's
+```
+
+:::
+
+A refused block changes nothing, so the right root after it is the root before it. The
+trace agrees: its `pre_state` and `post_state` roots for block 37 are the same.
+
 **Run**
 
 ```sh

@@ -499,6 +499,49 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through these two runs — what each block brings, the ring root and checks your rules work out, and the lines printed:
+
+::: code-group
+
+```text [what goes in]
+enact-epoch-change-with-no-tickets-4.json:
+{
+  "input": { "slot": 15, "entropy": "0x92e69aed566b…", "extrinsic": [] },
+  "pre_state": { "tau": 10, "gamma_z": "0xaf39b7de5fcf…", "gamma_a": [] }
+}
+
+publish-tickets-no-mark-5.json: three tickets at slot 2, attempts 3, 1 and 3, in id order.
+```
+
+```ts [what it computes]
+// bin/safrole.ts's values, one run per vector
+const noTickets = {
+  epochs: [0, 1], // ⌊10 / 12⌋ → ⌊15 / 12⌋: the block opens a new epoch
+  ringRoot: { before: "0xaf39b7de…", after: "0xa778826f…" }, // 𝒪 of γ′_P's keys: a new ring
+  zeroed: 0, // no offenders, so no key in the ring is the padding point
+  sealers: "keys", // the lottery held nothing: fallback keys for the epoch
+};
+const ticketsFive = {
+  ids: ["0x34341918…", "0x5af49b10…", "0xd6feae23…"], // ascending: the order is fine
+  attempts: [3, 1, 3], // each below 4, tiny's attempts allowed
+  proofsChecked: false, // the ring proofs don't verify against γ_Z
+  error: "bad_ticket_proof",
+};
+```
+
+```text [what comes out]
+ring root γ_Z: new, 0xa778826f…
+sealers: fallback keys; tickets mark: false
+refused: bad_ticket_proof (the vector says: bad_ticket_proof)
+```
+
+:::
+
+The first block crosses into a new epoch, so the pending set changes and with it the
+ring root, worked out from the new keys. The second carries well-ordered tickets with
+allowed attempts, and is refused anyway: each proof must check out against the ring
+root, and these don't.
+
 **Run**
 
 ```sh

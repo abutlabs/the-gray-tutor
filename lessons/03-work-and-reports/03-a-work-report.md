@@ -246,6 +246,51 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
+What flows through this run — the file's bytes, the report they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+work_report.bin (full), 483 bytes; the first 48:
+30 46 6e 0a e1 b0 5d de 52 49 87 24 75 f6 be ea
+c3 68 fd 01 4b 5a 34 13 ce b3 2d 38 72 14 32 84
+2a 00 00 00 7a f1 1f da a7 17 c3 98 e2 23 21 18 …
+```
+
+```ts [what it computes]
+// WorkReport.decode(r): the value it returns (trimmed)
+const computed = {
+  package_spec: {
+    hash: "0x30466e0a…", // the first 32 bytes, as they are
+    length: 42, // 2a 00 00 00: the bundle's length, 4 bytes
+    erasure_root: "0x7af11fda…", // 32 bytes
+    erasure_shards: 1023, // ff 03, little end first: one shard per full validator
+    exports_root: "0xe8e52949…", // 32 bytes
+    exports_count: 69, // 45 00
+  },
+  core_index: 3, // one byte, 03: a compact natural, small enough for one
+  authorizer_hash: "0x022e5e16…", // 32 bytes
+  auth_output: "0x0102030405", // a blob, its length in front
+  segment_root_lookup: [], // an empty dictionary: a count of 00
+  results: [ // two digests, each 3.2's shape
+    { service_id: 16909060, accumulate_gas: 42 }, // result: ok
+    { service_id: 84281096, accumulate_gas: 33 }, // result: panic
+  ],
+};
+```
+
+```text [what comes out]
+   32..36    package_spec.length            0x2a000000
+   68..70    package_spec.erasure_shards    0xff03
+  273..274   core_index                     0x03
+```
+
+:::
+
+The first 32 bytes are the package's hash, the next four its length, 42. `ff 03` is the
+shard count, 1,023, and `core_index` takes one byte because 3 is small. Each line of
+the trace is one field of the value on the left.
+
 **Run**
 
 ```sh

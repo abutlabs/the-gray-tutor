@@ -272,6 +272,65 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Every tiny disputes vector in turn, as in [lesson 10.4](./04-bad-verdicts.md), but
+now the accusations count too. Two refused for them, trimmed to what the rules read:
+
+::: code-group
+
+```json [what goes in]
+{
+  "progress_with_culprits-4.json": {
+    "pre_state.psi.offenders": ["0x4418fb8c85…"],
+    "input.disputes": {
+      "verdicts": [{ "target": "0x11da6d1f76…", "age": 0, "votes": "… 5 votes, 0 say valid …" }],
+      "culprits": [
+        { "target": "0x11da6d1f76…", "key": "0x4418fb8c85…", "signature": "0x9a778d05…" },
+        { "target": "0x11da6d1f76…", "key": "0xcab2b9ff25…", "signature": "0x63722acd…" }
+      ]
+    }
+  },
+  "progress_with_faults-7.json": {
+    "pre_state.psi.offenders": [],
+    "input.disputes": {
+      "verdicts": [{ "target": "0x11da6d1f76…", "age": 0, "votes": "… 5 votes, all say valid …" }],
+      "faults": [
+        { "target": "0x11da6d1f76…", "vote": false, "key": "0x4418fb8c85…", "signature": "0x04a8e50e…" },
+        { "target": "0x11da6d1f76…", "vote": true, "key": "0xad93247bd0…", "signature": "0xeec6859e…" }
+      ]
+    }
+  }
+}
+```
+
+```ts [what it computes]
+// disputesError's sets after the verdicts are filed, and the rule each vector breaks
+const computed = {
+  "progress_with_culprits-4": {
+    bad: ["0x11da6d1f76…"], // ψ′'s bad set: 0 of 5 valid, so the culprits' report is bad
+    punished: ["0x4418fb8c85…"], // ψ_O before the block
+    fresh: [false, true], // the first culprit's key is already an offender
+    error: "offender_already_reported", // rule 3, before any signature is checked
+  },
+  "progress_with_faults-7": {
+    good: ["0x11da6d1f76…"], // ψ′'s good set: 5 of 5 valid
+    wrong: [true, false], // a fault must have voted against: false on good is, true isn't
+    error: "fault_verdict_wrong", // rule 6: the second "fault" agreed with the verdict
+  },
+};
+```
+
+```text [what comes out]
+progress_with_culprits-4: offender_already_reported
+progress_with_faults-7: fault_verdict_wrong
+```
+
+:::
+
+The culprits' report is in ψ′'s bad set, so rule 2 holds, but the first culprit's key is
+already in ψ_O: the whole block is refused at rule 3. In the second, the verdict is good, so
+a fault had to vote invalid; the second one voted valid, with the verdict, and that is
+`fault_verdict_wrong`.
+
 **Run**
 
 ```sh

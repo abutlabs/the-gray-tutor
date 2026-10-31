@@ -337,6 +337,49 @@ reported 467 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
+**What flows through it.** The run is the same as [lesson 16.3](./03-growing-the-heap.md)'s; what's new is Ψ_A around it,
+the context it keeps and what it hands back:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43 },
+  "pre_state": {
+    "entropy": "0xae85d6635e9a…",
+    "accounts": [ { "id": 1729, "data": {
+      "service": { "code_hash": "0xfd3f1355…" },
+      "storage": [], "preimage_blobs": [ "… its code …" ], "preimage_requests": [ "…" ]
+    } } ]
+  },
+  "post_state": { "statistics": [ { "id": 1729, "record": { "accumulate_gas_used": 16417 } } ] }
+}
+```
+
+```ts [what it computes]
+// Ψ_A's context for 1729, and its result
+const computed = {
+  args: [0x2b, 0x86, 0xc1, 0x00], // t = 43, s = 1729, n = 0 inputs, each a compact natural
+  accounts: [1729], // X: the accounts as the service changes them
+  checkpoint: [1729], // Y: a copy, kept in case the run fails; no checkpoint call refreshes it
+  inputs: [], // no operands or transfers this time
+  exit: "halt", // how runWithHost ended
+  collapsed: "accounts", // C: a halt keeps X; a panic or oog would fall back to Y
+  gasUsed: 16_417n, // g − max(ϱ′, 0): 100,000 − 83,583
+};
+```
+
+```text [what comes out]
+the service stops: "halt", using 16417 gas
+the test vector says: 16417
+```
+
+:::
+
+The vector is still `../vectors/stf/accumulate/tiny/always_accumulate-1.json`.
+Nothing in the conversation changes; the frame around it does. Ψ_A builds the arguments,
+keeps X and Y, and because the service halts, keeps X. Its gas used is the same 16,417.
+
 **Run**
 
 ```sh

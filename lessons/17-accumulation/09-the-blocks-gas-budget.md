@@ -437,6 +437,60 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Two reports that can't share a round: the first asks for the
+whole budget. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [
+      { "package_spec": { "hash": "0x774935b629cc4251…" }, "core_index": 0, "results": [
+        { "service_id": 0, "accumulate_gas": 19800000, "result": { "ok": "0x010402000000…" } },
+        { "service_id": 2, "accumulate_gas": 200000 }
+      ] },
+      { "package_spec": { "hash": "0x6af0ea4ced28a7b0…" }, "core_index": 1, "results": [
+        { "service_id": 0, "accumulate_gas": 2000000, "result": { "ok": "0x0100c0f2ef8d…" } }
+      ] }
+    ]
+  },
+  "pre_state": { "privileges": { "always_acc": [] }, "accounts": [ { "id": 0 }, { "id": 2 } ] }
+}
+```
+
+```ts [what it computes]
+// accumulateBlock's budget and rounds for this block
+const computed = {
+  budget: 20_000_000n, // g = max(G_T 20,000,000, G_A 10,000,000 × 2 cores + 0 free)
+  round1: {
+    reports: 1, // 19,800,000 + 200,000 = 20,000,000 fits; + 2,000,000 more wouldn't
+    gasUsed: 151_611n, // service 0's, ejecting service 2; service 2's digest counts 0 gas
+  },
+  round2: {
+    budget: 19_848_389n, // g* = 20,000,000 + 0 transfers' gas − 151,611
+    reports: 1, // the second report's 2,000,000 fits now
+    gasUsed: 203_009n, // service 0 makes a new service 2, code 0xc0f2ef8d…
+  },
+  rounds: [1, 1], // as accumulateBlock returns them
+  service0Gas: 354_620n, // 151,611 + 203,009, both rounds
+};
+```
+
+```text [what comes out]
+accumulated: 0x774935b6, 0x6af0ea4c
+rounds: 2, taking 1, then 1 report(s)
+service 0: 2 digest(s), 0 transfer(s), 354620 gas
+```
+
+:::
+
+The budget splits the block in two. Round 1 can take the first report, whose two digests
+ask for exactly 20,000,000 between them, but not the second too. Service 0 ejects
+service 2 there. Round 2, with what's left, takes the second report, and service 0
+creates a service 2 again, the vector's name for the test: `recreate_service_ejected_in_earlier_round`.
+
 **Run**
 
 ```sh

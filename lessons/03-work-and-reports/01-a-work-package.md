@@ -124,6 +124,43 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
+What flows through this run — the file's bytes, the value they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+work_package.bin, 695 bytes; the first 24:
+78 56 34 12 02 2e 5e 16 5c c8 bd 58 64 04 25 7f 5c d6 f5 a3 11 77 b5 c9 …
+```
+
+```ts [what it computes]
+// WorkPackage.decode(r): the value it returns (trimmed), and the reader's trace of it
+const computed = {
+  auth_code_host: 305419896, // 78 56 34 12, little end first: 0x12345678
+  auth_code_hash: "0x022e5e16…", // the next 32 bytes, as they are
+  context: { anchor_slot: 11, lookup_anchor_slot: 33, prerequisites: [] }, // a record within
+  authorization: "0x0102030405", // a blob: its length, 05, in front
+  authorizer_config: "0x00010203040506070809", // a blob of 10: 0a in front
+  items: [ // a sequence: its count, 02, in front
+    { service: 16909060, refine_gas_limit: 42, export_count: 4 }, // 3 imports, 2 extrinsics
+    { service: 84281096, refine_gas_limit: 77, export_count: 7 }, // 2 imports, 3 extrinsics
+  ],
+  traced: 695, // bytes the trace covers: every one, once
+};
+```
+
+```text [what comes out]
+    0..4     auth_code_host                 0x78563412
+  205..211   authorization                  0x050102030405
+  222..223   items.length                   0x02
+```
+
+:::
+
+The first four bytes are the first field, little end first; each blob and sequence
+carries its length in front, which is why `authorization` reads `05` then five bytes.
+The value is `WorkPackage`'s; the printed lines are the trace the reader kept of it.
+
 **Run**
 
 ```sh

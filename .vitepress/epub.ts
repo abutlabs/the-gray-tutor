@@ -168,6 +168,13 @@ function reviewQuestions($: CheerioAPI, check: ReturnType<CheerioAPI>, n: number
 /** One built page's text, as a chapter's body. */
 export function chapterBody(text: string, address: string, book: Book, n: number): string {
   const $ = cheerio.load(text, null, false);
+  // a run's tabs (run-views.ts): an e-reader can't switch tabs, so each text tab is shown in
+  // turn under its title, and the tab bar goes
+  $(".vp-code-group .tabs").remove();
+  $('.vp-code-group div[class*="language-"].language-text[data-tab]').each((_, b) => {
+    $(b).before(`<p class="snippet-label output"><strong>${$(b).attr("data-tab")}</strong></p>`);
+  });
+  $(".run-widget-anchor").remove();
   // the code, as Concepts only folds it: the byte tables and outputs (language-text) stay
   $('div[class*="language-"]').not(".language-text").remove();
   $("p.snippet-label").not(".output").remove();

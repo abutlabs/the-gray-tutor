@@ -48,16 +48,18 @@ gets a script of its own, named for what it shows, the program's name first
 the same run later is just `npm run decode-work-item`. An Output block may leave out npm's echo of the script (`> decode`,
 `> node bin/decode.ts ...`); verify skips it. `tools/lessons.test.ts` checks all of this.
 
-A lesson that writes a `bin/` program also shows what flows through it, so nobody runs
-it blind (#87; lesson 10.1 is the model). Between the program and its first Run sits a
+Every Run of a bin's script shows what flows through it, so nobody runs it blind (#87;
+lesson 10.1 is the model): not only the lesson that writes the program, but every later
+run of it on another vector or argument. Before each such Run sits a
 `::: code-group` of three tabs, in this order: ```` ```json [what goes in] ````, the
 input trimmed to the fields the program reads, every value the real input's own;
-```` ```ts [what it computes] ````, the decoded and derived structures as an object
-literal with the run's real values, a short why per field; ```` ```text [what comes
+```` ```ts [what it computes] ````, the runtime structures the code builds from that
+input (the decoded value, the counts and keys it compares), as an object literal with the
+run's real values and a short why per field, never a sentence describing them; ```` ```text [what comes
 out] ````, terminal lines that the verified Output block below also shows, so the tab
 can never drift. Prose after the group walks the input into the output.
-`tools/bin-io.test.ts` is the law: it checks the tabs exist (PENDING is the ratchet of
-unconverted lessons), that every output-tab line is in the verified output, and that
+`tools/bin-io.test.ts` is the law: it checks every run of a bin's script has its tabs
+(PENDING_RUNS is the ratchet of runs not yet converted), that every output-tab line is in the verified output, and that
 every hex value in the input tab is in the vector the Run names.
 
 ## The scoreboard

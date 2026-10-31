@@ -390,7 +390,7 @@ the output. `age` 0 with `pre_state.tau` at 0 is the same epoch, so the judges a
 Each of the 5 votes is one judge's judgement: `vote`, true for "valid"; `index`, which
 judge cast it — 0 to 4, judge 5 is the one left out; `signature`, that judge's Ed25519
 over the prefix and the target, what `votesSigned` checks. The vector's second verdict
-is the same shape with every `vote` false: the 0-of-5 the run below calls bad.
+is the same shape with every `vote` false: the 0-of-5 the output tab calls bad.
 
 **Run**
 

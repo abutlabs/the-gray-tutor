@@ -351,6 +351,63 @@ reported 561 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 No new program: `bin/host.ts` already names every call.
 
+**What flows through it.** Service 0's work orders it to eject service 2, which named service 0
+as its ejector long ago. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 44,
+    "reports": [ { "results": [ {
+      "service_id": 0,
+      "accumulate_gas": 200000,
+      "result": { "ok": "0x010402000000dd0eb77dee6704574f0877d35c…" }
+    } ] } ]
+  },
+  "pre_state": { "accounts": [
+    { "id": 0, "data": { "service": { "balance": 227714 } } },
+    { "id": 2, "data": {
+      "service": { "code_hash": "0x0000000000000000…", "balance": 227714, "items": 2, "bytes": 127594 },
+      "preimage_requests": [ {
+        "key": { "hash": "0xdd0eb77dee6704574f0877d35c…", "length": 127513 },
+        "value": [0, 10]
+      } ]
+    } }
+  ] }
+}
+```
+
+```ts [what it computes]
+// service 0's run, at host call 22, eject, as the call reads and checks it
+const computed = {
+  target: 2, // φ₇, d, from the output's bytes 02000000
+  hashAt: 4_278_057_920, // φ₈: where h, 0xdd0eb77d…, sits in memory
+  ejector: 0, // d's code hash, 32 zero bytes, is ℰ₃₂(0): it named service 0
+  onlyRequest: true, // 2 items, one request of 127,594 − 81 = 127,513 bytes, for h
+  forgotten: 10, // the request's history [0, 10]: provided at 0, forgotten at 10
+  waited: 34, // 44 − 10, more than D = 32: long enough
+  answer: 0n, // φ₇ after: OK
+  balance0: 455_428n, // 227,714 + d's 227,714
+  ejected: [2], // gone from the accounts after the block
+  gasUsed: 151_715n, // the run, the 458 for eject included
+};
+```
+
+```text [what comes out]
+host call 22 (eject): φ₇ = 0, 73415 gas left
+the service stops: "halt", using 151715 gas
+the test vector says: 151715
+```
+
+:::
+
+Every check of the rule passes on the vector's own values: service 2 is not service 0,
+its code hash names 0, it keeps one request for exactly h, forgotten 34 slots ago. So
+`OK`, service 2 goes, and service 0's balance doubles, as the vector's state after the
+block shows: 455,428.
+
 **Run**
 
 ```sh

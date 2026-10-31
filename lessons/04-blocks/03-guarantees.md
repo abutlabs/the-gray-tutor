@@ -119,6 +119,41 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
+What flows through this run — the file's bytes, the guarantee they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+guarantees_extrinsic.bin, 621 bytes; the first 33:
+01 30 46 6e 0a e1 b0 5d de 52 49 87 24 75 f6 be ea
+c3 68 fd 01 4b 5a 34 13 ce b3 2d 38 72 14 32 84 …
+```
+
+```ts [what it computes]
+// GuaranteesExtrinsic.decode(r): a list of one guarantee
+const computed = [ // 01 in front: the count
+  {
+    report: { package_spec: { hash: "0x30466e0a…" }, core_index: 3 }, // 3.3's shape, whole
+    slot: 42, // 2a 00 00 00, after the report
+    signatures: [ // 02 in front: two guarantors, the fewest a guarantee may have
+      { validator_index: 0, signature: "0x5f6e74d2…" }, // 2 bytes of index, 64 of signature
+      { validator_index: 1, signature: "0x3a6813f7…" },
+    ],
+  },
+];
+```
+
+```text [what comes out]
+    0..1     length                         0x01
+  484..488   0.slot                         0x2a000000
+  555..557   0.signatures.1.validator_index 0x0100
+```
+
+:::
+
+After the count, the whole work-report comes first; then the slot, 42, and the two
+signatures, each a two-byte validator index and 64 bytes.
+
 **Run**
 
 ```sh

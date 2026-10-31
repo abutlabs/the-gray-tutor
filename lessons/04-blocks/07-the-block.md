@@ -108,6 +108,48 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
+What flows through this run — the whole block's bytes, the block they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+block.bin, 5,150 bytes; the first 34:
+5c 74 3d bc 51 42 84 b2 ea 57 79 87 87 c5 a1 55 ef
+9d 7a c1 e9 49 9e c6 59 10 a7 a3 d6 58 97 b7 25 91 …
+```
+
+```ts [what it computes]
+// Block(TINY).decode(r): a header, then the five lists of the extrinsic
+const computed = {
+  header: { // 4.6's shape, with other marks
+    parent: "0x5c743dbc…", // the same parent as 4.6's header
+    slot: 42,
+    epoch_mark: { entropy: "0xae85d663…", validators: 6 }, // 01: present
+    tickets_mark: null, // 00: absent
+    offenders_mark: ["0x4418fb8c…"], // one convicted key
+  },
+  extrinsic: {
+    tickets: 3, // each list with its count in front
+    preimages: 3,
+    guarantees: 1,
+    assurances: 2,
+    disputes: { verdicts: 2, culprits: 2, faults: 1 },
+  },
+  traced: 5150, // every byte of the block, one field at a time
+};
+```
+
+```text [what comes out]
+    0..32    header.parent                  0x5c743dbc514284b2ea57798787c5a155ef9d7ac1e9499ec65910a7a3d65897b7
+   32..64    header.parent_state_root       0x2591ebd047489f1006361a4254731466a946174af02fe1d86681d254cfd4a00b
+ 5086..5150  extrinsic.disputes.faults.0.signature 0x557e5ee3660be9247c4908c74a46c91eebd713925dd7f2ede3ef4900ba277039f7d46ec15432116176cce8ce39d8ae21eabafdf71796eeb724ee7e4ff1dd1fd7
+```
+
+:::
+
+The header comes first, shaped as in 4.6 but with an epoch mark where 4.6's had tickets,
+then the extrinsic's five lists in order, the disputes last; the trace ends exactly at byte 5,150, the file's length.
+
 **Run**
 
 ```sh

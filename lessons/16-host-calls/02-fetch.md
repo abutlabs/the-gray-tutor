@@ -340,6 +340,57 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The same vector as [lesson 16.1](./01-calling-the-host.md); what's new is a host that
+answers. Here is its first `fetch`, as the service asks it, as your host handles it, and as
+it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43 },
+  "pre_state": {
+    "entropy": "0xae85d6635e9a…",
+    "accounts": [ { "id": 1729, "data": {
+      "service": { "code_hash": "0xfd3f1355…" },
+      "preimage_blobs": [ { "hash": "0xfd3f1355…", "blob": "… 19,049 bytes of code …" } ]
+    } } ]
+  }
+}
+```
+
+```ts [what it computes]
+// the first two host calls, the registers as the service sets them and as your host leaves them
+const computed = {
+  fetch: {
+    item: 0n, // φ₁₀: item 0, the protocol's constants
+    o: 0n, // φ₇: where to copy them: nowhere yet
+    f: 0n, // φ₈: from byte 0
+    z: 0n, // φ₉: no bytes, so it only learns how long the item is
+    answer: 122n, // φ₇ after: the item's whole length
+    gas: [99_757n, 99_367n], // before and after: item 0's flat 390
+  },
+  again: { o: 206_752n, z: 122n }, // the next fetch of item 0, now with room for all of it
+  growHeap: {
+    asked: 51n, // φ₇: make the heap reach page 51
+    answer: 2n ** 64n - 2n, // WHAT: this host doesn't know grow_heap yet
+    gas: [99_003n, 98_003n], // an unknown call's 1,000
+  },
+};
+```
+
+```text [what comes out]
+host call 2 (fetch): φ₇ = 122, 99367 gas left
+host call 1 (grow_heap): φ₇ = WHAT, 98003 gas left
+```
+
+:::
+
+The vector is the bin's own, `../vectors/stf/accumulate/tiny/always_accumulate-1.json`.
+The service asks for item 0 with no room, learns it is 122 bytes for a flat 390 gas, and
+asks again at 206,752 with room for all of it. `grow_heap` your host doesn't know yet:
+WHAT, and 1,000 gas, which is where this run's gas parts from the vector's.
+
 **Run**
 
 ```sh

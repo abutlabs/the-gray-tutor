@@ -731,6 +731,53 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** A new report for service 1, and one for service 2 that has been
+waiting on it in the queue. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 45,
+    "reports": [ { "package_spec": { "hash": "0xd54f425784ed0e9d…" }, "results": [
+      { "service_id": 1, "accumulate_gas": 200000, "result": { "ok": "0x010eb8fe9f7f6255a6fa…" } }
+    ] } ]
+  },
+  "pre_state": { "ready_queue": [ [], [], [], [], [], [], [], [ {
+    "report": { "package_spec": { "hash": "0x6af0ea4ced28a7b0…" }, "results": [ { "service_id": 2 } ] },
+    "dependencies": [ "0xd54f425784…" ]
+  } ], [], [], [], [] ] },
+  "output": { "ok": "0x16776227fe92a881d7bffdb92adc45b575f8a24b89d563e42e43566d8b915ac0" }
+}
+```
+
+```ts [what it computes]
+// accumulateBlock's outputs and their root for this block
+const computed = {
+  rounds: [2], // one round: the new report, and the waiting one it unlocks
+  outputs: [
+    { service: 1, hash: "0xb8fe9f7f…" }, // service 1's yield; service 2 yields nothing
+  ],
+  encoded: "0x01000000b8fe9f7f…", // ℰ₄(1) ⌢ the hash: 36 bytes
+  root: "0x16776227…", // M_B of one item: Keccak-256 of those 36 bytes
+  gasUsed: { 1: 183_402n, 2: 0n }, // the statistics, next to the vector's
+};
+```
+
+```text [what comes out]
+accumulated: 0xd54f4257, 0x6af0ea4c
+outputs: service 1 yielded 0xb8fe9f7f; root 0x16776227 (vector: 0x16776227)
+service 1: 1 digest(s), 0 transfer(s), 183402 gas
+```
+
+:::
+
+Service 2's report has waited for service 1's package, `0xd54f…`; it arrives, so both
+go in one round. Service 1's run yields `0xb8fe9f7f…`, the only output. One item alone is
+simply hashed: Keccak-256 of `01 00 00 00` (service 1 in four bytes) and the 32-byte hash
+is `0x16776227…`, the vector's `output.ok` exactly.
+
 **Run**
 
 ```sh

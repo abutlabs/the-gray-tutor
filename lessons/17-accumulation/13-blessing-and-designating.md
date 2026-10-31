@@ -650,6 +650,63 @@ reported 588 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
+**What flows through it.** Two vectors: service 1, the delegator but not the manager,
+blesses; then service 0 designates a count of validators tiny doesn't allow. The first:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ { "results": [ {
+      "service_id": 1,
+      "accumulate_gas": 2000000,
+      "result": { "ok": "0x010b000000000000000002000000000000000100000000e8030000000000000000" }
+    } ] } ]
+  },
+  "pre_state": {
+    "privileges": { "bless": 0, "assign": [0, 0], "designate": 1, "register": 0, "always_acc": [] }
+  }
+}
+```
+
+```ts [what it computes]
+// two runs: service 1's call 15, bless; then, in the second vector, service 0's call 17, designate
+const computed = {
+  bless: {
+    delegator: 2, // φ₉
+    registrar: 0, // φ₁₀
+    alwaysAcc: 1, // φ₁₂: one entry, at φ₁₁
+    answer: 0n, // OK: anyone may bless; the merge decides what counts
+    merged: { bless: 0, designate: 2, always_acc: [] }, // only the delegator's own change holds
+    gasUsed: 161_878n,
+  },
+  designate: {
+    sets: 5, // φ₈: five validators' keys, 336 bytes each, at φ₇
+    allowed: [6], // V on tiny: multiples of 3 from 6 to 3 × 2 cores
+    answer: HUH, // 5 isn't one of them; ι stays as it was
+    gasUsed: 507_819n,
+  },
+};
+```
+
+```text [what comes out]
+host call 15 (bless): φ₇ = 0, 1882652 gas left
+the test vector says: 161878
+host call 17 (designate): φ₇ = HUH, 1526031 gas left
+the test vector says: 507819
+```
+
+:::
+
+Service 1 isn't the manager, yet its `bless` answers `OK`: in the vectors anyone may
+call it. The merge after the round sorts it out. The manager stays 0, the
+always-accumulate list stays empty (only the manager's changes count there), and the
+delegator becomes 2, because service 1 held that privilege and changed its own. The
+vector's privileges after the block are exactly that. Service 0's `designate` is
+refused before anything is read into ι: five validators is not a size tiny can have.
+
 **Run**
 
 ```sh

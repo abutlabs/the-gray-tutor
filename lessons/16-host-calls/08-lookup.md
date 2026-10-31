@@ -234,6 +234,59 @@ Ten services in nine official vectors now match them.
 
 ## Watch it
 
+**What flows through it.** A new vector: service 0 asks for a preimage that belongs to
+another service. What it's handed, the one `lookup` it makes, and the lines it prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43, "reports": [ { "results": [ {
+    "service_id": 0,
+    "accumulate_gas": 2000000,
+    "result": { "ok": "0x0108c10600004a5e6eed…" }
+  } ] } ] },
+  "pre_state": {
+    "privileges": { "always_acc": [] },
+    "accounts": [
+      { "id": 0, "data": { "service": { "code_hash": "0xdd0eb77dee…" } } },
+      { "id": 1729, "data": { "preimage_blobs": [
+        { "hash": "0x943e3d42…", "blob": "0x707265696d616765" }, "… its code …"
+      ] } }
+    ]
+  },
+  "post_state": { "statistics": [ { "id": 0, "record": { "accumulate_gas_used": 140681 } } ] }
+}
+```
+
+```ts [what it computes]
+// service 0's run, and its one lookup, as your host handles it
+const computed = {
+  service: 0, // the digest's service_id; always_acc is empty, so only it runs
+  inputs: 1, // one operand: the digest, whose result holds the hash below
+  gas: 2_000_000n, // the digest's accumulate_gas
+  lookup: {
+    whose: 1729n, // φ₇: another service's preimages (2⁶⁴ − 1 would mean its own)
+    hash: "0x4a5e6eed…", // the 32 bytes at φ₈
+    o: 0n, // φ₉ to φ₁₁ all 0: no room, so it only asks whether there is one
+    answer: 2n ** 64n - 1n, // NONE: 1729 holds 0x943e3d42… and its code, not this hash
+    gas: [1_891_528n, 1_890_928n], // 600, plus nothing for the 0 bytes asked for
+  },
+  used: 140_681n, // 2,000,000 − 1,859,319 left at the halt
+};
+```
+
+```text [what comes out]
+service 0: 1 input(s), 2000000 gas, "halt"
+  gas used 140681; the vector says 140681
+```
+
+:::
+
+The hash service 0 looks up, `0x4a5e6eed…`, rides in on the digest's `result`. Service
+1729 has two preimages, neither of them that one, so the answer is NONE; the service
+carries on, writes its storage and halts on exactly the vector's 140,681 gas.
+
 **Run**
 
 ```sh

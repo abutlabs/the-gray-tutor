@@ -283,6 +283,59 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The default vector again, now as a block: both of its reports,
+one round, and what `accumulateBlock` hands back:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 43, "reports": [
+    { "context": { "prerequisites": [] }, "segment_root_lookup": [],
+      "results": [ { "service_id": 1729, "accumulate_gas": 200000,
+                     "result": { "ok": "0x033fde3d" } } ] },
+    { "context": { "prerequisites": [] }, "segment_root_lookup": [],
+      "results": [ { "service_id": 1730, "accumulate_gas": 200000,
+                     "result": { "ok": "0x66726561643ac10600006c617374" } } ] }
+  ] },
+  "pre_state": {
+    "privileges": { "always_acc": [] },
+    "entropy": "0xae85d6635e9a…",
+    "accounts": [ "… 1729 and 1730, both with the code 0xfd3f1355… …" ]
+  }
+}
+```
+
+```ts [what it computes]
+// accumulateBlock's result: one round, every service starting from the same accounts
+const computed = {
+  services: [1729, 1730], // the digests' service ids; always_acc adds none
+  statistics: {
+    1729: { count: 1, transfers: 0, gasUsed: 29_643n }, // S(1729): N, T and G
+    1730: { count: 1, transfers: 0, gasUsed: 34_413n }, // S(1730)
+  },
+  storage: {
+    1729: { "0x6c617374": "0x033fde3d" }, // "last": its digest's result
+    1730: { "0x6672656164": "0x00" }, // "fread": 1729's "last" read, from before 1729 wrote it
+  },
+  lastAccumulationSlot: 43, // set in both accounts: each accumulated in this block
+};
+```
+
+```text [what comes out]
+2 report(s) at slot 43: 2 service(s)
+service 1729: 1 digest(s), 29643 gas
+service 1730: 1 digest(s), 34413 gas
+  storage: 0x6672656164 = 0x00
+```
+
+:::
+
+That vector is the bin's default, `../vectors/stf/accumulate/tiny/same_round_storage_isolation-1.json`.
+1730's digest asks it to read 1729's `last` key. In one round every service starts from
+the accounts as they were, so it finds nothing and stores 0x00, while 1729 stores its
+own result: each keeps its own account, and the gas of both matches the vector.
+
 **Run**
 
 ```sh

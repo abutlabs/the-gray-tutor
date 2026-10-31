@@ -196,6 +196,46 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
+What flows through this run — the file's bytes, the header they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+header_1.bin, 693 bytes; the first 40:
+5c 74 3d bc 51 42 84 b2 ea 57 79 87 87 c5 a1 55 ef 9d 7a c1
+e9 49 9e c6 59 10 a7 a3 d6 58 97 b7 25 91 eb d0 47 48 9f 10 …
+```
+
+```ts [what it computes]
+// Header(TINY).decode(r): the value it returns (trimmed)
+const computed = {
+  parent: "0x5c743dbc…", // the first 32 bytes
+  parent_state_root: "0x2591ebd0…", // the next 32
+  extrinsic_hash: "0x74a9e79d…", // and 32 more
+  slot: 42, // 4 bytes, ending at byte 100
+  epoch_mark: null, // 00: nothing follows
+  tickets_mark: [ // 01, then exactly E = 12 tickets, no length in front
+    { id: "0x8c25c063…", attempt: 0 }, // ticket 0
+    { id: "0xabf4869d…", attempt: 3 }, // ticket 11, the last
+  ],
+  offenders_mark: [], // 00: a count of none
+  author_index: 3,
+};
+```
+
+```text [what comes out]
+    0..32    parent                         0x5c743dbc514284b2ea57798787c5a155ef9d7ac1e9499ec65910a7a3d65897b7
+  100..101   epoch_mark.present             0x00
+  101..102   tickets_mark.present           0x01
+  497..498   tickets_mark.11.attempt        0x03
+```
+
+:::
+
+Three hashes and the slot fill the first 100 bytes. Then an option says "no epoch
+mark", another says "a tickets mark", and twelve tickets follow with no count, because
+the configuration says how many.
+
 **Run**
 
 ```sh

@@ -373,6 +373,53 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+What flows through these two runs — the tickets each block carries, the ids and checks your rules work out, and the lines printed:
+
+::: code-group
+
+```text [what goes in]
+publish-tickets-no-mark-2.json, input:
+{
+  "slot": 1,
+  "entropy": "0x8c2e6d327dfa…",
+  "extrinsic": [
+    { "attempt": 0, "signature": "0xe5055ade89ab…" },
+    { "attempt": 1, "signature": "0x177a2a70e85e…" },
+    { "attempt": 2, "signature": "0x74210b31ef06…" }
+  ]
+}
+
+publish-tickets-no-mark-4.json: three tickets again, attempts 3, 1 and 2, at slot 2.
+```
+
+```ts [what it computes]
+// bin/safrole.ts's values, one run per vector
+const two = {
+  ids: ["0x00e51b1c…", "0x015d2d6f…", "0x20164381…"], // ticketId: each proof's VRF output
+  ascending: true, // each id above the one before, as a block must carry them
+  error: null, // safroleError finds nothing
+  time: [0, 1], // τ before → after
+  accumulator: 3, // all three kept, the best first
+};
+const four = {
+  ids: ["0xd6feae23…", "0x5af49b10…", "0x34341918…"], // attempts 3, 1, 2
+  ascending: false, // 0xd6… before 0x5a…: going down
+  error: "bad_ticket_order", // the whole block is refused, nothing changes
+};
+```
+
+```text [what comes out]
+a ticket: attempt 0, id 0x00e51b1c…
+the lottery holds 3 ticket(s), the best 0x00e51b1c…
+refused: bad_ticket_order (the vector says: bad_ticket_order)
+```
+
+:::
+
+A ticket's id isn't in the block: your rules work it out from the proof, the VRF output
+of [lesson 8.6](./06-the-vrf-output.md). The first block's ids climb, so all three join the lottery; the second's
+fall, so the block is refused before any state moves.
+
 **Run**
 
 ```sh

@@ -386,6 +386,50 @@ statistic, the ready queue and the history.
 
 ## Watch it
 
+**What flows through it.** A new default vector, with a queue: one report arrives, one
+was already waiting for it. What goes in, what the queue becomes, what prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": { "slot": 44, "reports": [ {
+    "package_spec": { "hash": "0x9aa1453512…" },
+    "context": { "prerequisites": [] },
+    "results": [ { "service_id": 1729, "accumulate_gas": 200000 } ]
+  } ] },
+  "pre_state": { "ready_queue": [ "… 7 empty slots …", [ {
+    "report": { "package_spec": { "hash": "0xd97d796515…" } },
+    "dependencies": [ "0x9aa1453512…" ]
+  } ], "… 4 more, empty …" ] }
+}
+```
+
+```ts [what it computes]
+// accumulateBlock's queue, before and after
+const computed = {
+  waiting: [{ report: "0xd97d7965…", dependencies: ["0x9aa14535…"] }], // ready[7]: D, waits for A
+  arriving: ["0x9aa14535…"], // A: no prerequisites, so it can go now
+  edited: [{ report: "0xd97d7965…", dependencies: [] }], // A accumulated: D's last dependency gone
+  accumulated: ["0x9aa14535…", "0xd97d7965…"], // the newest set in ξ′: A, then D
+  ready: 0, // nothing left waiting
+  statistics: { 1729: { count: 2, transfers: 0, gasUsed: 40_441n } }, // both digests are 1729's
+};
+```
+
+```text [what comes out]
+slot 44: 1 new report(s), 1 waiting
+accumulated: 0x9aa14535, 0xd97d7965
+still waiting: 0
+```
+
+:::
+
+The vector is the bin's new default, `../vectors/stf/accumulate/tiny/enqueue_and_unlock_simple-2.json`.
+D was filed at slot 43, in place 7 of the queue (43 mod 12 on tiny), waiting for A. A
+arrives, goes, and takes D's last dependency with it, so D goes in the same block, and
+service 1729 accumulates both digests.
+
 **Run**
 
 ```sh

@@ -7,7 +7,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { LESSONS, ROOT, readParts } from "./lessons.ts";
 
@@ -57,6 +57,36 @@ test("every console tab repeats verified scoreboard lines, and its input names a
   }
 });
 
+/** Every run of a bin's script, not only a lesson's first (#87, Aodh 2026-10-31: "we agreed to add that
+ *  to every npm script + every scoreboard run"). A run whose commands include `npm run <bin script>`
+ *  needs a three-tab group between the Run before it and itself. These runs don't have one yet; the
+ *  list may only shrink. Keyed "lesson: the scripts it runs". */
+const PENDING_RUNS = new Set<string>([]);
+
+/** The scripts that aren't a bin's: tests, typecheck, the scoreboard (its own two tabs), the tools. */
+const NOT_A_BIN = new Set(["test", "typecheck", "scoreboard", "compare", "catch-up", "verify", "site", "check"]);
+
+/** Every Run of a bin's script in the lessons, and whether a three-tab group comes before it. */
+function binRuns(): { key: string; covered: boolean }[] {
+  const out: { key: string; covered: boolean }[] = [];
+  for (const l of lessons) {
+    for (const m of l.text.matchAll(/^\*\*Run(?:, expect it to fail)?\*\*\n\n```sh\n([\s\S]*?)```/gm)) {
+      const cmds = [...m[1].matchAll(/^npm run ([\w-]+)/gm)].map((c) => c[1]).filter((c) => !NOT_A_BIN.has(c));
+      if (cmds.length === 0) continue;
+      const before = l.text.lastIndexOf("**Run", m.index! - 1);
+      const covered = l.text.slice(Math.max(before, 0), m.index).includes("[what goes in]");
+      out.push({ key: `${l.file}: ${cmds.join(" ")}`, covered });
+    }
+  }
+  return out;
+}
+
+test("every run of a bin's script has its three tabs before it, or is still pending (#87)", () => {
+  const missing = binRuns().filter((r) => !r.covered).map((r) => r.key);
+  assert.deepEqual(missing.sort(), [...PENDING_RUNS].sort(),
+    "PENDING_RUNS must be exactly the runs without tabs: shrink it as they gain them, never grow it");
+});
+
 test("every lesson that introduces a bin shows what flows through it, or is still pending (#87)", () => {
   const missing: string[] = [];
   for (const l of lessons) {
@@ -77,17 +107,46 @@ test("every what-comes-out tab repeats lines the lesson's verified output also s
   }
 });
 
-test("every what-goes-in tab holds the vector's own bytes, where vectors/ is downloaded", () => {
+/** Every script the lessons define, by name: what it runs (`npm pkg set scripts.x="…"`). */
+const SCRIPTS = new Map<string, string>(
+  lessons.flatMap((l) => [...l.text.matchAll(/npm pkg set scripts\.([\w-]+)="([^"]*)"/g)].map((m) => [m[1], m[2]] as const)),
+);
+
+/** The vector files a group's Run reads: the paths in its commands and in the scripts it runs,
+ *  plus any vector the group names itself. A folder (a trace) means every file in it. */
+function vectorsOf(text: string, group: string, after: number): string[] {
+  const run = /\*\*Run[^*]*\*\*\n\n```sh\n([\s\S]*?)```/.exec(text.slice(after))?.[1] ?? "";
+  const commands = [run, ...[...run.matchAll(/^npm run ([\w-]+)/gm)].map((m) => SCRIPTS.get(m[1]) ?? "")].join("\n");
+  const named = [...commands.matchAll(/\.\.\/(vectors\/[\w./-]+)/g), ...group.matchAll(/(?<![\w/])(vectors\/[\w./-]+\.(?:json|bin))/g)]
+    .map((m) => m[1].replace(/\/$/, ""));
+  const files: string[] = [];
+  for (const p of new Set(named)) {
+    const full = join(ROOT, p);
+    if (!existsSync(full)) continue;
+    if (statSync(full).isDirectory()) files.push(...readdirSync(full).filter((f) => /\.(json|bin)$/.test(f)).map((f) => join(p, f)));
+    else files.push(p);
+    if (p.endsWith(".bin") && existsSync(join(ROOT, p.replace(/\.bin$/, ".json")))) files.push(p.replace(/\.bin$/, ".json"));
+  }
+  return files;
+}
+
+/** A file's text for the hex check: a .bin as its bytes in hex, so `0x0403…` from a hexdump matches. */
+const asText = (p: string): string =>
+  p.endsWith(".bin") ? `0x${readFileSync(join(ROOT, p)).toString("hex")}` : readFileSync(join(ROOT, p), "utf8");
+
+test("every what-goes-in tab holds only bytes of the vectors its own Run reads, where vectors/ is downloaded", () => {
+  let checked = 0;
   for (const l of lessons) {
     for (const m of l.text.matchAll(TABS)) {
-      // the vector this group feeds is the first one named after it (its Run's argument)
-      const rest = l.text.slice(m.index! + m[0].length);
-      const path = /\.\.\/(vectors\/[\w./-]+\.json)/.exec(rest)?.[1];
-      if (!path || !existsSync(join(ROOT, path))) continue;
-      const raw = readFileSync(join(ROOT, path), "utf8");
+      const files = vectorsOf(l.text, m[1], m.index! + m[0].length);
+      if (files.length === 0) continue; // nothing to read: argv, the clock, hand-made bytes
+      const texts = files.map(asText);
       for (const [hex] of m[1].matchAll(/0x[0-9a-f]{6,}/g)) {
-        assert.ok(raw.includes(hex), `${l.file}: ${hex.slice(0, 14)}… is not in ${path}`);
+        const bytes = hex.slice(2);
+        assert.ok(texts.some((t) => t.includes(hex) || t.includes(bytes)), `${l.file}: ${hex.slice(0, 14)}… is in none of ${files.slice(0, 3).join(", ")}`);
+        checked++;
       }
     }
   }
+  if (existsSync(join(ROOT, "vectors"))) assert.ok(checked > 100, `${checked} hex values checked against their runs' vectors`);
 });

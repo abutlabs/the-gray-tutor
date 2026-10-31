@@ -84,7 +84,7 @@ const dump = {
 :::
 
 The first row of the dump: `service`'s four bytes, then the first twelve of
-`code_hash`. The run below also prints the item's JSON first, so you can read each
+`code_hash`. The whole output, the last tab, also prints the item's JSON first, so you can read each
 field's bytes against its name.
 
 **Run**

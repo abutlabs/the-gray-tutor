@@ -12,6 +12,7 @@ import { LEGEND, writeRedirects } from "./urls.ts";
 import { type PrintPage, writePrintPage } from "./print.ts";
 import { checkBlocks } from "./checks.ts";
 import { albert } from "./albert.ts";
+import { runViews } from "./run-views.ts";
 import { lineRanges, linesOf, stepView } from "./whole.ts";
 import { writeEpub } from "./epub.ts";
 import { HEAD as CONCEPTS_HEAD } from "./theme/concepts-link.ts";
@@ -85,7 +86,7 @@ export default defineConfig({
   // SVG: no script in the reader's browser, and print.html gets it too)
   markdown: {
     math: true,
-    config: (md) => { snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); },
+    config: (md) => { snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
     codeTransformers: [shellComments()],
   },
   // pages that moved keep their old address, as a page that sends the reader on; and the

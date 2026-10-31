@@ -434,7 +434,48 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 
 A block of two guarantees, one report for each core, both for service 42. Each core's
 card shows its own report's work. Service 42's card shows both reports' work added up:
-821 + 697 = 1518 gas. Now a block of assurances:
+821 + 697 = 1518 gas. Now a block of assurances. This time the program reads no guarantees:
+it reads the assurances and the report they made available.
+
+::: code-group
+
+```json [what goes in]
+{
+  "input.assurances": [
+    { "validator_index": 0, "bitfield": "0x02" },
+    { "validator_index": 1, "bitfield": "0x01" },
+    { "validator_index": 2, "bitfield": "0x03" },
+    { "validator_index": 3, "bitfield": "0x03" },
+    { "validator_index": 4, "bitfield": "0x03" },
+    { "validator_index": 5, "bitfield": "0x01" }
+  ],
+  "output.ok.reported": [
+    { "core_index": 0, "package_spec": { "hash": "0x63c03371b9…", "length": 12345, "exports_count": 3 } }
+  ]
+}
+```
+
+```ts [what it computes]
+// coreStats(config, incoming = [], available, assurances): only two fields move
+const computed = {
+  incoming: [], // no guarantees: no refine load on any core
+  available: ["0x63c03371b9…"], // R: core 0's report, now available
+  cores: [
+    {
+      popularity: 5, // bit 0 is set by validators 1, 2, 3, 4 and 5
+      da_load: 12345 + 4 * 4104, // the bundle, then 3 segments and 1 proof page
+    },
+    { popularity: 4, da_load: 0 }, // bit 1 by validators 0, 2, 3 and 4; nothing available
+  ],
+};
+```
+
+```text [what comes out]
+core 0: da_load 28761, popularity 5
+core 1: popularity 4
+```
+
+:::
 
 **Run**
 

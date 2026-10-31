@@ -228,6 +228,45 @@ Why not plain `fallback`, [lesson 5.1](./01-hashes.md)'s trace? No work happens 
 empty, every extrinsic hash is the same, and the check hardly checks. The preimages trace's blocks carry things: 27 of them
 preimages (up to 10 in one block), 65 a report, 99 assurances.
 
+What flows through one turn of the loop — block 8 of the preimages trace, the two hashes it checks, and the lines the walk prints:
+
+::: code-group
+
+```json [what goes in]
+{
+  "block": {
+    "header": {
+      "parent": "0xb8f2d3623aad…",
+      "slot": 8,
+      "extrinsic_hash": "0xdd3582f271b4…"
+    },
+    "extrinsic": { "tickets": [], "preimages": [ …4… ], "guarantees": [ …2… ], "assurances": [ …6… ] }
+  }
+}
+```
+
+```ts [what it computes]
+// bin/chain.ts's values for block 8 (vectors/traces/preimages/00000008.json)
+const computed = {
+  previous: "0xb8f2d362…", // headerHash of block 7, kept from the last turn
+  linked: true, // header.parent is that same hash
+  extrinsicHash: "0xdd3582f2…", // this lesson's hash of the 4 + 2 + 6 items carried
+  matches: true, // equal to header.extrinsic_hash
+  hash: "0x6095311d…", // headerHash of block 8: block 9's parent
+};
+```
+
+```text [what comes out]
+99 of 99 links hold.
+100 of 100 extrinsics match their headers.
+```
+
+:::
+
+Each turn hashes the header it just read and keeps it, so the next block's `parent` can
+be compared to it; and it hashes the extrinsic the block carries, to compare with the
+`extrinsic_hash` its header promised. A hundred turns add up to the two counts.
+
 **Run**
 
 ```sh

@@ -438,6 +438,60 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** The vector hands service 0 one work result whose output is its
+order: send service 1 a hundred, with 80,000 gas and a memo. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ { "results": [ {
+      "service_id": 0,
+      "accumulate_gas": 400000,
+      "result": { "ok": "0x0102010000006400000000000000803801000000000067696674…" }
+    } ] } ]
+  },
+  "pre_state": { "accounts": [
+    { "id": 0, "data": { "service": { "code_hash": "0xdd0eb77dee…", "balance": 227714 } } },
+    { "id": 1, "data": { "service": { "balance": 227714 } } }
+  ] }
+}
+```
+
+```ts [what it computes]
+// bin/host.ts's values for service 0's run, and the one transfer it leaves behind
+const computed = {
+  service: 0, // s, the second argument
+  inputs: 1, // one operand: the report's result for service 0
+  gas: 400_000n, // its accumulate_gas; service 0 has no free gas
+  transfer: { // host call 21, read from the registers
+    dest: 1, // φ₇, from the output's bytes 01000000
+    amount: 100n, // φ₈, from 6400000000000000
+    gas: 80_000n, // φ₉, from 8038010000000000
+    memo: "gift", // the 128 bytes at φ₁₀: 67696674, then zeros
+  },
+  answer: 0n, // φ₇ after the call: OK
+  balance: 227_614n, // service 0's, 227,714 − 100: the money leaves now
+  gasUsed: 255_437n, // the 80,000 handed to the receiver included
+};
+```
+
+```text [what comes out]
+host call 21 (transfer): φ₇ = 0, 188133 gas left
+sent 100 to service 1, with 80000 gas and the memo "gift"
+the service stops: "halt", using 255437 gas
+the test vector says: 255437
+```
+
+:::
+
+The order sits in the work result's output bytes: `01 00 00 00` is service 1, `64…` is 100,
+`803801…` is 80,000, `67696674` spells "gift". Service 0's code reads them into φ₇ to
+φ₁₀ and calls `transfer`, which answers `OK`, takes the 100 from its balance and puts the
+transfer on the run's list, the line the program prints after the calls.
+
 **Run**
 
 ```sh

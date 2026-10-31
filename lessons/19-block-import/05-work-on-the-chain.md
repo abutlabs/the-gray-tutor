@@ -237,6 +237,46 @@ reported 646 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
+`bin/import.ts` takes the trace's first state, then imports each block into the state it
+made from the one before, and compares the root with the trace's. Its first block:
+
+::: code-group
+
+```json [what goes in]
+{
+  "traces/storage_light/00000001.json": {
+    "pre_state.keyvals": "… 21 entries: the state before block 1 …",
+    "block.header": { "slot": 1, "parent": "0x245becfe7f…", "parent_state_root": "0xd6e78dc07a…" },
+    "block.extrinsic": {
+      "guarantees": [
+        { "report": { "core_index": 1, "results": [{ "service_id": 0, "code_hash": "0x128fc8f057…" }] } }
+      ],
+      "tickets": [], "preimages": [], "assurances": []
+    },
+    "post_state.state_root": "0xcf7ecaf55c…"
+  }
+}
+```
+
+```ts [what it computes]
+// one turn of the loop: importBlock, then the root of what it made
+const computed = {
+  state: 21, // KeyValue[] in: entries of the state before block 1
+  result: "21 entries", // importBlock's answer: a new state (no "error" in it), still 21 entries
+  root: "0xcf7ecaf55c…", // stateRoot(result): the new state's 32-byte root
+  same: true, // root === post_state.state_root: matched becomes 1
+};
+```
+
+```text [what comes out]
+block 1, slot 1: imported; root 0xcf7ecaf5… = the trace's
+```
+
+:::
+
+The guarantee for core 1 is real work now, what this lesson brings onto the chain, and the root your client
+makes from it is the one the trace wrote down. The loop then hands that state to block 2.
+
 **Run**
 
 ```sh

@@ -158,6 +158,35 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
+What flows through this run — the file's bytes, the list they decode to, the trace printed:
+
+::: code-group
+
+```text [what goes in]
+preimages_extrinsic.bin, 64 bytes; the first 32:
+03 04 03 02 01 10 81 09 5e 61 22 e3 bc 9d 96 1e
+00 01 4a 7f c8 33 05 03 02 01 10 d2 57 bc 7d 93 …
+```
+
+```ts [what it computes]
+// PreimagesExtrinsic.decode(r): a sequence of three preimages
+const computed = [ // 03 in front: the count
+  { requester: 16909060, blob: "0x81095e61…" }, // 04 03 02 01, then 10 (16) and 16 bytes
+  { requester: 16909061, blob: "0xd257bc7d…" }, // 05 03 02 01, then 10 and 16 bytes
+  { requester: 16909062, blob: "0x38db056c…" }, // 06 03 02 01, then 10 and 16 bytes
+];
+```
+
+```text [what comes out]
+    0..1     length                         0x03
+    1..5     0.requester                    0x04030201
+```
+
+:::
+
+The first byte, `03`, is how many preimages follow. Each is four bytes of requester,
+little end first, then its blob: a length, `10`, and that many bytes.
+
 **Run**
 
 ```sh

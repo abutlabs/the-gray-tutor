@@ -241,6 +241,52 @@ reported 573 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
+**What flows through it.** Service 0's work carries its new code's hash and two new least
+gases. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ { "results": [ {
+      "service_id": 0,
+      "accumulate_gas": 2000000,
+      "result": { "ok": "0x0101c0f2ef8d435ea95467e5e1a5e0e768e3555044487699c625dbc2fd11e407761c7b00…" }
+    } ] } ]
+  },
+  "pre_state": { "accounts": [ { "id": 0, "data": { "service": {
+    "code_hash": "0xdd0eb77dee6704574f…", "min_item_gas": 10, "min_memo_gas": 10
+  } } } ] }
+}
+```
+
+```ts [what it computes]
+// service 0's run, at host call 20, upgrade, and the record it leaves
+const computed = {
+  codeHash: "0xc0f2ef8d…", // the 32 bytes at φ₇
+  minItemGas: 123n, // φ₈, the output's 7b00…
+  minMemoGas: 456n, // φ₉
+  answer: 0n, // φ₇ after: OK; an upgrade is never refused
+  service0: { codeHash: "0xc0f2ef8d…", minItemGas: 123n, minMemoGas: 456n }, // was 0xdd0e…, 10, 10
+  gasUsed: 139_939n, // the run, the 1,028 for upgrade included
+};
+```
+
+```text [what comes out]
+host call 20 (upgrade): φ₇ = 0, 1889085 gas left
+the service stops: "halt", using 139939 gas
+the test vector says: 139939
+```
+
+:::
+
+The output's bytes hold the order: the new code's hash `c0f2ef8d…`, then `7b00…` (123)
+and 456. The service's code puts the hash in memory and the two gases in φ₈ and φ₉, and
+`upgrade` swaps all three into its record: the vector's state after the block has
+`0xc0f2…`, 123 and 456 where `0xdd0e…`, 10 and 10 were.
+
 **Run**
 
 ```sh

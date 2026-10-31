@@ -256,3 +256,24 @@ html.concepts .vp-doc p.snippet-label a { pointer-events: none; }
 
 /* a part's Gray Paper sections, small, under its name in the sidebar (config.ts) */
 .VPSidebarItem .gp-ref { display: block; margin-top: 1px; font-size: 11px; font-weight: 400; line-height: 1.4; color: var(--vp-c-text-3); }
+
+/* One run, one widget (.vitepress/run-views.ts): the command, what goes in, what it computes, what
+   comes out and the whole output, as tabs in one frame. A strong border and a bright left edge, so
+   a reader scrolling a lesson (or presenting it) finds every run at a glance. */
+.vp-doc .run-widget {
+  margin: 24px 0;
+  padding: 10px 14px 4px;
+  border: 2px solid var(--vp-c-brand-1);
+  border-left: 6px solid var(--vp-c-brand-1);
+  border-radius: 12px;
+  background: var(--vp-c-brand-soft);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--vp-c-brand-1) 14%, transparent);
+  scroll-margin-top: calc(var(--vp-nav-height) + 24px);
+}
+.vp-doc .run-widget:target { box-shadow: 0 0 0 6px color-mix(in srgb, var(--vp-c-brand-1) 35%, transparent); }
+.vp-doc .run-widget-title { margin: 2px 0 8px; font-size: 15px; font-weight: 700; color: var(--vp-c-brand-1); }
+.vp-doc .run-widget-title code { font-size: 14px; }
+.vp-doc .run-widget-anchor { margin-left: 6px; font-weight: 400; color: var(--vp-c-text-3); text-decoration: none; }
+.vp-doc .run-widget .vp-code-group { margin: 0 0 10px; }
+/* Concepts only folds code away; a run's tabs stay readable, each as its tab shows it */
+html.concepts .vp-doc .run-widget .vp-code-group div[class*="language-"].active { display: block; }

@@ -341,6 +341,57 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
+**What flows through it.** Every tiny reports vector in turn. Two of the refused ones,
+trimmed to the fields the report rules compare:
+
+::: code-group
+
+```json [what goes in]
+{
+  "anchor_not_recent-1.json": {
+    "input.guarantees[0].report.context": { "anchor": "0x6900f39559…", "anchor_slot": 12 },
+    "pre_state.recent_blocks.history[*].header_hash": [
+      "0xa4551aeaa3…", "0x7ea9180615…", "0x1cf21d2cad…", "0xc21212481c…",
+      "0x16bda47e5a…", "0x0717b89329…", "0x39cb518983…", "0x37fe33f96d…"
+    ]
+  },
+  "bad_code_hash-1.json": {
+    "input.guarantees[0].report.results": [{ "service_id": 42, "code_hash": "0x7a3a6a6011…" }],
+    "pre_state.accounts": [{ "id": 42, "data.service.code_hash": "0x6470fd2198…" }]
+  }
+}
+```
+
+```ts [what it computes]
+// what reportError compares for each vector's one report, in its order of rules
+const computed = {
+  "anchor_not_recent-1": {
+    anchor: "0x6900f39559…", // the block the report was built on
+    recent: 8, // β's header hashes, the last 8 blocks: none is the anchor
+    anchored: false, // so the first context rule fails
+    error: "anchor_not_recent",
+  },
+  "bad_code_hash-1": {
+    digest: { service_id: 42, code_hash: "0x7a3a6a6011…" }, // the code the work was refined with
+    service: { code_hash: "0x6470fd2198…" }, // the code service 42 has in the state
+    same: false, // the anchor and the other context rules passed; this one doesn't
+    error: "bad_code_hash",
+  },
+};
+```
+
+```text [what comes out]
+anchor_not_recent-1: anchor_not_recent
+bad_code_hash-1: bad_code_hash
+```
+
+:::
+
+The first report names an anchor block that isn't one of the eight β remembers, so it was
+built on a chain this one doesn't know. The second passes every context rule but says it
+ran service 42's code `0x7a3a6a6011…`, while the state has `0x6470fd2198…`. Either way the
+line agrees with the vector, so no "the vector says" follows it.
+
 **Run**
 
 ```sh

@@ -268,19 +268,54 @@ disputes vector in turn. Two of the ones it refuses, trimmed to the broken verdi
 
 ::: code-group
 
-```text [what goes in]
-progress_with_bad_votes_count-1.json, input.disputes.verdicts[0]:
-  { "target": "0x0e5751c0…", "age": 0, "votes": [ …only 4 votes, none "vote": true… ] }
-
-progress_with_verdicts-5.json, input.disputes.verdicts[0]:
-  { "target": "0xe12c22d4…", "age": 0, "votes": [ …5 votes, 1 of them "vote": true… ] }
+```json [what goes in]
+{
+  "progress_with_bad_votes_count-1.json": {
+    "pre_state": { "tau": 0, "kappa": "… 6 validators …" },
+    "input.disputes.verdicts[0]": {
+      "target": "0x0e5751c026…",
+      "age": 0,
+      "votes": [
+        { "vote": false, "index": 0, "signature": "0xd602b170…" },
+        { "vote": false, "index": 1, "signature": "0x18fd0091…" },
+        { "vote": false, "index": 2, "signature": "0x584dd1ae…" },
+        { "vote": false, "index": 3, "signature": "0x67c57a90…" }
+      ]
+    }
+  },
+  "progress_with_verdicts-5.json": {
+    "pre_state": { "tau": 0, "kappa": "… 6 validators …" },
+    "input.disputes.verdicts[0]": {
+      "target": "0xe12c22d4f1…",
+      "age": 0,
+      "votes": [
+        { "vote": false, "index": 0, "signature": "0x50046732…" },
+        { "vote": true, "index": 1, "signature": "0xc84bde6d…" },
+        { "vote": false, "index": 2, "signature": "0xa66dcf51…" },
+        { "vote": false, "index": 3, "signature": "0x96a1146b…" },
+        { "vote": false, "index": 4, "signature": "0x793cdd1d…" }
+      ]
+    }
+  }
+}
 ```
 
 ```ts [what it computes]
-// verdictError's answer for each, printed beside the vector's own output.err
+// what verdictError holds for each vector's verdict, before it reads a signature
+const judges = 6; // κ, since age 0 is τ 0's epoch: |K| on tiny
+const needed = 5; // ⌊2·6/3⌋ + 1: the votes every verdict carries, exactly
+const wonky = 2; // ⌊6/3⌋: the one middle split that means anything
 const computed = {
-  bad_votes_count: "4 votes carried, not ⌊2·6/3⌋ + 1 = 5", // counted before any signature
-  bad_vote_split: "5 carried but t = 1: not all, not none, not a third", // no such split
+  "progress_with_bad_votes_count-1": {
+    votes: 4, // verdict.votes.length: one short of needed
+    t: 0, // votes saying "valid": never looked at, the count fails first
+    error: "bad_votes_count", // 4 ≠ 5
+  },
+  "progress_with_verdicts-5": {
+    votes: 5, // the right count, so the split is checked
+    t: 1, // only index 1 says "valid"
+    error: "bad_vote_split", // 1 is not 5 (good), 0 (bad) or 2 (wonky)
+  },
 };
 ```
 

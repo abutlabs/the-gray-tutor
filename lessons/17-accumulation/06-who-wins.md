@@ -469,6 +469,50 @@ for (const [s, { count, transfers, gasUsed }] of statistics) {
 (Replace `const went` and everything after it, down to the end of the `for` loop: it's
 one block, with no blank line in it.)
 
+**What flows through it.** [Lesson 17.5](./05-privileges.md)'s hand-over, run as a whole block, so the merge
+has its say. Service 0 is the manager and holds both cores. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 45,
+    "reports": [ {
+      "package_spec": { "hash": "0x6af0ea4ced28a7b06f…" },
+      "results": [ { "service_id": 0, "accumulate_gas": 2000000 } ]
+    } ]
+  },
+  "pre_state": { "privileges": { "bless": 0, "assign": [0, 0], "designate": 0, "register": 0 } }
+}
+```
+
+```ts [what it computes]
+// one round, one run; then the merge of every run's privileges (here only service 0's)
+const computed = {
+  runs: { 0: { assign: [1, 0] } }, // service 0's run left core 0 with service 1
+  manager: 0, // bless: the manager's run is service 0's own
+  merged: [
+    1, // core 0: R(0, 1, 1), the manager changed it, so its choice wins
+    0, // core 1: R(0, 0, 0), nobody changed it
+  ],
+  accumulated: ["0x6af0ea4c…"], // this slot's entry in ξ′
+  gasUsed: { 0: 1_308_944n }, // service 0's statistics
+};
+```
+
+```text [what comes out]
+accumulated: 0x6af0ea4c
+assigners: 0,0 → 1,0
+service 0: 1 digest(s), 0 transfer(s), 1308944 gas
+```
+
+:::
+
+Service 0's run hands core 0 to service 1, so its own copy of the privileges says
+`[1, 0]`. The merge reads that copy twice, as the manager's and as core 0's holder's, and
+both agree: `0,0 → 1,0`, the vector's privileges after the block.
+
 **Run**
 
 ```sh

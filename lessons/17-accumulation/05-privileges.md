@@ -536,6 +536,50 @@ line between: a Replace takes both.) `answerName` is a function declaration, so 
 used above the line it's written on.
 (Its `const` cousins can't.)
 
+**What flows through it.** Service 0 holds core 0's assignment, and its work tells it to hand
+the core to service 1. One run, three faces:
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 45,
+    "reports": [ { "results": [ {
+      "service_id": 0,
+      "accumulate_gas": 2000000,
+      "result": { "ok": "0x010c000011da6d1f761ddf9bdb4c9d6e…" }
+    } ] } ]
+  },
+  "pre_state": { "privileges": { "bless": 0, "assign": [0, 0], "designate": 0, "register": 0 } }
+}
+```
+
+```ts [what it computes]
+// service 0's run, at host call 16, assign; the registers as the call reads them
+const computed = {
+  core: 0, // φ₇, c: the core to hand over
+  queue: 218_048, // φ₈, o: where its 80 new authorizer hashes are, 32 bytes each
+  assigner: 1, // φ₉, a: who holds core 0 next
+  holder: 0, // assign[0] before the call: service 0 itself, so it may
+  answer: 0n, // φ₇ after: OK
+  assign: [1, 0], // the privileges after: core 0 is service 1's
+  gasUsed: 1_308_944n, // the whole run, as the vector's statistics say
+};
+```
+
+```text [what comes out]
+host call 16 (assign): φ₇ = 0, 742165 gas left
+the service stops: "halt", using 1308944 gas
+the test vector says: 1308944
+```
+
+:::
+
+The privileges before say `assign: [0, 0]`, so service 0 holds core 0 and the call goes
+through: φ₇ = 0 is `OK`, and core 0's entry becomes 1. The vector's privileges after the
+block are `[1, 0]`, the same hand-over.
+
 **Run**
 
 ```sh
@@ -554,6 +598,47 @@ the service stops: "halt", using 1308944 gas
 the test vector says: 1308944
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791739203939
 ```
+
+Now the same call from a service that holds nothing: service 1, before any hand-over.
+
+::: code-group
+
+```json [what goes in]
+{
+  "input": {
+    "slot": 43,
+    "reports": [ { "results": [ {
+      "service_id": 1,
+      "accumulate_gas": 2000000,
+      "result": { "ok": "0x010c000011da6d1f761ddf9bdb4c9d6e…" }
+    } ] } ]
+  },
+  "pre_state": { "privileges": { "bless": 0, "assign": [0, 0], "designate": 0, "register": 0 } }
+}
+```
+
+```ts [what it computes]
+// service 1's run, at host call 16, assign: the same order, from the wrong service
+const computed = {
+  core: 0, // φ₇, c
+  queue: 218_048, // φ₈, o
+  assigner: 1, // φ₉, a
+  holder: 0, // assign[0]: service 0, not service 1
+  answer: HUH, // φ₇ after: 2^64 − 9, the caller isn't core 0's assigner
+  assign: [0, 0], // nothing changes
+  gasUsed: 1_305_017n, // the run, as the vector's statistics say
+};
+```
+
+```text [what comes out]
+host call 16 (assign): φ₇ = HUH, 746254 gas left
+the service stops: "halt", using 1305017 gas
+```
+
+:::
+
+Same core, same queue, same new assigner, but the caller is 1 and core 0's holder is 0:
+`HUH`, and the privileges stay `[0, 0]`. Its code expects the refusal and carries on.
 
 **Run**
 

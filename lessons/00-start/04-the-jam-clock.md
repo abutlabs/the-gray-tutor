@@ -377,6 +377,36 @@ Three things are new:
 - **A run per slot.** A run reports its numbers once (the stack refuses the same number
   twice in one report), so a clock that reports every slot makes a `Run` for each.
 
+What flows through this run — the argument, the loop it sets up, the lines printed:
+
+::: code-group
+
+```text [what goes in]
+process.argv[2]   "3"     the word after `npm run now`
+new Date()        the wall clock — say 13:00:00 UTC on 1 January 2025, as above
+```
+
+```ts [what it computes]
+const computed = {
+  slots: 3, // Number("3"); with no word it would be Infinity
+  first: 600, // slotAt(new Date()): the slot begun at 13:00:00
+  turns: [600, 601, 602], // slot < first + slots: three turns of the loop
+  waits: [0, 6000, 6000], // untilSlot in ms: 0 for the slot begun, then 6 s apart
+  runs: 3, // a new Run per slot, each reported once
+};
+```
+
+```text [what comes out]
+It is JAM timeslot ….
+It is JAM timeslot ….
+It is JAM timeslot ….
+```
+
+:::
+
+The argument `3` becomes `slots`, so the loop turns three times; the first wait is 0
+because that slot has begun, and the next two are a slot's six seconds each.
+
 **Run**
 
 ```sh
