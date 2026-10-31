@@ -1,5 +1,7 @@
 # Clearing the cores
 
+<AlbertJanitor />
+
 A trial has one more consequence, and it's the most practical one. Remember the cores
 from [Part 3](../03-work-and-reports/index.md). Each one can hold a single guaranteed work-report (ρ, in [lesson
 6.2](../06-state-and-merklization/02-state-keys.md)'s table) while the validators make sure its data is available. If that report has just been judged bad, or wonky, it has no
