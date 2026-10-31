@@ -73,6 +73,12 @@ What to notice:
   reports are done; the guarantees come last, because a new report needs a free core. Press
   *follow the cores* to light them, or tap any of the three to read why it sits where it does.
   ([Lesson 10.3](../10-disputes/03-clearing-the-cores.md) draws the same picture.)
+- **The chart is the Gray Paper's; the code is ours.** The lines and waves come from §4.2
+  alone: what each step is made from, nothing about how it is written. Tap a step to see our
+  client's side, the function that makes it and the `npm run` that shows it, and press
+  *as importBlock runs it* for the one order our `importBlock` picks. A client may pick
+  another, as long as every step still comes after what it needs. The waves say which
+  orders are allowed; they are not our code's schedule.
 - **A bar's length is not time.** Every bar is one wave wide whatever it costs. Accumulation
   runs services' programs, and the clock copies one number from the header; the timeline
   says only what must come before what, never how long anything takes. Whether a client really runs

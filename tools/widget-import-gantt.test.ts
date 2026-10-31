@@ -8,9 +8,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { LAST_WAVE, STEPS, WAVES, dependentsOf, makerOf, waveOf } from "../.vitepress/theme/import-waves.ts";
 import {
-  COLUMNS, CORE_CHAIN, CRITICAL, HEADER_VALUES, LANES, PAD, WHY, describe, doneBy, edges, isCritical, laneOf, latestOf, layoutRows, routes, slackOf,
+  BUILT, CALLS, COLUMNS, CORE_CHAIN, CRITICAL, HEADER_VALUES, LANES, PAD, WHY, describe, doneBy, edges, isCritical, laneOf, latestOf, layoutRows, routes, slackOf,
 } from "../.vitepress/theme/import-gantt.ts";
-import { ROOT, lessonText } from "./lessons.ts";
+import { ROOT, lessonCode, lessonText, readParts } from "./lessons.ts";
 
 const text = lessonText("00-start/06-how-a-block-is-ordered.md");
 const families = lessonText("00-start/05-understanding-the-vectors.md");
@@ -218,4 +218,121 @@ test("the cores are a chain, ρ† then ρ‡ then ρ′, each with its reason, 
   // and the lesson says so
   assert.match(text.replace(/\s+/g, " "), /The cores are a chain\.\*\* `ρ†`, `ρ‡` and `ρ′`/);
   assert.match(text, /\*follow the cores\*/);
+});
+
+// every function and bin the chart names is real: in the code the lessons write, and (where the
+// completed client is here) in reference/. The chart is built from src/, with bins as viewers.
+const everything = readParts().flatMap((p) => p.lessons).map((l) => lessonCode(l.id)).join("\n");
+const allText = readParts().flatMap((p) => p.lessons).map((l) => lessonText(l.file)).join("\n");
+
+test("each of the 16 steps is built by named functions in a src file, shown by bins the lessons add", () => {
+  assert.deepEqual(Object.keys(BUILT).sort(), STEPS.map((s) => s.makes[0]).sort(), "a source for every step, and no other");
+  for (const [key, b] of Object.entries(BUILT)) {
+    assert.match(b.file, /^src\/[\w-]+\.ts$/, `${key}: a src file`);
+    for (const fn of b.fns) assert.match(everything, new RegExp(`function ${fn}\\b`), `${key}: ${fn} is a function the lessons write`);
+    assert.ok(b.bins.length > 0, `${key}: a bin that shows it`);
+    for (const bin of b.bins) assert.ok(allText.includes(`scripts.${bin}=`), `${key}: npm run ${bin} is a script a lesson adds`);
+  }
+  // the chart's own lanes say the same file as the sources
+  for (const lane of LANES) for (const k of lane.keys) {
+    const mine = BUILT[k].file;
+    assert.ok(mine === lane.file || mine === "src/import.ts" || (k === "ρ′" && mine === "src/cores.ts") || (k === "𝐑*" && mine === lane.file), `${k}: ${mine} vs lane ${lane.file}`);
+  }
+});
+
+test("importBlock runs one line, in this order, and every step is made in exactly one call", () => {
+  assert.equal(CALLS.map((c) => c.call).join(" > "), "checkHeader > judgeDisputes > runSafrole > takeAssurances > takeGuarantees > accumulateBlock > nextState > providePreimages");
+  const made = CALLS.flatMap((c) => c.makes);
+  assert.deepEqual([...made].sort(), STEPS.map((s) => s.makes[0]).sort(), "each step once");
+  // a step's call never runs before a call whose steps it needs: the line is a valid order of the graph
+  const at = (key: string) => CALLS.findIndex((c) => c.makes.includes(key));
+  for (const s of STEPS) for (const need of s.from) if (made.includes(need)) assert.ok(at(need) <= at(s.makes[0]), `${s.makes[0]} comes after ${need}`);
+  for (const c of CALLS) assert.match(everything, new RegExp(`\\b${c.call}\\b`), `${c.call} is in the lessons' code`);
+});
+
+const REF_IMPORT = join(ROOT, "reference/src/import.ts");
+test("the call order and the sources are the completed client's, where reference/ is here", { skip: !existsSync(REF_IMPORT) && "no reference client" }, () => {
+  const body = reference("import.ts");
+  const start = body.indexOf("export function importBlock");
+  const run = body.slice(start, body.indexOf("\n}\n", start));
+  const order = CALLS.map((c) => run.indexOf(`${c.call}(`));
+  assert.ok(order.every((i) => i > 0), `every call is in importBlock: ${order}`);
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), "in the order importBlock calls them");
+  for (const [key, b] of Object.entries(BUILT)) {
+    const src = readFileSync(join(ROOT, "reference", b.file), "utf8");
+    for (const fn of b.fns) assert.match(src, new RegExp(`function ${fn}\\b`), `${key}: ${fn} in reference/${b.file}`);
+    for (const bin of b.bins) assert.ok(existsSync(join(ROOT, "reference/bin", `${bin}.ts`)), `${key}: reference/bin/${bin}.ts`);
+  }
+});
+
+// The chart's dependencies are the Gray Paper's, not our implementation's (Aodh, 2026-10-31): §4.2's
+// equation transitionfunctioncomposition, read straight from the paper's TeX, is the oracle for the
+// graph, the waves and the lines. Our code (BUILT, CALLS, the reference client) is checked against it
+// and never feeds it.
+const TEX: Record<string, string> = {
+  theheader: "H", thetime: "τ", xtdisputes: "E_D", xttickets: "E_T", xtassurances: "E_A", xtguarantees: "E_G",
+  xtpreimages: "E_P", recenthistory: "β_H", recenthistorypostparentstaterootupdate: "β_H†", safrole: "γ",
+  stagingset: "ι", entropy: "η", activeset: "κ", previousset: "λ", disputes: "ψ", availassignments: "ρ",
+  availassignmentspostjudgment: "ρ†", availassignmentspostassurances: "ρ‡", justbecameavailable: "𝐑",
+  ready: "ω", accumulated: "ξ", accountspostxfer: "δ‡", accountspre: "δ", privileges: "χ", authqueue: "ϕ",
+  lastaccout: "θ", accumulationstatistics: "𝐒", accountspostpreimage: "δ′", authpool: "α", activity: "π",
+};
+
+/** The symbols of one side of a row, in order: `\thetime'` is τ′, `\justbecameavailable^*` is 𝐑*. */
+function symbols(side: string): string[] {
+  return [...side.matchAll(/\\([a-z]+)(\^\*)?('?)/g)]
+    .filter(([, name]) => name !== "tup")
+    .map(([, name, star, prime]) => {
+      assert.ok(TEX[name], `a macro the test doesn't know: \\${name}`);
+      return `${TEX[name]}${star ? "*" : ""}${prime ? "′" : ""}`;
+    });
+}
+
+test("the graph, the waves and the lines are the Gray Paper's §4.2, read from its TeX", { skip: !existsSync(OVERVIEW) && "no Gray Paper beside the tutorial" }, () => {
+  const tex = readFileSync(OVERVIEW, "utf8");
+  const eq = /\\begin\{align\}\\label\{eq:transitionfunctioncomposition\}([\s\S]*?)\\end\{align\}/.exec(tex)![1];
+  const rows = eq.split("\\\\").map((r) => r.replace(/\\label\{[^}]*\}/g, "")).filter((r) => r.includes("\\prec"));
+  assert.equal(rows.length, STEPS.length, "the paper's sixteen lines, one step each");
+  rows.forEach((row, i) => {
+    const [lhs, rhs] = row.split("&\\prec");
+    // the paper's primes read δ′ where the graph keeps δ′ for the post-preimage state: the same symbol
+    const makes = symbols(lhs).map((x) => (x === "𝐑" ? "𝐑*" : x));
+    const from = symbols(rhs).map((x) => (x === "𝐑" ? "𝐑*" : x));
+    const step = STEPS[i];
+    assert.deepEqual(step.makes, makes.map((m) => (m === "δ′" ? "δ′" : m)), `line ${i + 1} makes the same values`);
+    assert.deepEqual([...new Set(step.from)].sort(), [...new Set(from)].sort(), `${makes[0]} is made from what the paper says`);
+  });
+  // the chart's lines between steps are exactly "an input some other step makes", per the paper
+  const maker = new Map(STEPS.flatMap((s) => s.makes.map((m) => [m, s.makes[0]] as const)));
+  const fromPaper = new Set<string>();
+  rows.forEach((row) => {
+    const [lhs, rhs] = row.split("&\\prec");
+    const to = symbols(lhs).map((x) => (x === "𝐑" ? "𝐑*" : x))[0];
+    for (const input of symbols(rhs).map((x) => (x === "𝐑" ? "𝐑*" : x))) if (maker.has(input) && maker.get(input) !== to) fromPaper.add(`${maker.get(input)}>${to}`);
+  });
+  const drawn = new Set(edges().filter((e) => !e.to.startsWith("mark:")).map((e) => `${e.from}>${e.to}`));
+  assert.deepEqual([...drawn].sort(), [...fromPaper].sort(), "the drawn lines between steps are the paper's, no more, no fewer");
+});
+
+test("our implementation's layer never feeds the chart's layout: waves, rows and lines are from the graph alone", () => {
+  const ts = readFileSync(join(ROOT, ".vitepress/theme/import-gantt.ts"), "utf8");
+  for (const fn of ["latestOf", "slackOf", "layoutRows", "edges", "routes", "doneBy", "spanOf"]) {
+    const at = ts.indexOf(`function ${fn}`) >= 0 ? ts.indexOf(`function ${fn}`) : ts.indexOf(`const ${fn}`);
+    assert.ok(at >= 0, fn);
+    const body = ts.slice(at, ts.indexOf("\n}\n", at) > 0 ? ts.indexOf("\n}\n", at) : at + 600);
+    assert.ok(!/\bBUILT\b|\bCALLS\b/.test(body), `${fn} reads the graph, not BUILT or CALLS`);
+  }
+  const waves = readFileSync(join(ROOT, ".vitepress/theme/import-waves.ts"), "utf8");
+  assert.ok(!/BUILT|CALLS|reference\/|bin\//.test(waves.replace(/\/\/.*$/gm, "")), "the graph module knows nothing of our code");
+});
+
+test("the widget shows our client's side apart from the paper's, and the lesson says which is which", () => {
+  const vue = readFileSync(join(ROOT, ".vitepress/theme/ImportGantt.vue"), "utf8");
+  assert.match(vue, /as importBlock runs it/);
+  assert.match(vue, /The chart is the Gray Paper's; this is our client\./, "the panel says whose is whose");
+  assert.match(vue, /BUILT\[selected!\]/, "a tapped step shows the function and bin that make it");
+  assert.match(vue, /class="call"/, "each call can be tapped to light its steps");
+  const prose = text.replace(/\s+/g, " ");
+  assert.match(prose, /The chart is the Gray Paper's; the code is ours\./);
+  assert.match(prose, /The waves say which orders are allowed; they are not our code's schedule\./);
 });

@@ -184,6 +184,46 @@ export const WHY: Record<string, { says: string; why: string }> = {
   },
 };
 
+/** Where a step lives in the client: the functions that make it, in the `src` file they are in,
+ *  and the bins that show it running (a bin is only a viewer: it calls those functions and prints). */
+export type Built = { file: string; fns: string[]; bins: string[] };
+
+/** Each of the 16 steps, by its first value, in the completed client. tools/widget-import-gantt.test.ts
+ *  checks the functions are in the lessons' code (and in the reference client where it is) and the
+ *  bins are scripts the lessons add. */
+export const BUILT: Record<string, Built> = {
+  "τ′": { file: "src/import.ts", fns: ["checkHeader"], bins: ["now", "epochs"] },
+  "β_H†": { file: "src/import.ts", fns: ["takeGuarantees"], bins: ["history"] },
+  "γ′": { file: "src/safrole.ts", fns: ["safroleStep"], bins: ["safrole", "sealers", "lottery"] },
+  "η′": { file: "src/safrole.ts", fns: ["nextEntropy"], bins: ["entropy", "vrf"] },
+  "κ′": { file: "src/safrole.ts", fns: ["rotateValidators"], bins: ["rotation"] },
+  "λ′": { file: "src/safrole.ts", fns: ["rotateValidators"], bins: ["rotation"] },
+  "ψ′": { file: "src/disputes.ts", fns: ["recordVerdicts", "recordOffenders"], bins: ["verdicts", "offenders"] },
+  "ρ†": { file: "src/disputes.ts", fns: ["clearJudged"], bins: ["cores"] },
+  "ρ‡": { file: "src/assurances.ts", fns: ["clearCores"], bins: ["release", "assurances"] },
+  "ρ′": { file: "src/cores.ts", fns: ["placeReports"], bins: ["placed", "guarantors", "reporters"] },
+  "𝐑*": { file: "src/assurances.ts", fns: ["nowAvailable"], bins: ["available"] },
+  "ω′": { file: "src/accumulate.ts", fns: ["accumulateBlock"], bins: ["accumulate", "host"] },
+  "β_H′": { file: "src/history.ts", fns: ["recordBlock"], bins: ["history", "belt"] },
+  "δ′": { file: "src/services.ts", fns: ["providePreimages"], bins: ["preimages", "service"] },
+  "α′": { file: "src/authorization.ts", fns: ["nextPools"], bins: ["pools"] },
+  "π′": { file: "src/statistics.ts", fns: ["updateValidatorStats", "coreStats", "serviceStats"], bins: ["statistics", "activity"] },
+};
+
+/** What `importBlock` calls, in the order it calls them: one fixed line through the graph, not waves.
+ *  A step appears in the call that makes it. tools/widget-import-gantt.test.ts checks this order
+ *  against the completed client's `importBlock` where it is, and each name against the lessons. */
+export const CALLS: { call: string; does: string; makes: string[] }[] = [
+  { call: "checkHeader", does: "the header's four checks, before any step; its slot is τ′, read as it is", makes: ["τ′"] },
+  { call: "judgeDisputes", does: "the court", makes: ["ψ′", "ρ†"] },
+  { call: "runSafrole", does: "who may author: entropy, validators, the lottery, the seal", makes: ["γ′", "η′", "κ′", "λ′"] },
+  { call: "takeAssurances", does: "what is available, and what timed out", makes: ["𝐑*", "ρ‡"] },
+  { call: "takeGuarantees", does: "new reports onto the free cores", makes: ["β_H†", "ρ′"] },
+  { call: "accumulateBlock", does: "the services run their work", makes: ["ω′"] },
+  { call: "nextState", does: "the rest of the new state, from what the steps made", makes: ["β_H′", "π′", "α′"] },
+  { call: "providePreimages", does: "the data services asked for", makes: ["δ′"] },
+];
+
 /** One hue (degrees) for each lane, so a family keeps its colour from its summary bar to its steps. */
 export const HUES: Record<string, number> = {
   clock: 215, safrole: 268, history: 195, disputes: 8, assurances: 32, reports: 135,
