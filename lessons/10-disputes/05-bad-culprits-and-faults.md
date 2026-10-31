@@ -140,7 +140,7 @@ npm test
 ℹ pass 154
 ℹ fail 11
 ...
-test at test/disputes.test.ts:231:1
+test at test/disputes.test.ts:240:1
 ✖ a fault must have voted against the verdict (75.0ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected

@@ -136,7 +136,7 @@ npm test
 ℹ pass 122
 ℹ fail 11
 ...
-test at test/disputes.test.ts:194:1
+test at test/disputes.test.ts:203:1
 ✖ a split that's neither good, bad nor wonky is refused (1.6ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected

@@ -66,8 +66,17 @@ pending report or nothing (lessons [4.5](../04-blocks/05-maybe-and-exactly-n.md)
 /** A disputes test vector: the parts of it this lesson uses. */
 type DisputesVector = {
   input: { disputes: unknown };
-  pre_state: { psi: unknown; tau: number; kappa: unknown[]; lambda: unknown[]; rho: unknown };
-  post_state: { psi: unknown; rho: unknown };
+  pre_state: {
+    psi: unknown; // ψ: past judgements: good, bad and wonky report hashes, and the offenders
+    tau: number; // τ: the time: the slot of the most recent block
+    kappa: unknown[]; // κ: the validators now: the judges of a verdict from this epoch
+    lambda: unknown[]; // λ: last epoch's validators: the judges of a verdict from the last
+    rho: unknown; // ρ: the cores: the report each holds while its data becomes available
+  };
+  post_state: {
+    psi: unknown; // ψ′: past judgements after the block: each verdict's report filed
+    rho: unknown; // ρ†: the cores after the judgements: bad and wonky reports gone
+  };
   output: { err?: string; ok?: { offenders_mark: string[] } };
 };
 ```
@@ -151,7 +160,7 @@ npm test
 ℹ pass 99
 ℹ fail 2
 ...
-test at test/disputes.test.ts:138:1
+test at test/disputes.test.ts:147:1
 ✖ ρ†: a report judged bad or wonky is taken off its core (35.0ms)
   AssertionError [ERR_ASSERTION]: stf/disputes/tiny/progress_invalidates_avail_assignments-1.json
   + actual - expected

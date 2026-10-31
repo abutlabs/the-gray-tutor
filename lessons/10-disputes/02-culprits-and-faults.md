@@ -41,8 +41,15 @@ The vector type learns about the offenders mark:
 /** A disputes test vector: the parts of it this lesson uses. */
 type DisputesVector = {
   input: { disputes: unknown };
-  pre_state: { psi: unknown; tau: number; kappa: unknown[]; lambda: unknown[] };
-  post_state: { psi: unknown };
+  pre_state: {
+    psi: unknown; // ψ: past judgements: good, bad and wonky report hashes, and the offenders
+    tau: number; // τ: the time: the slot of the most recent block
+    kappa: unknown[]; // κ: the validators now: the judges of a verdict from this epoch
+    lambda: unknown[]; // λ: last epoch's validators: the judges of a verdict from the last
+  };
+  post_state: {
+    psi: unknown; // ψ′: past judgements after the block: each verdict's report filed
+  };
   output: { err?: string; ok?: { offenders_mark: string[] } };
 };
 ```
