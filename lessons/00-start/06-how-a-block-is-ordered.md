@@ -67,6 +67,12 @@ What to notice:
 - **Some steps can wait.** The guarantees' step (`ρ′`) finishes in wave 3, but nothing in this block
   needs it, so it could run in wave 4 and nothing would be late. The dashed tail is that
   freedom, called *slack*.
+- **The cores are a chain.** `ρ†`, `ρ‡` and `ρ′` are three stations that one core, a parking
+  space for a single report, passes through in a block. The court comes first, so a guilty
+  report can't be called available; the assurances come second, emptying the cores whose
+  reports are done; the guarantees come last, because a new report needs a free core. Press
+  *follow the cores* to light them, or tap any of the three to read why it sits where it does.
+  ([Lesson 10.3](../10-disputes/03-clearing-the-cores.md) draws the same picture.)
 - **A bar's length is not time.** Every bar is one wave wide whatever it costs. Accumulation
   runs services' programs, and the clock copies one number from the header; the timeline
   says only what must come before what, never how long anything takes. Whether a client really runs

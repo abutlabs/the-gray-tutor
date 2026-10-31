@@ -6,7 +6,7 @@
 import { computed, h, ref } from "vue";
 import { builtIn, stepAt, symbolParts } from "./import-waves.ts";
 import {
-  COLUMNS, CRITICAL, HEADER_VALUES, HUES, LAST_WAVE, PAD, describe, doneBy, isCritical, layoutRows, markerX,
+  COLUMNS, CORE_CHAIN, CRITICAL, HEADER_VALUES, HUES, LAST_WAVE, PAD, WHY, describe, doneBy, isCritical, layoutRows, markerX,
   routes, rowName, slackOf, spanOf, waveOf,
 } from "./import-gantt.ts";
 import type { HeaderValue, Row } from "./import-gantt.ts";
@@ -15,6 +15,7 @@ const GOALS = [
   { id: "wait", say: "tap a step with slack: it could wait a wave or more and nothing would be late" },
   { id: "chain", say: "tap accumulation, the step four others are waiting for" },
   { id: "end", say: "step to the end, where the new state's root is finally known" },
+  { id: "cores", say: "follow the cores: ρ, then ρ†, ρ‡ and ρ′, each made from the one before" },
 ];
 
 /** A symbol as the Gray Paper writes it: β_H is β with a subscript H. */
@@ -34,6 +35,7 @@ const hueOf = (r: Row) => (r.kind === "mark" ? 0 : HUES[r.lane.id]);
 const at = ref(0);
 const selected = ref<string | null>(null);
 const picked = ref<HeaderValue | null>(null);
+const follow = ref(false); // follow the cores: the chain ρ† → ρ‡ → ρ′ lit, the rest dimmed
 const reached = ref(new Set<string>());
 const mark = (id: string, when: boolean) => { if (when) reached.value = new Set([...reached.value, id]); };
 
@@ -46,13 +48,22 @@ function go(to: number) {
   at.value = Math.min(Math.max(to, 0), LAST_WAVE + 1);
   mark("end", at.value === LAST_WAVE + 1);
 }
+function toggleFollow() {
+  follow.value = !follow.value;
+  selected.value = null;
+  picked.value = null;
+  mark("cores", follow.value);
+}
+const inChain = (key: string) => CORE_CHAIN.includes(key);
 function tap(key: string) {
+  follow.value = false;
   selected.value = key;
   picked.value = null;
   mark("wait", slackOf(key) > 0);
   mark("chain", key === "ω′");
 }
 function tapMark(v: HeaderValue) {
+  follow.value = false;
   picked.value = v;
   selected.value = null;
 }
@@ -69,11 +80,15 @@ const lines = routes((id) => centre(rowOf.get(id)!)).map(({ from, to, x1, xv, x2
   const d = x2 === xv ? `M${x1} ${y1}H${xv}V${y2}` : `M${x1} ${y1}H${xv}V${y2}H${x2}`;
   return { from, to, d, hue: hueOf(rowOf.get(from)!) };
 });
-const lineClass = (l: { from: string; to: string }) => ({
-  out: selected.value === l.from,
-  in: selected.value === l.to,
-  dim: selected.value !== null && selected.value !== l.from && selected.value !== l.to,
-});
+const chainLine = (l: { from: string; to: string }) => inChain(l.from) && inChain(l.to);
+const lineClass = (l: { from: string; to: string }) =>
+  follow.value
+    ? { out: chainLine(l), in: false, dim: !chainLine(l) }
+    : {
+        out: selected.value === l.from,
+        in: selected.value === l.to,
+        dim: selected.value !== null && selected.value !== l.from && selected.value !== l.to,
+      };
 const label = (key: string) => {
   const d = describe(key);
   return `${d.name}, wave ${d.wave}, ${d.slack ? `can wait ${d.slack} more` : "cannot wait"}`;
@@ -103,6 +118,7 @@ const pct = (x: number) => `calc(${x} * 100% / ${COLS})`;
       <button :disabled="at === 0" @click="go(at - 1)">◀ back</button>
       <button :disabled="at === LAST_WAVE + 1" @click="go(at + 1)">next wave ▶</button>
       <button :disabled="at === 0" @click="go(0)">reset</button>
+      <button :aria-pressed="follow" :class="{ chosen: follow }" @click="toggleFollow">follow the cores</button>
     </div>
 
     <div class="chart" role="group" aria-label="the block import as a Gantt chart">
@@ -130,7 +146,7 @@ const pct = (x: number) => `calc(${x} * 100% / ${COLS})`;
             </template>
             <template v-else-if="r.kind === 'group'"><b>{{ r.lane.title }}</b> <small>{{ r.lane.about }}</small></template>
             <template v-else-if="r.kind === 'solo'">
-              <b>{{ r.lane.title }}</b>
+              <b>{{ r.lane.title }} <small class="solo-sym"><Sym :x="r.key!" /></small></b>
               <small>{{ r.lane.about }}</small>
             </template>
             <template v-else>{{ rowName(r.key!) }} <small><Sym :x="r.key!" /></small><span v-if="isCritical(r.key!)" class="crit"> ◆</span></template>
@@ -160,7 +176,7 @@ const pct = (x: number) => `calc(${x} * 100% / ${COLS})`;
                 :style="{ '--h': hueOf(r), top: `${centre(r) - 5}px`, left: pct(waveOf(r.key!) + 1 - PAD), width: pct(slackOf(r.key!)) }"
               ></span>
               <button
-                class="bar" :class="[state(r.key!), { critical: isCritical(r.key!), chosen: selected === r.key }]"
+                class="bar" :class="[state(r.key!), { critical: isCritical(r.key!), chosen: selected === r.key || (follow && inChain(r.key!)), off: follow && !inChain(r.key!) }]"
                 :style="{ '--h': hueOf(r), top: `${centre(r) - 12}px`, left: pct(waveOf(r.key!)), width: pct(1) }"
                 :aria-pressed="selected === r.key" :aria-label="label(r.key!)" @click="tap(r.key!)"
               ><i></i></button>
@@ -191,7 +207,14 @@ const pct = (x: number) => `calc(${x} * 100% / ${COLS})`;
     </div>
 
     <div class="detail" aria-live="polite">
-      <template v-if="picked">
+      <template v-if="follow">
+        <p><b>One core, three stations.</b> A core is a parking space that holds one report. In a block it
+          passes three stations, in a fixed order, and each works on what the one before left:</p>
+        <ol class="stations">
+          <li v-for="k in CORE_CHAIN" :key="k"><b><Sym :x="k" /> {{ describe(k).name }}</b>: {{ WHY[k].says }}. {{ WHY[k].why }}</li>
+        </ol>
+      </template>
+      <template v-else-if="picked">
         <p><b>{{ picked.label }}</b></p>
         <p>{{ picked.role === "given" ? "Read as an input" : picked.role === "checked" ? "The header states it, the importer works it out" : "Made by the import" }}: {{ picked.says }}.</p>
       </template>
@@ -205,6 +228,7 @@ const pct = (x: number) => `calc(${x} * 100% / ${COLS})`;
         <p v-else>It needs only the block and the state before it, so it can start the moment the block arrives.</p>
         <p v-if="detail.feeds.length">Waiting for it: {{ names(detail.feeds) }}.</p>
         <p v-else>Nothing in this block waits for it: its result goes straight into the state after the block.</p>
+        <p v-if="WHY[selected!]" class="why"><b>Why here:</b> {{ WHY[selected!].why }}</p>
         <p v-if="detail.slack">It could wait {{ detail.slack }} {{ detail.slack === 1 ? "wave" : "waves" }} and nothing would be late.</p>
         <p v-else>It can't wait: the import ends a wave later if this one does.</p>
         <p>
@@ -288,6 +312,13 @@ const pct = (x: number) => `calc(${x} * 100% / ${COLS})`;
 }
 .bar.critical i { height: 14px; background: hsl(var(--h) 70% 60%); box-shadow: 0 0 0 2px var(--vp-c-bg), 0 0 0 3.5px hsl(var(--h) 60% 45%); }
 .bar.later i { opacity: 0.35; }
+.bar.off i { opacity: 0.25; }
+.lab.solo { flex-direction: column; align-items: flex-end; justify-content: center; gap: 0; }
+.lab.solo .solo-sym { font-family: var(--vp-font-family-mono); font-weight: 400; font-size: 12px; color: var(--vp-c-text-2); }
+.detail .why { color: var(--vp-c-text-1); }
+.detail .stations { margin: 4px 0 0; padding-left: 20px; }
+.detail .stations li { margin: 0 0 4px; }
+.controls button.chosen, .controls button[aria-pressed="true"] { border-color: var(--vp-c-brand-1); }
 .bar.chosen i { box-shadow: 0 0 0 2px var(--vp-c-bg), 0 0 0 4px var(--vp-c-brand-1); }
 .shape { display: inline-block; width: 11px; height: 11px; box-sizing: border-box; vertical-align: -1px; border: 2px solid var(--vp-c-text-3); background: var(--vp-c-bg); }
 .shape.given { border-radius: 50%; }

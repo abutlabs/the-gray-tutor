@@ -51,3 +51,14 @@ test("lesson 10.3 places the widget once, after ρ† is defined", () => {
   assert.ok(at > 0 && at === raw.lastIndexOf("<ClearCores />"));
   assert.ok(at > raw.indexOf("A good verdict leaves its report where it is.") && at < raw.indexOf("## The cores"));
 });
+
+test("lesson 10.3 shows why the cores change in this order: three stations, and the reasons", () => {
+  const picture = /```text\n[\s\S]*?ρ†\s+1\s+DISPUTES[\s\S]*?ρ‡\s+2\s+ASSURANCES[\s\S]*?ρ′\s+3\s+GUARANTEES[\s\S]*?```/.exec(raw);
+  assert.ok(picture, "the three stations, in the order ρ†, ρ‡, ρ′");
+  assert.ok(raw.indexOf("DISPUTES") < raw.indexOf("<ClearCores />"), "the picture comes before the widget");
+  const prose = raw.replace(/\s+/g, " ");
+  assert.match(prose, /could be called available and sent on to accumulation/, "why disputes first");
+  assert.match(prose, /a new report can only park in a free space/, "why guarantees last");
+  assert.match(prose, /`core_engaged`/, "and the refusal that proves it");
+  assert.match(prose, /ρ† is made from ρ, ρ‡ from ρ†, and ρ′ from ρ‡/, "the chain");
+});

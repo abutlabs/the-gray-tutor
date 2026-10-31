@@ -163,6 +163,27 @@ export function describe(key: string): {
   };
 }
 
+/** The cores' three stations in one block, in order: ρ made ρ† (the court), ρ‡ (the assurances) and ρ′
+ *  (the guarantees). Each is made from the one before, so they are a chain, whatever else runs beside them. */
+export const CORE_CHAIN: string[] = ["ρ†", "ρ‡", "ρ′"];
+
+/** Why a step sits where it does, in plain words, for the stations of the cores' chain. Lesson 10.3's
+ *  picture of one core as a parking space says the same. */
+export const WHY: Record<string, { says: string; why: string }> = {
+  "ρ†": {
+    says: "the court tows away condemned reports",
+    why: "It goes first, so a report judged bad or wonky is off its core before anything can call it available and send it on to accumulation.",
+  },
+  "ρ‡": {
+    says: "the validators wave off the reports that are done",
+    why: "It works on what the court left behind: a report that more than two thirds of the validators hold the data for moves on, and one that has waited 5 slots is dropped. Either way its core empties.",
+  },
+  "ρ′": {
+    says: "new reports park in the free cores",
+    why: "It goes last because a report can only take a free core, and a core still holding a report refuses a second (core_engaged): it waits for the two stations before it to empty what they will.",
+  },
+};
+
 /** One hue (degrees) for each lane, so a family keeps its colour from its summary bar to its steps. */
 export const HUES: Record<string, number> = {
   clock: 215, safrole: 268, history: 195, disputes: 8, assurances: 32, reports: 135,

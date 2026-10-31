@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { LAST_WAVE, STEPS, WAVES, dependentsOf, makerOf, waveOf } from "../.vitepress/theme/import-waves.ts";
 import {
-  COLUMNS, CRITICAL, HEADER_VALUES, LANES, PAD, describe, doneBy, edges, isCritical, laneOf, latestOf, layoutRows, routes, slackOf,
+  COLUMNS, CORE_CHAIN, CRITICAL, HEADER_VALUES, LANES, PAD, WHY, describe, doneBy, edges, isCritical, laneOf, latestOf, layoutRows, routes, slackOf,
 } from "../.vitepress/theme/import-gantt.ts";
 import { ROOT, lessonText } from "./lessons.ts";
 
@@ -193,4 +193,29 @@ test("the lines are drawn in the widget from those routes, and bars and rules ar
   // every kind of row is centred on its bar, not top- or baseline-aligned
   assert.match(vue, /\.lab\.group, \.lab\.solo \{[^}]*align-items: center/);
   assert.match(vue, /\.lab\.step \{[^}]*align-items: center/);
+});
+
+test("the cores are a chain, ρ† then ρ‡ then ρ′, each with its reason, and the chart can follow them", () => {
+  assert.deepEqual(CORE_CHAIN, ["ρ†", "ρ‡", "ρ′"]);
+  // each is made from the one before it: the lines the chart lights
+  for (const [from, to] of [["ρ†", "ρ‡"], ["ρ‡", "ρ′"]]) {
+    assert.ok(edges().some((e) => e.from === from && e.to === to), `${to} waits for ${from}`);
+    assert.ok(waveOf(to) > waveOf(from), `${to} runs after ${from}`);
+  }
+  assert.deepEqual(Object.keys(WHY), CORE_CHAIN, "a reason for each station, in order");
+  // the reasons are lesson 10.3's: the court first, the assurances on what is left, the guarantees on free cores
+  assert.match(WHY["ρ†"].why, /before anything can call it available/);
+  assert.match(WHY["ρ‡"].why, /5 slots/);
+  assert.match(WHY["ρ′"].why, /core_engaged/);
+  const tenThree = lessonText("10-disputes/03-clearing-the-cores.md");
+  assert.match(tenThree, /ρ†\s+1\s+DISPUTES[\s\S]*ρ‡\s+2\s+ASSURANCES[\s\S]*ρ′\s+3\s+GUARANTEES/, "the same order as 10.3's picture");
+  assert.match(tenThree, /`core_engaged`/);
+  // the widget: a button that follows them, the reasons in its panel, and a symbol on single-step rows
+  const vue = readFileSync(join(ROOT, ".vitepress/theme/ImportGantt.vue"), "utf8");
+  assert.match(vue, /follow the cores/);
+  assert.match(vue, /WHY\[selected!\]/, "tapping a station shows why it sits there");
+  assert.match(vue, /class="solo-sym"/, "Reports, Authorizations and the rest show their symbol");
+  // and the lesson says so
+  assert.match(text.replace(/\s+/g, " "), /The cores are a chain\.\*\* `ρ†`, `ρ‡` and `ρ′`/);
+  assert.match(text, /\*follow the cores\*/);
 });

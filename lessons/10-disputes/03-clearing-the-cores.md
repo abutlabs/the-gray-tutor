@@ -21,6 +21,27 @@ A good verdict leaves its report where it is. The † is the Gray Paper's mark f
 partway through the block, here just after the judgments: the assurances ([Part 11](../11-assurances/index.md)) make
 ρ‡ from it, and the guarantees ([Part 12](../12-guarantees/index.md)) make ρ′, later in the same block.
 
+Why does this stage come first? Think of a core as a parking space that holds one report,
+and of the block as three stations the space passes through, in a fixed order:
+
+```text
+                 core 1 holds report R, waiting
+  ρ     before the block      [ R ]
+
+  ρ†    1  DISPUTES           the court names R guilty         [ empty ]  towed first
+  ρ‡    2  ASSURANCES         R is available, or 5 slots up    [ empty ]  R moves on
+  ρ′    3  GUARANTEES         a new report S, space is free    [ S ]      S parks
+```
+
+Each station works on what the one before left. The court goes first because a condemned
+report must not get any further: were the assurances first, a report judged bad in this
+very block could be called available and sent on to accumulation before the verdict took
+it away. The assurances come second because they empty the spaces that finished or gave up
+waiting. The guarantees come last because a new report can only park in a free space; a
+core that still holds a report refuses a second one ([lesson 12.4](../12-guarantees/04-bad-guarantees.md)'s
+`core_engaged`). So ρ† is made from ρ, ρ‡ from ρ†, and ρ′ from ρ‡, a chain, and the first
+link is this lesson.
+
 Two cores, two reports on trial: judge them and see ρ†.
 
 <ClearCores />
@@ -392,8 +413,9 @@ read more than one way, and checking that the readings agree.
 - [ ] Assurances, then disputes, then guarantees
   > No: then a report judged bad in this block could still be made available first.
 - [x] Disputes (ρ†), then assurances (ρ‡), then guarantees (ρ′)
-  > Yes: condemned reports leave first, then available and timed-out ones, then new
-  > reports take the free cores.
+  > Yes: condemned reports leave first, so they can't be called available; then available
+  > and timed-out ones leave; then new reports take the free cores. Each stage works on
+  > what the one before left.
 :::
 
 ## What you have
