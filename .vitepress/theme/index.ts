@@ -146,7 +146,6 @@ import AlbertChemist from "./AlbertChemist.vue";
 import AlbertClimber from "./AlbertClimber.vue";
 import AlbertGambler from "./AlbertGambler.vue";
 import AlbertJailbird from "./AlbertJailbird.vue";
-import AlbertJanitor from "./AlbertJanitor.vue";
 import AlbertJudge from "./AlbertJudge.vue";
 import PartFlow from "./PartFlow.vue";
 import "./custom.css";
@@ -171,7 +170,6 @@ export default {
     app.component("AlbertGambler", AlbertGambler); // Part 8's opening page: the ticket lottery
     app.component("AlbertClimber", AlbertClimber); // 9.1: mountains of 1, 2 and 4
     app.component("AlbertJailbird", AlbertJailbird); // 10.5: his keys went into ψ_O
-    app.component("AlbertJanitor", AlbertJanitor); // 10.3: a core with a bad report stuck on it
     app.component("HexByte", HexByte); // 1.1
     app.component("BitsAndBytes", BitsAndBytes); // 1.1
     app.component("FixedWidth", FixedWidth); // 2.1

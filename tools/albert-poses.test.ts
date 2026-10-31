@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { drawChalkboard, drawChemist, drawClimber, drawGambler, drawJailbird, drawJanitor, drawJudge, drawLogo } from "../.vitepress/theme/albert.ts";
+import { drawChalkboard, drawChemist, drawClimber, drawGambler, drawJailbird, drawJudge, drawLogo } from "../.vitepress/theme/albert.ts";
 import { lessonText, ROOT } from "./lessons.ts";
 
 const POSES = [
@@ -17,7 +17,6 @@ const POSES = [
   { tag: "AlbertGambler", svg: drawGambler(), moving: "tickets", css: "\\.ticket", clothes: "vest", page: "08-safrole/index.md" },
   { tag: "AlbertClimber", svg: drawClimber(), moving: "flag", css: "\\.flag", clothes: "jacket", page: "09-recent-history/01-the-mountain-belt.md" },
   { tag: "AlbertJailbird", svg: drawJailbird(), moving: "cell", css: "\\.cell", clothes: "suit", page: "10-disputes/05-bad-culprits-and-faults.md" },
-  { tag: "AlbertJanitor", svg: drawJanitor(), moving: "plunger", css: "\\.plunger", clothes: "coveralls", page: "10-disputes/03-clearing-the-cores.md" },
 ];
 
 test("every pose is Albert himself: the logo's one hair path, head and a face, never redrawn", () => {

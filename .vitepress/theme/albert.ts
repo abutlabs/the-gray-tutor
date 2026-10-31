@@ -54,7 +54,7 @@ function hash(s: string): number {
 // ---- drawing ---------------------------------------------------------------------------
 
 const INK = "#2a2a30", BROW = "#8f8f99", HAIR = "#b9b9c2", SKIN = "#efc9a6", MOUSTACHE = "#f4f4f6";
-const TONGUE = "#d9606e", TONGUE_LINE = "#a8404d", YUK = "#8fb86a";
+const TONGUE = "#d9606e", TONGUE_LINE = "#a8404d";
 
 // hair: eight swept locks, then the puff, cut away where the face sits
 const HAIR_PATH = "M16.5 36.5 Q9.4 38.1 6.0 43.4 Q8.6 37.3 12.5 32.6 Z M15.4 29.6 Q6.8 27.8 -0.4 31.0 Q6.5 26.6 14.0 24.2 Z M19.1 23.1 Q12.5 18.1 5.2 18.2 Q12.7 16.9 19.9 17.5 Z M26.0 18.9 Q22.5 11.4 16.0 8.1 Q23.2 10.4 29.3 14.3 Z M36.0 14.5 Q41.9 9.2 50.6 8.3 Q44.3 12.9 39.1 19.2 Z M45.1 18.3 Q52.3 16.4 59.9 19.8 Q52.7 20.8 45.6 23.9 Z M50.5 25.3 Q58.1 26.6 63.9 32.8 Q56.6 30.8 48.7 30.6 Z M51.4 33.3 Q56.0 36.8 56.6 43.7 Q52.6 39.6 47.2 36.9 Z M11.9 37.7 A4.4 4.4 0 0 1 8.7 30.6 A5.0 5.0 0 0 1 12.9 23.8 A4.6 4.6 0 0 1 17.1 16.7 A6.3 6.3 0 0 1 27.2 14.9 A5.7 5.7 0 0 1 37.2 13.6 A5.7 5.7 0 0 1 45.0 18.5 A5.0 5.0 0 0 1 52.6 23.2 A4.7 4.7 0 0 1 54.0 30.6 A4.1 4.1 0 0 1 52.5 37.8 L44 37 A12 14 0 0 0 20 37 Z";
@@ -68,7 +68,7 @@ const BOLD: Cut = { stroke: 1.7, dot: 1.45 };
 
 const num = (x: number) => String(Math.round(x * 100) / 100);
 
-function features(face: Face | "neutral" | "yuk", cut: Cut): string {
+function features(face: Face | "neutral", cut: Cut): string {
   const brows = (d: string) =>
     `<path d="${d}" fill="none" stroke="${BROW}" stroke-width="${num(2.6 * cut.stroke)}" stroke-linecap="round"/>`;
   const line = (d: string, width = 1.8, colour = INK) =>
@@ -81,13 +81,6 @@ function features(face: Face | "neutral" | "yuk", cut: Cut): string {
     case "neutral":
       return brows("M23.5 30.6 Q27 27 30.5 29.8 M33.5 29.8 Q37 27 40.5 30.6") + eyes() + nose + moustache
         + line("M28.8 48 Q32 50 35.2 48");
-    case "yuk": // a pose's own face, not one of the six: eyes screwed shut, brows pinched, a wobbly grimace, green cheeks
-      return brows("M23.5 29.4 Q27 29 30.5 31.4 M33.5 31.4 Q37 29 40.5 29.4")
-        + line("M24.2 32.4 L29.2 34.6 L24.2 36.8", 1.9) + line("M39.8 32.4 L34.8 34.6 L39.8 36.8", 1.9)
-        + `<ellipse cx="24.6" cy="41.2" rx="3.2" ry="2" fill="${YUK}" opacity="0.6"/>`
-        + `<ellipse cx="39.4" cy="41.2" rx="3.2" ry="2" fill="${YUK}" opacity="0.6"/>`
-        + nose + moustache
-        + line("M27.2 49.6 Q28.9 47 30.4 49.6 Q32 52 33.6 49.6 Q35.1 47 36.8 49.6");
     case "tongue": // brows up, eyes wide, mouth open, the tongue down over the chin
       return brows("M23 29.2 Q27 24.6 30.6 28.2 M33.4 28.2 Q37 24.6 41 29.2") + eyes(1.9, 0, -0.3) + nose
         + `<path d="M26.6 45.2 Q32 46.4 37.4 45.2 Q36.6 50.2 32 50.6 Q27.4 50.2 26.6 45.2 Z" fill="${INK}"/>`
@@ -346,57 +339,6 @@ export function drawJailbird(): string {
   ${features("puzzled", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
   ${suit}
   ${cell}
-</svg>
-`;
-}
-
-const OVERALLS = "#4a78a8", OVERALLS_DARK = "#33557a", CLOG = "#6b4f3a";
-
-/**
- * Albert the janitor, for lesson 10.3: coveralls and a beanie, a green-cheeked "yuk" face, plunging a
- * blocked toilet — a core with a bad report stuck on it. The arm, fist and plunger are one
- * <g class="plunger">, so AlbertJanitor.vue can pump it on hover; the clog is <g class="clog">,
- * which pops loose on the last pump.
- */
-export function drawJanitor(): string {
-  const label = "Albert the janitor in coveralls and a beanie, grimacing, plunging a blocked toilet";
-  const coveralls = `<g class="coveralls">`
-    + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${OVERALLS}"/>`
-    + `<path d="M26 50.4 L32 56 L38 50.4" fill="none" stroke="${OVERALLS_DARK}" stroke-width="1.4" stroke-linejoin="round"/>`
-    + `<rect x="19" y="57" width="8" height="6" rx="1" fill="none" stroke="${OVERALLS_DARK}" stroke-width="1"/>`
-    + `<circle cx="32" cy="58.5" r="1" fill="${OVERALLS_DARK}"/>`
-    + `</g>`;
-  const beanie = `<path d="M21.5 13 A10.5 9 0 0 1 42.5 13 Z" fill="${OVERALLS}" stroke="${OVERALLS_DARK}" stroke-width="1"/>`
-    + `<rect x="20.5" y="11.6" width="23" height="3.6" rx="1.4" fill="${OVERALLS_DARK}"/>`;
-  const toilet = `<g class="toilet">`
-    + `<rect x="85" y="24" width="12" height="22" rx="2" fill="${MOUSTACHE}" stroke="${INK}" stroke-width="1.2"/>`
-    + `<path d="M69 45 Q69 61.5 80.5 61.5 Q92 61.5 92 45 Z" fill="${MOUSTACHE}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>`
-    + `<ellipse cx="80.5" cy="45" rx="11.5" ry="3.2" fill="${MOUSTACHE}" stroke="${INK}" stroke-width="1.2"/>`
-    + `<ellipse cx="80.5" cy="45.4" rx="8" ry="1.9" fill="#6f9fc6"/>`
-    + `</g>`;
-  const stink = `<g class="stink" fill="none" stroke="${YUK}" stroke-width="1.5" stroke-linecap="round">`
-    + `<path d="M62 42 Q60 38 62.5 34 Q65 30 62.8 26"/><path d="M68 41 Q66 37.5 68.4 33.5 Q70.6 30 68.6 27"/>`
-    + `</g>`;
-  const clog = `<g class="clog" fill="${CLOG}">`
-    + `<circle cx="78" cy="44.5" r="2.6"/><circle cx="82.6" cy="45" r="2"/><circle cx="80.2" cy="42" r="1.5"/>`
-    + `</g>`;
-  const plunger = `<g class="plunger">`
-    + `<path d="M50 59 Q67 55 79 27" fill="none" stroke="${OVERALLS}" stroke-width="6.4" stroke-linecap="round"/>`
-    + `<path d="M80.5 28 L80.5 41" fill="none" stroke="${WOOD}" stroke-width="2.6" stroke-linecap="round"/>`
-    + `<path d="M74 46 Q74 38.6 80.5 38.6 Q87 38.6 87 46 Z" fill="${TONGUE}" stroke="${TONGUE_LINE}" stroke-width="1"/>`
-    + `<circle cx="80" cy="27" r="3.6" fill="${SKIN}"/>`
-    + `</g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 64" role="img" aria-label="${label}">
-  <title>${label}</title>
-  <path fill="${HAIR}" d="${HAIR_PATH}"/>
-  <ellipse cx="32" cy="37" rx="12" ry="14" fill="${SKIN}"/>
-  ${features("yuk", BOLD).replace(/><(?=[a-z])/g, ">\n  <")}
-  ${beanie}
-  ${coveralls}
-  ${toilet}
-  ${stink}
-  ${clog}
-  ${plunger}
 </svg>
 `;
 }
