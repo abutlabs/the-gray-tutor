@@ -277,33 +277,6 @@ export type WorkItem = Value<typeof WorkItem>;
 Hover over `RefineContext` in VS Code: its type is spelled out field by field, and you
 never wrote it. The codec did.
 
-What the scoreboard is chewing on: each codec vector is one JSON file and its `.bin` twin, and "run whole" means decode the bytes, encode the result, and get the same bytes back. One of the vectors it can't pass yet, an assurances extrinsic:
-
-::: code-group
-
-```json [what goes in]
-{
-  "vector": "vectors/codec/full/assurances_extrinsic.json",
-  "[0]": {
-    "anchor": "0x0cffbf67aa\u2026",
-    "bitfield": "0x5555555555555555\u2026",
-    "validator_index": 0,
-    "signature": "0x2d8ec7b235\u2026"
-  },
-  "\u2026": "the rest of the assurances"
-}
-```
-
-```text [console]
-codec                     4 of 30
-    ✘ codec/full/assurances_extrinsic.json: no codec for assurances_extrinsic yet
-4 of 1,428 vectors pass.
-```
-
-:::
-
-The first row of that file is a real assurance, and the console row above names the file by path: with no assurances codec yet, that vector fails with the reason printed, and the family stays at 4 of 30 until it can round-trip every one.
-
 **Run**
 
 ```sh
@@ -483,6 +456,33 @@ fills its folder, and counts. A folder no family fills is *not run yet*. A check
 throws is a vector that failed, and the first line of its message says why; the board
 shows three per family. `tiny` and `full` folders share a row. Every vector it runs is also
 a `vector` event for Grafana: its family, its name, whether it passed, and why not.
+
+What the scoreboard is chewing on: each codec vector is one JSON file and its `.bin` twin, and "run whole" means decode the bytes, encode the result, and get the same bytes back. One of the vectors it can't pass yet, an assurances extrinsic:
+
+::: code-group
+
+```json [what goes in]
+{
+  "vector": "vectors/codec/full/assurances_extrinsic.json",
+  "[0]": {
+    "anchor": "0x0cffbf67aa\u2026",
+    "bitfield": "0x5555555555555555\u2026",
+    "validator_index": 0,
+    "signature": "0x2d8ec7b235\u2026"
+  },
+  "\u2026": "the rest of the assurances"
+}
+```
+
+```text [console]
+codec                     4 of 30
+    ✘ codec/full/assurances_extrinsic.json: no codec for assurances_extrinsic yet
+4 of 1,428 vectors pass.
+```
+
+:::
+
+The first row of that file is a real assurance, and the console row above names the file by path: with no assurances codec yet, that vector fails with the reason printed, and the family stays at 4 of 30 until it can round-trip every one.
 
 **Run**
 

@@ -29,14 +29,18 @@ const PENDING = new Set([
 /** Scoreboard milestones still awaiting their what-goes-in + console tabs (none: #87's second half is done). */
 const PENDING_SCOREBOARD = new Set<string>([]);
 
-test("every scoreboard milestone shows the vector going in and the console, or is still pending (#87)", () => {
+test("every scoreboard run has the vector going in and the console just before it, or is still pending (#87)", () => {
   const missing: string[] = [];
   for (const l of lessons) {
-    if (!/^npm run scoreboard$/m.test(l.text)) continue;
-    if ([...l.text.matchAll(SCORE_TABS)].length === 0) missing.push(l.file);
+    for (const m of l.text.matchAll(/^\*\*Run(?:, expect it to fail)?\*\*\n\n```sh\n([\s\S]*?)```/gm)) {
+      if (!/^npm run scoreboard$/m.test(m[1])) continue;
+      // the group belongs to this run: between the Run before it and this one
+      const before = l.text.lastIndexOf("**Run", m.index! - 1);
+      if (!l.text.slice(Math.max(before, 0), m.index).includes("```text [console]")) missing.push(l.file);
+    }
   }
   assert.deepEqual(missing.sort(), [...PENDING_SCOREBOARD].sort(),
-    "PENDING_SCOREBOARD must be exactly the unconverted milestones: shrink it, never grow it");
+    "PENDING_SCOREBOARD must be exactly the scoreboard runs without their tabs: shrink it, never grow it");
 });
 
 test("every console tab repeats verified scoreboard lines, and its input names and matches its vector", () => {
