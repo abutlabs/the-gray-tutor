@@ -10,8 +10,13 @@
 // - a widget becomes one line pointing to it on the website;
 // - a lesson's check becomes printed review questions, with the answers and every option's
 //   reason at the end of the chapter;
-// - diagrams and formulas, SVG on the site, become PNGs (white, for e-ink): Kindle's SVG
-//   support is patchy.
+// - diagrams, formulas and Albert's poses, SVG on the site, become PNGs (white, for e-ink):
+//   Kindle's SVG support is patchy, and EPUBCheck refuses inline SVG an OPF doesn't declare;
+// - a run (run-views.ts) keeps what it is about: what goes in, what it computes, what comes out,
+//   each under its title; the shell commands and the whole output stay on the website;
+// - the Unicode maths letters (𝐑, 𝒴, 𝔹…) are written as plain letters in bold or italic: Kindle's
+//   fonts lack that plane, and a missing glyph is an empty box;
+// - the cover is a portrait page with the title, the shape a Kindle library shows.
 
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -168,12 +173,19 @@ function reviewQuestions($: CheerioAPI, check: ReturnType<CheerioAPI>, n: number
 /** One built page's text, as a chapter's body. */
 export function chapterBody(text: string, address: string, book: Book, n: number): string {
   const $ = cheerio.load(text, null, false);
-  // a run's tabs (run-views.ts): an e-reader can't switch tabs, so each text tab is shown in
-  // turn under its title, and the tab bar goes
-  $(".vp-code-group .tabs").remove();
-  $('.vp-code-group div[class*="language-"].language-text[data-tab]').each((_, b) => {
-    $(b).before(`<p class="snippet-label output"><strong>${$(b).attr("data-tab")}</strong></p>`);
+  // a run (run-views.ts): an e-reader can't switch tabs or run anything, so the book keeps what
+  // the run is about, each under its title; the shell commands and the whole output (which the
+  // website keeps) go. Another code group keeps only its text, as before.
+  $(".vp-code-group").each((_, g) => {
+    const run = $(g).find("div[data-tab]").toArray().some((b) => BOOK_TABS.has($(b).attr("data-tab") ?? ""));
+    $(g).find("div[data-tab]").each((_, b) => {
+      const tab = $(b).attr("data-tab") ?? "";
+      if (run ? !BOOK_TABS.has(tab) : !$(b).hasClass("language-text")) return void $(b).remove();
+      $(b).replaceWith(`<div class="tab"><p class="snippet-label output"><strong>${escapeXml(tab)}</strong></p><pre>${$(b).find("pre").first().html() ?? ""}</pre></div>`);
+    });
+    $(g).find(".tabs").remove();
   });
+  $(".run-widget-title").each((_, t) => { $(t).html(($(t).html() ?? "").replace(/^▶\s*/, "")); });
   $(".run-widget-anchor").remove();
   // the code, as Concepts only folds it: the byte tables and outputs (language-text) stay
   $('div[class*="language-"]').not(".language-text").remove();
@@ -212,9 +224,17 @@ export function chapterBody(text: string, address: string, book: Book, n: number
     const img = `<img class="math" src="${src}" alt="${escapeXml(alt)}" style="${size}"/>`;
     $(el).replaceWith(display ? `<div class="math">${img}</div>` : img);
   });
+  // pictures drawn into the page as SVG (Albert's poses): PNG too, at a third of the text's width
+  $("svg").each((_, el) => {
+    const label = $(el).attr("aria-label") ?? "";
+    const width = Number(($(el).attr("viewBox") ?? "0 0 100 64").split(/\s+/)[2]);
+    const src = addImage(book, png($.xml(el), 4));
+    const holder = $(el).parent("a").length ? $(el).parent("a") : $(el);
+    holder.replaceWith(`<p class="pose"><img class="pose" src="${src}" alt="${escapeXml(label)}" style="width: ${Math.min(60, Math.round(width * 0.35))}%"/></p>`);
+  });
   // pictures: diagrams (SVG) become PNG; screenshots (PNG) go. A small diagram is inlined
   // by the build as a data: URL (Vite inlines files under 4 KB), a bigger one is a file.
-  $("img").not(".math").each((_, el) => {
+  $("img").not(".math, .pose").each((_, el) => {
     const src = $(el).attr("src") ?? "";
     const svg = svgOf(src, address, book);
     if (svg === undefined) {
@@ -226,6 +246,13 @@ export function chapterBody(text: string, address: string, book: Book, n: number
     $(el).attr("src", addImage(book, png(svg, 2))).removeAttr("role").removeAttr("tabindex");
   });
   $("a[href]").each((_, a) => { $(a).attr("href", bookHref($(a).attr("href") ?? "", address, book)); });
+  // the maths letters Kindle's fonts lack, as plain letters with their style; the text presentation
+  // selector (U+FE0E, config.ts adds it after ↕ and ♈) can draw as a box there, so it goes
+  $("*").contents().filter((_, n) => n.type === "text").each((_, n) => {
+    const text = (n as unknown as { data: string }).data;
+    if (!MATH_LETTER.test(text) && !text.includes("\uFE0E")) return;
+    $(n).replaceWith(kindleLetters(escapeXml(text.replace(/\uFE0E/g, ""))));
+  });
   // the site's own attributes: Vue's scoped-style marks and the like mean nothing here
   $("*").each((_, el) => {
     for (const name of Object.keys((el as { attribs?: Record<string, string> }).attribs ?? {})) {
@@ -240,6 +267,25 @@ export const utf8 = (s: string) => s.replace(/&#x([0-9a-f]+);/gi, (entity, hex: 
   const c = parseInt(hex, 16);
   return c < 0x20 || "&<>\"'".includes(String.fromCodePoint(c)) ? entity : String.fromCodePoint(c);
 });
+
+/** The tabs of a run the book keeps (run-views.ts): what the run is about, not how to type it. */
+const BOOK_TABS = new Set(["what goes in", "what it computes", "what comes out", "console"]);
+
+/** A letter from Unicode's Mathematical Alphanumeric Symbols (U+1D400 to U+1D7FF). */
+const MATH_LETTER = /[\u{1D400}-\u{1D7FF}]/u;
+
+/** Each maths letter as its plain letter (NFKC folds 𝐑 to R, 𝒴 to Y), styled as the paper styles
+ *  it: bold, italic for script and fraktur, both for bold italic and bold script, bold for
+ *  double-struck. The rest of the text stays as it is. */
+export function kindleLetters(html: string): string {
+  return html.replace(/[\u{1D400}-\u{1D7FF}]/gu, (ch) => {
+    const o = ch.codePointAt(0)!;
+    const plain = ch.normalize("NFKC");
+    const style = o < 0x1d434 ? "b" : o < 0x1d468 ? "i" : o < 0x1d49c ? "bi" : o < 0x1d4d0 ? "i" : o < 0x1d504 ? "bi"
+      : o < 0x1d538 ? "i" : o < 0x1d56c ? "b" : "";
+    return style === "b" ? `<b>${plain}</b>` : style === "i" ? `<i>${plain}</i>` : style === "bi" ? `<b><i>${plain}</i></b>` : plain;
+  });
+}
 
 const escapeXml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -274,8 +320,13 @@ const CSS = `body { font-family: serif; line-height: 1.5; margin: 0 4%; }
 h1, h2, h3 { font-family: sans-serif; line-height: 1.25; page-break-after: avoid; }
 h1 { font-size: 1.6em; margin-top: 0.5em; }
 code { font-family: monospace; font-size: 0.9em; }
-pre { font-family: monospace; font-size: 0.72em; line-height: 1.35; white-space: pre-wrap; word-wrap: break-word; border-left: 3px solid #999; padding: 0.4em 0.6em; margin: 0.8em 0; page-break-inside: avoid; }
-table { border-collapse: collapse; margin: 0.8em 0; font-size: 0.9em; }
+pre { font-family: monospace; font-size: 0.8em; line-height: 1.35; white-space: pre-wrap; word-wrap: break-word; border-left: 3px solid #999; padding: 0.4em 0.6em; margin: 0.8em 0; }
+table { border-collapse: collapse; margin: 0.8em 0; font-size: 0.85em; width: 100%; }
+.run-widget { border: 2px solid #444; border-left-width: 6px; padding: 0.2em 0.7em 0.4em; margin: 1em 0; }
+.run-widget-title { font-family: sans-serif; font-weight: bold; margin: 0.3em 0; }
+.tab .snippet-label { margin-top: 0.6em; }
+.tab pre { margin-top: 0.2em; }
+p.pose { text-align: center; margin: 0.6em 0; }
 th, td { border: 1px solid #999; padding: 0.2em 0.4em; vertical-align: top; }
 img { max-width: 100%; }
 p > img:only-child { display: block; margin: 0.8em auto; }
@@ -292,8 +343,9 @@ ol.options { margin-top: 0; }
 .to-answer, .back { font-size: 0.85em; margin-top: 0.2em; }
 ol.answers > li { margin-bottom: 1em; }
 .other { font-size: 0.9em; margin: 0.2em 0 0.2em 1em; }
-.cover { text-align: center; margin-top: 15%; }
-.cover img { width: 40%; }
+.cover { text-align: center; margin: 0; padding: 0; }
+.cover img { width: 100%; max-width: 100%; }
+.title-page { text-align: center; margin-top: 20%; }
 `;
 
 const mediaType = (name: string) => (name.endsWith(".png") ? "image/png" : name.endsWith(".css") ? "text/css" : "application/xhtml+xml");
@@ -311,11 +363,16 @@ export function writeEpub(outDir: string, base: string, pages: PrintPage[]): voi
   }));
 
   const date = new Date().toISOString().slice(0, 10);
-  const cover = addImage(book, png(readFileSync(join(outDir, "logo.svg"), "utf8"), 12));
+  const cover = addImage(book, png(coverSvg(readFileSync(join(outDir, "logo.svg"), "utf8"), date), 1));
   const coverPage: Chapter = {
     file: "cover.xhtml",
     title: TITLE,
-    xhtml: xhtml(TITLE, `<div class="cover"><img src="${cover}" alt=""/><h1>The Gray Tutor</h1><p>The concepts: JAM from the Gray Paper, one rule at a time, with the code folded away.</p><p>${date}</p><p><a href="${SITE}">${SITE}</a></p></div>`),
+    xhtml: xhtml(TITLE, `<div class="cover"><img src="${cover}" alt="${escapeXml(TITLE)}"/></div>`),
+  };
+  const titlePage: Chapter = {
+    file: "title.xhtml",
+    title: TITLE,
+    xhtml: xhtml(TITLE, `<div class="title-page"><h1>The Gray Tutor</h1><p>The concepts: JAM from the Gray Paper, one rule at a time, with the code folded away.</p><p>${date}</p><p><a href="${SITE}">${SITE}</a></p></div>`),
   };
 
   // the contents: each part with its lessons under it, as the site's sidebar has them
@@ -337,7 +394,7 @@ export function writeEpub(outDir: string, base: string, pages: PrintPage[]): voi
   groups.map(({ head, pages: ps }) => point(head, ps.map((p) => point(p)).join(""))).join("")}</navMap></ncx>
 `;
 
-  const all = [coverPage, ...chapters];
+  const all = [coverPage, titlePage, ...chapters];
   for (const c of all) checkXml(c.file, c.xhtml);
   checkXml("nav.xhtml", nav);
   checkXml("toc.ncx", ncx);
@@ -383,6 +440,23 @@ ${all.map((c) => `<itemref idref="${c.file.replace(".xhtml", "")}"/>`).join("\n"
     ...all.map((c) => ({ name: `OEBPS/${c.file}`, data: text(c.xhtml) })),
     ...images.map((im) => ({ name: `OEBPS/${im.name}`, data: im.data })),
   ]));
+}
+
+/** The cover: a portrait page, 1600 by 2560, the shape and size Kindle asks for, with Albert and
+ *  the title on white, so the book has a face in a library and not a small square. */
+export function coverSvg(logo: string, date: string): string {
+  const albert = logo.replace(/<\?xml[^>]*>\s*/, "").replace(/^<svg /, `<svg x="400" y="360" width="800" height="800" `);
+  const text = (y: number, size: number, words: string, weight = "normal", fill = "#222") =>
+    `<text x="800" y="${y}" font-family="${SANS}" font-size="${size}" font-weight="${weight}" text-anchor="middle" fill="${fill}">${escapeXml(words)}</text>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="2560" viewBox="0 0 1600 2560">
+<rect width="1600" height="2560" fill="white"/>
+${albert}
+${text(1440, 150, "The Gray Tutor", "bold", "#111")}
+${text(1600, 84, "the concepts", "normal", "#333")}
+${text(1820, 60, "JAM from the Gray Paper,", "normal", "#444")}
+${text(1910, 60, "one rule at a time", "normal", "#444")}
+${text(2340, 50, date, "normal", "#666")}
+</svg>`;
 }
 
 /** A stable UUID from a string, so the book keeps its identity from build to build. */

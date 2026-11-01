@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { crc32, inflateRawSync } from "node:zlib";
-import { type Book, chapterBody, checkXml, xhtml, zip } from "../.vitepress/epub.ts";
+import { type Book, chapterBody, checkXml, coverSvg, kindleLetters, xhtml, zip } from "../.vitepress/epub.ts";
 
 /** The entries of a zip, read back from its local headers. */
 function unzip(archive: Buffer): { name: string; stored: boolean; data: Buffer }[] {
@@ -93,4 +93,55 @@ test("every chapter is well-formed XHTML, and a broken one is refused", () => {
   const body = chapterBody(PAGE, "02-codec/02-compact-naturals", book(), 11);
   checkXml("c011.xhtml", xhtml("2.2 Compact naturals", `<section>${body}</section>`));
   assert.throws(() => checkXml("bad.xhtml", xhtml("bad", "<p>unclosed")), /bad\.xhtml is not well-formed/);
+});
+
+// a run as run-views.ts renders it: five tabs in a frame
+const RUN = `<div class="run-widget" id="run-verdicts-progress">
+<p class="run-widget-title">▶ One run of <code>npm run verdicts-progress</code> <a class="run-widget-anchor" href="#run-verdicts-progress" aria-label="A link to this run">#</a></p>
+<div class="vp-code-group vp-adaptive-theme"><div class="tabs"><input type="radio" name="group-1" id="tab-a" checked><label data-title="run in client/" for="tab-a">run in client/</label></div><div class="blocks">
+<div data-tab="run in client/" class="language-sh vp-adaptive-theme active"><pre><code>npm run verdicts-progress</code></pre></div>
+<div data-tab="what goes in" class="language-json vp-adaptive-theme"><pre><code>{ "age": 0 }</code></pre></div>
+<div data-tab="what it computes" class="language-ts vp-adaptive-theme"><pre><code>const computed = { valid: 5 };</code></pre></div>
+<div data-tab="what comes out" class="language-text vp-adaptive-theme"><pre><code>report 0x11da6d1f…: 5 of 5 say valid</code></pre></div>
+<div data-tab="output" class="language-text vp-adaptive-theme"><pre><code>report 0x11da6d1f…: 5 of 5 say valid
+reported to Grafana: http://127.0.0.1:3300</code></pre></div>
+</div></div>
+</div>`;
+
+test("a run in the book keeps what it's about, each under its title; no commands, no tab bar, no whole output", () => {
+  const body = chapterBody(RUN, "10-disputes/01-votes-and-verdicts", book(), 55);
+  for (const tab of ["what goes in", "what it computes", "what comes out"]) assert.match(body, new RegExp(`<strong>${tab}</strong>`), tab);
+  assert.match(body, /\{ &quot;age&quot;: 0 \}/, "the input, though it's JSON (XML writes its quotes as &quot;)");
+  assert.match(body, /const computed = \{ valid: 5 \};/, "the computed structures");
+  assert.doesNotMatch(body, /npm run verdicts-progress<\/code><\/pre>|reported to Grafana|<input|<label|class="tabs"/, "no commands, whole output or tab bar");
+  assert.match(body, /<p class="run-widget-title">One run of <code>npm run verdicts-progress<\/code>\s*<\/p>/, "titled, without the triangle or the anchor");
+});
+
+test("an inline SVG picture (Albert's poses) becomes a PNG: no SVG is left in a chapter", () => {
+  const pose = `<p>Hi.</p><a class="albert-judge" href="../00-start/01-what-you-will-build#albert"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 64" role="img" aria-label="Albert the judge"><title>Albert the judge</title><rect width="100" height="64" fill="black"/></svg></a>`;
+  const b = book();
+  const body = chapterBody(pose, "10-disputes/", b, 54);
+  assert.doesNotMatch(body, /<svg/, "EPUBCheck refuses inline SVG an OPF doesn't declare");
+  assert.match(body, /<p class="pose"><img class="pose" src="images\/[0-9a-f]{16}\.png" alt="Albert the judge" style="width: 35%"\/><\/p>/);
+  assert.equal(b.images.size, 1);
+});
+
+test("the maths letters Kindle's fonts lack become plain letters with their style; everything else stays", () => {
+  assert.equal(kindleLetters("𝐑*"), "<b>R</b>*");
+  assert.equal(kindleLetters("𝒴(H_S)"), "<i>Y</i>(H_S)");
+  assert.equal(kindleLetters("𝔹 and 𝕏"), "<b>B</b> and <b>X</b>");
+  assert.equal(kindleLetters("𝔪"), "<i>m</i>");
+  assert.equal(kindleLetters("ρ† ⌢ ℰ₄ ≺ ℕ"), "ρ† ⌢ ℰ₄ ≺ ℕ", "Greek, operators, letterlike symbols and subscripts stay");
+  const body = chapterBody("<p>𝐑* from ρ‡, and ↕\uFE0E</p>", "17-accumulation/02-waiting-reports", book(), 90);
+  assert.match(body, /<b>R<\/b>\* from ρ‡, and ↕<\/p>/);
+  assert.doesNotMatch(body, /\uFE0E|[\u{1D400}-\u{1D7FF}]/u);
+});
+
+test("the cover is a portrait page Kindle's library can show: 1600 by 2560, the title on it", () => {
+  const svg = coverSvg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/></svg>`, "2026-11-01");
+  assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="1600" height="2560"/);
+  assert.match(svg, /<svg x="400" y="360" width="800" height="800" xmlns=/, "Albert, centred");
+  assert.match(svg, />The Gray Tutor<\/text>/);
+  assert.match(svg, />2026-11-01<\/text>/);
+  checkXml("cover.svg", svg);
 });
