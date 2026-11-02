@@ -3,7 +3,7 @@
      when all say valid, bad when none do, wonky when ⌊V/3⌋ do. Anything else is refused. -->
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { count, judge, votesNeeded, votesOf, wonkyCount } from "./verdict.ts";
+import { AFTERMATH, count, judge, votesNeeded, votesOf, wonkyCount } from "./verdict.ts";
 import type { Judged, Vote } from "./verdict.ts";
 
 const SIZES = [{ judges: 6, name: "tiny" }, { judges: 1023, name: "full" }];
@@ -26,6 +26,9 @@ const judged = computed(() => judge(counted.value.valid, counted.value.votes, ju
 const needed = computed(() => votesNeeded(judges.value));
 const wonky = computed(() => wonkyCount(judges.value));
 const refused = computed(() => judged.value === "bad_votes_count" || judged.value === "bad_vote_split");
+const invalid = computed(() => counted.value.votes - counted.value.valid);
+const overThird = computed(() => 3 * invalid.value > judges.value);
+const after = computed(() => AFTERMATH[judged.value as keyof typeof AFTERMATH]);
 
 function size(v: number) {
   judges.value = v;
@@ -104,21 +107,31 @@ function setCounts(total: number, valid: number) {
       <template v-else-if="judged === 'bad'">0 valid: <b>bad</b>.</template>
       <template v-else>{{ counted.valid }} valid = ⌊{{ judges }}/3⌋: <b>wonky</b>, nobody can tell.</template>
     </p>
-    <p class="follows">
-      <template v-if="refused">The whole block is invalid, so nothing it says happens.</template>
-      <template v-else-if="judged === 'good'">
-        The report joins ψ's good set and stays on its core. Every vote here says valid; a validator who signed "invalid"
-        on it is a fault (<a href="./02-culprits-and-faults">lesson 10.2</a>).
-      </template>
-      <template v-else-if="judged === 'bad'">
-        The report joins ψ's bad set and is taken off its core (<a href="./03-clearing-the-cores">lesson 10.3</a>). Its
-        guarantors are culprits, and a validator who signed "valid" on it is a fault
-        (<a href="./02-culprits-and-faults">lesson 10.2</a>).
-      </template>
-      <template v-else>
-        The report joins ψ's wonky set and is taken off its core (<a href="./03-clearing-the-cores">lesson 10.3</a>).
-      </template>
-    </p>
+    <div class="split" aria-hidden="true">
+      <div class="bar">
+        <span class="seg invalid" :style="{ flexGrow: invalid }"></span>
+        <span class="seg valid" :style="{ flexGrow: counted.valid }"></span>
+        <span class="seg none" :style="{ flexGrow: judges - counted.votes }"></span>
+        <span class="third"></span>
+      </div>
+      <div class="scale"><span>0</span><span class="third-label">⅓ of the judges</span><span>all {{ judges.toLocaleString("en") }}</span></div>
+    </div>
+    <p v-if="refused" class="follows">The whole block is invalid, so nothing it says happens.</p>
+    <template v-else>
+      <p class="follows">
+        <template v-if="overThird">
+          {{ invalid.toLocaleString("en") }} of {{ judges.toLocaleString("en") }} say invalid: more than a third. Even if
+          every judge left out said valid, that's {{ (judges - invalid).toLocaleString("en") }}, short of the
+          {{ needed }} good needs, so this report can never be proven good.
+        </template>
+        <template v-else>Nobody says invalid: a supermajority swears it's right.</template>
+      </p>
+      <dl class="after">
+        <dt>the report (<a href="./03-clearing-the-cores">10.3</a>)</dt><dd>joins ψ's {{ judged }} set, {{ after.report }}</dd>
+        <dt>a chain that already accumulated it</dt><dd>{{ after.chain }}</dd>
+        <dt>punished (<a href="./02-culprits-and-faults">10.2</a>)</dt><dd>{{ after.punished }}</dd>
+      </dl>
+    </template>
     <ul class="goals">
       <li v-for="g in GOALS" :key="g.id" :class="{ done: reached.has(g.id) }">{{ reached.has(g.id) ? "✓" : "○" }} <UnitText :text="g.say" /></li>
     </ul>
@@ -143,11 +156,25 @@ function setCounts(total: number, valid: number) {
 .slider { width: 100%; max-width: 100%; min-height: 32px; }
 .line { font-family: var(--vp-font-family-mono); font-size: 14px; margin: 8px 0 4px; }
 .follows { font-size: 14px; margin: 4px 0; line-height: 1.5; }
+.split { margin: 10px 0 4px; }
+.bar { position: relative; display: flex; height: 18px; border: 1px solid var(--vp-c-divider); border-radius: 4px; overflow: hidden; }
+.seg { flex: 0 0 0; }
+.seg.invalid { background: var(--vp-c-danger-1); opacity: 0.55; }
+.seg.valid { background: var(--bit-low); }
+.seg.none { background: var(--vp-c-default-soft); }
+.third { position: absolute; top: -2px; bottom: -2px; left: 33.333%; border-left: 2px dashed var(--vp-c-text-1); }
+.scale { position: relative; display: flex; justify-content: space-between; font-size: 12px; color: var(--vp-c-text-2); }
+.third-label { position: absolute; left: 33.333%; transform: translateX(-50%); white-space: nowrap; }
+.after { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 14px; margin: 8px 0 4px; }
+.after dt { color: var(--vp-c-text-2); }
+.after dd { margin: 0; font-weight: 600; }
 .goals { list-style: none; padding: 0; margin: 12px 0 0; font-size: 14px; color: var(--vp-c-text-2); }
 .goals li.done { color: var(--vp-c-green-1); }
 @media (max-width: 640px) {
   .row { gap: 4px; }
   .who { min-width: 0; }
   .choice { padding: 2px 6px; }
+  .after { grid-template-columns: 1fr; }
+  .after dd { margin-bottom: 4px; }
 }
 </style>

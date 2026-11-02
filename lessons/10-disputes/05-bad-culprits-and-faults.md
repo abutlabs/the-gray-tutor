@@ -48,6 +48,27 @@ There's no rule the other way round: a bad verdict needs no culprits in the same
 The Gray Paper lets offenders be named in that block or in later ones, so
 `progress_with_bad_verdict_without_culprits-1` is accepted.
 
+But someone *did* sign that report: two or three guarantors, on its credential ([lesson
+4.3](../04-blocks/03-guarantees.md)), or it never would have reached a core. Their
+signatures exist. What the block lacks is a *culprit*, and a culprit is a separate proof
+about a separate thing:
+
+| | a verdict | a culprit |
+| --- | --- | --- |
+| it's a proof about | the report | one guarantor |
+| made of | the judges' votes, `$jam_invalid` ⌢ the report's hash | that guarantor's own `$jam_guarantee` ⌢ the report's hash, copied from the credential |
+| what it does | takes the report off its core, sets a chain reverting | puts the guarantor's key in ψ_O, to be punished |
+| how soon | now: the report must not be accumulated | any later block, while the guarantor's key is still κ's or λ's (rule 3) |
+
+The verdict is the emergency, so a block author files it the moment they have the votes.
+A bad report has to come off its core before it's accumulated, and every node needs to
+know which chain to stop building on. The culprit is the paperwork. The author has to
+hold the guarantor's signed guarantee to copy it in, and may not have it to hand, for
+example if it sits in a block on the chain now being abandoned. So it can follow. The
+verdict put the report in ψ_B for good, so rule 2 holds in every later block. The one
+deadline is rule 3: once the guarantor's key is in neither κ nor λ, nobody can name them
+any more.
+
 The Gray Paper writes rule 6 as a double ⇔: r ∈ ψ′_B ⇔ r ∉ ψ′_G ⇔ v. All three are true
 together or false together, so a fault on a wonky report (neither bad nor good) fails it
 too. A culprit is a guarantor, a fault an auditor, which is where the vectors' names
@@ -580,7 +601,8 @@ report is refused.
   > No: no rule asks culprits for a bad verdict. Only a good verdict needs something,
   > a fault.
 - [x] Accepted: the report joins the bad set, and the offenders mark is empty
-  > Yes: the vector accepts it, with `offenders_mark` `[]`. The culprits can come in a
+  > Yes: the vector accepts it, with `offenders_mark` `[]`. The guarantors did sign it,
+  > but a culprit is a separate proof, their signature copied in, and it can come in a
   > later block.
 - [ ] Refused, `not_enough_faults`
   > No: that rule is for good verdicts. This one is bad.

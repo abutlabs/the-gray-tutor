@@ -9,7 +9,7 @@ import { keccak_256 } from "@noble/hashes/sha3.js";
 import { appendSteps, beltOf, beltPartway, beltSuperPeak, itemMountain, itemsIn, label, mergeMountains, peaksIn, shortHash } from "../.vitepress/theme/belt.ts";
 import type { Belt, Mountain } from "../.vitepress/theme/belt.ts";
 import { fromHex, toHex } from "../.vitepress/theme/super-peak.ts";
-import { count, judge, votesNeeded, votesOf, wonkyCount } from "../.vitepress/theme/verdict.ts";
+import { AFTERMATH, count, judge, votesNeeded, votesOf, wonkyCount, wonkyInvalid } from "../.vitepress/theme/verdict.ts";
 import { lessonText, lessonCode, ROOT } from "./lessons.ts";
 
 const BELT = "09-recent-history/01-the-mountain-belt.md";
@@ -168,6 +168,32 @@ test("the verdict thresholds, for every V from 3 to 1,023: two thirds plus one, 
   }
   assert.deepEqual(count(votesOf(6, 2, 3)), { votes: 5, valid: 2 });
   assert.deepEqual(votesOf(4, 1, 2), ["valid", "invalid", "invalid", null]);
+});
+
+test("what each verdict does next: the widget's aftermath is 10.1's table, and wonky's why holds for every V", () => {
+  const text = lessonText(VERDICTS);
+  const rows = [...text.matchAll(/^\| \*\*(good|bad|wonky)\*\* \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
+  assert.deepEqual(rows.map((r) => r[1]), ["good", "bad", "wonky"], "the aftermath table's three rows");
+  for (const [, outcome, report, chain, punished] of rows) {
+    assert.deepEqual(AFTERMATH[outcome as keyof typeof AFTERMATH], { report, chain, punished }, outcome);
+  }
+  // GP §10: only a non-positive verdict clears the core (ρ†), culprits need the bad set, and a
+  // fault's ⇔ fails on a report neither good nor bad: wonky punishes nobody
+  assert.equal(AFTERMATH.wonky.punished, "nobody");
+  assert.equal(AFTERMATH.wonky.report, AFTERMATH.bad.report);
+  // the lesson's two rules: a wonky verdict's "invalid" side is more than a third of the judges,
+  // so good is out of reach even with every judge left out saying "valid"
+  for (let v = 3; v <= 1023; v++) {
+    const against = wonkyInvalid(v);
+    assert.ok(3 * against > v, `${v}: ${against} invalid is more than a third`);
+    assert.ok(v - against < votesNeeded(v), `${v}: at most ${v - against} valid, short of ${votesNeeded(v)}`);
+  }
+  // the numbers the lesson quotes
+  const flat = text.replace(/\s+/g, " ");
+  assert.match(flat, new RegExp(`${wonkyInvalid(6)} of tiny's 6 judges and ${wonkyInvalid(1023)} of full's 1,023`));
+  assert.match(flat, new RegExp(`6 − ${wonkyInvalid(6)} = ${6 - wonkyInvalid(6)} on tiny and 1,023 − ${wonkyInvalid(1023)} = ${1023 - wonkyInvalid(1023)} on full`));
+  assert.match(flat, new RegExp(`short of the ${votesNeeded(6)} and ${votesNeeded(1023)} good needs`));
+  assert.match(flat, /\*\*Not a rejected block\.\*\*/);
 });
 
 const DISPUTES_VECTOR = join(ROOT, "vectors/stf/disputes/tiny/progress_with_verdicts-4.json");

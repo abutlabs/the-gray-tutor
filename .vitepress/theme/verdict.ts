@@ -25,6 +25,23 @@ export function judge(valid: number, votes: number, judges: number): Judged {
   return "bad_vote_split";
 }
 
+/** What a verdict does next, in lesson 10.1's table: to the report, to a chain that already
+ *  accumulated it (GP §17's best-chain rule), and to whom (lesson 10.2's offenders). */
+export interface Aftermath { report: string; chain: string; punished: string }
+
+export const AFTERMATH: Record<"good" | "bad" | "wonky", Aftermath> = {
+  good: { report: "stays on its core", chain: "kept", punished: "whoever signed \"invalid\" (faults)" },
+  bad: {
+    report: "taken off its core",
+    chain: "abandoned",
+    punished: "its guarantors (culprits), and whoever signed \"valid\" (faults)",
+  },
+  wonky: { report: "taken off its core", chain: "abandoned", punished: "nobody" },
+};
+
+/** A wonky verdict's "invalid" votes: the rest of the ⌊2V/3⌋ + 1 it carries. */
+export const wonkyInvalid = (judges: number): number => votesNeeded(judges) - wonkyCount(judges);
+
 /** How many votes a verdict carries, and how many of them say "valid". */
 export function count(votes: Vote[]): { votes: number; valid: number } {
   return { votes: votes.filter((v) => v !== null).length, valid: votes.filter((v) => v === "valid").length };

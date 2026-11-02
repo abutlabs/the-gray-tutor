@@ -62,6 +62,46 @@ those three patterns don't exist, no verdict can be written at all, and the chai
 records nothing — there are no tiers, only proven right, proven wrong, and a proven
 stalemate.
 
+**What each one does next.** The Gray Paper calls the three splits "the decision
+thresholds for our three possible actions". On trial is one work-report, one core's work,
+and the verdict decides three things about it:
+
+| the verdict | the report on its core ([10.3](./03-clearing-the-cores.md)) | a chain that already accumulated it | who is punished ([10.2](./02-culprits-and-faults.md)) |
+| --- | --- | --- | --- |
+| **good** | stays on its core | kept | whoever signed "invalid" (faults) |
+| **bad** | taken off its core | abandoned | its guarantors (culprits), and whoever signed "valid" (faults) |
+| **wonky** | taken off its core | abandoned | nobody |
+
+Picture a batch of food and a team of inspectors. A supermajority pass it: it ships, and
+the ones who cried poison get a black mark. A supermajority find poison: it's binned, any
+of it already sold is recalled, and the cooks who signed it off are fired. A real split:
+binned and recalled all the same, because you don't serve food you can't vouch for, but
+nobody is fired, because nobody is proven to have lied. That third row is wonky.
+
+Why exactly ⌊|K|/3⌋ saying "valid"? Look at the other side: the rest of the carried votes,
+3 of tiny's 6 judges and 342 of full's 1,023, say "invalid". That's more than a third,
+and two rules turn on that line:
+
+- **It can never be good.** Even if every judge left out of the verdict said "valid",
+  that's 6 − 3 = 3 on tiny and 1,023 − 342 = 681 on full, short of the 5 and 683 good
+  needs.
+- **A chain that took it is dropped.** The Gray Paper's auditing rules: nodes disregard
+  any chain that accumulated a report at least a third of the validators judge invalid.
+  They build on an earlier block instead, one from before the report went in.
+
+So wonky is the proof that the report can't be accepted, without the proof that anyone
+lied. The Gray Paper doesn't say what causes an honest split. One likely cause is a bug:
+two clients computing the same work differently, each judge voting honestly on what their
+own client says. Fining a third of the network for a bug would be a disaster, so nobody is
+fined. Stopping such bugs before they reach a network is what the fuzzer is for, in
+[part 20](../20-facing-the-fuzzer/index.md).
+
+**Not a rejected block.** None of the three rejects the block that carries the verdict:
+that block is accepted, and its verdict is the evidence. What a bad or wonky verdict
+removes is the report and, if it was already accumulated, the earlier block that took it
+and every block built on that. A block is refused only when its verdict is malformed: the
+wrong number of votes, or a split that isn't in the table ([lesson 10.4](./04-bad-verdicts.md)).
+
 **What the state keeps.** ψ (C(5), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)) holds three sets of report hashes, good,
 bad and wonky, plus the offenders' keys ([next lesson](./02-culprits-and-faults.md)). Each verdict's report joins the
 set of its outcome. Sets in the state are kept sorted.
@@ -448,6 +488,26 @@ part of a rule the vectors never exercise is a part you have to read the Gray Pa
   > Yes: 2 is ⌊6/3⌋, a third of the judges, the wonky row. Nobody can tell.
 - [ ] Refused: 2 isn't a split the table has
   > No: 2 is exactly the wonky split. 3 valid would be refused.
+
+**A report is judged wonky. What happens to it, and who is punished?**
+
+- [ ] It stays on its core, since nobody proved it wrong
+  > No: 3 of the 6 judges said invalid, more than a third, so it can never be proven good.
+- [x] It's taken off its core, any chain that accumulated it is dropped, and nobody is punished
+  > Yes: treated as bad for the chain's sake, but nobody is proven to have lied.
+- [ ] It's taken off its core, and its guarantors are punished
+  > No: culprits need a bad verdict. A wonky one punishes nobody.
+
+**A block carries a wonky verdict. Is that block refused?**
+
+- [ ] Yes: anything short of a good verdict rejects the block
+  > No: the verdict is evidence, and evidence of the right shape is accepted.
+- [x] No: the block is accepted; it's the report, and any earlier block that accumulated it, that go
+  > Yes: a block is refused only when its verdict is malformed: the wrong count, or a split
+  > not in the table.
+- [ ] Only if the report was already accumulated
+  > No: the block carrying the verdict is fine either way. An *earlier* block that
+  > accumulated the report is the one dropped.
 
 **On full, why does a good verdict need exactly 683 valid votes?**
 
