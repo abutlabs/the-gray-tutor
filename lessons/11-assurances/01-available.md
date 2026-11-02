@@ -364,7 +364,8 @@ names a package that must be accumulated first.
   > report, so it assures for all of them.
 - [x] All 341, one bit each
   > Yes: its `validator_index` is 700, its place in κ, and its bitfield has a bit for every
-  > core.
+  > core. Each bit says it holds its own piece of that core's one report, about 40 KB of a
+  > bundle at most, never the whole report.
 - [ ] Core 700 mod 341
   > No: a validator's index never names a core. It names the validator, in κ.
 
