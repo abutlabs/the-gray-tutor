@@ -315,9 +315,48 @@ whole-number spellings of the same fraction. Pick the one you can check in your 
 
 </details>
 
+## Where an available report goes
+
+Becoming available is the report's last stop on its core, and two things start from it,
+one on the chain and one off it:
+
+```text
+ block M, as it's imported (on the chain)                 off the chain, from block M on
+ ───────────────────────────────────────                  ──────────────────────────────
+ assurances: core 0's report is available                 auditors pick a few of block M's
+   │                                                      newly available reports, fetch
+   ├─► core 0 is empty again (ρ‡): this same block's      the pieces, rebuild the bundle,
+   │   guarantees may put a new report on it (Part 12)    and run its refine again
+   │
+   └─► the report joins 𝐑, the newly available ones       until enough say "valid", block M
+         │                                                can't be finalized
+         ├─ needs nothing first ─► accumulated now,
+         │                         in block M (Part 17)   a report judged invalid is undone:
+         └─ waits on another ────► the ready queue,       the chain that took it is dropped
+            package               until that one is in    (lesson 10.1)
+```
+
+So availability doesn't wait for the audit. A block's import accumulates the report right
+away, on the guarantors' word and the validators' pieces, and the audit checks it
+afterwards, before the block can become final. If the audit finds it wrong, the disputes of
+[Part 10](../10-disputes/index.md) undo it. A report waits in the ready queue ([lesson 17.2](../17-accumulation/02-waiting-reports.md)) only when it
+names a package that must be accumulated first.
+
 ## Check your understanding
 
 ::: check
+**Core 0's report becomes available in block M. When does its service accumulate it?**
+
+- [ ] Only once the auditors have checked it
+  > No: accumulation doesn't wait for the audit. The audit runs off the chain afterwards,
+  > and block M can't be finalized until it's done.
+- [x] In block M itself, unless it waits on another package first
+  > Yes: it joins 𝐑 and is accumulated in the same import; only a report with a
+  > prerequisite still to come waits in the ready queue.
+- [ ] In the next block, when core 0 takes a new report
+  > No: the core's new report can come in block M too, and accumulation doesn't wait for
+  > it either way.
+
 **On full, validator 700 sends an assurance. Which cores can its bitfield speak for?**
 
 - [ ] Only the core it guarantees, one in 341
