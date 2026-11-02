@@ -34,6 +34,23 @@ All three are in the [glossary](../glossary.md).
 
 Break any one and the whole block is invalid.
 
+**Anchored on the parent.** [Lesson 11.1](./01-available.md) showed one assurance field by field. Rule 1 is
+about its first field, the anchor: it must be H_P, the hash of the header of the block
+that block B builds on: in this vector, the input's `parent` and every assurance's `anchor`
+are the same `0xd61a38a0…`. It is the parent's header hash, the block's name, not a state
+root: the state after the parent is a different hash, the `parent_state_root` in B's own
+header ([lesson 4.6](../04-blocks/06-the-header.md)). Why the header, when the state root is just as much at hand? The Gray
+Paper doesn't say; the likely reason is that a header hash names one block, and with it its
+whole chain, while a state root only sums up what a state holds. An assurance must never be
+counted on the wrong fork, and every other reference to a block in JAM (a report's anchor,
+a judgment, a finality vote) names it by its header hash too. That is what an assurance is about: which reports were waiting after P, and
+which of them the validator holds. So it belongs in P's child and nowhere else. An
+assurance anchored further back speaks about cores that may have changed since (a report
+can have timed out, a new one arrived), and it could be replayed block after block. The
+anchor is inside what's signed, so nobody can re-anchor another validator's assurance
+either. On the network, the same assurance travels without its index: the connection it
+arrives on says who sent it.
+
 The Gray Paper says which rules hold, not which one to name first when several break.
 The vectors pin that down in one place: an index past the end is named before an
 unsorted list. Fair enough, since the Gray Paper's own type for an assurance (an index
@@ -489,6 +506,18 @@ waits for everything cheaper.
 ## Check your understanding
 
 ::: check
+**An assurance's anchor is a hash. Of what?**
+
+- [ ] The state after the parent block
+  > No: that's the parent state root, a different hash, carried in the new block's header
+  > as `parent_state_root`.
+- [ ] The report it assures
+  > No: one assurance covers every core at once, so it can't name one report. Its bits
+  > say which cores.
+- [x] The parent block's header: H_P, the same hash as the new block's `parent`
+  > Yes: the anchor names the block the validator looked at, and only that block's child
+  > can carry the assurance.
+
 **One assurance in a block sets the bit for a core with nothing on it. What happens?**
 
 - [ ] That bit is ignored, and the rest of the block counts

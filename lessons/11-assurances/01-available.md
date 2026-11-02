@@ -52,6 +52,27 @@ The vector this lesson runs, `some_assurances-1`, shows it: six assurances, from
 (core 1 only), validators 2, 3 and 4 send `0x03` (both cores). Core 0 gets 5 bits, so its
 report is available; core 1 gets 4, one short of the 5 it needs.
 
+**One assurance, as a validator sends it.** Here is the first of those six, validator 0's:
+
+```text
+ block P, the parent                      block B, being imported: its assurances, one per validator
+ header hash 0xd61a38a0…                  ┌───────────────────────────────────────────────────────┐
+ after P, the cores (ρ):                  │ anchor           0xd61a38a0…   32 bytes  = P's hash   │
+   core 0: a report waiting               │ bitfield         0x02           1 byte   (43 on full) │
+   core 1: a report waiting               │ validator_index  0              2 bytes               │
+        ▲                                 │ signature        0xf23ddcfb…   64 bytes               │
+        │                                 └───────────────────────────────────────────────────────┘
+        └─ "after block P, I hold my piece of core 1's report", signed over
+           "jam_available" and H(anchor and bitfield): 13 + 32 = 45 bytes
+```
+
+| field | what it says |
+| --- | --- |
+| anchor | which block the validator looked at: the parent's header hash, and the cores as that block left them ([lesson 11.3](./03-bad-assurances.md) says why) |
+| bitfield | one bit per core: 1 if this validator holds its piece of that core's report. `0x02` is core 1 only |
+| validator_index | who: a place in κ, so the importer knows whose key checks the signature |
+| signature | that validator's Ed25519 signature, so nobody can speak for it, or change its bits |
+
 Try it on tiny: six validators, each with its one-byte bitfield, two cores. It starts with
 the counts the third test below reads from a vector, 5 for core 0 and 4 for core 1:
 
