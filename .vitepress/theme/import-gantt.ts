@@ -219,7 +219,7 @@ export const CALLS: { call: string; does: string; makes: string[] }[] = [
   { call: "runSafrole", does: "who may author: entropy, validators, the lottery, the seal", makes: ["γ′", "η′", "κ′", "λ′"] },
   { call: "takeAssurances", does: "what is available, and what timed out", makes: ["𝐑*", "ρ‡"] },
   { call: "takeGuarantees", does: "new reports onto the free cores", makes: ["β_H†", "ρ′"] },
-  { call: "accumulateBlock", does: "the services run their work", makes: ["ω′"] },
+  { call: "accumulateBlock", does: "each service folds in its refined results: accumulate, never refine", makes: ["ω′"] },
   { call: "nextState", does: "the rest of the new state, from what the steps made", makes: ["β_H′", "π′", "α′"] },
   { call: "providePreimages", does: "the data services asked for", makes: ["δ′"] },
 ];

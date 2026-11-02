@@ -29,7 +29,7 @@ at. The stations are [lesson 0.6](../lessons/00-start/06-how-a-block-is-imported
 | ↳ who may author: entropy, validators, the lottery, the seal | `runSafrole` | `bad_seal`, `bad_entropy_source`, `bad_epoch_mark`, `bad_tickets_mark`, `bad_offenders_mark` |
 | ↳ what is available, and what timed out | `takeAssurances` | `core_not_engaged`, `bad_attestation_parent` |
 | ↳ new reports onto the free cores | `takeGuarantees` | `core_engaged`, `bad_signature` |
-| ↳ the services run their work | `accumulateBlock` | — |
+| ↳ each service folds in its refined results: accumulate, never refine | `accumulateBlock` | — |
 | ↳ the rest of the new state, from what the steps made | `nextState` | — |
 | ↳ the data services asked for | `providePreimages` | — |
 | 6 all or nothing | `src/target.ts` · `answer` | — |

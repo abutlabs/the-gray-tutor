@@ -43,7 +43,7 @@ it.
 | 7 | hash the new state into its root | every key and value hashed into one 32-byte root (Appendix D, [6.1](../06-state-and-merklization/01-the-state-trie.md)) | — | `src/trie.ts`, `stateRoot` |
 | 8 | keep it and answer | the new state kept under this block's header hash, and its root sent back in StateRoot | — | `src/target.ts`, `answer` |
 
-Three things to say about it out loud:
+Four things to say about it out loud:
 
 - **Most of the checking is in two places.** Station 4 checks the header against the
   state before, and station 5's steps each check their own part of the block. Everything
@@ -51,6 +51,13 @@ Three things to say about it out loud:
 - **A refusal changes nothing.** The state before is still kept, so a different block
   can still name it as a parent. That is how a fork is handled: two children of one
   parent, each imported onto the same state before.
+- **The import never refines.** The heavy work, refine, ran earlier on a core: two or
+  three guarantors ran it and signed the report, and the validators' assurances say its
+  data is available. Station 5 runs only *accumulate*, the light stage, which folds a
+  report's results into its service's state. The budgets show the difference: refine may
+  spend 5,000,000,000 gas on one work-package, accumulate 10,000,000 on one report and
+  3,500,000,000 on a whole block, on full ([17.9](../17-accumulation/09-the-blocks-gas-budget.md)).
+  Re-running refine to check a report is auditing, done off the chain, not by the import.
 - **The root closes the loop.** The safrole trace's first block quotes a prior state root
   of `0xd6e78dc0…`, its import makes `0x48dc323d…`, and the trace's second block quotes
   `0x48dc323d…` as its own prior state root. The answer to one block is the check on the
