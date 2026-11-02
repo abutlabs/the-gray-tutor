@@ -78,7 +78,7 @@ The Gray Paper names the state and its big functions with letters, mostly Greek.
 | ψ | psi | past judgements, from disputes | [6.2](./06-state-and-merklization/02-state-keys.md) |
 | η | eta | entropy | [6.2](./06-state-and-merklization/02-state-keys.md) |
 | ι | iota | the next validators | [6.2](./06-state-and-merklization/02-state-keys.md) |
-| κ | kappa | the validators | [6.2](./06-state-and-merklization/02-state-keys.md) |
+| κ | kappa | the active validators: this epoch's set, in order (a `validator_index` is a place in it); its size, \|κ\|, is 6 on tiny and 1,023 on full, and from GP 0.8.0 may change at an epoch | [6.2](./06-state-and-merklization/02-state-keys.md) |
 | λ | lambda | the previous validators | [6.2](./06-state-and-merklization/02-state-keys.md) |
 | ρ | rho | reports awaiting availability | [6.2](./06-state-and-merklization/02-state-keys.md) |
 | τ | tau | the time: the current timeslot | [6.2](./06-state-and-merklization/02-state-keys.md) |
