@@ -12,7 +12,7 @@ import {
 } from "../.vitepress/theme/import-gantt.ts";
 import { ROOT, lessonCode, lessonText, readParts } from "./lessons.ts";
 
-const text = lessonText("00-start/06-how-a-block-is-ordered.md");
+const text = lessonText("00-start/06-how-a-block-is-imported.md");
 const families = lessonText("00-start/05-understanding-the-vectors.md");
 const reference = (file: string) => readFileSync(join(ROOT, "reference/src", file), "utf8");
 // the reference client is the author's own copy (reference/ is gitignored), and the Gray Paper's

@@ -200,7 +200,7 @@ section answers it again, now inside a block. So an STF vector isn't a separate 
 is the test of one piece that block import will later call, run alone while it's easy to
 see.
 
-What is that order, and which pieces don't need each other? [Lesson 0.6](./06-how-a-block-is-ordered.md)
+What is that order, and which pieces don't need each other? [Lesson 0.6](./06-how-a-block-is-imported.md)
 draws it as a timeline.
 
 ## Is a pre-state something you'd see in the wild?
@@ -416,6 +416,6 @@ A map of the vectors: what the kinds ask, which way each is checked, the files t
 answer them, and the part that writes each. No code yet; it will be easier to place now
 that you know where it's going. The nine STF functions are only half the picture, though:
 a block import calls them in an order, and some can run side by side. [The next
-lesson](./06-how-a-block-is-ordered.md) draws that order.
+lesson](./06-how-a-block-is-imported.md) draws that order.
 
-Next: [0.6 How a block is ordered](./06-how-a-block-is-ordered.md)
+Next: [0.6 How a block is imported](./06-how-a-block-is-imported.md)

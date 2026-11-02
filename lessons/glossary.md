@@ -75,7 +75,7 @@ started with. *Example:* a work item to bytes and back to the same work item.
 
 **Slack.** How many waves a block-import step could wait without making anything late.
 *Example:* the guarantees' step finishes in wave 3, but nothing in the block needs it, so it
-has 1 wave of slack. ([0.6](./00-start/06-how-a-block-is-ordered.md))
+has 1 wave of slack. ([0.6](./00-start/06-how-a-block-is-imported.md))
 
 **Vector family.** One kind of test vector, in a folder of its own, all checked the same
 way. *Example:* `codec`, `stf/safrole`, `traces/fallback`.
@@ -627,6 +627,7 @@ runs out when it's spent. ([15.9](./15-the-pvm/09-what-instructions-cost.md))
 
 **Judgement and verdict.** When a work-report is challenged, validators vote on it
 (judgements); enough of them together make a verdict: good, bad, or *wonky* (split).
+Wonky is dropped like bad, but nobody is punished.
 ([10.1](./10-disputes/01-votes-and-verdicts.md))
 
 **Judges.** K. The validators whose votes a verdict carries: κ if the verdict's age is this

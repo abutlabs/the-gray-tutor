@@ -14,6 +14,7 @@ export const PUBLISHED: string[] = [
   "00-start/04-the-jam-clock",
   "00-start/05-understanding-the-vectors",
   "00-start/06-how-a-block-is-ordered",
+  "00-start/06-how-a-block-is-imported",
   "00-start/",
   "01-bytes-and-numbers/01-bytes-and-hex",
   "01-bytes-and-numbers/02-numbers",
@@ -148,7 +149,9 @@ export const PUBLISHED: string[] = [
 
 /** Pages that moved: old address to new. The build leaves a page at the old address that
  * sends the reader on, to the same section (#...) if the link named one. */
-export const MOVED: Record<string, string> = {};
+export const MOVED: Record<string, string> = {
+  "00-start/06-how-a-block-is-ordered": "00-start/06-how-a-block-is-imported", // 0.6 renamed: it is the whole import now
+};
 
 /** 0.1's list of labels, where every snippet label links (.vitepress/config.ts). */
 export const LEGEND = "/00-start/01-what-you-will-build.md#how-a-lesson-works";

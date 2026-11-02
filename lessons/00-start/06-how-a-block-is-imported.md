@@ -1,11 +1,13 @@
-# How a block is ordered
+# How a block is imported
 
 [Lesson 0.5](./05-understanding-the-vectors.md) showed the nine small functions that the
-vectors test one at a time. A real block uses all of them. In what order, and which of them
-need each other? By the end of this lesson you can read a timeline of a whole block import:
-what must come before what, what could run side by side, and when each value in the block's
-header can first be checked. Nothing here is code to type. It is the map that lets the
-parts you build next find their place.
+vectors test one at a time. A real block uses all of them, and more: before any of them
+runs, the block has to arrive, be decoded, find the state it builds on and pass its
+header's checks; after them, the new state is hashed into a root and sent back. That whole
+journey is a *block import*, and it is what Milestone 1 asks a client to do. By the end of
+this lesson you can walk one block through it, station by station, and say where in our
+client each station lives. Nothing here is code to type. It is the map the parts you build
+next fill in.
 
 ## New words
 
@@ -15,11 +17,82 @@ parts you build next find their place.
 - **Slack.** How many waves a step could wait without making anything late. *Example:*
   the guarantees' step finishes in wave 3, but nothing needs it, so it has 1 wave of slack.
 
-## The whole transition
+## The whole import
 
-A block import is the *state transition function* ([lesson 0.1](./01-what-you-will-build.md)):
+Think of a bank posting a day's batch of payments. The batch says which day it follows
+and quotes that day's closing balance. The clerk checks it belongs on top of yesterday,
+checks every payment in it, posts them all or none, and prints the new closing balance,
+which tomorrow's batch must quote. A block import is the same: the block names its parent
+and quotes the parent's state root, every part of it is checked, its changes are all made
+or none are, and out comes a new state root that the next block quotes.
+
+In our client a block makes eight stops. Pick a block below and press *next*: the real
+one goes all the way to its StateRoot, and a wrong one stops at the station that refuses
+it.
+
+<ImportLine />
+
+| | station | what happens | refuses the block with | in our client |
+| --- | --- | --- | --- | --- |
+| 1 | bytes arrive | the fuzzer sends ImportBlock: one block, as bytes ([20.1](../20-facing-the-fuzzer/01-speaking-the-protocol.md)) | — | `src/fuzz.ts`, `MessageCodec` |
+| 2 | decode the block | the bytes become a header and the extrinsic's five lists (Appendix C) | — | `src/block.ts`, `Block` |
+| 3 | find the state before | the header's parent hash picks the state the parent's import left ([20.2](../20-facing-the-fuzzer/02-a-target.md)) | the parent block is unknown | `src/target.ts`, `answer` |
+| 4 | check the header | parent, prior state root, slot and extrinsic hash, against that state (§5) | `bad_parent`, `bad_parent_state_root`, `bad_slot`, `bad_extrinsic_hash` | `src/import.ts`, `checkHeader` |
+| 5 | run Υ | disputes, Safrole, assurances, guarantees, accumulation, then the rest of the new state; each step checks its own part of the block ([19.4](../19-block-import/04-importing-a-block.md)) | each step's own, such as `bad_vote_split`, `bad_seal`, `core_engaged` | `src/import.ts`, `importBlock` |
+| 6 | all or nothing | no refusal: the new state stands. Any refusal: the answer is an Error, and the state before stays | — | `src/target.ts`, `answer` |
+| 7 | hash the new state into its root | every key and value hashed into one 32-byte root (Appendix D, [6.1](../06-state-and-merklization/01-the-state-trie.md)) | — | `src/trie.ts`, `stateRoot` |
+| 8 | keep it and answer | the new state kept under this block's header hash, and its root sent back in StateRoot | — | `src/target.ts`, `answer` |
+
+Three things to say about it out loud:
+
+- **Most of the checking is in two places.** Station 4 checks the header against the
+  state before, and station 5's steps each check their own part of the block. Everything
+  else either reads bytes or writes results.
+- **A refusal changes nothing.** The state before is still kept, so a different block
+  can still name it as a parent. That is how a fork is handled: two children of one
+  parent, each imported onto the same state before.
+- **The root closes the loop.** The safrole trace's first block quotes a prior state root
+  of `0xd6e78dc0…`, its import makes `0x48dc323d…`, and the trace's second block quotes
+  `0x48dc323d…` as its own prior state root. The answer to one block is the check on the
+  next.
+
+<details>
+<summary>The same stations in lasair</summary>
+
+lasair imports the same block through the same stations, with its files laid out
+differently. Its fuzzer target is `bin/conformance_target.ml`, and the import itself is
+`conformance/trace_runner.ml`'s `import_block`, which calls into
+`conformance/stf_guarantees.ml`, `stf_transitions.ml` and `stf_statistics.ml`.
+
+| station | lasair |
+| --- | --- |
+| 1, 2 bytes arrive, decode | `handle_import`, `Block_codec.decode_block` |
+| 3 find the state before | `find_parent` |
+| 4 check the header | `validate_block_guarantees`, its first checks |
+| 5 run Υ | `process_disputes`; the rest of `validate_block_guarantees` (seal, marks, assurances, guarantees); then `update_timeslot`, `update_entropy`, `update_safrole_epoch`, `process_tickets`, `process_guarantees` (assurances, accumulation, new reports), `update_auth_pools`, `process_preimage_extrinsic`, the `Stf_statistics` updates and `update_history` |
+| 6 all or nothing | `import_block` returns `Error` before it writes anything |
+| 7 the new state's root | `State_db.root` |
+| 8 keep it and answer | `store`, `record_header`, `msg_state_root` |
+
+The one real difference is when the checks run. Our client checks each step's part as
+that step runs. lasair checks the whole block first, in `validate_block_guarantees`, and
+only then makes the new state. Both orders are allowed, since neither keeps anything from
+a block it refuses. lasair's `lib/` chapter files (`header.ml`, `safrole.ml` and the rest)
+are its early study models; the import doesn't call them.
+
+</details>
+
+**What an importer leaves out.** Making blocks, talking to other nodes, auditing reports
+off the chain, and choosing which chain is best and final are all a validator's work
+beside importing. Milestone 1 is the import alone: blocks in, state roots out, every
+wrong block refused.
+
+## Inside station 5: what waits for what
+
+Station 5 is the *state transition function* ([lesson 0.1](./01-what-you-will-build.md)):
 a state and a block go in, and out comes the state after the block, or a refusal. In the
-Gray Paper it is the Greek capital Υ.
+Gray Paper it is the Greek capital Υ. Stations 4 and 5 are the Gray Paper's rules, a valid
+header and Υ; stations 1 to 3 and 6 to 8 are what a client does around them.
 
 ```text
  the state before ─┐
@@ -112,6 +185,27 @@ seal. At the end, the new state has a root, ready for the next block to quote.
 ## Check your understanding
 
 ::: check
+**A block is sealed by the wrong validator. Where is it refused, and what happens to the state?**
+
+- [ ] At the header check, station 4, and the state before is thrown away
+  > No: the seal needs Safrole's sealers, so it's checked in Υ, and a refusal never throws
+  > a state away.
+- [x] In Υ, at Safrole's step, with `bad_seal`; the state before stays, still a parent
+  > Yes: the answer is an Error, and nothing the block did is kept.
+- [ ] After the new state's root is made, when the fuzzer compares roots
+  > No: the importer refuses it itself, before any root is made.
+
+**The importer answers a block with StateRoot `0x48dc323d…`. Where does that value appear next?**
+
+- [ ] In this block's own header, which is filled in afterwards
+  > No: a block's header is signed by its author before anyone imports it. It can't hold
+  > its own import's result.
+- [x] In the next block's header, as its prior state root, checked at its station 4
+  > Yes: the safrole trace's second block quotes exactly `0x48dc323d…`.
+- [ ] Nowhere: the fuzzer only uses it to compare with the reference client
+  > No: the fuzzer compares it, and the chain also quotes it. The next block's header
+  > carries it.
+
 **Which block-import steps could run side by side?**
 
 - [ ] Any two steps on the Gray Paper's list
@@ -152,9 +246,11 @@ seal. At the end, the new state has a root, ready for the next block to quote.
 
 ## What you have
 
-A timeline of a whole block import: sixteen steps in four waves, the chain that sets its
-length, the steps that can wait, and what the block gives against what its header must match. [Part 1](../01-bytes-and-numbers/index.md)
+A whole block import, end to end: eight stations from bytes in to state root out, where
+each one lives in our client, and what refuses a wrong block. And inside station 5, a
+timeline: sixteen steps in four waves, the chain that sets its length, the steps that can
+wait, and what the block gives against what its header must match. [Part 1](../01-bytes-and-numbers/index.md)
 starts at the other end, with the bytes and numbers every vector is made of, so that by
-[Part 19](../19-block-import/index.md) each box on this timeline is a function you wrote.
+[Part 20](../20-facing-the-fuzzer/index.md) every station is a function you wrote.
 
 Next: [Part 1 · Bytes and numbers](../01-bytes-and-numbers/index.md)

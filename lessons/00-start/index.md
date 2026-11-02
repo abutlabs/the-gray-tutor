@@ -21,7 +21,7 @@ through them in order with *next*.
 - [0.3 Watch your client](./03-watch-your-client.md)
 - [0.4 The JAM clock](./04-the-jam-clock.md)
 - [0.5 Understanding the vectors](./05-understanding-the-vectors.md)
-- [0.6 How a block is ordered](./06-how-a-block-is-ordered.md)
+- [0.6 How a block is imported](./06-how-a-block-is-imported.md)
 
 **Test yourself:** [F0 · Start here: JAM in five minutes](https://abutlabs.github.io/jam-learning/lasair/exam.html?chapter=f00-start-here),
 self-test cards on JAM learning.
