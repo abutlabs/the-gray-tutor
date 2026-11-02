@@ -1085,9 +1085,9 @@ export const FLOWS: Flow[] = [
       machine: {
         kind: "thing",
         name: "The machine",
-        says: `${PVM.registers} registers of 64 bits each, r0 to r12, an instruction counter, and 2^32 bytes of memory handed out in pages, each one readable, writable, or neither.`,
-        example: `${PVM.registers} registers, pages of ${PVM.page.toLocaleString("en-US")} bytes`,
-        lessons: ["15.3", "15.4"],
+        says: `${PVM.registers} registers of 64 bits each, r0 to r12, an instruction counter, a gas counter, and 2^32 bytes (4 GiB) of addresses, handed out in pages of ${PVM.page.toLocaleString("en-US")}, each one readable, writable, or neither: a program has only the pages it's given.`,
+        example: `${PVM.registers} registers; 4 GiB of addresses, in pages of ${PVM.page.toLocaleString("en-US")} bytes`,
+        lessons: ["15.3", "15.4", "15.11"],
       },
       step: {
         kind: "step",
