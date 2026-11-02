@@ -28,6 +28,19 @@ them, and β_B, the belt. Each new block does three things to them:
    root "inaccurate but safe": nothing reads it before step 1 fixes it, one block later.
 3. **Forgets.** Only the last eight entries are kept.
 
+So β's two halves live in one state entry, C(3), with very different memories:
+
+| | β_H, the recent blocks | β_B, the belt |
+| --- | --- | --- |
+| remembers | the last 8 blocks, the oldest dropped as each new one comes | every block since genesis: each adds its accumulation root |
+| keeps | a whole entry per block: header hash, state root, super-peak, slot, reported packages | only the peaks, one place per power of two |
+| size | always 8 entries at most | one place per binary digit of the block count: 23 after a year of 6-second blocks, 29 after a century |
+
+The belt never resets and never forgets a block, yet it stays tiny: it grows with the number
+of *digits* in the block count, not with the count, like [lesson 9.1](./01-the-mountain-belt.md)'s binary counter.
+Each peak is a commitment to all the blocks under it, which is why one super-peak can stand
+for the chain's whole history of accumulation outputs.
+
 The history vectors give the new block's parts ready-made: its header hash, its
 `parent_state_root`, the root of its accumulation outputs, its slot, and its reported
 packages. For now, all you need to know is that a block brings them. [Part 12](../12-guarantees/index.md) works out
