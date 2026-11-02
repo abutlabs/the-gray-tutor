@@ -28,6 +28,14 @@ new reports on the cores left free ([lesson 12.3](../12-guarantees/03-onto-the-c
 at slot 7: leave it alone until slot 12 and watch it go. Then try to guarantee a report
 onto a core that is still busy. (The validator set never changes size here.)
 
+The "assured by" row starts empty at every block, and that's the Gray Paper's rule, not the
+widget forgetting. A report is available when more than two thirds assure it *in one block*:
+the count is over that block's assurances alone, and nothing carries over. Each assurance
+signs the parent block's hash ([lesson 11.3](./03-bad-assurances.md)), so it can't be reused in a later one. So a
+validator assures again in every block while it holds pieces of pending reports: one
+bitfield and one signature, for all the cores at once. "I hold my piece" is about now, and
+the chain keeps no running tally in its state.
+
 <ReportLife />
 
 ## Splitting a function
