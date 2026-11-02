@@ -200,11 +200,13 @@ to `PUBLISHED` in `.vitepress/urls.ts`. A page that moves or is renumbered: add 
 to the same section. A renamed heading: put `<a id="old-id"></a>` on the line above it.
 `tools/urls.test.ts` checks all three, and that every `#section` link lands on a heading.
 
-**Debug configurations stop at 1.2.** `.vscode/launch.json` has three for any lesson (all
-the tests, the open test file, the open program) and one for each program up to 1.2, none
-for single test files. 0.4 teaches the debugger and 1.2 hands it over; later lessons
-don't add configurations or mention them: the reader makes their own, a habit 1.2
-recommends.
+**Debug configurations stop at 1.2; the launcher covers the rest.** `.vscode/launch.json`
+has three for any lesson (all the tests, the open test file, the open program) and one for
+each program up to 1.2, none for single test files. 0.4 teaches the debugger and 1.2 hands
+it over. After that, *▶ Any npm script* runs every script a lesson adds under the debugger,
+and `.vscode/launch.json.md` says what each shows: both are made by `npm run launcher`
+from the lessons (`tools/launcher.ts`), so a lesson that adds a script runs it and the
+tests ask for the files remade.
 
 ## Shape
 

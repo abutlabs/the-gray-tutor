@@ -13,6 +13,7 @@
     "compare": "node tools/need-node.mjs && node tools/compare.ts",
     "catch-up": "node tools/need-node.mjs && node tools/compare.ts --write",
     "verify": "node tools/need-node.mjs && node tools/verify.ts",
+    "launcher": "node tools/need-node.mjs && node tools/launcher.ts",
     "screenshots": "node tools/need-node.mjs && node tools/screenshots.ts",
     "diagrams": "node tools/need-node.mjs && node tools/diagrams.ts",
     "epub": "node tools/need-node.mjs && EPUB=1 vitepress build",

@@ -1,12 +1,47 @@
+// Run and Debug (⇧⌘D): pick a configuration, press F5. A breakpoint pauses the code on
+// its line. Node runs the .ts files itself, so there's no build and no source maps.
+// runtimeVersion "26" takes Node 26 from nvm, whatever your default Node is. What the
+// code prints shows in the Debug Console: VS Code starts Node itself, with no shell in
+// between, so your shell's startup files can't slow or break the launch.
+// The three marked ▶ ask what to run: any npm script the lessons have added, a whole trace,
+// or a fuzz session. launch.json.md, beside this file, says what each script shows and where
+// to break in a block import. npm run launcher remakes the ▶ ones from the lessons.
 {
-  // Run and Debug (⇧⌘D): pick a configuration, press F5. A breakpoint pauses the code on
-  // its line. Node runs the .ts files itself, so there's no build and no source maps.
-  // runtimeVersion "26" takes Node 26 from nvm, whatever your default Node is. What the
-  // code prints shows in the Debug Console: VS Code starts Node itself, with no shell in
-  // between, so your shell's startup files can't slow or break the launch.
-  // The programs of lessons 0.3 and 0.4 have one each; after 1.2, adding them is up to you.
   "version": "0.2.0",
   "configurations": [
+    {
+      "name": "▶ Any npm script (pick one)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "${input:script}"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "▶ Import a trace, block by block (lesson 19.4)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "import", "${input:family}"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "▶ Fuzz session: our fuzzer and our target (lesson 20.3)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/client",
+      "runtimeVersion": "26",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "fuzz", "${input:family}"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
     {
       "name": "seals",
       "type": "node",
@@ -187,6 +222,479 @@
       "runtimeVersion": "26",
       "program": "${workspaceFolder}/client/bin/now.ts",
       "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "script",
+      "type": "pickString",
+      "description": "Which npm script? Type to filter; a lesson you haven't reached hasn't added its script yet.",
+      "options": [
+        {
+          "label": "hello · 0.3 Watch your client",
+          "value": "hello"
+        },
+        {
+          "label": "now · 0.4 The JAM clock",
+          "value": "now"
+        },
+        {
+          "label": "hexdump · 2.6 The first test vectors",
+          "value": "hexdump"
+        },
+        {
+          "label": "hexdump-work-item · 2.6 The first test vectors",
+          "value": "hexdump-work-item"
+        },
+        {
+          "label": "scoreboard · 2.6 The first test vectors",
+          "value": "scoreboard"
+        },
+        {
+          "label": "decode · 2.7 Watch a decode",
+          "value": "decode"
+        },
+        {
+          "label": "decode-work-item · 2.7 Watch a decode",
+          "value": "decode-work-item"
+        },
+        {
+          "label": "decode-work-package · 3.1 A work-package",
+          "value": "decode-work-package"
+        },
+        {
+          "label": "decode-work-result · 3.2 Work digests",
+          "value": "decode-work-result"
+        },
+        {
+          "label": "decode-work-report · 3.3 A work-report",
+          "value": "decode-work-report"
+        },
+        {
+          "label": "decode-preimages · 4.1 Tickets and preimages",
+          "value": "decode-preimages"
+        },
+        {
+          "label": "decode-assurances · 4.2 Tiny and full",
+          "value": "decode-assurances"
+        },
+        {
+          "label": "decode-assurances-full · 4.2 Tiny and full",
+          "value": "decode-assurances-full"
+        },
+        {
+          "label": "decode-guarantees · 4.3 Guarantees",
+          "value": "decode-guarantees"
+        },
+        {
+          "label": "decode-disputes · 4.4 Disputes",
+          "value": "decode-disputes"
+        },
+        {
+          "label": "decode-header · 4.6 The header",
+          "value": "decode-header"
+        },
+        {
+          "label": "decode-block · 4.7 The block",
+          "value": "decode-block"
+        },
+        {
+          "label": "chain · 5.1 Hashes",
+          "value": "chain"
+        },
+        {
+          "label": "assurances · 5.3 Signatures",
+          "value": "assurances"
+        },
+        {
+          "label": "assurances-bad-signature · 5.3 Signatures",
+          "value": "assurances-bad-signature"
+        },
+        {
+          "label": "state · 6.1 The state trie",
+          "value": "state"
+        },
+        {
+          "label": "state-fallback · 6.1 The state trie",
+          "value": "state-fallback"
+        },
+        {
+          "label": "read-state · 6.3 Reading the state",
+          "value": "read-state"
+        },
+        {
+          "label": "read-state-safrole · 6.3 Reading the state",
+          "value": "read-state-safrole"
+        },
+        {
+          "label": "epochs · 7.1 Epochs",
+          "value": "epochs"
+        },
+        {
+          "label": "shuffle · 7.2 The shuffle",
+          "value": "shuffle"
+        },
+        {
+          "label": "shuffle-eight · 7.2 The shuffle",
+          "value": "shuffle-eight"
+        },
+        {
+          "label": "entropy · 8.1 Stirring the entropy",
+          "value": "entropy"
+        },
+        {
+          "label": "entropy-new-epoch · 8.1 Stirring the entropy",
+          "value": "entropy-new-epoch"
+        },
+        {
+          "label": "rotation · 8.2 Rotating the validators",
+          "value": "rotation"
+        },
+        {
+          "label": "rotation-new-epoch · 8.2 Rotating the validators",
+          "value": "rotation-new-epoch"
+        },
+        {
+          "label": "sealers · 8.3 The fallback sealers",
+          "value": "sealers"
+        },
+        {
+          "label": "sealers-no-tickets · 8.3 The fallback sealers",
+          "value": "sealers-no-tickets"
+        },
+        {
+          "label": "lottery · 8.4 The lottery's winners",
+          "value": "lottery"
+        },
+        {
+          "label": "lottery-closes · 8.4 The lottery's winners",
+          "value": "lottery-closes"
+        },
+        {
+          "label": "safrole · 8.5 One step of Safrole",
+          "value": "safrole"
+        },
+        {
+          "label": "safrole-new-epoch · 8.5 One step of Safrole",
+          "value": "safrole-new-epoch"
+        },
+        {
+          "label": "vrf · 8.6 The VRF output",
+          "value": "vrf"
+        },
+        {
+          "label": "safrole-tickets-2 · 8.7 Entering tickets",
+          "value": "safrole-tickets-2"
+        },
+        {
+          "label": "safrole-tickets-4 · 8.7 Entering tickets",
+          "value": "safrole-tickets-4"
+        },
+        {
+          "label": "safrole-no-tickets · 8.8 The ring root",
+          "value": "safrole-no-tickets"
+        },
+        {
+          "label": "safrole-tickets-5 · 8.8 The ring root",
+          "value": "safrole-tickets-5"
+        },
+        {
+          "label": "seals · 8.9 Seals",
+          "value": "seals"
+        },
+        {
+          "label": "belt · 9.1 The mountain belt",
+          "value": "belt"
+        },
+        {
+          "label": "history · 9.2 Recent blocks",
+          "value": "history"
+        },
+        {
+          "label": "history-preimages · 9.2 Recent blocks",
+          "value": "history-preimages"
+        },
+        {
+          "label": "verdicts · 10.1 Votes and verdicts",
+          "value": "verdicts"
+        },
+        {
+          "label": "verdicts-progress · 10.1 Votes and verdicts",
+          "value": "verdicts-progress"
+        },
+        {
+          "label": "offenders · 10.2 Culprits and faults",
+          "value": "offenders"
+        },
+        {
+          "label": "offenders-progress · 10.2 Culprits and faults",
+          "value": "offenders-progress"
+        },
+        {
+          "label": "cores · 10.3 Clearing the cores",
+          "value": "cores"
+        },
+        {
+          "label": "cores-invalidated · 10.3 Clearing the cores",
+          "value": "cores-invalidated"
+        },
+        {
+          "label": "check-disputes · 10.4 Bad verdicts",
+          "value": "check-disputes"
+        },
+        {
+          "label": "available · 11.1 Available",
+          "value": "available"
+        },
+        {
+          "label": "available-some · 11.1 Available",
+          "value": "available-some"
+        },
+        {
+          "label": "release · 11.2 Timeouts",
+          "value": "release"
+        },
+        {
+          "label": "release-stale · 11.2 Timeouts",
+          "value": "release-stale"
+        },
+        {
+          "label": "check-assurances · 11.3 Bad assurances",
+          "value": "check-assurances"
+        },
+        {
+          "label": "guarantors · 12.1 Who guarantees what",
+          "value": "guarantors"
+        },
+        {
+          "label": "guarantors-prev-rotation · 12.1 Who guarantees what",
+          "value": "guarantors-prev-rotation"
+        },
+        {
+          "label": "reporters · 12.2 Signed and counted",
+          "value": "reporters"
+        },
+        {
+          "label": "reporters-same-guarantors · 12.2 Signed and counted",
+          "value": "reporters-same-guarantors"
+        },
+        {
+          "label": "placed · 12.3 Onto the cores",
+          "value": "placed"
+        },
+        {
+          "label": "placed-high-gas · 12.3 Onto the cores",
+          "value": "placed-high-gas"
+        },
+        {
+          "label": "check-guarantees · 12.4 Bad guarantees",
+          "value": "check-guarantees"
+        },
+        {
+          "label": "pools · 13.1 The authorizer pools",
+          "value": "pools"
+        },
+        {
+          "label": "pools-progress · 13.1 The authorizer pools",
+          "value": "pools-progress"
+        },
+        {
+          "label": "preimages · 14.1 Providing preimages",
+          "value": "preimages"
+        },
+        {
+          "label": "preimages-trace · 14.1 Providing preimages",
+          "value": "preimages-trace"
+        },
+        {
+          "label": "service · 14.2 The service account",
+          "value": "service"
+        },
+        {
+          "label": "service-fallback · 14.2 The service account",
+          "value": "service-fallback"
+        },
+        {
+          "label": "program · 15.1 The program blob",
+          "value": "program"
+        },
+        {
+          "label": "program-fallback · 15.1 The program blob",
+          "value": "program-fallback"
+        },
+        {
+          "label": "disassemble · 15.2 Instructions",
+          "value": "disassemble"
+        },
+        {
+          "label": "disassemble-fallback · 15.2 Instructions",
+          "value": "disassemble-fallback"
+        },
+        {
+          "label": "run · 15.3 The machine",
+          "value": "run"
+        },
+        {
+          "label": "memory · 15.4 Memory",
+          "value": "memory"
+        },
+        {
+          "label": "alu · 15.5 Arithmetic",
+          "value": "alu"
+        },
+        {
+          "label": "branches · 15.6 Branches and calls",
+          "value": "branches"
+        },
+        {
+          "label": "bits · 15.7 Bits and bytes",
+          "value": "bits"
+        },
+        {
+          "label": "start · 15.8 A real program",
+          "value": "start"
+        },
+        {
+          "label": "costs · 15.9 What instructions cost",
+          "value": "costs"
+        },
+        {
+          "label": "pipeline · 15.10 The pipeline",
+          "value": "pipeline"
+        },
+        {
+          "label": "gas · 15.11 The gas meter",
+          "value": "gas"
+        },
+        {
+          "label": "host · 16.1 Calling the host",
+          "value": "host"
+        },
+        {
+          "label": "accumulate · 16.7 A service's inputs",
+          "value": "accumulate"
+        },
+        {
+          "label": "accumulate-foreign-preimage · 16.8 Lookup",
+          "value": "accumulate-foreign-preimage"
+        },
+        {
+          "label": "accumulate-len-bound · 16.9 Asking for preimages",
+          "value": "accumulate-len-bound"
+        },
+        {
+          "label": "host-transfer · 17.3 Sending a transfer",
+          "value": "host-transfer"
+        },
+        {
+          "label": "accumulate-transfer · 17.4 Rounds",
+          "value": "accumulate-transfer"
+        },
+        {
+          "label": "host-assign · 17.5 Privileges",
+          "value": "host-assign"
+        },
+        {
+          "label": "host-assign-refused · 17.5 Privileges",
+          "value": "host-assign-refused"
+        },
+        {
+          "label": "accumulate-assign · 17.6 Who wins",
+          "value": "accumulate-assign"
+        },
+        {
+          "label": "host-eject · 17.7 Ejecting a service",
+          "value": "host-eject"
+        },
+        {
+          "label": "host-new-service · 17.8 Creating a service",
+          "value": "host-new-service"
+        },
+        {
+          "label": "accumulate-recreate · 17.9 The block's gas budget",
+          "value": "accumulate-recreate"
+        },
+        {
+          "label": "host-upgrade · 17.10 Upgrading a service",
+          "value": "host-upgrade"
+        },
+        {
+          "label": "accumulate-ejected · 17.11 What a service yields",
+          "value": "accumulate-ejected"
+        },
+        {
+          "label": "host-provide-1 · 17.12 Providing a preimage",
+          "value": "host-provide-1"
+        },
+        {
+          "label": "host-provide-2 · 17.12 Providing a preimage",
+          "value": "host-provide-2"
+        },
+        {
+          "label": "host-bless · 17.13 Blessing and designating",
+          "value": "host-bless"
+        },
+        {
+          "label": "host-designate · 17.13 Blessing and designating",
+          "value": "host-designate"
+        },
+        {
+          "label": "statistics · 18.1 Who did what",
+          "value": "statistics"
+        },
+        {
+          "label": "activity · 18.2 What cores and services did",
+          "value": "activity"
+        },
+        {
+          "label": "activity-some · 18.2 What cores and services did",
+          "value": "activity-some"
+        },
+        {
+          "label": "plan · 19.1 The order of things",
+          "value": "plan"
+        },
+        {
+          "label": "whole-state · 19.2 The whole state",
+          "value": "whole-state"
+        },
+        {
+          "label": "import · 19.4 Importing a block",
+          "value": "import"
+        },
+        {
+          "label": "fuzz · 20.3 A session",
+          "value": "fuzz"
+        },
+        {
+          "label": "target · 20.4 Ready to be fuzzed",
+          "value": "target"
+        },
+        {
+          "label": "target-tiny · 20.4 Ready to be fuzzed",
+          "value": "target-tiny"
+        },
+        {
+          "label": "fuzz-target · 20.4 Ready to be fuzzed",
+          "value": "fuzz-target"
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "type": "pickString",
+      "description": "Which block-import trace (vectors/traces/)?",
+      "options": [
+        "fallback",
+        "safrole",
+        "preimages",
+        "preimages_light",
+        "storage",
+        "storage_light",
+        "fuzzy",
+        "fuzzy_light"
+      ],
+      "default": "safrole"
     }
   ]
 }

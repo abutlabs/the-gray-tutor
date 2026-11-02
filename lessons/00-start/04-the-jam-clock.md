@@ -221,7 +221,9 @@ Four places tell you what happened:
 > *Tests: all (npm test)* comes from `.vscode/launch.json`, which the tutorial ships. Two
 > more work in any lesson: *Tests: the open file* runs the test file you're looking at,
 > and *Program: the open file* the program. Each program gets one of its own:
-> *Program: hello (0.3)*, and *Program: now (0.4)* for the program you'll make below.
+> *Program: hello (0.3)*, and *Program: now (0.4)* for the program you'll make below. And
+> *▶ Any npm script* runs any script the lessons have added, picked from a list: every
+> program, on every example, under the debugger. `.vscode/launch.json.md` lists them all.
 
 The fix is one word:
 
