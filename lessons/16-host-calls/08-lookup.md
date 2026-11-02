@@ -311,21 +311,27 @@ others.
 <summary>lasair: finding the service, in <code>lib/pvm_host.ml</code></summary>
 
 ```ocaml
+let find_other (ctx : host_context) (id : int) : service_account option =
+  match List.assoc_opt id ctx.other_services with
+  | Some svc -> Some svc
+  | None when ejected_here ctx id -> None
+  | None -> (match ctx.lookup_service with Some f -> f id | None -> None)
+
 let resolve_service (ctx : host_context) (r : int64) =
   if r = -1L then Some ctx.service
   else if Int64.unsigned_compare r 0x1_0000_0000L >= 0 then None
   else
     let id = Int64.to_int r in
     if id = ctx.service_id then Some ctx.service
-    else match List.assoc_opt id ctx.other_services with
-      | Some svc -> Some svc
-      | None -> (match ctx.lookup_service with Some f -> f id | None -> None)
+    else find_other ctx id
 ```
 
 The first half of `lookup`, `read` and `info`: which account is meant. −1 is lasair's 2^64 −
 1 (its registers are signed), anything at or past 2^32 can't be a service id, and then it
 looks in the service itself, the other accounts in its context, and finally the chain's
-state, through a function, for an account the context didn't bring along. Your client puts
+state, through a function, for an account the context didn't bring along. One more case
+sits in `find_other`: a service this very accumulation has ejected is gone, even though the
+chain's state still holds it. Your client puts
 every account into the context, which keeps it to one `Map` lookup.
 
 </details>

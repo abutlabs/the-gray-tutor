@@ -355,7 +355,7 @@ which core was emptied, and why.
 ![Cores panel](./images/03-cores.png)
 
 <details>
-<summary>lasair: two roads to the same set, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: two roads to the same set, in <code>conformance/disputes.ml</code></summary>
 
 ```ocaml
         let newly lst pre = List.filter (fun t ->

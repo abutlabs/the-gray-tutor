@@ -93,12 +93,14 @@ test("the real block's values are the safrole trace's, and its root is block 2's
 });
 
 test("the lesson's lasair table names functions lasair has", { skip: !existsSync(LASAIR) && "no lasair beside the repo" }, () => {
-  const files = ["bin/conformance_target.ml", "conformance/trace_runner.ml", "conformance/stf_guarantees.ml",
-    "conformance/stf_transitions.ml", "conformance/block_codec.ml", "lib/state_db.ml"];
+  // lasair's import modules, one per Graypaper chapter, as the lesson names them
+  const modules = ["import", "validate", "disputes", "time", "safrole", "reports", "authorization",
+    "preimages", "statistics", "history", "block_codec"].map((m) => `conformance/${m}.ml`);
+  const files = ["bin/conformance_target.ml", "lib/state_db.ml", ...modules];
   const src = files.map((f) => readFileSync(join(LASAIR, f), "utf8")).join("\n");
   const from = text.indexOf("| station | lasair |");
   const table = text.slice(from, text.indexOf("\n\n", from));
-  const names = [...table.matchAll(/`(?:\w+\.)?(\w+)`/g)].map((m) => m[1]).filter((n) => n !== "Error" && n !== "Stf_statistics");
+  const names = [...table.matchAll(/`(?:\w+\.)?(\w+)`/g)].map((m) => m[1]).filter((n) => n !== "Error" && n !== "Statistics");
   assert.ok(names.length > 15, `read the table: ${names.length}`);
   for (const n of names) assert.ok(new RegExp(`let (rec )?${n}\\b`).test(src), `lasair has ${n}`);
 });

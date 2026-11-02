@@ -385,7 +385,7 @@ ticket. The *Seals* panel, on **3 · Consensus**, lists them.
 ![Seals panel](./images/09-seals.png)
 
 <details>
-<summary>lasair: the seal, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: the seal, in <code>conformance/validate.ml</code></summary>
 
 ```ocaml
     (* fallback identity check (eq. 152) — cheap, no crypto *)

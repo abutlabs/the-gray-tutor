@@ -305,13 +305,18 @@ it couldn't afford. The *Gas* panel, on **6 · The PVM**, has both runs.
     else if not !charged
          && (let cost = Int64.of_int (Pvm_gas.block_cost inf (Pvm_gas.block_start inf p)) in
              if Int64.compare !gas cost < 0 then true
-             else (gas := Int64.sub !gas cost; charged := true; false))
+             else begin
+               gas := Int64.sub !gas cost; charged := true;
+               (match !block_hook with Some f -> f inf (Pvm_gas.block_start inf p) | None -> ());
+               false
+             end)
     then exit := Some OutOfGas
 ```
 
 The same check, in the middle of lasair's run loop. One difference: lasair prices
 `block_start inf p`, the start of whichever block p is in (the Gray Paper's 𝔏). Your
-meter prices the block starting at ı: the simple road in the note above.
+meter prices the block starting at ı: the simple road in the note above. The `block_hook`
+line is a tap for lasair's own debugging tools: nothing is hooked in during an import.
 
 </details>
 

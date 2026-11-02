@@ -567,7 +567,7 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 > memory, and the belt's peaks, exactly as the vectors keep them.
 
 <details>
-<summary>lasair: <code>recent_history_core</code>, in <code>conformance/stf_transitions.ml</code></summary>
+<summary>lasair: <code>recent_history_core</code>, in <code>conformance/history.ml</code></summary>
 
 ```ocaml
   let new_entry = {

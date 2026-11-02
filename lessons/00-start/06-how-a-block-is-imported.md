@@ -66,26 +66,26 @@ Four things to say about it out loud:
 <details>
 <summary>The same stations in lasair</summary>
 
-lasair imports the same block through the same stations, with its files laid out
-differently. Its fuzzer target is `bin/conformance_target.ml`, and the import itself is
-`conformance/trace_runner.ml`'s `import_block`, which calls into
-`conformance/stf_guarantees.ml`, `stf_transitions.ml` and `stf_statistics.ml`.
+lasair imports the same block through the same stations, and its files follow our
+client's: `conformance/import.ml`'s `import_block` is our `importBlock`, and it calls one
+module per Gray Paper chapter, named as our `src/` files are: `disputes.ml`, `safrole.ml`,
+`assurances.ml`, `guarantors.ml`, `accumulate.ml`, `history.ml` and the rest. Its fuzzer
+target is `bin/conformance_target.ml`.
 
 | station | lasair |
 | --- | --- |
 | 1, 2 bytes arrive, decode | `handle_import`, `Block_codec.decode_block` |
 | 3 find the state before | `find_parent` |
-| 4 check the header | `validate_block_guarantees`, its first checks |
-| 5 run Υ | `process_disputes`; the rest of `validate_block_guarantees` (seal, marks, assurances, guarantees); then `update_timeslot`, `update_entropy`, `update_safrole_epoch`, `process_tickets`, `process_guarantees` (assurances, accumulation, new reports), `update_auth_pools`, `process_preimage_extrinsic`, the `Stf_statistics` updates and `update_history` |
+| 4 check the header | `Validate.validate_block_guarantees`, its first checks |
+| 5 run Υ | `Disputes.process_disputes`; the rest of `Validate.validate_block_guarantees` (seal, marks, assurances, guarantees); then `Time.update_timeslot`, `Safrole.update_entropy`, `Safrole.update_safrole_epoch`, `Safrole.process_tickets`, `Reports.process_guarantees` (assurances, accumulation, new reports), `Authorization.update_auth_pools`, `Preimages.process_preimage_extrinsic`, the `Statistics` updates and `History.update_history` |
 | 6 all or nothing | `import_block` returns `Error` before it writes anything |
 | 7 the new state's root | `State_db.root` |
 | 8 keep it and answer | `store`, `record_header`, `msg_state_root` |
 
 The one real difference is when the checks run. Our client checks each step's part as
-that step runs. lasair checks the whole block first, in `validate_block_guarantees`, and
-only then makes the new state. Both orders are allowed, since neither keeps anything from
-a block it refuses. lasair's `lib/` chapter files (`header.ml`, `safrole.ml` and the rest)
-are its early study models; the import doesn't call them.
+that step runs. lasair checks the whole block first, in `validate.ml`, and only then makes
+the new state. Both orders are allowed, since neither keeps anything from a block it
+refuses.
 
 </details>
 

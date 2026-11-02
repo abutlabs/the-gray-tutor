@@ -308,7 +308,7 @@ lucky, and nobody is guaranteed a turn. The *Sealers* panel has the whole epoch.
 ![Sealers panel](./images/03-sealers.png)
 
 <details>
-<summary>lasair: F, in <code>conformance/stf_transitions.ml</code></summary>
+<summary>lasair: F, in <code>conformance/safrole.ml</code></summary>
 
 ```ocaml
           (* GP eq. fallbackkeysequence: F(eta_2', kappa') samples the

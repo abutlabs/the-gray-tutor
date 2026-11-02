@@ -308,18 +308,10 @@ headers didn't change, only your idea of what they promise. Put the line back, a
 100 come back.
 
 <details>
-<summary>lasair: two <code>compute_extrinsic_hash</code>es</summary>
+<summary>lasair: <code>compute_extrinsic_hash</code>, in <code>conformance/validate.ml</code></summary>
 
-lasair has one in `lib/header.ml`, next to the header it belongs to:
-
-```ocaml
-(** Placeholder for extrinsic hash computation. *)
-let compute_extrinsic_hash (_extrinsic : Overview.extrinsic) : hash =
-  failwith "TODO: implement extrinsic hash"
-```
-
-That one is still a placeholder. The one lasair really uses lives in
-`conformance/stf_guarantees.ml`, and it builds each part's bytes by hand. Its preimages:
+lasair's lives beside the other checks on a block, and it builds each part's bytes by
+hand. Its preimages:
 
 ```ocaml
   let preimages = cat (compact (List.length e.preimages) ::

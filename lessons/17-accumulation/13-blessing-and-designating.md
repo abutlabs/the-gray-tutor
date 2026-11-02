@@ -912,7 +912,7 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 (** GP 0.8.0 pvm_invocations.tex Omega_B answers HUH when the invoker is not
     the manager. jam-test-vectors 0.8.0 follow the #519 deviation instead (a
     non-manager may call bless; the writeback keeps only the roles it owns --
-    [Stf_guarantees.apply_privileged_writeback]) and GP #558 will make that
+    [Services.apply_privileged_writeback]) and GP #558 will make that
     the rule. ONE switch: flip to [true] to get the strict 0.8.0 text. *)
 let bless_refuses_non_manager = false
 ```

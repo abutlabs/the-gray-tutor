@@ -298,7 +298,7 @@ traces, with six work-items to a report, take a minute or so each; try them too:
 `npm run import storage`.
 
 <details>
-<summary>lasair: the same two fixes, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: the same two fixes, in <code>conformance/accumulate.ml</code> and <code>conformance/guarantors.ml</code></summary>
 
 The anchor's state root, when the anchor is the newest block:
 

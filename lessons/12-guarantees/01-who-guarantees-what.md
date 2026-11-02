@@ -397,7 +397,7 @@ signs for core 0 *this* rotation, where it belongs to core 1, and it's caught. T
 ![Guarantors panel](./images/01-guarantors.png)
 
 <details>
-<summary>lasair: <code>guarantor_assignment</code>, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: <code>guarantor_assignment</code>, in <code>conformance/guarantors.ml</code></summary>
 
 ```ocaml
 (** GP 0.8.0 reporting_assurance.tex P(v, e, t): the core each of the [v]

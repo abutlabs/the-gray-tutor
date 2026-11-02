@@ -324,7 +324,7 @@ accumulated at slot 98. It has been busy. The *Service* panel shows the account.
 ![Service panel](./images/02-service.png)
 
 <details>
-<summary>lasair: <code>load_service_account</code>, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: <code>load_service_account</code>, in <code>conformance/services.ml</code></summary>
 
 ```ocaml
         let code_hash = Bytes.sub data 1 32 in

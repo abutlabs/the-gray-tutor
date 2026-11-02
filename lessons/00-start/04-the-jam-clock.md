@@ -441,10 +441,12 @@ heartbeat. When you've seen enough, press <kbd>Ctrl+C</kbd> to stop the clock.
 (** Unix timestamp of JAM Common Era start *)
 let jam_common_era_unix : int64 = 1_735_732_800L
 
+let era_unix = ref jam_common_era_unix
+
 (** Convert Unix timestamp to JAM timeslot *)
 let timeslot_of_unix (unix_ts : int64) : timeslot option =
   let open Int64 in
-  let diff = sub unix_ts jam_common_era_unix in
+  let diff = sub unix_ts !era_unix in
   if diff < 0L then None
   else Some (Int32.of_int (to_int (div diff (of_int Constants.c_slot_seconds))))
 ```
@@ -452,7 +454,9 @@ let timeslot_of_unix (unix_ts : int64) : timeslot option =
 The same division. lasair also refuses moments before the era: it returns `None`, OCaml's
 "no value here", and the caller must deal with it. (Your clock will learn that in the
 [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md); nobody is importing blocks from 2024.) `let open Int64 in` lets the
-function write `sub` and `div` for `Int64.sub` and `Int64.div`.
+function write `sub` and `div` for `Int64.sub` and `Int64.div`. The era is a `ref`, a value
+the program may change, so a test network whose first slot is today can count from its own
+start (`lasair_client --era`); `!era_unix` reads it.
 
 JAM time is this simple on purpose: every node works out the same slot from its own
 clock, without sending a single message.

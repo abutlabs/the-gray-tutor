@@ -805,7 +805,7 @@ and import**, shows the outputs and the root on the block's line.
 ![Accumulate panel](./images/11-accumulate.png)
 
 <details>
-<summary>lasair: M_B, in <code>conformance/stf_transitions.ml</code></summary>
+<summary>lasair: M_B, in <code>conformance/history.ml</code></summary>
 
 ```ocaml
         let rec node v = match v with
@@ -830,7 +830,7 @@ and import**, shows the outputs and the root on the block's line.
 Your `node` and `wellBalancedRoot`, case for case. `(List.length v + 1) / 2` is the half
 rounded up, as your `Math.ceil` is, and the last three lines are M_B: zeros for nothing,
 one item hashed, more joined by `node`. lasair reads the leaves back from θ′ in the state,
-where a comment in `conformance/stf_guarantees.ml` records why they're sorted by service,
+where a comment in `conformance/accumulate.ml` records why they're sorted by service,
 then hash: a service that accumulates in two rounds can yield twice, so a tie on the
 service must break on the hash.
 

@@ -677,22 +677,25 @@ will go on saying so.
 > checked, reports seated on their cores, and each core's and service's work counted.
 
 <details>
-<summary>lasair: the data load, in <code>lib/statistics.ml</code></summary>
+<summary>lasair: the data load, in <code>conformance/accumulate.ml</code></summary>
 
 ```ocaml
-(** Calculate DA load for a report *)
-let calculate_da_load (bundle_len : int) (segment_count : int) : int =
-  let segment_overhead =
-    c_segment_size * ((segment_count * c_da_overhead_num + c_da_overhead_den - 1)
-                      / c_da_overhead_den)
-  in
-  bundle_len + segment_overhead
+  let da_load = Array.make (Stf_config.num_cores ()) 0 in
+  List.iter (fun r ->
+    let c = r.Lasair.Serialization.core_index in
+    if c >= 0 && c < (Stf_config.num_cores ()) then begin
+      let spec = r.Lasair.Serialization.package_spec in
+      let segs = spec.Lasair.Serialization.exports_count in
+      let da = spec.Lasair.Serialization.length + 4104 * ((segs * 65 + 63) / 64) in
+      da_load.(c) <- da_load.(c) + da
+    end
+  ) available_reports;
 ```
 
-The same sum, in whole numbers only: `c_segment_size` is 4104, and the two
-`c_da_overhead_` constants are 65 and 64, defined at the top of the file. Adding 63 before
-dividing by 64 rounds up without fractions, the classic way to write ⌈x/64⌉ when you
-only have integers. Try it: 3 segments, (195 + 63) / 64 = 4.
+The same sum, in whole numbers only, for each report made available this block: 4104 is a
+segment's size, and adding 63 before dividing by 64 rounds up without fractions, the
+classic way to write ⌈x/64⌉ when you only have integers. Try it: 3 segments,
+(195 + 63) / 64 = 4.
 
 </details>
 

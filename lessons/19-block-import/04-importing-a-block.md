@@ -773,7 +773,7 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 > ending at the trace's state root.
 
 <details>
-<summary>lasair: the same order, in <code>conformance/trace_runner.ml</code></summary>
+<summary>lasair: the same order, in <code>conformance/import.ml</code></summary>
 
 ```ocaml
   (* Disputes FIRST (GP 0.8.0 judgments.tex + the overview dependency graph):

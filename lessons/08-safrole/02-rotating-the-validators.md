@@ -321,22 +321,28 @@ above's *left*. Except one tile: `ab00` is an offender, and arrived in pending a
 ![Validator rotation panel](./images/02-validator-rotation.png)
 
 <details>
-<summary>lasair: <code>filter_offenders</code>, in <code>lib/cores.ml</code></summary>
+<summary>lasair: <code>phi_filter</code>, in <code>conformance/stf_encoding.ml</code></summary>
 
 ```ocaml
-let filter_offenders (keys : validator_set) (offenders : hash seq)
-    : validator_set =
-  Array.map (fun k ->
-    let is_offender = Array.exists (fun off ->
-      Bytes.equal (Hash.to_bytes k.ed) (Hash.to_bytes off)
-    ) offenders in
-    if is_offender then null_validator_key else k
-  ) keys
+let phi_filter (offenders : bytes list) (set : bytes) : bytes =
+  (* GP eq. blacklistfilter over a LENGTH-PREFIXED set (GP 0.8.0): null the
+     whole 336-byte record of any validator whose ed25519 key is an offender;
+     the count prefix is preserved. *)
+  let n = Stf_config.vset_count set in
+  let g = Bytes.copy set in
+  for v = 0 to n - 1 do
+    match Stf_config.vset_ed25519 set v with
+    | Some ed when List.exists (Bytes.equal ed) offenders ->
+      Bytes.fill g (Stf_config.vset_record_offset set v) 336 '\x00'
+    | _ -> ()
+  done;
+  g
 ```
 
-Φ, line for line: map over the keys, and if a key's Ed25519 part equals any offender,
-swap in the null key. lasair compares bytes directly and checks every offender for every
-key; with a handful of offenders, that's just as quick as your `Set`.
+Φ, line for line, on the state's own bytes: for each of the set's validators, if its
+Ed25519 key is an offender's, its whole 336-byte record becomes zeros, the null key.
+lasair checks every offender for every key; with a handful of offenders, that's just as
+quick as your `Set`.
 
 </details>
 

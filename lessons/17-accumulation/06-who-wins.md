@@ -536,7 +536,7 @@ assigner is 1 now. The *Accumulate* panel shows the assigners on the block's lin
 ![Accumulate panel](./images/06-accumulate.png)
 
 <details>
-<summary>lasair: the assigners, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: the assigners, in <code>conformance/services.ml</code></summary>
 
 ```ocaml
   let owns_core c =

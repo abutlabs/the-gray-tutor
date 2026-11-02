@@ -563,7 +563,7 @@ exactly as the vectors do, and then the vectors' service statistics count them,
 > request marked exactly as the vector says; the board names the two things still to do.
 
 <details>
-<summary>lasair: <code>integrate_preimage</code>, in <code>conformance/stf_guarantees.ml</code></summary>
+<summary>lasair: <code>integrate_preimage</code>, in <code>conformance/services.ml</code></summary>
 
 ```ocaml
 let integrate_preimage (db : Lasair.State_db.t) (slot : int)

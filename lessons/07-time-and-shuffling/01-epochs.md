@@ -307,24 +307,24 @@ a new epoch begins: watch the phase run 0 to 11, then start again.
 ![Epochs panel](./images/01-epochs.png)
 
 <details>
-<summary>lasair: <code>rotate_entropy</code>, in <code>lib/safrole.ml</code></summary>
+<summary>lasair: the turn, in <code>conformance/safrole.ml</code></summary>
 
 ```ocaml
-let is_new_epoch ~(prior : timeslot) ~(current : timeslot) : bool =
-  epoch_of_timeslot current > epoch_of_timeslot prior
-
-let rotate_entropy (state : entropy_state) : entropy_state =
-  {
-    accumulator = state.accumulator;
-    epoch_1 = state.accumulator;
-    epoch_2 = state.epoch_1;
-    epoch_3 = state.epoch_2;
-  }
+      if new_epoch then begin
+        match epoch_mark with
+        | Some em ->
+          (* η'[3] = η[2] (seal entropy) *)
+          Bytes.blit entropy 64 new_entropy 96 32;
+          (* η'[2] = epoch_mark.tickets_entropy *)
+          Bytes.blit em.tickets_entropy 0 new_entropy 64 32;
+          (* η'[1] = η[0] (before the new update) *)
+          Bytes.blit entropy 0 new_entropy 32 32
 ```
 
-The same rule, in a record with a name for each slot of η. Spelled out like that, it's
-hard to get wrong, and easy to read against the Gray Paper. Your `entropyHistory` says it
-with one `slice`. Both work; notice which one you'd rather check at 2 a.m.
+The same rule, on the state's own bytes: η is four 32-byte values in a row, so η[1] starts
+at byte 32, η[2] at 64 and η[3] at 96, and each `Bytes.blit` copies one 32-byte value one
+place along. η′[2] comes from the block's epoch mark, which carries the same value as the
+old η[1]. Your `entropyHistory` says it with one `slice`.
 
 </details>
 

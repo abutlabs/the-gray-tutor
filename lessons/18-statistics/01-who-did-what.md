@@ -475,27 +475,28 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 > through epoch changes and a resized validator set, as the vectors keep it.
 
 <details>
-<summary>lasair: turning the page, in <code>lib/statistics.ml</code></summary>
+<summary>lasair: turning the page, in <code>conformance/statistics.ml</code></summary>
 
 ```ocaml
-(** Check if epoch changed *)
-let is_new_epoch (old_time : int) (new_time : int) : bool =
-  let epoch_len = Definitions.Constants.c_epoch_len in
-  old_time / epoch_len <> new_time / epoch_len
-
-(** Rotate stats at epoch boundary *)
-let rotate_epoch (state : activity_state) : activity_state =
-  let val_count = Definitions.Constants.c_val_count in
-  {
-    state with
-    previous = state.accumulator;
-    accumulator = Array.make val_count empty_validator_stats;
-  }
+let update_statistics ?(new_epoch = false) (db : Lasair.State_db.t) (slot : int) (author_index : int) : Lasair.State_db.t =
+  ignore slot;
+  with_stats db (fun s ->
+    let curr, last =
+      if new_epoch then begin
+        let kappa'_n =
+          match Lasair.State_db.get db (make_state_key Stf_config.key_safrole) with
+          | Some sf when Stf_config.gamma_k_count sf > 0 -> Stf_config.gamma_k_count sf
+          | _ -> validators_in s.curr in
+        (Bytes.make (kappa'_n * stats_per_validator) '\x00', Bytes.copy s.curr)
+      end else (Bytes.copy s.curr, s.last) in
+    bump curr author_index f_blocks 1;
+    { curr; last; tail = Stf_config.stats_baseline_tail () })
 ```
 
-The same page-turn, under the Gray Paper's own word: the tally in progress is the
-`accumulator`, the finished one `previous`. lasair then updates the accumulator one field
-at a time, with a small function for each.
+The same page-turn, on the state's own bytes: lasair keeps the tally as raw 24-byte
+records, `curr` and `last`. On a new epoch the tally in progress becomes `last`, and a
+fresh one starts with a zero record for each of the new validators, κ′'s count, read from
+the head of the Safrole state. Then the author's block is counted, in the fresh tally.
 
 </details>
 

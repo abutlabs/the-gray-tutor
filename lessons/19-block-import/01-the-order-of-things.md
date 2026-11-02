@@ -349,21 +349,21 @@ built it. The *Block import plan* panel keeps it.
 ![Block import plan panel](./images/01-block-import-plan.png)
 
 <details>
-<summary>lasair: one long function, in <code>conformance/trace_runner.ml</code></summary>
+<summary>lasair: one long function, in <code>conformance/import.ml</code></summary>
 
 lasair's `import_block` takes the steps one after another, each `let state = ...` handing
 the next step the state the last one left:
 
 ```ocaml
   (* Update timeslot *)
-  let state = Stf_transitions.update_timeslot state header.slot in
+  let state = Time.update_timeslot state header.slot in
 ```
 
 and a few lines later:
 
 ```ocaml
   (* Update entropy (with rotation at epoch boundaries) *)
-  let state = Stf_transitions.update_entropy ~new_epoch state header.slot header.entropy_source header.epoch_mark in
+  let state = Safrole.update_entropy ~new_epoch state header.slot header.entropy_source header.epoch_mark in
 ```
 
 One order, no waves running side by side: simpler, and fast enough. Note

@@ -384,7 +384,7 @@ seat. Try `publish-tickets-with-mark-3.json`, one block earlier: no mark yet.
 ![Lottery panel](./images/04-lottery.png)
 
 <details>
-<summary>lasair: outside in, in <code>conformance/stf_transitions.ml</code></summary>
+<summary>lasair: outside in, in <code>conformance/safrole.ml</code></summary>
 
 ```ocaml
           for slot = 0 to (epoch_length ()) - 1 do

@@ -367,7 +367,7 @@ refusal. The *Safrole* panel tells each step's story.
 ![Safrole panel](./images/05-safrole.png)
 
 <details>
-<summary>lasair: the missing piece, in <code>conformance/stf_transitions.ml</code></summary>
+<summary>lasair: the missing piece, in <code>conformance/safrole.ml</code></summary>
 
 ```ocaml
       (* Update η[0] with new accumulation *)
