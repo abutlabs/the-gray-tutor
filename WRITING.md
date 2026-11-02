@@ -232,7 +232,10 @@ tests ask for the files remade.
    TypeScript, on its own values (why `04 03 02 01`, not what `w.fixed` is called). Make
    the wrong options the mistakes a reader really makes (52 as the size of every item),
    never silly ones, and move the right answer around. A question may only use what this
-   lesson or an earlier one taught. `tools/checks.test.ts` checks the shape. *Why:* a
+   lesson or an earlier one taught. Never make the task decoding hex or bits in your head
+   ("bitfield `05 01`: which cores?"): ask the rule behind it instead (which core is the
+   lowest bit). Values may appear; working them out isn't the point (Aodh, 2026-11-02).
+   `tools/checks.test.ts` checks the shape. *Why:* a
    reader who can explain the idea back has it; one who can't finds out here, not three
    lessons later (Aodh, on what `hexdump … 48` meant).
 6. **What you have**, the last section: what works now and which vectors pass (on the

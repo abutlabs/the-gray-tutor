@@ -285,16 +285,15 @@ you, inside Node.
 ## Check your understanding
 
 ::: check
-**What number is the byte `0x80`?**
+**Why do test vectors write bytes in hex, two characters each, instead of in decimal?**
 
-- [ ] 80
-  > No: that reads the hex digits as decimal ones. Decimal 80 is `0x50`.
-- [ ] 8
-  > No: that reads the digits the wrong way round. The first digit counts 16 times the
-  > second, so here the 8 is worth 8 × 16. The byte 8 is `0x08`.
-- [x] 128
-  > Yes: 16 × 8 + 0 = 128. In bits it's `0b10000000`: only the first place, the one worth
-  > 128, holds a 1.
+- [x] Each hex digit is exactly four bits, so every byte is always two characters and a long run of bytes lines up
+  > Yes: a byte's two halves are its two digits. In decimal a byte takes one to three
+  > digits, and you can't see where one byte ends and the next begins.
+- [ ] Hex numbers are smaller than decimal ones
+  > No: `0x80` and 128 are the same number. Hex only writes it differently.
+- [ ] JSON can't hold numbers above 255
+  > No: JSON holds much bigger numbers. The vectors use hex strings so bytes stay bytes.
 
 **How does a test vector write the bytes 1, 2 and 255?**
 

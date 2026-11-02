@@ -214,16 +214,16 @@ record.
   > No: a guarantee carries the whole report, then the slot and the signatures. There's
   > no hash in front.
 
-**The tiny vector's slot bytes are `2a 00 00 00`. What is the slot?**
+**The slot is written in four bytes, lowest byte first. Where else does the codec use that order?**
 
-- [x] 42
-  > Yes: ℰ₄ writes the least significant byte first, and `0x2a` is 42.
-- [ ] 704,643,072
-  > No: that's `0x2a000000`, the bytes read the wrong way round. ℰ₄ puts the
-  > lowest byte first, so `2a` is the small end.
-- [ ] A length: 42 signatures follow
-  > No: the slot is a fixed 4-byte number, and the signatures carry their own length.
-  > There are two.
+- [x] For every fixed-width number: ℰ₂, ℰ₄ and ℰ₈ alike
+  > Yes: JAM's fixed-width numbers are all little-endian, lowest byte first. A decoder
+  > that knows one knows them all.
+- [ ] Only for slots
+  > No: slots aren't special. Service ids, gas amounts and every other fixed-width number
+  > go the same way.
+- [ ] Nowhere: other numbers are written highest byte first
+  > No: one order everywhere, which is what lets one decoder function serve them all.
 
 **The guarantee's two signatures come from validators 0 and 1. How does a decoder know to read two, not three?**
 

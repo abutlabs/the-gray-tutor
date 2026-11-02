@@ -311,16 +311,16 @@ Your `Assurance(config)` takes the size as an argument every time, so it can't f
   > No: the bitfield never has a length. Both sides know C, so both know how many
   > bytes to read.
 
-**On full, the bitfield starts with `0x55`, which is `0b01010101` in binary. Which cores in that first byte say "got it"?**
+**Which core does a bitfield's very first bit, the lowest bit of its first byte, stand for?**
 
-- [ ] Cores 1, 3, 5 and 7
-  > No: that reads the bits from the left. Lowest bit first means core 0 is the bit
-  > at the *right* end, and it's a 1.
-- [x] Cores 0, 2, 4 and 6
-  > Yes: read from the right, the bits for cores 0 to 7 are 1, 0, 1, 0, 1, 0, 1, 0.
-- [ ] Cores 0 to 3, the first half
-  > No: that would be `0b00001111`, `0x0f`. `0x55` has its ones spread out, every other
-  > bit.
+- [x] Core 0
+  > Yes: bits are packed least significant first, so core 0 is the lowest bit of byte 0,
+  > and core 8 the lowest bit of byte 1.
+- [ ] Core 7
+  > No: that reads the byte from the left, as you'd write it down. Bitfields start at the
+  > lowest bit.
+- [ ] Validator 0
+  > No: an assurance is already one validator's. Its bits are cores.
 
 **What goes wrong if a decoder reads a full assurance with tiny's 1-byte bitfield?**
 

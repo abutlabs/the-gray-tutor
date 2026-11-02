@@ -411,16 +411,15 @@ the answer.
 ## Check your understanding
 
 ::: check
-**`store_ind_u64` writes r2 = 0x1122334455667780 at 0x20000. Then `load_ind_i8` reads one byte from 0x20000 into r4. What is r4?**
+**`load_ind_u8` and `load_ind_i8` read the same byte. How can they give different registers?**
 
-- [ ] 0x11
-  > No: memory is little-endian, so the byte at 0x20000 is the lowest one, `80`. The
-  > `11` lands last, at 0x20007.
-- [ ] 0x80, which is 128
-  > No: that's `load_ind_u8`. The `i` means signed, and `80` has its top bit set.
-- [x] 0xffffffffffffff80, which is −128
-  > Yes: the lowest byte, `80`, is stored first. Read as signed it's −128, and its sign
-  > bit fills the seven bytes above it with `ff`.
+- [x] `i8` reads the byte as signed: a set top bit makes it negative, and the bytes above fill with ones
+  > Yes: `u8` fills the upper bytes with zeros, `i8` copies the byte's top bit into them.
+  > For a byte under 128 they agree.
+- [ ] They read different addresses
+  > No: same address, same byte. The difference is in how the byte is read.
+- [ ] `i8` rounds the byte to a whole number
+  > No: bytes are already whole numbers. `i` only means signed.
 
 **A load from 0x30005, where there is no page. How does the machine stop?**
 

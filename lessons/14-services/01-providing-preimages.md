@@ -599,17 +599,14 @@ against the state keeps it short.
   > No: the chain checks it before the service sees it. Y lets in only data whose hash and
   > length match a waiting request.
 
-**At block 8 the chain wrote a request's history as `0x0108000000`. What does it say?**
+**A request's history holds one slot. What does that say?**
 
-- [ ] Service 1 asked for 8 bytes
-  > No: the service and the length are in the request's key. Its value is only the
-  > history, a list of slots.
-- [x] `[8]`: the data was provided at slot 8
-  > Yes: `01` is the list's length, a compact natural, and `08 00 00 00` is slot 8 as a
-  > u32.
-- [ ] Still waiting, since slot 8
-  > No: waiting is `[]`, the single byte `0x00`, which is what the stub left. One slot in
-  > the list means provided.
+- [ ] The service is still waiting for the data
+  > No: waiting is the empty history, `[]`.
+- [x] The data was provided, at that slot
+  > Yes: `[x]` is provided at slot x. A second slot would say when it was forgotten.
+- [ ] The data was forgotten at that slot
+  > No: forgotten takes two slots, `[x, y]`: provided at x, forgotten at y.
 
 **A request's history is `[3, 40]`. What happened?**
 

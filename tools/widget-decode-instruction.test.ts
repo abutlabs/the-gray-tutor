@@ -33,13 +33,13 @@ test("load_imm r1, −1; add_64 r3 = r1 + r2, next at 6; jump back to 3: the les
   const load = decode(CODE, 0);
   assert.deepEqual([load.name, load.registers, load.immediate!.extended], ["load_imm", [1], 2n ** 64n - 1n]);
   assert.deepEqual(load.immediate!.bytes, [0xff]);
-  assert.match(raw.replace(/\s+/g, " "), /2\^64 − 1, which is −1/);
+  assert.match(raw, /Why are an instruction's short immediates sign-extended/, "the check asks why, not what");
   const add = decode(CODE, 3);
   assert.deepEqual([add.name, add.registers, add.next], ["add_64", [1, 2, 3], 6]);
   assert.deepEqual(add.nibbles, { low: 1, high: 2 });
   const jump = decode(CODE, 6);
   assert.deepEqual([jump.name, jump.offset!.signed, jump.offset!.target, jump.offset!.lands], ["jump", -3n, 3, true]);
-  assert.match(raw.replace(/\s+/g, " "), /259: 6 \+ 253(?: >)? No: offsets are signed/);
+  assert.match(raw, /A jump's offset is counted from where\?/);
   assert.equal(decode(CODE, 8).name, "trap");
 });
 

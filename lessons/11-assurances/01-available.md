@@ -391,16 +391,14 @@ names a package that must be accumulated first.
   > Yes: 3 × 5 = 15 > 12. In `some_assurances-1`, core 0 has 5 and becomes
   > available, core 1 has 4 and waits.
 
-**On full, an assurance's bitfield starts `05 01`. Which cores does it hold?**
+**What does one bit of an assurance's bitfield stand for?**
 
-- [x] Cores 0, 2 and 8
-  > Yes: least significant bit first. `05` is `0b0000_0101`, bits 0 and 2. `01` is byte
-  > 1's lowest bit, core 8.
-- [ ] Cores 5, 7 and 15
-  > No: that reads each byte's bits from the left, as the trie of [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md) does.
-  > Bitfields go the other way.
-- [ ] Cores 5 and 1
-  > No: the bytes aren't core numbers. Each byte is 8 cores' bits.
+- [x] One core: a 1 says this validator holds its piece of that core's report
+  > Yes: one bit per core, so a full assurance speaks for all 341 cores at once.
+- [ ] One validator
+  > No: the assurance is already one validator's. Its bits are the cores.
+- [ ] One byte of the report's data
+  > No: the data itself never goes in the block. The bit only says "I hold my piece".
 
 **On full, `some_assurances-1` gives its cores 683 and 682 assurances, alternately. Why those counts?**
 

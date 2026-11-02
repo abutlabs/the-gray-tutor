@@ -30,7 +30,7 @@ test("load_ind_u64 gives all 8 bytes back; load_ind_i8 gives 0xffffffffffffff80,
   assert.equal(load(by("load_ind_u16")), 0x7780n);
   assert.equal(load(by("load_ind_i16")), 0x7780n, "its top bit is 0");
   assert.equal(load(by("load_ind_u32")), 0x55667780n);
-  assert.match(raw.replace(/\s+/g, " "), /0xffffffffffffff80, which is −128(?: >)? Yes: the lowest byte, `80`, is stored first/);
+  assert.match(raw, /`load_ind_u8` and `load_ind_i8` read the same byte/, "the check asks what signed means");
 });
 
 test("lesson 15.4 places the store-load widget once, in Watch it after the little-endian paragraph", () => {

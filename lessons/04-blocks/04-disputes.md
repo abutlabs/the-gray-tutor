@@ -255,17 +255,16 @@ network's size no longer tells a decoder how many to read. Specs evolve, and som
   > No: a verdict holds exactly two thirds of the validators, plus one, and the full
   > vector has exactly 683.
 
-**The full vector's votes start with `0x82ab`. What is it?**
+**The full vector's votes list starts with its length. How does a decoder know how many bytes that length takes?**
 
-- [ ] The number 43,906, written as ℰ₂
-  > No: a list's length is a compact natural, not a fixed-width number. (As ℰ₂ it
-  > would be `0xab82`, 43,906, a jury bigger than the network.)
-- [ ] Two lengths: `0x82` verdicts and `0xab` votes
-  > No: there are only two verdicts, and their length, `0x02`, came first. These two
-  > bytes are one number.
-- [x] 683, as a two-byte compact natural
-  > Yes: the first byte's leading `1` says one more byte follows, and together they
-  > make 683, the number of votes.
+- [ ] It's always two bytes
+  > No: a list's length is a compact natural, so it takes as many bytes as the number
+  > needs. 683 happens to need two.
+- [ ] The number of verdicts says
+  > No: the verdicts have a length of their own. Each list says its own length.
+- [x] Its first byte's top bits say how many bytes follow
+  > Yes: it's a compact natural, so its first byte says how long it is. Here that's two
+  > bytes, holding 683, the number of votes.
 
 **A culprit and a fault: what's the difference?**
 

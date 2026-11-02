@@ -466,15 +466,15 @@ note above leaves for the [hardening pass](https://github.com/abutlabs/the-gray-
 - [ ] It makes memory faster to reach
   > No: every address is reached the same way. The gaps are for safety, not speed.
 
-**`TINY_PROGRAM`'s o is 3 bytes, at 0x10000. Where does Y put w?**
+**Why does Y leave an empty zone between a program's sections?**
 
-- [ ] 0x11000, the page after o's
-  > No: sections never touch. An empty zone separates o from w.
-- [ ] 0x20000, the zone after o's
-  > No: 0x20000 starts the empty zone. o's 3 bytes, rounded up, take the zone from
-  > 0x10000 to 0x1ffff, and the next zone is the gap.
-- [x] 0x30000
-  > Yes: 2 · 2^16 + Z(3) = 0x20000 + 0x10000. o's zone, then a gap, then w.
+- [ ] To leave room for the section to grow
+  > No: sections don't grow into the gap. The heap grows in its own place.
+- [x] So a program that runs off the end of one section hits nothing at all, and faults, instead of reading the next one
+  > Yes: the gap is a guard. An access there is a page fault, which stops the program
+  > cleanly.
+- [ ] Because pages must start at even zones
+  > No: the gap is there on purpose, as a guard, not because of alignment.
 
 **The bootstrap service starts with r8 = 3. What is the 3?**
 

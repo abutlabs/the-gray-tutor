@@ -431,16 +431,15 @@ returns a pair, `(value, bytes_consumed)`, where yours returns an object.
 - [ ] 128 is negative as a signed byte, so it needs a second
   > No: nothing here is signed. The limit is the marker bit, not a sign bit.
 
-**128 is `0x8080`. What is each of its two bytes?**
+**What does a compact natural's first byte tell a decoder before anything else?**
 
-- [ ] 128 written twice, so a decoder can check it
-  > No: they match by coincidence. 300 is `0x812c`, and its two bytes differ.
-- [ ] A length, 128, then the value
-  > No: the first byte isn't a length. Its leading ones say how many bytes follow:
-  > `0x80` is `0b10000000`, one leading one, so one more byte.
-- [x] The marker `0b10` with 128's top six bits, all zero; then 128's low eight bits
-  > Yes: 128 in 14 bits is `0b000000` then `0b10000000`. The marker and the zeros make
-  > `0b10000000`, `0x80`, and the low bits are `0x80` too.
+- [ ] The whole number, always
+  > No: only small numbers fit in the first byte. Bigger ones carry on into more bytes.
+- [x] How many more bytes follow, from the 1 bits at its top
+  > Yes: the leading ones count the bytes after the first, so the decoder knows the
+  > number's size before it reads the rest. No separate length is needed.
+- [ ] Whether the number is negative
+  > No: compact naturals are never negative. They're for lengths and counts.
 
 **What is ℰ(300), the compact natural?**
 
@@ -454,15 +453,16 @@ returns a pair, `(value, bytes_consumed)`, where yours returns an object.
   > No: that leaves out 300's top bit, the 256. A decoder would read the marker, top bits
   > 0, then `2c`: 44, not 300.
 
-**A decoder meets the first byte `c0`. How many bytes long is the number, in all?**
+**Why does JAM write lengths and counts as compact naturals, not as a fixed four bytes?**
 
-- [ ] Two: the leading ones count the bytes
-  > No: that's how UTF-8 counts. Here the leading ones count the bytes after the first.
-- [x] Three: `c0` is `0b11000000`, two leading ones, so two more bytes follow
-  > Yes: like the test's 16,384, `c0 00 40`.
-- [ ] 192: `c0` is the length
-  > No: `c0` is 192 as a plain byte, but a compact natural's first byte isn't a length.
-  > Only its leading ones count bytes.
+- [x] Most lengths are small, so most take one byte, yet any size still fits
+  > Yes: a list of three items costs one byte for its length, and a list of a million
+  > still has a way to say so.
+- [ ] A fixed width couldn't be decoded
+  > No: fixed widths decode fine, as ℰ₄ does for slots. They just waste bytes on small
+  > numbers.
+- [ ] Compact naturals hash faster
+  > No: a hash costs the same per byte, whatever the bytes mean. The saving is in size.
 
 **The bug wrote 128 as the single byte `0x80`. What would a decoder make of it?**
 

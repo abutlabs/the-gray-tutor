@@ -506,26 +506,25 @@ runs, where yours works out the target straight away.
 ## Check your understanding
 
 ::: check
-**In the napkin program, `load_imm r1` carries the one-byte immediate `ff`. What lands in r1?**
+**Why are an instruction's short immediates sign-extended into the 64-bit register?**
 
-- [ ] 255
-  > No: that's `ff` read unsigned. Immediates are sign-extended: a set top bit means
-  > negative.
-- [x] 2^64 − 1, which is −1
-  > Yes: `ff`'s top bit is 1, so the seven missing bytes fill with `ff`:
-  > 0xffffffffffffffff, −1 read as signed.
-- [ ] 0xff00000000000000
-  > No: the byte stays at the bottom, as the lowest byte. Sign extension fills the bytes
-  > *above* it.
+- [x] So one byte can stand for a small negative number, like −1, as well as a small positive one
+  > Yes: a set top bit means negative, and sign extension fills the bytes above with ones,
+  > so the register holds the same number in 64 bits.
+- [ ] So that every immediate comes out positive
+  > No: that's zero extension. Sign extension is what lets an immediate be negative.
+- [ ] To use less gas
+  > No: extension costs nothing extra. It decides which number the bytes mean.
 
-**The `jump` at byte 6 has the offset `fd`. Where does it land?**
+**A jump's offset is counted from where?**
 
-- [ ] 259: 6 + 253
-  > No: offsets are signed. `fd` is −3, not 253.
-- [ ] 5: three back from the next instruction, at 8
-  > No: an offset counts from the jump's own opcode, ı, not from the next instruction.
-- [x] 3, the `add_64`
-  > Yes: 6 + (−3) = 3, and 3 starts an instruction, as every target must.
+- [ ] From the next instruction
+  > No: that's how many CPUs do it, but not the PVM.
+- [x] From the jump's own opcode, ı
+  > Yes: the target is ı plus the offset, and offsets are signed, so a jump can go back
+  > as well as forward. The target must start an instruction.
+- [ ] From the start of the program
+  > No: that would be an absolute address. Jump offsets are relative to the jump.
 
 **How does the PVM know that `load_imm`'s immediate is one byte long?**
 
@@ -538,15 +537,15 @@ runs, where yours works out the target straight away.
   > Yes: so skip(0) is 2, one byte for the register and one left for the immediate. An
   > instruction ends where the next begins.
 
-**`add_64` is the bytes `200, 0x21, 0x03`. Which register gets the sum?**
+**`add_64` names three registers. Which one does it write?**
 
-- [ ] r12, because `0x21` is 33, more than 12
-  > No: `0x21` holds two registers, four bits each: 1 in the low half, 2 in the high half.
-- [x] r3
-  > Yes: the halves of `0x21` are the inputs, r1 and r2, and the third byte, `0x03`, is
-  > the register written: r3 = r1 + r2.
-- [ ] r1, the first one named
-  > No: with three registers, the first two are the inputs. `add_64` writes the third.
+- [ ] The first one named
+  > No: the first two are the inputs.
+- [x] The third: the first two are added, and the sum goes into the third
+  > Yes: two registers share one byte, four bits each, as the inputs; the next byte names
+  > the register written.
+- [ ] Whichever is lowest numbered
+  > No: the order the registers are named in decides, not their numbers.
 :::
 
 ## What you have

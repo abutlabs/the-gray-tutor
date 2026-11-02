@@ -470,15 +470,15 @@ has the same recipe a second time, as `state_key_from_index_service` in
   > No: an account's key starts with 255, `0xff`. A key that's one byte and then zeros is
   > a component.
 
-**What is service `0x04030201`'s account key?**
+**How does a state key tell you what kind of thing it holds?**
 
-- [ ] `ff 04 03 02 01`, then 26 zeros
-  > No: that's the id most significant byte first, with no gaps. ℰ₄ starts with the lowest
-  > byte, and C(255, s) puts a zero after each one.
-- [ ] `ff 01 02 03 04`, then 26 zeros
-  > No: the bytes are in the right order, but C(255, s) puts a zero after each one.
-- [x] `ff 01 00 02 00 03 00 04 00`, then 22 zeros
-  > Yes: 255, then ℰ₄(s), `01 02 03 04`, with a zero after each byte. 1 + 8 + 22 = 31.
+- [ ] It doesn't: you have to look the key up in a table
+  > No: the keys are built so that their own bytes say what they are.
+- [x] By how it's built: a component's key is its number then zeros, an account's starts with 255 and the service's id
+  > Yes: C(i) for the 16 components, C(255, s) for service s's account, and C(s, h) for
+  > what a service keeps. You can read a key's kind straight off its first bytes.
+- [ ] By its length: each kind of key has a different length
+  > No: every state key is 31 bytes long. Their contents differ, not their size.
 
 **What is the key `0xff` and 30 zeros?**
 

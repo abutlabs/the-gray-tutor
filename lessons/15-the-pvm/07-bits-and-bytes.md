@@ -307,25 +307,24 @@ with no shifts, no masks and no special case.
 ## Check your understanding
 
 ::: check
-**`leading_zero_bits_64` of 0x1f0 is 55. Why is `leading_zero_bits_32` 23?**
+**For a small number, `leading_zero_bits_64` is 32 more than `leading_zero_bits_32`. Why?**
 
-- [x] The `_32` form sees only the low 32 bits: 32 − 9 = 23
-  > Yes: 0x1f0's highest 1 is bit 8, so 9 bits are in use. 64 − 9 = 55, and 32 − 9 = 23.
-- [ ] It counts the zeros at the bottom instead
-  > No: that's `trailing_zero_bits`, 4 here. Both `leading` forms count the zeros above
-  > the highest 1.
-- [ ] 55 doesn't fit in 32 bits, so it wraps
-  > No: 55 fits with room to spare. The upper 32 bits, all zeros, simply aren't looked at.
+- [x] The `_32` form looks only at the low 32 bits, so it doesn't count the 32 zeros above them
+  > Yes: both count the zeros above the highest 1. The `_64` form counts from bit 63, the
+  > `_32` form from bit 31.
+- [ ] The `_32` form counts the zeros at the bottom instead
+  > No: that's `trailing_zero_bits`. Both `leading` forms count from the top.
+- [ ] The `_64` answer wraps around
+  > No: nothing wraps. The two forms simply start counting at different bits.
 
-**`sign_extend_8` of 0x1f0?**
+**What does `sign_extend_8` keep, and what does it fill in?**
 
-- [ ] 496
-  > No: that's the whole value, 0x1f0. `sign_extend_8` takes only the lowest byte.
-- [ ] 240
-  > No: that's the lowest byte, 0xf0, read unsigned. `sign_extend_8` reads it signed.
-- [x] −16
-  > Yes: 0xf0's top bit is 1, so signed it's 240 − 256 = −16, written into the register
-  > as 0xfffffffffffffff0.
+- [ ] It keeps the whole value
+  > No: it keeps only the lowest byte.
+- [ ] It keeps the lowest byte and fills the rest with zeros
+  > No: that's zero extension. Sign extension fills with the byte's top bit.
+- [x] It keeps the lowest byte and copies its top bit into every bit above
+  > Yes: so a byte that means a negative number still means it in 64 bits.
 
 **`trailing_zero_bits_64` of 0?**
 
@@ -337,15 +336,15 @@ with no shifts, no masks and no special case.
   > No: the count is defined for zero. Your code needs no special case for it either: its
   > string of bits is all 0s.
 
-**`reverse_bytes` of 0x0102030405060708?**
+**What does `reverse_bytes` turn round?**
 
-- [ ] 0x8070605040302010
-  > No: that reverses the hex digits, which swaps the halves of each byte too. Bytes move
-  > whole.
-- [x] 0x0807060504030201
-  > Yes: the 8 bytes turned round, first to last, each byte unchanged.
-- [ ] 0x10e060a020c04080
-  > No: that reverses all 64 bits. `reverse_bytes` moves bytes, so `08` stays `08`.
+- [x] The register's 8 bytes, each byte left as it is
+  > Yes: the first byte becomes the last, the way a big-endian number becomes a
+  > little-endian one.
+- [ ] The hex digits
+  > No: that would also swap the halves inside each byte. Bytes move whole.
+- [ ] All 64 bits
+  > No: that's a different operation. `reverse_bytes` moves whole bytes.
 :::
 
 ## What you have
