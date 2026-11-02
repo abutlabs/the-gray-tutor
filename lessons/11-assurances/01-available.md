@@ -34,6 +34,24 @@ that's 5 or more; with 1,023, it's 683 or more.
 To stay in whole numbers, multiply both sides by 3: assured × 3 > validators × 2. No
 fractions, no rounding, no floating point.
 
+**Who assures: every validator, not the core's guarantors.** On full, each core has three
+*guarantors* (1,023 validators over 341 cores, [Part 12](../12-guarantees/index.md)): they run the work and
+sign the report. Availability is a different job, and everyone does it. The report's data
+is cut into one piece per validator (its `erasure_shards`: 6 on tiny, 1,023 on full), so
+each validator holds a piece of every core's report and assures for all the cores at once.
+An assurance's `validator_index` is the validator's place in κ, never a core:
+
+| | guarantees | assurances |
+| --- | --- | --- |
+| who | the 3 validators assigned to that one core (6 over 2 cores on tiny, 3 each too); 2 or 3 of them sign | every validator: 1,023 on full, 6 on tiny |
+| `validator_index` | the signer's place in κ, one per signature | the validator's place in κ, one per assurance |
+| about | one core: "this is the report" | every core, one bit each: "I hold my piece of its data" |
+
+The vector this lesson runs, `some_assurances-1`, shows it: six assurances, from validators
+0 to 5, and each bitfield speaks for both of tiny's cores at once. Validator 0 sends `0x02`
+(core 1 only), validators 2, 3 and 4 send `0x03` (both cores). Core 0 gets 5 bits, so its
+report is available; core 1 gets 4, one short of the 5 it needs.
+
 Try it on tiny: six validators, each with its one-byte bitfield, two cores. It starts with
 the counts the third test below reads from a vector, 5 for core 0 and 4 for core 1:
 
@@ -300,6 +318,17 @@ whole-number spellings of the same fraction. Pick the one you can check in your 
 ## Check your understanding
 
 ::: check
+**On full, validator 700 sends an assurance. Which cores can its bitfield speak for?**
+
+- [ ] Only the core it guarantees, one in 341
+  > No: guaranteeing is a different job. Every validator holds a piece of every core's
+  > report, so it assures for all of them.
+- [x] All 341, one bit each
+  > Yes: its `validator_index` is 700, its place in κ, and its bitfield has a bit for every
+  > core.
+- [ ] Core 700 mod 341
+  > No: a validator's index never names a core. It names the validator, in κ.
+
 **Validator 3's assurance has core 0's bit set. What does that say?**
 
 - [ ] Core 0's report is correct
