@@ -8,7 +8,7 @@ import { defineConfig } from "vitepress";
 import type MarkdownIt from "markdown-it";
 import type { ShikiTransformer } from "shiki";
 import { readParts } from "../tools/lessons.ts";
-import { LEGEND, writeRedirects } from "./urls.ts";
+import { LEGEND, movedPages, writeRedirects } from "./urls.ts";
 import { type PrintPage, writePrintPage } from "./print.ts";
 import { checkBlocks } from "./checks.ts";
 import { albert } from "./albert.ts";
@@ -89,6 +89,8 @@ export default defineConfig({
     config: (md) => { snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
     codeTransformers: [shellComments()],
   },
+  // the dev server sends a moved address on too (the built site has a page there instead)
+  vite: { plugins: [movedPages(base)] },
   // pages that moved keep their old address, as a page that sends the reader on; and the
   // whole tutorial on one page, print.html, for printing and reading offline
   buildEnd: async (site) => {

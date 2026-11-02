@@ -156,6 +156,33 @@ export const MOVED: Record<string, string> = {
 /** 0.1's list of labels, where every snippet label links (.vitepress/config.ts). */
 export const LEGEND = "/00-start/01-what-you-will-build.md#how-a-lesson-works";
 
+/** Where a moved address now lives, for a request's path ("/00-start/06-x.html?y"), or null. */
+export function movedTo(path: string, base: string): string | null {
+  const page = path.split(/[?#]/)[0].slice(base.length).replace(/\.html$/, "");
+  return page in MOVED ? base + MOVED[page] : null;
+}
+
+type Req = { url?: string };
+type Res = { statusCode: number; setHeader: (name: string, value: string) => void; end: () => void };
+
+/** The same redirects on the dev server (`npm run site`), which serves no built pages: a
+ *  Vite plugin that answers a moved address with a 302 to its new one. */
+export function movedPages(base: string) {
+  return {
+    name: "moved-pages",
+    enforce: "pre" as const, // before VitePress's own page handler, which answers every path
+    configureServer(server: { middlewares: { use: (fn: (req: Req, res: Res, next: () => void) => void) => void } }) {
+      server.middlewares.use((req, res, next) => {
+        const to = movedTo(req.url ?? "", base);
+        if (!to) return next();
+        res.statusCode = 302;
+        res.setHeader("Location", to);
+        res.end();
+      });
+    },
+  };
+}
+
 /** Writes a small redirect page for each moved address into the built site. */
 export function writeRedirects(outDir: string, base: string): void {
   for (const [from, to] of Object.entries(MOVED)) {

@@ -4,7 +4,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { LESSONS } from "./lessons.ts";
 import { snippetNumbers } from "./snapshots.ts";
-import { LEGEND, MOVED, PUBLISHED } from "../.vitepress/urls.ts";
+import { LEGEND, MOVED, PUBLISHED, movedTo } from "../.vitepress/urls.ts";
 
 /** A page's address: its path under lessons/ without ".md", an index by its folder. */
 function address(file: string): string {
@@ -29,6 +29,15 @@ test("a moved page's old address is free, and its new one is a page", () => {
     assert.ok(!pages.has(from), `"${from}" is a page again: take it out of MOVED`);
     assert.ok(pages.has(to), `"${from}" moved to "${to}", which isn't a page`);
   }
+});
+
+test("the dev server sends a moved address on too, with or without .html, under any base", () => {
+  for (const [from, to] of Object.entries(MOVED)) {
+    assert.equal(movedTo(`/${from}`, "/"), `/${to}`);
+    assert.equal(movedTo(`/${from}.html?x=1`, "/"), `/${to}`);
+    assert.equal(movedTo(`/the-gray-tutor/${from}`, "/the-gray-tutor/"), `/the-gray-tutor/${to}`);
+  }
+  assert.equal(movedTo("/00-start/06-how-a-block-is-imported", "/"), null, "a page that exists is served");
 });
 
 // The ids VitePress gives headings: @mdit-vue/shared's slugify (bundled in VitePress), with
