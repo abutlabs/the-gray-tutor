@@ -536,25 +536,23 @@ assigner is 1 now. The *Accumulate* panel shows the assigners on the block's lin
 ![Accumulate panel](./images/06-accumulate.png)
 
 <details>
-<summary>lasair: the assigners, in <code>conformance/services.ml</code></summary>
+<summary>lasair: R, in <code>conformance/services.ml</code></summary>
 
 ```ocaml
-  let owns_core c =
-    c < Array.length pv0.pv_assigners && pv0.pv_assigners.(c) = inv in
-  let pv = List.fold_left (fun pv (c, _, a) ->
-    if c < Array.length pv.pv_assigners && (is_manager || owns_core c)
-    then begin
-      let arr = Array.copy pv.pv_assigners in
-      arr.(c) <- a;
-      { pv with pv_assigners = arr }
-    end else pv) pv assign_moves in
+  let r o a b = if a = o then b else a in
+  let man = (post_of pv_start.pv_manager).pp_pv in
+  let pv' =
+    { pv_manager = man.pv_manager;
+      pv_assigners = Array.mapi (fun c o ->
+        r o man.pv_assigners.(c) (post_of o).pp_pv.pv_assigners.(c)) pv_start.pv_assigners;
 ```
 
-lasair gets there a different way. Instead of comparing every run's privileges after the
-round, it goes through each run's `assign` calls (`assign_moves`) and keeps a move only if it
-came from the manager (`is_manager`) or from the core's assigner at the round's start
-(`owns_core`, which reads `pv0`, the round's start). Those are exactly the two services
-R listens to.
+The same rule, in the same shape: `r o a b` is R(o, a, b), `man` is the manager's run, and
+each core takes `r` of its round-start assigner `o`, the manager's choice and `o`'s own run.
+`post_of` gives a service's privileges after its run, or its round-start ones if it didn't
+run (rule 4). lasair once got here another way, keeping each `assign` call only if the
+manager or the core's holder made it, with special cases for the fuzzer's seeds. Its comment
+lists those seeds now as R's ordinary cases.
 
 </details>
 
