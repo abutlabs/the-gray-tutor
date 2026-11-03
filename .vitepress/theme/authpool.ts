@@ -27,6 +27,21 @@ export type Step = {
 /** The queue's entry a block at this slot reads: τ′ mod Q, going round every 80 slots. */
 export const queueIndex = (slot: number): number => slot % QUEUE_SIZE;
 
+/** Where entry i sits on the wheel before it turns, in degrees clockwise from the top. */
+export const entryAngle = (i: number): number => (i * 360) / QUEUE_SIZE;
+
+/**
+ * How far the wheel has turned by slot τ′: one notch of 360/Q degrees per slot. It never
+ * wraps back to 0, so past entry 79 the wheel keeps turning the same way.
+ */
+export const wheelTurn = (slot: number): number => (slot * 360) / QUEUE_SIZE;
+
+/** The entry under the pointer at the top once the wheel has turned for slot τ′. */
+export function atPointer(slot: number): number {
+  const top = (i: number) => (((entryAngle(i) - wheelTurn(slot)) % 360) + 360) % 360 === 0;
+  return [...Array(QUEUE_SIZE).keys()].find(top)!;
+}
+
 /** Where the leftmost copy of an authorizer stands in a pool, or -1 if it isn't there. */
 export const leftmost = (pool: Entry[], auth: string): number => pool.findIndex((e) => e.auth === auth);
 

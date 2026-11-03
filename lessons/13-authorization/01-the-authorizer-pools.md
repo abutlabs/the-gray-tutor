@@ -39,7 +39,9 @@ length in front, and the queues are 80 hashes exactly: 514 and 5,120 bytes on ti
 Try it below, on one core, with letters for hashes. Step on block by block and watch the
 pool fill to 8, then slide: the newest in on the right, the oldest out on the left. Give
 a block a guarantee using a letter that's in the pool twice, and see the leftmost copy
-go. Slide past slot 80 and the queue starts again from entry 0. Then switch to the
+go. The queue is drawn the way the Gray Paper reads it, as a wheel of 80 entries: each
+slot turns it one notch, and the entry under the pointer joins. Slide past slot 80 and
+it has gone round once, with entry 0 under the pointer again. Then switch to the
 trace's queue, A 80 times over: take an A out, put an A in, and the pool never changes.
 
 <AuthorizerPool />

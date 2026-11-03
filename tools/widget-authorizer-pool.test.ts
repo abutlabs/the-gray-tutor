@@ -3,7 +3,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { distinct, leftmost, MIXED, names, nextPool, POOL_SIZE, QUEUE_SIZE, queueIndex, replay, SAME } from "../.vitepress/theme/authpool.ts";
+import { atPointer, distinct, leftmost, MIXED, names, nextPool, POOL_SIZE, QUEUE_SIZE, queueIndex, replay, SAME, wheelTurn } from "../.vitepress/theme/authpool.ts";
 import type { Entry } from "../.vitepress/theme/authpool.ts";
 import { lessonCode, lessonText } from "./lessons.ts";
 
@@ -107,4 +107,11 @@ test("the pool widget's replay: fills to 8 by slot 8, wraps at 80, and a used B 
   assert.equal(step.usedAt, leftmost(pool, twice));
   assert.equal(step.droppedAt.length, 0, "one out, one in: nothing drops");
   assert.equal(names(step.after).filter((a) => a === twice).length, names(pool).filter((a) => a === twice).length - 1 + (MIXED[9] === twice ? 1 : 0));
+});
+
+test("the drawn wheel puts entry τ′ mod 80 under its pointer, and keeps turning one way past 79", () => {
+  for (let slot = 0; slot <= 170; slot++) assert.equal(atPointer(slot), queueIndex(slot), `slot ${slot}`);
+  assert.equal(atPointer(85), 5); // the lesson's example: 85 mod 80
+  assert.equal(wheelTurn(80), 360); // once round, entry 0 back at the top
+  assert.ok(wheelTurn(81) > wheelTurn(80)); // slot 80 to 81 turns one notch on, not 80 notches back
 });

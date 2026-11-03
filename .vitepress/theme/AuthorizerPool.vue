@@ -1,9 +1,11 @@
 <!-- Lesson 13.1: one core's authorizer pool, block by block. A guarantee's authorizer leaves
      (its leftmost copy), the queue's entry τ′ mod 80 joins on the right, and the pool keeps
-     its newest 8. Authorizers are letters, not hashes; the pool starts empty to watch it fill. -->
+     its newest 8. The queue is drawn as the Gray Paper reads it: a wheel of 80 entries that
+     turns one notch per slot under a fixed pointer. Authorizers are letters, not hashes; the
+     pool starts empty to watch it fill. -->
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { distinct, leftmost, MIXED, POOL_SIZE, QUEUE_SIZE, queueIndex, replay, SAME } from "./authpool.ts";
+import { distinct, entryAngle, leftmost, MIXED, POOL_SIZE, QUEUE_SIZE, queueIndex, replay, SAME, wheelTurn } from "./authpool.ts";
 import type { Entry, Step } from "./authpool.ts";
 
 const MOST = 170; // past slot 160: twice round the wheel
@@ -17,7 +19,22 @@ const GOALS = [
   { id: "twice", say: "use an authorizer that's in the pool twice, and see the leftmost go" },
   { id: "wheel", say: "go round the wheel: reach slot 80, where entry 0 comes round again" },
 ];
-const ROWS = Array.from({ length: QUEUE_SIZE / 10 }, (_, r) => r * 10);
+
+// the wheel's drawing: 80 cells round a ring, entry 0 at the top before it turns
+const C = 185; // its centre, in a 370-wide drawing
+const [R_OUT, R_IN, R_TEXT, R_TICK] = [168, 126, 147, 112];
+const NOTCH = 360 / QUEUE_SIZE;
+const at = (r: number, deg: number) => {
+  const rad = (deg * Math.PI) / 180;
+  return [C + r * Math.sin(rad), C - r * Math.cos(rad)].map((v) => v.toFixed(2)).join(" ");
+};
+const CELLS = [...Array(QUEUE_SIZE).keys()].map((i) => {
+  const [a0, a1, mid] = [entryAngle(i) - NOTCH / 2, entryAngle(i) + NOTCH / 2, entryAngle(i)];
+  const path = `M ${at(R_OUT, a0)} A ${R_OUT} ${R_OUT} 0 0 1 ${at(R_OUT, a1)} L ${at(R_IN, a1)} A ${R_IN} ${R_IN} 0 0 0 ${at(R_IN, a0)} Z`;
+  const [x, y] = at(R_TEXT, mid).split(" ");
+  const [tx, ty] = at(R_TICK, mid).split(" ");
+  return { i, path, x, y, tx, ty };
+});
 
 const slot = ref(0);
 const which = ref("mixed");
@@ -35,6 +52,8 @@ const nextOut = computed(() => (pending.value === null ? -1 : leftmost(pool.valu
 const before = computed<Entry[]>(() => last.value?.before ?? []);
 const dropped = computed(() => (last.value ? last.value.droppedAt.map((i) => before.value[i].auth) : []));
 const places = [...Array(POOL_SIZE).keys()];
+const turn = computed(() => wheelTurn(slot.value));
+const lap = computed(() => Math.floor(slot.value / QUEUE_SIZE) + 1);
 
 const change = computed(() => {
   const s = last.value;
@@ -109,7 +128,7 @@ function reset() {
       <button class="small go" :disabled="slot >= MOST" @click="nextBlock">next block ▶</button>
     </div>
 
-    <div class="label">α, before block {{ last ? last.slot : 1 }}</div>
+    <div class="label">α[c], this core's pool, before block {{ last ? last.slot : 1 }}</div>
     <div class="pool" aria-label="the pool before this block">
       <span v-for="i in places" :key="i" class="chip"
         :class="{ empty: i >= before.length, used: last?.usedAt === i, dropped: last?.droppedAt.includes(i) }">
@@ -117,7 +136,7 @@ function reset() {
         <small>{{ last?.usedAt === i ? "used" : last?.droppedAt.includes(i) ? "old" : before[i] ? `τ${before[i].joined}` : "" }}</small>
       </span>
     </div>
-    <div class="label">α′, after it: the pool now</div>
+    <div class="label">α′[c], after it: this core's pool now</div>
     <div class="pool" aria-label="the pool now">
       <span v-for="i in places" :key="i" class="chip"
         :class="{ empty: i >= pool.length, fresh: last && i === pool.length - 1, out: nextOut === i }">
@@ -145,19 +164,31 @@ function reset() {
       Every entry is A. Take an A out, put an A in: the pool comes out as it went in.
     </p>
 
-    <div class="label">ϕ, the queue: 80 entries, 10 to a row. The next block reads entry {{ queueIndex(slot + 1) }}.</div>
-    <div class="queue" aria-label="the queue">
-      <template v-for="r in ROWS" :key="r">
-        <span class="row-label">{{ r }}</span>
-        <span v-for="k in 10" :key="r + k" class="cell"
-          :class="{ now: last && last.index === r + k - 1, next: slot < MOST && queueIndex(slot + 1) === r + k - 1 }">{{ queue[r + k - 1] }}</span>
-      </template>
-    </div>
     <div class="controls">
       <span class="label">queue:</span>
       <button v-for="q in QUEUES" :key="q.id" class="small" :class="{ chosen: which === q.id }" :aria-pressed="which === q.id" @click="chooseQueue(q.id)">{{ q.say }}</button>
       <button class="small" @click="reset">back to slot 0</button>
     </div>
+    <div class="label">
+      ϕ[c], this core's queue: a wheel of 80 entries. Each slot turns it one notch, and the entry under the pointer
+      joins. The next block reads entry {{ queueIndex(slot + 1) }}, just clockwise of the pointer. Every core has its own
+      wheel, and all of them turn together: at a given slot, each core takes the same entry of its own queue.
+    </div>
+    <svg class="wheel" viewBox="0 0 370 370" role="img"
+      :aria-label="`the queue as a wheel: slot ${slot}, entry ${queueIndex(slot)} under the pointer, round ${lap}`">
+      <g class="dial" :style="{ transform: `rotate(${-turn}deg)` }">
+        <template v-for="c in CELLS" :key="c.i">
+          <path :d="c.path" class="cell"
+            :class="{ now: last && last.index === c.i, next: slot < MOST && queueIndex(slot + 1) === c.i }" />
+          <text :x="c.x" :y="c.y" class="letter" :style="{ transform: `rotate(${turn}deg)` }">{{ queue[c.i] }}</text>
+          <text v-if="c.i % 10 === 0" :x="c.tx" :y="c.ty" class="tick" :style="{ transform: `rotate(${turn}deg)` }">{{ c.i }}</text>
+        </template>
+      </g>
+      <path class="pointer" :d="`M ${C} ${C - R_OUT + 14} L ${C - 8} ${C - R_OUT - 12} L ${C + 8} ${C - R_OUT - 12} Z`" />
+      <text :x="C" :y="C - 22" class="hub-label">slot τ′</text>
+      <text :x="C" :y="C + 4" class="hub-value">{{ slot }}</text>
+      <text :x="C" :y="C + 28" class="hub-label">{{ last ? `entry ${last.index}, round ${lap}` : "no block yet" }}</text>
+    </svg>
     <ul class="goals">
       <li v-for="g in GOALS" :key="g.id" :class="{ done: reached.has(g.id) }">{{ reached.has(g.id) ? "✓" : "○" }} <UnitText :text="g.say" /></li>
     </ul>
@@ -184,20 +215,23 @@ function reset() {
 .chip.empty { border-style: dashed; background: none; }
 .chip.empty b { color: var(--vp-c-text-3); }
 .chip.used, .chip.out { border-color: var(--bit-mark-line); background: var(--bit-mark); }
-.chip.used b { text-decoration: line-through; }
 .chip.dropped { border-style: dashed; background: none; }
 .chip.dropped b { color: var(--vp-c-text-3); text-decoration: line-through; }
 .chip.fresh { border-color: var(--bit-low-line); background: var(--bit-low); }
 .steps { font-size: 14px; margin: 4px 0 8px; padding-left: 20px; line-height: 1.5; }
 .line { font-size: 14px; margin: 8px 0; }
-.queue {
-  display: grid; grid-template-columns: 2.5ch repeat(10, minmax(0, 1fr)); gap: 2px; margin: 4px 0 8px; max-width: 420px;
-  font-family: var(--vp-font-family-mono); font-size: 14px;
-}
-.row-label { font-size: 11px; color: var(--vp-c-text-3); align-self: center; }
-.cell { text-align: center; padding: 3px 0; border: 1px solid var(--vp-c-divider); border-radius: 3px; }
-.cell.now { border-color: var(--bit-low-line); background: var(--bit-low); font-weight: 600; }
-.cell.next { outline: 2px dashed var(--bit-top-line); outline-offset: -2px; }
+.wheel { display: block; width: 100%; max-width: 370px; margin: 4px auto 8px; overflow: visible; }
+.dial { transform-box: view-box; transform-origin: 50% 50%; transition: transform 0.35s ease; }
+.dial text { transform-box: fill-box; transform-origin: center; transition: transform 0.35s ease; }
+.cell { fill: var(--vp-c-bg-soft); stroke: var(--vp-c-divider); stroke-width: 1; }
+.cell.now { fill: var(--bit-low); stroke: var(--bit-low-line); stroke-width: 2; }
+.cell.next { stroke: var(--bit-top-line); stroke-width: 2; stroke-dasharray: 3 2; }
+.letter { font-family: var(--vp-font-family-mono); font-size: 12px; fill: var(--vp-c-text-1); text-anchor: middle; dominant-baseline: central; }
+.tick { font-family: var(--vp-font-family-mono); font-size: 10px; fill: var(--vp-c-text-3); text-anchor: middle; dominant-baseline: central; }
+.pointer { fill: var(--bit-low-line); }
+.hub-label { font-size: 12px; fill: var(--vp-c-text-2); text-anchor: middle; }
+.hub-value { font-family: var(--vp-font-family-mono); font-size: 30px; font-weight: 600; fill: var(--vp-c-text-1); text-anchor: middle; dominant-baseline: central; }
+@media (prefers-reduced-motion: reduce) { .dial, .dial text { transition: none; } }
 .goals { list-style: none; padding: 0; margin: 12px 0 0; font-size: 14px; color: var(--vp-c-text-2); }
 .goals li.done { color: var(--vp-c-green-1); }
 @media (max-width: 640px) {
