@@ -216,7 +216,7 @@ function reset() {
 .chip.empty b { color: var(--vp-c-text-3); }
 .chip.used, .chip.out { border-color: var(--bit-mark-line); background: var(--bit-mark); }
 .chip.dropped { border-style: dashed; background: none; }
-.chip.dropped b { color: var(--vp-c-text-3); text-decoration: line-through; }
+.chip.dropped b { color: var(--vp-c-text-3); }
 .chip.fresh { border-color: var(--bit-low-line); background: var(--bit-low); }
 .steps { font-size: 14px; margin: 4px 0 8px; padding-left: 20px; line-height: 1.5; }
 .line { font-size: 14px; margin: 8px 0; }
