@@ -34,6 +34,14 @@ All three are in the [glossary](../glossary.md).
 
 Break any one and the whole block is invalid.
 
+**Refused, not punished.** No rule here makes anyone an offender. Culprits and faults
+([Part 10](../10-disputes/index.md)) are the only offenses the chain records, and a bad assurance is neither: the
+block that carries it is refused, which costs its author the block, and a bad signature
+doesn't even prove the named validator signed. A validator that assures a piece it doesn't
+hold can't be convicted on-chain either, since a missing piece only shows off the chain, as
+a request nobody answers. What the chain does keep is the good side: [Part 18](../18-statistics/index.md)'s statistics count
+each validator's assurances, for whatever pays validators to act on.
+
 **Anchored on the parent.** [Lesson 11.1](./01-available.md) showed one assurance field by field. Rule 1 is
 about its first field, the anchor: it must be H_P, the hash of the header of the block
 that block B builds on: in this vector, the input's `parent` and every assurance's `anchor`
