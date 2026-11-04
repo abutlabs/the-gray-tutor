@@ -123,10 +123,12 @@ export function words(ins: Instruction, before: bigint[], after: bigint[], m: Ma
   }
   if (ins.name.startsWith("branch_")) {
     const test = ins.name.slice("branch_".length).replace("_imm", "");
-    const right = ins.name.endsWith("_imm") ? signedText(x) : v(before, b);
+    // unsigned comparisons read the bits as unsigned: all ones is 2^64 − 1, not −1
+    const shownAs = (n: bigint) => (test.endsWith("_u") ? `${n}` : signedText(n));
+    const right = shownAs(ins.name.endsWith("_imm") ? x : before[b]);
     if (exit === "panic") return `A branch may only land on the start of a basic block, and ${ins.target} isn't one: panic.`;
     const taken = m.pc === ins.target;
-    return `${v(before, a)} ${COMPARE[test]} ${right}? ${taken ? `yes: jump to ${ins.target}` : `no: carry on to ${ins.next}`}`;
+    return `${shownAs(before[a])} ${COMPARE[test]} ${right}? ${taken ? `yes: jump to ${ins.target}` : `no: carry on to ${ins.next}`}`;
   }
   switch (ins.name) {
     case "load_imm":

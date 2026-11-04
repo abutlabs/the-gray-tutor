@@ -16,6 +16,14 @@ import { ROOT, lessonText } from "./lessons.ts";
 const REFERENCE = join(ROOT, "reference/src");
 const PREIMAGE = new Uint8Array(readFileSync(join(ROOT, "lessons/public/pvm/bootstrap-service.bin")));
 
+/** The lessons that send the reader to the playground, each with one exact thing to try. */
+const LINKED = [
+  "15-the-pvm/01-the-program-blob.md", "15-the-pvm/02-instructions.md", "15-the-pvm/03-the-machine.md",
+  "15-the-pvm/04-memory.md", "15-the-pvm/05-arithmetic.md", "15-the-pvm/06-branches-and-calls.md",
+  "15-the-pvm/07-bits-and-bytes.md", "15-the-pvm/08-a-real-program.md", "15-the-pvm/09-what-instructions-cost.md",
+  "15-the-pvm/10-the-pipeline.md", "15-the-pvm/11-the-gas-meter.md", "16-host-calls/01-calling-the-host.md",
+];
+
 const source = (id: string) => SCENARIOS.find((s) => s.id === id)!.source;
 /** A program with one piece of its text changed: what a "Try this" asks the reader to do. */
 const edit = (id: string, from: string, to: string) => {
@@ -186,6 +194,33 @@ test("every instruction says what it means, before it runs", () => {
   assert.equal(about("ecalli 0"), "Stop and ask the host for call 0, gas. It answers in φ7.");
   const real = disassemble(new Session(bootstrapRun(PREIMAGE, 1000n)).run.program);
   assert.ok(real.every((l) => l.about.endsWith(".")), "the real service: every instruction described");
+});
+
+test("the lessons' Try it steps do what they say", () => {
+  const says = (text: string) => runToStop(text).frames[0].says;
+  const lab = (name: string, r7: string, r8: string) =>
+    around(name).replace(".reg r7 = 3", `.reg r7 = ${r7}`).replace(".reg r8 = 3", `.reg r8 = ${r8}`);
+  // 15.6: the same bits, two readings, and each line shows the reading it used
+  assert.match(says(lab("branch_lt_s", "-1", "1")), /^−1 < 1\? yes/);
+  assert.match(says(lab("branch_lt_u", "-1", "1")), /^18446744073709551615 < 1\? no/);
+  // 15.9: 2 decode slots, or 1 when it writes a register it reads
+  const slots = (text: string) => disassemble(assemble(text).program)[0].cost.slots;
+  assert.equal(slots(around("add_64")), 2);
+  assert.equal(slots(around("add_64").replace("add_64 r9, r7, r8", "add_64 r7, r7, r8")), 1);
+  // 15.8: 38 instructions to the first host call, and the registers ready before any
+  const real = new Session(bootstrapRun(PREIMAGE, 1_000_000n));
+  assert.equal(real.machine.registers[0], 0xffff0000n);
+  let f = real.advance()!;
+  while (!f.hostAnswer) f = real.advance()!;
+  assert.equal(f.n, 38);
+  assert.match(f.hostAnswer, /^fetch/);
+  // 15.1: the lesson's count
+  assert.equal(disassemble(real.run.program).length, 39849);
+  // 16.1 and 15.11
+  assert.equal(runToStop(source("out-of-gas")).machine.gas, 16n);
+  assert.equal(runToStop(source("host-call")).frames[0].hostPaid, 48n);
+  // every lesson of Part 15 and 16.1 points at the playground
+  for (const page of LINKED) assert.match(lessonText(page), /Try it in the \[playground\]\(\.\.\/pvm-playground\.md\)/, page);
 });
 
 test("the assembler says what's wrong, by line", () => {

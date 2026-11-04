@@ -36,6 +36,8 @@ Pick an instruction and its registers, and watch its row:
 
 <CostRow />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Any instruction**. Under the Code panel it says `add_64` takes 2 decode slots. In the edit box change the line to `add_64 r7, r7, r8`, press **Assemble and reset**, and it says 1.
+
 ## The tests
 
 **New file** `test/gas.test.ts`

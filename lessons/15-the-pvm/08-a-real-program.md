@@ -45,6 +45,8 @@ arguments are, r8 = how many bytes. Every other register starts at 0.
 refinement at instruction 0, and accumulation at 5, with the arguments E(t, s, |i|): the
 slot, the service's id, and how many inputs it has, each a compact natural ([lesson 2.2](../02-codec/02-compact-naturals.md)).
 
+**Try it in the [playground](../pvm-playground.md).** Press **A real service: bootstrap's accumulate**. Before anything runs, r7, r8, r0 and r1 already hold what this lesson says. Press **Next host call**: it stops after 38 instructions, on the `fetch` this lesson ends with.
+
 ## The tests
 
 **New file** `test/standard.test.ts`

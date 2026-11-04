@@ -42,6 +42,8 @@ take turns at the one divider. When everything has retired, the block's cost app
 
 <PipelineCycles />
 
+**Try it in the [playground](../pvm-playground.md).** Press **What a block really costs**, then **Run**. The Gas panel lists three prices: 5 for four sums side by side, 8 for the same four in a chain, 60 for one division.
+
 ## The tests
 
 **Add to** `test/gas.test.ts`

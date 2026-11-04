@@ -33,6 +33,8 @@ Set two registers and see every comparison, unsigned beside signed:
 
 <SignedBranches />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Any instruction** and pick `branch_lt_s`. In the edit box set `.reg r7 = -1` and `.reg r8 = 1`, press **Assemble and reset**, then **Step**: it jumps. Do the same with `branch_lt_u`: it doesn't, because those same bits are now the biggest number there is.
+
 ## The tests
 
 **New file** `test/branches.test.ts`

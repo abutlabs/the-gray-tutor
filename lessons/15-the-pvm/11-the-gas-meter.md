@@ -30,6 +30,8 @@ of its block is already paid for.
 
 <GasMeter />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Out of gas**, then **Run**. It stops at the door of a block with 16 gas left and 21 to pay. Type 23 in the gas box and run it again, then 22: one pass, then none.
+
 ## The tests
 
 **Add to** `test/gas.test.ts`

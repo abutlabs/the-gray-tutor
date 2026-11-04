@@ -53,6 +53,8 @@ Try a touch on a map with one writable page, one read-only page and nothing else
 
 <MemoryTouch />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Reading and writing memory**, then **Step** twice: the Memory panel jumps to the store and lights `88 77 66 55 44 33 22 11`. Press **Run**: the store to the read-only page stops with a page fault.
+
 ## The tests
 
 **New file** `test/memory.test.ts`

@@ -36,6 +36,8 @@ Try the corners, or numbers of your own:
 
 <AluCorners />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Any instruction** and pick `div_u_64` from the list. In the edit box change `.reg r8 = 0x10` to `.reg r8 = 0`, press **Assemble and reset**, then **Step**: dividing by zero gives −1, every bit set, and the machine carries on.
+
 ## The tests
 
 **New file** `test/arithmetic.test.ts`

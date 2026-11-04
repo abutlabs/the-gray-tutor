@@ -46,6 +46,8 @@ memory.)
 
 <BlobLayers />
 
+**Try it in the [playground](../pvm-playground.md).** Press **A real service: bootstrap's accumulate**. The Code panel lists this lesson's 39,849 instructions, and the Memory panel shows the read-only data unpacked into pages.
+
 ## The tests
 
 The tests need the trace's service code, and later lessons will too, so a helper finds

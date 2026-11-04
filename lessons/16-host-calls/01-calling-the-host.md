@@ -38,6 +38,8 @@ Step a host call through, start to finish:
 
 <HostCall />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Asking the host**, then **Step**. The block's price and the host call's 48 both come off the gas, and the answer lands in φ7.
+
 ## The tests
 
 **New file** `test/host.test.ts`

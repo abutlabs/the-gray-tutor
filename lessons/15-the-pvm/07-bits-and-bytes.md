@@ -30,6 +30,8 @@ Flip bits, or type a number, and tap an instruction to see which bits it looked 
 
 <BitCounts />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Any instruction**, pick `reverse_bytes` and press **Step**. Then try `count_set_bits_64`.
+
 ## The tests
 
 **New file** `test/bits.test.ts`

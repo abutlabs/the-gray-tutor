@@ -57,6 +57,8 @@ first number is its opcode in decimal, as the Gray Paper's table numbers it (51 
 
 <PvmStepper />
 
+**Try it in the [playground](../pvm-playground.md).** Press **A branch and a loop**, then **Step** until the loop comes round. Then open **Edit this program**, delete the `fallthrough` line, press **Assemble and reset**, and press **Run**: the branch panics.
+
 ## The tests
 
 **New file** `test/machine.test.ts`

@@ -41,6 +41,8 @@ The rules for reading them, in brief:
 
 <DecodeInstruction />
 
+**Try it in the [playground](../pvm-playground.md).** Press **Numbers inside instructions** and read the bytes at the end of each line in the Code panel. `load_imm r10, 0` has no bytes for its number at all: a missing byte reads as zero.
+
 ## The tests
 
 **New file** `test/instructions.test.ts`
