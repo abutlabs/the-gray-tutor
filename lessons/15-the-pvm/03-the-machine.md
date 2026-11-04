@@ -25,6 +25,11 @@ Appendix A.
 curly phi: the straight ϕ of [lesson 6.2](../06-state-and-merklization/02-state-keys.md) is the authorizer queue. Memory comes in [lesson 15.4](./04-memory.md),
 the gas counter in [lesson 15.11](./11-the-gas-meter.md).)
 
+Why thirteen? A Gray Paper footnote says it: RISC-V has 16, but compiled code uses 13, since
+two are reserved for the operating system and one is fixed at zero. To the machine they're
+all alike. Only a program's start ([lesson 15.8](./08-a-real-program.md)) and the host calls ([Part 16](../16-host-calls/index.md)) give some of
+them a job: r0 the way back, r1 the stack, r7 and up the arguments.
+
 **One step, Ψ₁**: run the instruction at ı. Unless it says otherwise, an instruction
 moves ı on to the next one, ı + 1 + skip(ı), and the step ends with ε = ▸, carry on. A
 step can also end with *halt* (finished well) or *panic* (finished badly).

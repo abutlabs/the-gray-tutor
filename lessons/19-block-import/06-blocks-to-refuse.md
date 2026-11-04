@@ -6,7 +6,7 @@ bad block is as wrong as one that refuses a good one. This lesson runs them, fin
 last difference from the traces, in an out-of-gas rule [lesson 16.3](../16-host-calls/03-growing-the-heap.md) kept as the Gray Paper
 wrote it, and ends with your client importing the first 100 blocks of all eight traces,
 800 blocks, chained, and refusing exactly the three bad ones among them; the scoreboard
-checks all 1,000 steps, one at a time, and all seven bad blocks. That's a block importer: JAM's first milestone.
+checks all 1,000 steps, one at a time, and all seven bad blocks. That's a block importer, which is what JAM's first milestone is about.
 
 ## New words
 
@@ -528,8 +528,8 @@ vectors pass whole, safrole's proofs and ring roots included. The ten preimages 
 are the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md)'s
 to add; the other twelve are erasure coding, which validators use to share a
 work-package's data and a block importer never needs. JAM's first milestone, M1, asks a
-client for the conformance tests and for importing blocks: the second is done, and the
-first but for those ten. One thing is left: the official
+client for the conformance tests and for importing blocks. On the official traces the
+second is done, and the first but for those ten. One thing is left: the official
 fuzzer doesn't run your tests, it talks to your client over a socket. [Part
 20](../20-facing-the-fuzzer/index.md) teaches it to listen.
 
