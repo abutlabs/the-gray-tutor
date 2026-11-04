@@ -976,4 +976,6 @@ accumulate vectors, and all 126 at both sizes on the scoreboard: the gas budget,
 yields and their root, provisions, and every privilege. That's [Part 17](./index.md) done. Next, the chain keeps score of all this work:
 [Part 18](../18-statistics/index.md) builds the statistics.
 
+**Say it out loud.** `bless` sets every privilege, and `designate` picks the next validators. The merge after the round decides what counts.
+
 Next: [Part 18 · Statistics](../18-statistics/index.md)

@@ -888,4 +888,6 @@ committed to with a Keccak Merkle root that matches every accumulate vector's ou
 Fifty-seven official vectors pass as whole blocks. Services can hand things to each other
 too, not only money: [lesson 17.12](./12-providing-a-preimage.md) delivers a preimage a service asked for.
 
+**Say it out loud.** A service can end by handing the chain a hash, and each block commits to them all in one Keccak Merkle root, so other chains can check it.
+
 Next: [17.12 Providing a preimage](./12-providing-a-preimage.md)

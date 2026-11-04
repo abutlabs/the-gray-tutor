@@ -373,4 +373,6 @@ A machine that can ask, and a host that answers. One question so far: how much g
 left? The service you watched wanted something else first, `fetch`, and [lesson 16.2](./02-fetch.md)
 answers it.
 
+**Say it out loud.** A service can't reach outside the machine. `ecalli` stops it, the host answers in r7, and it carries on. Every call has a price.
+
 Next: [16.2 Fetch](./02-fetch.md)

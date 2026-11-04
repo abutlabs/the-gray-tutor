@@ -378,4 +378,6 @@ A service that can rewrite itself. Fifty-six official vectors pass as whole bloc
 service can also hand the chain a hash at the end of its run, for other chains to check:
 [lesson 17.11](./11-what-a-service-yields.md) builds `yield`.
 
+**Say it out loud.** A service can replace its own code with no one's permission. If it doesn't hold the new code yet, it can't run until it does.
+
 Next: [17.11 What a service yields](./11-what-a-service-yields.md)

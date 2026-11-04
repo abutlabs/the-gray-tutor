@@ -533,4 +533,6 @@ first but for those ten. One thing is left: the official
 fuzzer doesn't run your tests, it talks to your client over a socket. [Part
 20](../20-facing-the-fuzzer/index.md) teaches it to listen.
 
+**Say it out loud.** An importer that takes a bad block is as wrong as one that refuses a good one. The official vectors pass 1,406 of 1,428, and each of the 22 left has a name.
+
 Next: [Part 20 · Facing the fuzzer](../20-facing-the-fuzzer/index.md)

@@ -497,4 +497,6 @@ The whole state, read and written, byte for byte, for every trace. Its accounts 
 their entries by their keys, which the host calls, written for the test vectors' accounts,
 can't use yet: [lesson 19.3](./03-accounts-from-the-state.md) teaches them.
 
+**Say it out loud.** The state is 16 components plus every service's entries, and it must come back byte for byte, because the root covers every byte.
+
 Next: [19.3 Accounts from the state](./03-accounts-from-the-state.md)

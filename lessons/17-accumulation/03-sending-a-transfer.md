@@ -592,4 +592,6 @@ Services that pay each other: the money leaves at once, a failure takes it back,
 official service runs that send transfers match their vectors. The money has left; it
 hasn't arrived. [Lesson 17.4](./04-rounds.md) delivers it, in a second round.
 
+**Say it out loud.** A transfer leaves the sender at once, with gas paid up front for the receiver, and a failure takes it back.
+
 Next: [17.4 Rounds](./04-rounds.md)

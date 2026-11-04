@@ -480,4 +480,6 @@ sizes, and were 134 bytes long.
 A host that answers two questions, gas and fetch, and a real service that runs to a clean
 halt. 1,450 gas from matching the test vector, and [lesson 16.3](./03-growing-the-heap.md) closes the gap.
 
+**Say it out loud.** `fetch` is how a service learns about the chain: its constants, its entropy, its inputs. Asking for 0 bytes tells it how big an item is.
+
 Next: [16.3 Growing the heap](./03-growing-the-heap.md)

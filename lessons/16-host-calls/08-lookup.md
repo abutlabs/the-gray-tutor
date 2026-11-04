@@ -375,4 +375,6 @@ Services that can read any preimage on the chain, and ten services in nine offic
 accumulate vectors matching them. Reading a preimage needs someone to have asked for it first:
 [lesson 16.9](./09-asking-for-preimages.md) lets a service ask.
 
+**Say it out loud.** Preimages are public: any service can read another's, because anyone with the data can check it against its hash.
+
 Next: [16.9 Asking for preimages](./09-asking-for-preimages.md)

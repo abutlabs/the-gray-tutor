@@ -504,4 +504,6 @@ Services that can leave: ejected by the service they named, their balance passed
 rounds that remove what their runs removed. Fifty official vectors now pass as whole
 blocks. What leaves can also arrive: [lesson 17.8](./08-creating-a-service.md) lets a service create another.
 
+**Say it out loud.** Only the service it named can remove a service, once it has let go of everything, and its balance passes on.
+
 Next: [17.8 Creating a service](./08-creating-a-service.md)

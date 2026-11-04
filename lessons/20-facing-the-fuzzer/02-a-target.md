@@ -499,4 +499,6 @@ has kept, refusals answered with an Error, states handed over when asked, and th
 anchors checked against the chain's own ancestry. What it needs now is a fuzzer:
 [lesson 20.3](./03-a-session.md) writes a small one.
 
+**Say it out loud.** A target keeps several states, because the fuzzer sends broken versions of a block on the same parent. A refused block changes nothing.
+
 Next: [20.3 A session](./03-a-session.md)

@@ -752,4 +752,6 @@ every vector in it passing whole but the ten preimages refusals. [Part 18](./ind
 done. Every part so far built one piece of a block's state transition on its own;
 [Part 19](../19-block-import/index.md) starts putting them together, with the order the Gray Paper asks for.
 
+**Say it out loud.** Validators' tallies last an epoch; cores' and services' last one block. A core's popularity counts assurances even when there aren't enough yet.
+
 Next: [Part 19 · Block import](../19-block-import/index.md)

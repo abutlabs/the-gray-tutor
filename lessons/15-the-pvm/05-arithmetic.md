@@ -545,4 +545,6 @@ of the job free.
 All 72 arithmetic and logic instructions, every corner of the Gray Paper's tables tested.
 [Lesson 15.6](./06-branches-and-calls.md) adds the rest of the branches, and calls.
 
+**Say it out loud.** PVM arithmetic never crashes: numbers wrap, and dividing by zero has a fixed answer, so every validator gets the same result.
+
 Next: [15.6 Branches and calls](./06-branches-and-calls.md)

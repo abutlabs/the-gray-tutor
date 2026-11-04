@@ -533,4 +533,6 @@ Reports that wait for each other, unlocked in the right order, and a queue and h
 that match 36 official vectors. Services so far only touch their own accounts; [lesson
 17.3](./03-sending-a-transfer.md) lets one pay another.
 
+**Say it out loud.** A report can wait for other work. It sits in a ring of lists, one for each slot of an epoch, and if what it needs doesn't come within an epoch, it's given up.
+
 Next: [17.3 Sending a transfer](./03-sending-a-transfer.md)

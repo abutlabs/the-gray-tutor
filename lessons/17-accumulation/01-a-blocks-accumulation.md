@@ -431,4 +431,6 @@ A whole block's accumulation, in its simplest form, matching 29 official vectors
 account and every statistic. Reports with prerequisites were left alone: [lesson 17.2](./02-waiting-reports.md)
 gives them a queue to wait in.
 
+**Say it out loud.** Every service in a round starts from the same accounts, so none of them can see what another does in that round.
+
 Next: [17.2 Waiting reports](./02-waiting-reports.md)

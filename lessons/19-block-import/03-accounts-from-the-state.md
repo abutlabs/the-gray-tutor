@@ -645,4 +645,6 @@ Host calls that work on both kinds of account: the test vectors', and the state'
 the whole state read, and every step able to run on it, a real block can go all the way
 through: [lesson 19.4](./04-importing-a-block.md).
 
+**Say it out loud.** A state key is mostly a hash, so a key finds its entry but an entry can't give back its key. That's enough: every host call starts from a key the service names.
+
 Next: [19.4 Importing a block](./04-importing-a-block.md)

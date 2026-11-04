@@ -435,4 +435,6 @@ blocks, the two give the same cost every time.
 A price for every basic block, worked out the Gray Paper's way. One piece of gas is left:
 the meter that charges those prices as the machine runs, and [lesson 15.11](./11-the-gas-meter.md) builds it.
 
+**Say it out loud.** Gas is the cycles a small model CPU takes to run a basic block, less 3. Work side by side is cheap; waiting is what costs.
+
 Next: [15.11 The gas meter](./11-the-gas-meter.md)

@@ -861,4 +861,6 @@ together once, at the end.
 trace's, chained from genesis, and both families whole on the scoreboard. Those blocks carry no work. The `storage` and `preimages`
 traces do, and they find two things your client still gets wrong: [lesson 19.5](./05-work-on-the-chain.md).
 
+**Say it out loud.** Υ takes the state and a block, and gives the new state or a refusal, whole. One wrong byte anywhere and the root is wrong.
+
 Next: [19.5 Work on the chain](./05-work-on-the-chain.md)

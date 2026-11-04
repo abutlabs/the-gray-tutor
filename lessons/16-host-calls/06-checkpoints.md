@@ -471,4 +471,6 @@ A whole accumulation, Ψ_A, that keeps what a service does when it succeeds, and
 back to its last checkpoint when it doesn't. So far each service has run with no inputs:
 [lesson 16.7](./07-a-services-inputs.md) hands it the work it was actually given.
 
+**Say it out loud.** Accumulation keeps two copies of what a service does. A halt keeps the new one; a panic or running out of gas falls back to the last checkpoint.
+
 Next: [16.7 A service's inputs](./07-a-services-inputs.md)

@@ -350,4 +350,6 @@ Every instruction in the Gray Paper's tables, bar one: `ecalli`, the door out of
 machine to the host. [Lesson 15.8](./08-a-real-program.md) builds it, and runs a real service up to its first
 `ecalli`.
 
+**Say it out loud.** Ten instructions look at a number's bits instead of doing sums: counting 1s, widening a value, turning its bytes round.
+
 Next: [15.8 A real program](./08-a-real-program.md)

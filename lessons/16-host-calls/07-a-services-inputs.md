@@ -454,4 +454,6 @@ A service's inputs, built from a block's reports, and eight services in seven of
 accumulate vectors matching them, gas and storage. Many of the other vectors' services ask for preimages next:
 [lesson 16.8](./08-lookup.md) lets them read one.
 
+**Say it out loud.** A service's inputs are operands, one for each work digest that names it. That's how refine's results reach accumulate.
+
 Next: [16.8 Lookup](./08-lookup.md)

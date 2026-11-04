@@ -457,4 +457,6 @@ the answer.
 Memory with pages and permissions, and every load and store, failing exactly as the Gray
 Paper says when a program reaches too far. [Lesson 15.5](./05-arithmetic.md) adds the arithmetic.
 
+**Say it out loud.** A program can only touch the pages it was given. Anything else is a page fault, and anything below 64 KiB is a panic.
+
 Next: [15.5 Arithmetic](./05-arithmetic.md)

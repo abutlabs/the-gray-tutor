@@ -500,4 +500,6 @@ small ids. Fifty-four official vectors pass as whole blocks. Until now, every re
 block went in round 1, however much gas it asked for. A block only has so much:
 [lesson 17.9](./09-the-blocks-gas-budget.md) gives it a budget.
 
+**Say it out loud.** A service can create another and pays its deposit. The new id comes from a hash of fresh entropy, so nobody can aim for one.
+
 Next: [17.9 The block's gas budget](./09-the-blocks-gas-budget.md)

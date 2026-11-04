@@ -553,4 +553,6 @@ A disassembler: any JAM service's code, read instruction by instruction, every
 argument decoded and every jump checked against the real thing. Reading a program isn't
 running it: [lesson 15.3](./03-the-machine.md) builds the machine that steps through one.
 
+**Say it out loud.** 139 instructions in 13 layouts. An instruction's length isn't written anywhere: the bitmask says where the next one starts.
+
 Next: [15.3 The machine](./03-the-machine.md)

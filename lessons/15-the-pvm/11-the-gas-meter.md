@@ -369,4 +369,6 @@ A complete PVM: every instruction, memory, a real program's setup, host calls as
 out, and gas, priced and charged the Gray Paper's way. [Part 15](./index.md), done. The machine can ask
 the host for things; in [Part 16](../16-host-calls/index.md), the host answers back.
 
+**Say it out loud.** A basic block is paid for in full on the way in, so every validator runs out of gas at exactly the same place.
+
 Next: [Part 16 · Host calls](../16-host-calls/index.md)

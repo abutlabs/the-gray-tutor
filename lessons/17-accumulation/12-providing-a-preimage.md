@@ -649,4 +649,6 @@ Preimages handed from service to service, kept or dropped by a checkpoint, and d
 at the end of the round. Fifty-nine official vectors pass as whole blocks. The last four
 need the two privileged calls still missing: [lesson 17.13](./13-blessing-and-designating.md) builds `bless` and `designate`.
 
+**Say it out loud.** One service can hand another a preimage it's waiting for. It's delivered at the end of the round, so runs stay independent.
+
 Next: [17.13 Blessing and designating](./13-blessing-and-designating.md)

@@ -590,4 +590,6 @@ over. Fifty-five official vectors pass as whole blocks. Each of the eight left n
 your client doesn't answer yet, and the simplest is a service replacing its own code:
 [lesson 17.10](./10-upgrading-a-service.md).
 
+**Say it out loud.** A block has a gas budget. A round takes reports while they fit, and the rest wait for the next round.
+
 Next: [17.10 Upgrading a service](./10-upgrading-a-service.md)

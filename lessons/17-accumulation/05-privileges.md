@@ -744,4 +744,6 @@ can hand it on, with a new queue, and a failure takes it back. Three more offici
 service runs match. Every service in a round starts from the same privileges, though, so
 two can change the same one: [lesson 17.6](./06-who-wins.md) decides who wins.
 
+**Say it out loud.** A few services hold privileges: the manager, each core's assigner, the delegator, the registrar, and the always-accumulate list.
+
 Next: [17.6 Who wins](./06-who-wins.md)

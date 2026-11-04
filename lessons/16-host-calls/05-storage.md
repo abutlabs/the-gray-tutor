@@ -352,4 +352,6 @@ Services that can remember things between accumulations, and pay for what they k
 a service that writes and then panics leaves half a job behind: [lesson 16.6](./06-checkpoints.md) decides
 what survives.
 
+**Say it out loud.** A service's storage is a key-value store in the state, paid for by deposit. A write it can't afford answers FULL, and nothing changes.
+
 Next: [16.6 Checkpoints](./06-checkpoints.md)

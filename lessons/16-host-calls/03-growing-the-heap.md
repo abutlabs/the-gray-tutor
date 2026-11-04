@@ -412,4 +412,6 @@ A host that answers gas, fetch and grow_heap, and a real service's accumulation 
 matches the test vector to the last unit of gas. So far the host only answers questions;
 [lesson 16.4](./04-info.md) starts on the host calls about service accounts, with `info`.
 
+**Say it out loud.** `grow_heap` gives a program more pages, and each new page costs gas. Asking for less than it has tells it where its heap ends.
+
 Next: [16.4 Info](./04-info.md)

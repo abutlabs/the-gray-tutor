@@ -448,4 +448,6 @@ A price for every instruction the PVM knows. A price list doesn't say what a blo
 though, because a CPU runs instructions side by side: [lesson 15.10](./10-the-pipeline.md) builds the CPU that
 adds them up.
 
+**Say it out loud.** Every instruction has a row: its cycles, its decoding, and which parts of the CPU it uses. That's the price list, not the bill.
+
 Next: [15.10 The pipeline](./10-the-pipeline.md)

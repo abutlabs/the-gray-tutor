@@ -508,4 +508,6 @@ A running PVM: registers, an instruction counter, seventeen instructions, basic 
 and the two ways a program ends. Everything so far lives in registers, and a real
 program needs more room than 13 numbers: [lesson 15.4](./04-memory.md) gives the machine memory.
 
+**Say it out loud.** The PVM is 13 registers and a counter, running one instruction at a time. Jumps may only land on the start of a basic block, and a program ends by jumping to the halt address.
+
 Next: [15.4 Memory](./04-memory.md)

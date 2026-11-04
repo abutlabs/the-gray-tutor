@@ -612,4 +612,6 @@ Privileges that survive the round they're changed in, settled the Gray Paper's w
 manager first, then the holder. Forty official vectors match as whole blocks. Services so
 far only come and change; [lesson 17.7](./07-ejecting-a-service.md) lets one go.
 
+**Say it out loud.** When two services change one privilege in a round, the manager's change wins. If the manager left it alone, the holder's own does.
+
 Next: [17.7 Ejecting a service](./07-ejecting-a-service.md)

@@ -424,4 +424,6 @@ A real service's code, unpacked down to its instructions: metadata, memory layou
 table, code and bitmask, every byte accounted for. So far they're only opcode numbers,
 though: [lesson 15.2](./02-instructions.md) reads each one, name and arguments.
 
+**Say it out loud.** A service's code is a preimage in layers: a label, a memory layout, and the program, with a bitmask saying where each instruction starts.
+
 Next: [15.2 Instructions](./02-instructions.md)

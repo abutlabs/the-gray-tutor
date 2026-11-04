@@ -318,4 +318,6 @@ trace: a handshake, genesis, a hundred blocks, three refused. One thing is left 
 official fuzzer can meet it: packaging it the way the fuzzer starts targets, [lesson
 20.4](./04-ready-to-be-fuzzed.md).
 
+**Say it out loud.** A session is one connection: a handshake, a genesis, then blocks. A wrong root ends it, and a fuzzer finds what vectors and traces can't.
+
 Next: [20.4 Ready to be fuzzed](./04-ready-to-be-fuzzed.md)

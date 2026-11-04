@@ -405,4 +405,6 @@ out on the spot, as both clients do here, it can't go stale.
 A host that knows the accounts, and can tell a service about any of them. Looking isn't
 touching: [lesson 16.5](./05-storage.md) lets a service read and write its own storage.
 
+**Say it out loud.** `info` shows a service any account's record, with the minimum balance worked out on the spot.
+
 Next: [16.5 Storage](./05-storage.md)

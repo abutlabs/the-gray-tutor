@@ -557,4 +557,6 @@ whole.
 Validators aren't the only ones who work: [lesson 18.2](./02-what-cores-and-services-did.md) scores the cores and the
 services, block by block.
 
+**Say it out loud.** JAM pays nobody itself. It tallies what each validator did, epoch by epoch, so whoever pays can see who earned it.
+
 Next: [18.2 What cores and services did](./02-what-cores-and-services-did.md)

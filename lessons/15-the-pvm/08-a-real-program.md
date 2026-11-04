@@ -489,4 +489,6 @@ it, right up to its first question for the host. Answering that question is [Par
 Before that, the machine needs to charge for its work, or a program could run forever:
 [lesson 15.9](./09-what-instructions-cost.md) prices every instruction.
 
+**Say it out loud.** A service starts with its memory in sections, empty zones between them, and four registers set: the way out, the stack, and where its arguments are. Accumulate enters at 5.
+
 Next: [15.9 What instructions cost](./09-what-instructions-cost.md)

@@ -425,4 +425,6 @@ order to run them in, and where you built each one. To run real blocks through i
 client first needs the whole state at once, read from a real state and written back:
 [lesson 19.2](./02-the-whole-state.md).
 
+**Say it out loud.** The Gray Paper lists what each piece of new state is made from. Sorted out, that's four waves, and accumulation is what makes it four.
+
 Next: [19.2 The whole state](./02-the-whole-state.md)

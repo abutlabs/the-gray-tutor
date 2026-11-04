@@ -379,4 +379,6 @@ is the same.
 left, `fuzzy` and `fuzzy_light`, made by the conformance fuzzer's own service, and the
 first with blocks that must be refused: [lesson 19.6](./06-blocks-to-refuse.md).
 
+**Say it out loud.** Real blocks found what vectors couldn't: reports are checked against a history that knows the parent's state root, and sets must be written sorted.
+
 Next: [19.6 Blocks to refuse](./06-blocks-to-refuse.md)

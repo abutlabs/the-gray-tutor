@@ -556,4 +556,6 @@ stretch is done ([Part 17](../17-accumulation/index.md) adds the ones that act o
 far every report in a block is accumulated at once, in one go. [Part 17](../17-accumulation/index.md) is about
 which reports go when, and what a service's actions do to the others.
 
+**Say it out loud.** A preimage has a life: asked for, provided, forgotten, and after a waiting period, gone. A request holds deposit while it lasts.
+
 Next: [Part 17 · Accumulation](../17-accumulation/index.md)

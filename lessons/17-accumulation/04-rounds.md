@@ -574,4 +574,6 @@ A block's accumulation in rounds: transfers sent, carried over, and delivered, t
 before the code. Thirty-seven official vectors now match as whole blocks. Money is one
 thing a service can hand on; [lesson 17.5](./05-privileges.md) turns to rights.
 
+**Say it out loud.** Transfers arrive in the next round: the money first, then the receiver's code. So one block can take several rounds.
+
 Next: [17.5 Privileges](./05-privileges.md)

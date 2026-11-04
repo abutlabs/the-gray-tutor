@@ -360,4 +360,6 @@ read: most of its entries are a bug the fuzzer found that no test vector had.
 The fuzzer's language: every message, read and written, and frames on a stream. Next, a
 client that listens, keeps the states it makes, and answers: [lesson 20.2](./02-a-target.md).
 
+**Say it out loud.** The fuzzer and a client talk over a socket in seven messages, each with its length in front. It knows nothing of the client's code.
+
 Next: [20.2 A target](./02-a-target.md)

@@ -424,3 +424,5 @@ can't make, and starts the way the fuzzer starts its targets. That's the base of
 milestone, M1, asks of a client, with the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) still to do before it would survive the real fuzzer ([lesson 20.3](./03-a-session.md) shows why). Lesson [0.1](../00-start/01-what-you-will-build.md)
 promised a program that answers "valid, and here is the new state" or "invalid, go away".
 It's yours.
+
+**Say it out loud.** A clean session means the same state root on every block tried. It doesn't prove the rules right, or anything beyond importing blocks.

@@ -449,4 +449,6 @@ Every branch, and calls both ways. Your machine runs every instruction but eleve
 that count and shuffle bits, and `ecalli`, the door out to the host. [Lesson 15.7](./07-bits-and-bytes.md)
 builds the ten.
 
+**Say it out loud.** The same 64 bits can be read signed or unsigned, so branches come in both. A function call is a jump that leaves the way back in a register.
+
 Next: [15.7 Bits and bytes](./07-bits-and-bytes.md)
