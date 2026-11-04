@@ -1,15 +1,42 @@
 # Part 17 · Accumulation
 
 Accumulation is the moment a block's finished work reaches the chain: each service folds
-the results of its work into its own state. [Part 16](../16-host-calls/index.md) ran one service at a time. This part
-runs a whole block the way the Gray Paper's §12 says, one idea at a time: first the
-simplest block, then reports that wait for others, then transfers between services,
-sent and then delivered, then the privileges a few services hold, services that leave
-and services that arrive, the block's gas budget, and last the host calls that remain.
+the results of its work into its own state. By the end of this part your client does that
+for whole blocks, and all 63 official accumulate vectors pass.
 
-By the end of this part your client accumulates whole blocks: waiting reports, transfers,
-privileges, services ejected and created, a gas budget, upgrades, yields and their root,
-and provided preimages. All 63 official accumulate vectors pass as whole blocks.
+## The big picture
+
+A core is a workshop and the chain is a ledger. The heavy work happens in the workshop, and
+only its result is written into the ledger. *Refine* is the workshop. *Accumulate* is the
+writing down, and every validator does it, the same way, so that they all end up with the
+same ledger.
+
+| | Refine | Accumulate |
+| --- | --- | --- |
+| Where | on one core, off the chain | on the chain, inside block import |
+| Who runs it | that core's guarantors, then the auditors | every validator |
+| Gas, on full | 5,000,000,000 a package | 10,000,000 a report, 3,500,000,000 a block |
+| Touches the state? | no: it makes a report | yes: this is how a service's state changes |
+
+Service code runs in both, but block import never refines. So why does accumulation need 13
+lessons? Because many services accumulate in one block, and they can affect each other. One
+real block from the vectors shows most of it:
+
+1. A report for service 0 became available, so service 0 runs, using 255,437 gas.
+2. Its code pays service 1 a hundred. The money leaves service 0 at once, but nothing
+   reaches another service inside a round, so it waits for the next one.
+3. A second round runs for that transfer: the 100 lands first, then service 1 runs, using
+   61,711 gas. It sends nothing, so there's no third round.
+
+Everything else is what can go right or wrong around those three steps. Read this part in
+this order, not necessarily the sidebar's, which is the order the code gets built in:
+
+| Question | Lessons | Time |
+| --- | --- | --- |
+| How does a block's work flow through? | [17.1](./01-a-blocks-accumulation.md), [17.2](./02-waiting-reports.md), [17.3](./03-sending-a-transfer.md), [17.4](./04-rounds.md), [17.9](./09-the-blocks-gas-budget.md) | 37 min |
+| Who may change the rules? | [17.5](./05-privileges.md), [17.6](./06-who-wins.md), [17.13](./13-blessing-and-designating.md) | 22 min |
+| How does a service begin, change and end? | [17.8](./08-creating-a-service.md), [17.10](./10-upgrading-a-service.md), [17.7](./07-ejecting-a-service.md) | 18 min |
+| What leaves a service? | [17.11](./11-what-a-service-yields.md), [17.12](./12-providing-a-preimage.md) | 13 min |
 
 **Builds on** [Part 3 · Work and reports](../03-work-and-reports/index.md), [Part 4 ·
 Blocks](../04-blocks/index.md), [Part 5 · Hashing and

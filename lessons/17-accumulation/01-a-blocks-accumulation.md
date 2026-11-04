@@ -52,11 +52,6 @@ One round from three real vectors, step by step:
 
 <OneRound />
 
-Left for later in this part: the queue ([lesson 17.2](./02-waiting-reports.md)); transfers, and the rounds they make ([lessons 17.3](./03-sending-a-transfer.md)
-and [17.4](./04-rounds.md)); a gas budget for the whole block, which may split it into more rounds ([lesson 17.9](./09-the-blocks-gas-budget.md)); privileges
-(lessons [17.5](./05-privileges.md) and [17.6](./06-who-wins.md)); and services leaving and arriving (lessons [17.7](./07-ejecting-a-service.md) and
-[17.8](./08-creating-a-service.md)).
-
 ## The tests
 
 The vector's statistics have more fields now:

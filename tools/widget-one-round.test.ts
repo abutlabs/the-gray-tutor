@@ -47,8 +47,8 @@ for (const sc of SCENARIOS) {
   });
 }
 
-test("lesson 17.1 places the widget once, before what's left for later", () => {
+test("lesson 17.1 places the widget once, after the Gray Paper's names and before the tests", () => {
   const at = raw.indexOf("<OneRound />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<OneRound />"));
-  assert.ok(at > raw.indexOf("Now the Gray Paper's names for those steps.") && at < raw.indexOf("Left for later in this part"));
+  assert.ok(at > raw.indexOf("Now the Gray Paper's names for those steps.") && at < raw.indexOf("## The tests"));
 });
