@@ -23,6 +23,9 @@ import { blake2b256 } from "./pvm-engine/src/hash.ts";
 import type { Account } from "./pvm-engine/src/services.ts";
 
 export { HOST_CALLS, HALT_ADDRESS, PAGE_SIZE, TERMINATORS };
+
+/** A host call's name for the panels. 100 is outside the Gray Paper: JIP-1's debug log. */
+export const callName = (call: number): string => HOST_CALLS[call] ?? (call === 100 ? "log (JIP-1)" : `${call}`);
 export type { Exit, Machine, Program, Instruction, Cost };
 
 const M64 = 2n ** 64n;
@@ -41,7 +44,7 @@ export function exitWords(exit: Exit | null): { name: string; means: string } {
   if (exit === "panic") return { name: "panic", means: "The program did something the PVM forbids, such as trap or a jump to a bad address, or touched memory below 64 KiB. It stops for good and its changes are thrown away." };
   if (exit === "oog") return { name: "out of gas", means: "The next basic block costs more than the gas left. Blocks are paid for in full on the way in, so none of it ran." };
   if ("fault" in exit) return { name: "page fault", means: `The instruction touched page ${hex(exit.fault)}, which it isn't allowed to. ı stays on that instruction, and the registers are as they were.` };
-  return { name: "host call", means: `The program asked the host for call ${exit.host}, ${HOST_CALLS[exit.host] ?? "one that doesn't exist"}.` };
+  return { name: "host call", means: `The program asked the host for call ${exit.host}, ${callName(exit.host)}.` };
 }
 
 /** The memory one instruction touches, worked out as the machine will before it runs. */
@@ -101,13 +104,13 @@ export function words(ins: Instruction, before: bigint[], after: bigint[], m: Ma
   const [x] = ins.immediates;
   const v = (reg: bigint[], i: number) => signedText(reg[i]);
   if (typeof exit === "object" && "fault" in exit) return `${ins.name} touched ${hex(touch?.address ?? exit.fault)}: not allowed there, so it stops.`;
-  if (exit === "panic" && ins.name === "trap") return "trap: stop, this should never be reached.";
+  if (exit === "panic" && ins.name === "trap") return "A trap: stop here. Code should never reach this.";
   if (touch) {
     const size = `${touch.size} byte${touch.size > 1 ? "s" : ""} at ${hex(touch.address)}`;
     if (exit === "panic") return `${ins.name} touched ${hex(touch.address)}, below 64 KiB: that's a panic.`;
     if (!touch.write) return `φ${a} = ${size}: ${v(after, a)}`;
-    const stored = ins.name.startsWith("store_imm") ? "the value in the instruction" : `φ${a}`;
-    return `${size} = ${stored}`;
+    if (ins.name.startsWith("store_imm")) return `${size} = ${signedText(ins.immediates[1])}, the number in the instruction`;
+    return `${size} = φ${a}: ${hex(before[a])}`;
   }
   const math = /^([a-z]+(?:_[a-z])?)(?:_imm)?(?:_(32|64))?$/.exec(ins.name);
   if (ins.layout === "regRegReg" && math && SYMBOLS[math[1]]) {
@@ -140,14 +143,67 @@ export function words(ins: Instruction, before: bigint[], after: bigint[], m: Ma
       return `Jump to address ${address}: entry ${address / 2n - 1n} of the jump table, instruction ${m.pc}.`;
     }
     case "ecalli":
-      return `Ask the host for call ${x}, ${HOST_CALLS[Number(x)] ?? "which doesn't exist"}.`;
+      return `Ask the host for call ${x}, ${HOST_CALLS[Number(x)] ?? (x === 100n ? "the debug log of JIP-1, which the Gray Paper doesn't have" : "which doesn't exist")}.`;
     case "fallthrough":
       return `End this basic block and carry on to ${ins.next}.`;
     case "unlikely":
       return "Does nothing: a hint that this path is rarely taken.";
   }
-  const { writes } = registersUsed(ins);
-  return writes.length ? `${ins.name}: φ${writes[0]} = ${v(after, writes[0])}` : ins.name;
+  return other(ins, before, after, m, exit);
+}
+
+/** The words for an instruction with a sum that doesn't read as `a + b`. */
+function other(ins: Instruction, before: bigint[], after: bigint[], m: Machine, exit: Exit): string {
+  const [a, b, d] = ins.registers;
+  const [x, y] = ins.immediates;
+  const v = (reg: bigint[], i: number) => signedText(reg[i]);
+  if (ins.name === "load_imm_jump") return `φ${a} = ${v(after, a)}, then jump to ${ins.target}.`;
+  if (ins.name === "load_imm_jump_ind") {
+    const address = (before[b] + y) % 2n ** 32n;
+    if (exit === "halt") return `φ${a} = ${v(after, a)}, then jump to the halt address: the program ends.`;
+    if (exit === "panic") return `φ${a} = ${v(after, a)}, then jump to address ${address}: not an even place in the jump table, so panic.`;
+    return `φ${a} = ${v(after, a)}, then jump to address ${address}: entry ${address / 2n - 1n} of the jump table, instruction ${m.pc}.`;
+  }
+  if (ins.layout === "regReg") {
+    const [to, from] = [`φ${a}`, `φ${b}`];
+    const result = v(after, a);
+    const bits = /(32|64)$/.exec(ins.name)?.[1] ?? "64";
+    if (ins.name.startsWith("count_set_bits")) return `${to} = how many of ${from}'s ${bits} bits are 1: ${result}`;
+    if (ins.name.startsWith("leading_zero_bits")) return `${to} = how many 0s come before the first 1 in ${from}'s ${bits} bits: ${result}`;
+    if (ins.name.startsWith("trailing_zero_bits")) return `${to} = how many 0s come after the last 1 in ${from}'s ${bits} bits: ${result}`;
+    if (ins.name === "reverse_bytes") return `${to} = ${from} with its 8 bytes in reverse order: ${hex(after[a])}`;
+    if (ins.name === "zero_extend_16") return `${to} = the low 16 bits of ${from}, the rest zeros: ${result}`;
+    const size = /sign_extend_(\d+)/.exec(ins.name)?.[1];
+    return `${to} = the low ${size} bits of ${from}, with the top bit copied up: ${result}`;
+  }
+  const three = ins.layout === "regRegReg";
+  const to = three ? `φ${d}` : `φ${a}`;
+  const result = v(after, three ? d : a);
+  const swapped = ins.name.includes("_alt") || (ins.name.startsWith("cmov") && ins.name.endsWith("_imm"));
+  const reg = three ? [`φ${a}`, v(before, a)] : [`φ${b}`, v(before, b)];
+  const second = three ? [`φ${b}`, v(before, b)] : [signedText(x), signedText(x)];
+  const [[p, pv], [q, qv]] = swapped ? [second, reg] : [reg, second];
+  const name = ins.name.replace("_imm", "").replace("_alt", "");
+  const sum = (symbol: string) => `${to} = ${p} ${symbol} ${q}: ${pv} ${symbol} ${qv} = ${result}`;
+  const shift = /^(shlo_l|shlo_r|shar_r)_(32|64)$/.exec(name);
+  if (shift) return sum({ shlo_l: "<<", shlo_r: ">>", shar_r: ">>" }[shift[1]]!);
+  if (name.startsWith("neg_add")) return `${to} = ${q} − ${p}: ${qv} − ${pv} = ${result}`;
+  const rotate = /^rot_([lr])_/.exec(name);
+  if (rotate) return `${to} = ${p} rotated ${rotate[1] === "l" ? "left" : "right"} by ${q} bits: ${hex(BigInt.asUintN(64, BigInt(result.replace("−", "-"))))}`;
+  if (name.startsWith("mul_upper")) return `${to} = the top 64 bits of ${p} × ${q}: ${result}`;
+  if (name === "and_inv") return `${to} = ${p} AND NOT ${q}: ${result}`;
+  if (name === "or_inv") return `${to} = ${p} OR NOT ${q}: ${result}`;
+  if (name === "xnor") return `${to} = NOT (${p} XOR ${q}): ${result}`;
+  const compare = /^set_(lt|gt)_([us])$/.exec(name);
+  if (compare) return `${to} = 1 if ${p} ${compare[1] === "lt" ? "<" : ">"} ${q}, or else 0: ${pv} ${compare[1] === "lt" ? "<" : ">"} ${qv} gives ${result}`;
+  const pick = /^(max|min)(_u)?$/.exec(name);
+  if (pick) return `${to} = the ${pick[1] === "max" ? "larger" : "smaller"} of ${p} and ${q}, as ${pick[2] ? "unsigned" : "signed"} numbers: ${result}`;
+  const move = /^cmov_(iz|nz)$/.exec(name);
+  if (move) {
+    const moved = (qv === "0") === (move[1] === "iz");
+    return moved ? `${q} is ${qv}, so ${to} = ${p}: ${result}` : `${q} is ${qv}, so ${to} stays ${result}`;
+  }
+  return `${ins.name}: ${to} = ${result}`;
 }
 
 /** What one step did: enough to draw every panel, and to compare with another machine. */
@@ -247,7 +303,7 @@ export class Session {
       const gasHere = m.gas;
       const answer = this.host(call, m);
       hostPaid = gasHere - m.gas;
-      const name = HOST_CALLS[call] ?? `${call}`;
+      const name = callName(call);
       hostAnswer = `${name}: φ7 = ${signedText(m.registers[7])} (${hex(m.registers[7])}), ${hostPaid} gas`;
       if (answer === "continue") {
         m.pc += 1 + skip(m.program, m.pc); // ı″: the one after the ecalli, as runWithHost does
@@ -348,6 +404,9 @@ for (let opcode = 0; opcode < 256; opcode++) {
 
 /** Every instruction name the assembler knows, for the help under the editor. */
 export const INSTRUCTIONS = [...OPCODES.keys()];
+
+/** An instruction's layout, by name. */
+export const layoutOf = (name: string): Layout => OPCODES.get(name)!.layout;
 
 /** x as n little-endian bytes. */
 const le = (x: bigint, n: number): number[] => {

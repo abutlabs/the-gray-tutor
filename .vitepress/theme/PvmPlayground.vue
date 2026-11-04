@@ -10,7 +10,7 @@ import {
   regions, replay, Session, signedText,
 } from "./pvm-playground.ts";
 import type { Frame, Line, Run } from "./pvm-playground.ts";
-import { DEMO, REAL, SCENARIOS } from "./pvm-scenarios.ts";
+import { around, DEMO, LAB, REAL, SCENARIOS } from "./pvm-scenarios.ts";
 
 const NAMES = Array.from({ length: 13 }, (_, i) => i);
 /** What Y uses a register for when a service starts; the rest are the program's own. */
@@ -26,6 +26,8 @@ const loading = ref(false);
 const running = ref(false);
 const demoOn = ref(false);
 const demoAt = ref(0);
+const notesOn = ref(true);
+const instruction = ref("add_64");
 const gasText = ref("1000");
 const breakpoints = ref(new Set<number>());
 const focus = ref<number | null>(null);
@@ -160,6 +162,7 @@ async function choose(id: string) {
   problem.value = "";
   edited.value = false;
   const s = SCENARIOS.find((c) => c.id === id)!;
+  if (id === LAB) instruction.value = "add_64";
   source.value = s.source;
   restart(id === REAL ? await loadReal() : assemble(s.source));
 }
@@ -258,6 +261,7 @@ function onKey(e: KeyboardEvent) {
   const action = keys[e.key];
   if (action) {
     e.preventDefault();
+    e.stopPropagation(); // the site's arrow keys turn the page
     action();
   }
 }
@@ -268,14 +272,24 @@ async function showDemo(i: number) {
   demoAt.value = Math.max(0, Math.min(DEMO.length - 1, i));
   const d = DEMO[demoAt.value];
   await choose(d.scenario);
-  if (d.run === "end") await runAll();
   await nextTick();
   root.value?.scrollIntoView({ block: "start" });
 }
 
 function toggleDemo() {
   demoOn.value = !demoOn.value;
+  notesOn.value = true;
   if (demoOn.value) showDemo(0);
+}
+
+function fullScreen() {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else root.value?.requestFullscreen();
+}
+
+function pickInstruction() {
+  source.value = around(instruction.value);
+  build();
 }
 
 function fit() {
@@ -305,9 +319,13 @@ onBeforeUnmount(() => {
         <span class="spacer" />
         <button class="small" :disabled="demoAt === 0" @click="showDemo(demoAt - 1)">◀ previous</button>
         <button class="small" :disabled="demoAt === DEMO.length - 1" @click="showDemo(demoAt + 1)">next ▶</button>
+        <button class="small" :aria-pressed="!notesOn" @click="notesOn = !notesOn">{{ notesOn ? "hide notes" : "show notes" }}</button>
+        <button class="small" title="the debugger alone, for a projector" @click="fullScreen">full screen</button>
       </div>
-      <p class="do">{{ step_.do }}</p>
-      <p class="say">{{ step_.say }}</p>
+      <template v-if="notesOn">
+        <p class="do">{{ step_.do }}</p>
+        <p class="say">{{ step_.say }}</p>
+      </template>
     </section>
 
     <section v-else class="brief">
@@ -318,6 +336,11 @@ onBeforeUnmount(() => {
           <li v-for="t in scenario.tries" :key="t">{{ t }}</li>
         </ul>
       </details>
+      <label v-if="chosen === LAB" class="lab">instruction
+        <select v-model="instruction" aria-label="the instruction to try" @change="pickInstruction">
+          <option v-for="name in INSTRUCTIONS" :key="name" :value="name">{{ name }}</option>
+        </select>
+      </label>
     </section>
 
     <div class="controls" role="toolbar" aria-label="run the machine">
@@ -364,7 +387,7 @@ onBeforeUnmount(() => {
         <div class="reg-grid">
           <div v-for="r in NAMES" :key="r" class="reg" :class="{ read: last?.reads.includes(r), wrote: last?.writes.includes(r) }">
             <span class="reg-name">φ{{ r }}</span>
-            <span class="reg-role">{{ ROLES[r] }}</span>
+            <span class="reg-role">{{ isReal || r === 0 ? ROLES[r] : "" }}</span>
             <span class="reg-dec">{{ signedText(view.m.registers[r]) }}</span>
             <span class="reg-hex">{{ hex(view.m.registers[r]) }}</span>
           </div>
@@ -377,7 +400,7 @@ onBeforeUnmount(() => {
         <dl class="gas-numbers">
           <div><dt>started with</dt><dd>{{ run.gas.toLocaleString("en") }}</dd></div>
           <div><dt>spent</dt><dd>{{ spent.toLocaleString("en") }}</dd></div>
-          <div><dt>next block costs</dt><dd>{{ nextCost === null ? "paid" : nextCost.toLocaleString("en") }}</dd></div>
+          <div><dt>next block costs</dt><dd>{{ view.stopped !== null ? "—" : nextCost === null ? "paid" : nextCost.toLocaleString("en") }}</dd></div>
         </dl>
         <svg v-if="view.s.blocks.length > 1" class="gas-chart" viewBox="0 0 300 56" preserveAspectRatio="none" role="img" aria-label="gas spent, block by block">
           <polyline :points="chart" vector-effect="non-scaling-stroke" />
@@ -425,7 +448,7 @@ onBeforeUnmount(() => {
       </section>
     </div>
 
-    <details v-if="!isReal" class="editor">
+    <details v-if="!isReal" class="editor" :open="chosen === LAB">
       <summary>Edit this program</summary>
       <textarea v-model="source" rows="14" spellcheck="false" aria-label="the program's text" />
       <div class="controls">
@@ -450,10 +473,17 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.playground { outline: none; font-size: 14px; }
+.playground { outline: none; font-size: 14px; scroll-margin-top: 80px; }
+.playground:fullscreen { overflow: auto; padding: 16px; background: var(--vp-c-bg); }
+.lab { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--vp-c-text-2); }
+.lab select {
+  padding: 4px 6px; border: 1px solid var(--vp-c-brand-1); border-radius: 4px; background: var(--vp-c-bg);
+  font-family: var(--vp-font-family-mono); font-size: 13px; color: var(--vp-c-text-1);
+}
 .playground:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
 .picker { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .picker .demo { font-weight: 600; }
+.picker .small, .presenter .small { min-height: 34px; }
 .brief { margin-bottom: 12px; line-height: 1.55; }
 .brief p { margin: 0 0 6px; }
 .brief ul { margin: 6px 0 0; padding-left: 20px; }
@@ -553,6 +583,7 @@ kbd { padding: 0 4px; border: 1px solid var(--vp-c-divider); border-radius: 3px;
   .raw { display: none; }
   .line { grid-template-columns: 1.4ch 1.4ch 5ch minmax(0, 1fr); }
   .widget.playground { padding: 10px; }
+  .line, .region { min-height: 32px; align-items: center; }
   .hex { font-size: 12px; }
   .reg { grid-template-columns: 3.5ch minmax(0, 1fr) minmax(0, 1fr); }
   .reg-role { display: none; }

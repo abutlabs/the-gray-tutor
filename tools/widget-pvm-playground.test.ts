@@ -6,9 +6,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { assemble, AssemblyError, bootstrapRun, BOOTSTRAP_INFO, disassemble, exitWords, hexRows, regions, render, replay, Session } from "../.vitepress/theme/pvm-playground.ts";
+import { assemble, AssemblyError, bootstrapRun, BOOTSTRAP_INFO, disassemble, exitWords, hexRows, INSTRUCTIONS, regions, replay, Session } from "../.vitepress/theme/pvm-playground.ts";
 import type { Exit, Run } from "../.vitepress/theme/pvm-playground.ts";
-import { DEMO, REAL, SCENARIOS } from "../.vitepress/theme/pvm-scenarios.ts";
+import { around, DEMO, LAB, REAL, SCENARIOS } from "../.vitepress/theme/pvm-scenarios.ts";
 import { blake2b256 } from "../.vitepress/theme/pvm-engine/src/hash.ts";
 import { toHex } from "../.vitepress/theme/pvm-engine/src/bytes.ts";
 import { ROOT, lessonText } from "./lessons.ts";
@@ -55,6 +55,7 @@ test("every program ends as its text says", () => {
       },
     },
     "block-cost": { exit: "halt", n: 12, left: 927n, check: (s) => assert.deepEqual(costs(s), [5, 8, 60]) },
+    [LAB]: { exit: "halt", n: 2, left: 978n },
     array: {
       exit: "halt", n: 25, left: 1869n,
       check: (s) => {
@@ -135,6 +136,32 @@ test("every Try this on the page does what it says", () => {
   const low = runToStop(edit("array", ".gas 2000", ".gas 100"));
   assert.equal(low.stopped, "oog");
   assert.equal(low.machine.memory.get(0x20)!.bytes[0x20], 0);
+});
+
+test("the instruction lab: every instruction the PVM has runs, and does something to see", () => {
+  assert.ok(INSTRUCTIONS.length > 130);
+  for (const name of INSTRUCTIONS) {
+    const s = runToStop(around(name));
+    const first = s.frames.find((f) => f.ins?.name === name);
+    assert.ok(first, `${name} never ran`);
+    assert.ok(!first.says.startsWith(`${name}:`), `${name} has no plain words: ${first.says}`);
+    const fine = s.stopped === "halt" || (name === "trap" && s.stopped === "panic");
+    assert.ok(fine, `${name} ended ${JSON.stringify(s.stopped)}`);
+  }
+  const line = (name: string) => runToStop(around(name)).frames.find((f) => f.ins?.name === name)!.says;
+  assert.equal(line("count_set_bits_64"), "φ7 = how many of φ8's 64 bits are 1: 5");
+  assert.equal(line("neg_add_imm_64"), "φ7 = 4 − φ8: 4 − 4660 = −4656");
+  assert.equal(line("cmov_iz"), "φ8 is 16, so φ9 stays 0");
+  assert.equal(line("set_lt_u_imm"), "φ7 = 1 if φ8 < 4, or else 0: 4660 < 4 gives 0");
+  assert.equal(line("reverse_bytes"), "φ7 = φ8 with its 8 bytes in reverse order: 0x3412000000000000");
+  assert.equal(line("max_u"), "φ9 = the larger of φ7 and φ8, as unsigned numbers: 4660");
+  assert.equal(line("load_imm_jump"), "φ7 = 42, then jump to 12.");
+  assert.equal(line("store_u16"), "2 bytes at 0x20008 = φ7: 0x1122334455667788");
+  // the lab's Try this
+  const top = around("mul_upper_u_u").replace(".reg r7 = 0x1234", ".reg r7 = 0xffffffffffffffff").replace(".reg r8 = 0x10", ".reg r8 = 0xffffffffffffffff");
+  assert.equal(reg(runToStop(top), 9), 2n ** 64n - 2n);
+  assert.equal(reg(runToStop(around("div_u_64").replace(".reg r8 = 0x10", ".reg r8 = 0")), 9), 2n ** 64n - 1n);
+  assert.equal(reg(runToStop(around("count_set_bits_64")), 7), 5n); // 0x1234
 });
 
 test("the assembler says what's wrong, by line", () => {
@@ -227,7 +254,7 @@ test("the real service: the file is the code service 0 keeps, and it runs to a c
   assert.equal(s.stopped, "halt");
   assert.equal(s.n, 3318);
   assert.equal(1_000_000n - s.machine.gas, 20273n);
-  assert.deepEqual(calls, ["fetch", "grow_heap", "grow_heap", "fetch", "info", "100", "fetch", "fetch"]);
+  assert.deepEqual(calls, ["fetch", "grow_heap", "grow_heap", "fetch", "info", "log (JIP-1)", "fetch", "fetch"]);
   const short = new Session(bootstrapRun(PREIMAGE, 5000n));
   while (short.stopped === null) short.advance();
   assert.equal(short.stopped, "oog"); // the Try this
@@ -291,6 +318,7 @@ test("every program, step by step, beside the finished client", async (t) => {
   const { gas, unknown, HOST_CALLS } = await import(`${REFERENCE}/host.ts`);
   const host = (call: number, m: never) => (HOST_CALLS[call] === "gas" ? gas(m) : unknown(m));
   for (const s of SCENARIOS) if (s.id !== REAL) await lockstep(s.id, assemble(s.source), host);
+  for (const name of INSTRUCTIONS) await lockstep(name, assemble(around(name)), host);
 });
 
 test("the real service, every step, beside the finished client's own accumulate", async (t) => {

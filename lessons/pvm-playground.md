@@ -11,8 +11,9 @@ the machine as it runs.
 
 Pick a program, press **Step**, and watch four things: the code, the 13 registers, the gas
 and the memory. Each program says what to watch and what to try, and you can edit any of
-them. The last one is a real service, the code service 0 keeps in the official trace
-vectors. **Demo** walks through the machine in five minutes, with notes to read out.
+them. *Any instruction* tries each of the PVM's instructions on numbers you choose. The last
+program is a real service, the code service 0 keeps in the official trace vectors. **Demo**
+walks through the machine in five minutes, with notes to read out.
 
 <PvmPlayground />
 
@@ -45,8 +46,9 @@ in r7. A service can't reach anything outside the machine any other way.
 
 The programs on this page, in order: the registers; immediates and sign extension; a loop;
 reading and writing memory; memory that isn't there; running out of gas; the jump table; host
-calls; what a block really costs; a small program that adds up numbers in memory; and a real
-service's accumulate, from ı = 5 to a clean halt.
+calls; what a block really costs; a small program that adds up numbers in memory; any one of
+the PVM's instructions, on your own numbers; and a real service's accumulate, from ı = 5 to
+a clean halt.
 
 ## Where this is in the tutorial
 
@@ -56,4 +58,7 @@ service's accumulate, from ı = 5 to a clean halt.
 | How instructions are decoded | [lesson 15.2](./15-the-pvm/02-instructions.md) |
 | The machine stepping | [lesson 15.3](./15-the-pvm/03-the-machine.md) |
 | Memory | [lesson 15.4](./15-the-pvm/04-memory.md) |
+| What instructions cost | [lesson 15.9](./15-the-pvm/09-what-instructions-cost.md) |
+| The model CPU behind gas | [lesson 15.10](./15-the-pvm/10-the-pipeline.md) |
+| The gas meter | [lesson 15.11](./15-the-pvm/11-the-gas-meter.md) |
 | Host calls | [Part 16](./16-host-calls/index.md) |

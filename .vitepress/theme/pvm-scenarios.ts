@@ -2,6 +2,8 @@
 // edit and run again; the real service's isn't, it's 159,322 bytes of compiled code.
 // tools/widget-pvm-playground.test.ts runs them all, and checks where each one ends.
 
+import { layoutOf } from "./pvm-playground.ts";
+
 /** A program to learn from: what to watch as it runs, and things to try. */
 export type Scenario = {
   id: string;
@@ -12,6 +14,43 @@ export type Scenario = {
 };
 
 export const REAL = "real-service";
+export const LAB = "any-instruction";
+
+/**
+ * A small program around one instruction: enough set up for it to do something, whichever
+ * of the PVM's instructions it is. The instruction lab starts from this.
+ */
+export function around(name: string): string {
+  const layout = layoutOf(name);
+  const page = ".page 0x20000 W\n.data 0x20000 ef be ad de 01 02 03 04\n.reg r1 = 0x20000\n";
+  const two = ".reg r7 = 0x1234\n.reg r8 = 0x10\n";
+  const end = "  load_imm r9, 1      ; not taken\n  halt\nthere:\n  load_imm r9, 2      ; taken\n  halt\n";
+  const head = `; ${name}. Change the numbers, and press Assemble.\n.gas 1000\n`;
+  const body = (setup: string, line: string, after = "  halt\n") => `${head}${setup}\n  ${line}\n${after}`;
+  if (/^load_ind_/.test(name)) return body(page, `${name} r7, r1, 0`);
+  if (/^store_ind_/.test(name)) return body(`${page}.reg r7 = 0x1122334455667788\n`, `${name} r7, r1, 8`);
+  if (/^store_imm_ind_/.test(name)) return body(page, `${name} r1, 8, 42`);
+  if (/^store_imm_/.test(name)) return body(page, `${name} 0x20008, 42`);
+  if (/^load_[ui]\d/.test(name)) return body(page, `${name} r7, 0x20000`);
+  if (/^store_u/.test(name)) return body(`${page}.reg r7 = 0x1122334455667788\n`, `${name} r7, 0x20008`);
+  switch (name) {
+    case "load_imm": return body("", "load_imm r7, 42");
+    case "load_imm_64": return body("", "load_imm_64 r7, 0x1122334455667788");
+    case "jump_ind": return body(".jump_table there\n.reg r7 = 2\n", "jump_ind r7, 0", end);
+    case "load_imm_jump": return body("", "load_imm_jump r7, 42, there", end);
+    case "load_imm_jump_ind": return body(".jump_table there\n.reg r8 = 2\n", "load_imm_jump_ind r7, r8, 42, 0", end);
+    case "jump": return body("", "jump there", end);
+    case "ecalli": return body("", "ecalli 0");
+    case "trap": return body("", "trap");
+    case "fallthrough":
+    case "unlikely": return body("", name);
+  }
+  if (layout === "regImmOffset") return body(".reg r7 = 3\n", `${name} r7, 3, there`, end);
+  if (layout === "regRegOffset") return body(".reg r7 = 3\n.reg r8 = 3\n", `${name} r7, r8, there`, end);
+  if (layout === "regReg") return body(".reg r8 = 0x1234\n", `${name} r7, r8`);
+  if (layout === "regRegImm") return body(".reg r8 = 0x1234\n", `${name} r7, r8, 4`);
+  return body(two, `${name} r9, r7, r8`); // three registers: rD, rA, rB
+}
 
 export const SCENARIOS: Scenario[] = [
   {
@@ -220,7 +259,7 @@ divide:
   halt
 `,
     watch:
-      "Press Run and compare the three prices in the gas panel. In the first block nothing depends on anything, so the model CPU runs the additions side by side: 5. In the second each addition needs the one before, so they run one after another: 8, for the same four instructions. The third has one instruction, a division, and it costs 60.",
+      "Press Run and compare the three prices in the gas panel. In the first block nothing depends on anything, so the model CPU runs the additions side by side: 5. In the second each addition needs the one before, so they run one after another: 8, for the same four instructions. The third has one instruction, a division, and it costs 60. It divides by zero, and r1 shows −1: the PVM doesn't trap on that, it answers with every bit set.",
     tries: [
       "Change add_32 to add_64 everywhere: both sums take one cycle now, and the first two blocks both cost 4.",
       "Add .page 0x20000 W at the top and load_u64 r2, 0x20000 as the first instruction: a load takes 25 cycles, and the block's price jumps.",
@@ -257,11 +296,23 @@ next:
     ],
   },
   {
+    id: LAB,
+    title: "Any instruction",
+    source: around("add_64"),
+    watch:
+      "Every instruction the PVM has, one at a time. Pick one from the list: a small program around it appears, with its inputs set. Press Step and read what it did to the registers, the gas and the memory, then change the numbers in the program and press Assemble to try your own.",
+    tries: [
+      "Pick mul_upper_u_u with r7 and r8 both 0xffffffffffffffff: the top 64 bits of a 128-bit product.",
+      "Pick div_u_64 and set r8 to 0: the PVM doesn't trap. It answers 2^64 − 1, as the Gray Paper defines it.",
+      "Pick count_set_bits_64, or reverse_bytes, and watch one register become another.",
+    ],
+  },
+  {
     id: REAL,
     title: "A real service: bootstrap's accumulate",
     source: "",
     watch:
-      "This isn't a toy. It's the 159,322 bytes of code that service 0 keeps in the fallback trace's state, on the same PVM, starting where the Gray Paper says accumulate starts: ı = 5, with r7 holding where its arguments are and r8 how long they are. Press Next host call and watch it talk to the host: it fetches the protocol's constants, grows its heap, and asks for its own account. Then press Run: 3,318 instructions, then a clean halt, every step decoded and gas-metered live in your browser.",
+      "This isn't a toy. It's the 159,322 bytes of code that service 0 keeps in the fallback trace's state, on the same PVM, starting where the Gray Paper says accumulate starts: ı = 5, with r7 holding where its arguments are and r8 how long they are. Press Next host call and watch it talk to the host: it fetches the protocol's constants, grows its heap, and asks for its own account. It has no work to accumulate here, so press Run and it finds that out and stops: 3,318 instructions, a clean halt, every step decoded and gas-metered live in your browser.",
     tries: [
       "Set a breakpoint and run to it: the same debugger on real compiled code.",
       "Set the starting gas to 5,000: a real service, out of gas at the same instruction on every validator.",
@@ -275,8 +326,6 @@ export type DemoStep = {
   scenario: string;
   do: string;
   say: string;
-  /** Runs this many instructions on arrival, so the screen is ready; undefined: from the start. */
-  run?: number | "end" | "host";
 };
 
 /** The five-minute demo: the machine, then gas, then memory, then the real thing. */
@@ -289,25 +338,22 @@ export const DEMO: DemoStep[] = [
   {
     scenario: "loop",
     do: "Press Next block a few times. Point at the blocks list.",
-    say: "Gas in JAM is charged per basic block, not per instruction. Each pass round this loop pays for the block again. It means a validator can price code before running it, which is what lets the PVM compile ahead of time.",
+    say: "Gas in JAM is charged per basic block, not per instruction. Each pass round this loop pays for the block again. A block's price comes from its code alone, so it's known before the block runs.",
   },
   {
     scenario: "block-cost",
     do: "Press Run. Compare the three prices.",
-    say: "Same four additions, different price: 5 and 8. The Gray Paper's gas model is a small CPU pipeline: when instructions don't depend on each other they run side by side. Gas tracks the time code takes on a real CPU, not a flat price list, and the tutorial implements that model from the paper's own tables.",
-    run: "end",
+    say: "Same four additions, different price: 5 and 8. The Gray Paper's gas model is a small CPU pipeline: when instructions don't depend on each other they run side by side. It aims to charge for the time code takes on a real CPU, not a flat price list, and the tutorial implements that model from the paper's own tables.",
   },
   {
     scenario: "out-of-gas",
     do: "Press Run. Point at the stop.",
     say: "Here's why that matters. Run out of gas and you stop at the door of a block, with none of it run. Every validator stops at the same instruction, with the same gas left. That's deterministic metering.",
-    run: "end",
   },
   {
     scenario: "memory",
-    do: "Press Run. Point at the bytes, then the fault.",
+    do: "Press Step twice and point at the bytes: 88 77 66, smallest first. Then press Run for the fault.",
     say: "Memory is pages, each read-write, read-only, or absent. Little-endian, byte by byte. A store to a read-only page faults, and ı stays on that instruction, naming the page. In a service that ends the run; in an inner machine it goes back to the parent.",
-    run: "end",
   },
   {
     scenario: "host-call",
@@ -317,6 +363,6 @@ export const DEMO: DemoStep[] = [
   {
     scenario: REAL,
     do: "Press Next host call three times, then Run.",
-    say: "And this is a real service: 159,322 bytes of compiled code from the trace vectors, entered at instruction 5 as the Gray Paper says for accumulate. Fetch, grow heap, info. Then it runs to a clean halt: 3,318 instructions, every one decoded and metered live. This is the PVM the tutorial's client uses to pass the trace vectors.",
+    say: "And this is a real service: 159,322 bytes of compiled code from the trace vectors, entered at instruction 5 as the Gray Paper says for accumulate. Fetch, grow heap, info. There's no work in this run, so it finds that out and halts cleanly: 3,318 instructions, every one decoded and metered live. This is the PVM the tutorial's client uses to pass the trace vectors.",
   },
 ];

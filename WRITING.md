@@ -165,6 +165,11 @@ the site's header folds the code away, `theme/concepts.ts`; off by default, kept
 visit; a link ending `?concepts` opens a lesson that way), so a lesson's idea must come
 across in its prose, its diagrams and its widgets alone.
 
+The PVM playground (`lessons/pvm-playground.md`) runs the lessons' own PVM, not a copy of its
+rules: `.vitepress/theme/pvm-engine/` is tangled from the lessons, because the site is built
+where `client/` and `reference/` don't exist. After changing a lesson's PVM or host code, run
+`npm run pvm-engine`; `tools/pvm-engine.test.ts` fails until you do.
+
 ## Formulas
 
 A Gray Paper rule is quoted whole, type line and all, in LaTeX between `$$` lines: the site
