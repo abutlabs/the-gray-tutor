@@ -45,8 +45,8 @@ that's the order the next round hands them out in.
 
 <GiftRounds />
 
-The Gray Paper's names: the loop is *Δ+*, one round *Δ\**, one service in a round
-*Δ₁*. Δ₁'s inputs are *i^T ⌢ i^U*: transfers, then operands.
+In the Gray Paper the loop is *Δ+*, one round *Δ\**, and one service in a round *Δ₁*,
+whose inputs are *i^T ⌢ i^U*: transfers, then operands.
 
 > [!NOTE]
 > **The simple road.** Δ+ also keeps a gas budget for the whole block, max(G_T, G_A · C +

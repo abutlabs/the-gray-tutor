@@ -42,11 +42,19 @@ All four are in the [glossary](../glossary.md).
    slots the chain skipped since the last block are emptied: their reports have waited a
    whole epoch, and are given up.
 
-The Gray Paper's names: the history is **ξ** (its union, written as ξ with a brace over it,
-is **ξ∪** here), the queue **ω**, the new
-waiters **R^Q**, a report's dependencies **D(r)**. Taking done packages out of a queue is
-**E**, the unlocking loop is **Q**, the hashes of some reports **P**. Everything that goes
-this block is **R\* = R! ⌢ Q(q)**. The queue's list for this block is ω[τ′ mod E].
+When you read the Gray Paper, these are the same things:
+
+| Here | Gray Paper |
+| --- | --- |
+| the history | **ξ**, and all of it together **ξ∪** (written ξ with a brace over it) |
+| the queue | **ω** |
+| the queue's list for this block | **ω[τ′ mod E]** |
+| the new waiters | **R^Q** |
+| a report's dependencies | **D(r)** |
+| taking done packages out of a queue | **E** |
+| the unlocking loop | **Q** |
+| the hashes of some reports | **P** |
+| everything that goes this block | **R\* = R! ⌢ Q(q)** |
 
 Try it on tiny, with letters for packages. It starts at the lesson's example: the next
 block brings D, which waits for A. Run it, and D waits in list 7. Now add A, waiting for

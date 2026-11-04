@@ -43,10 +43,15 @@ Step 1's reports come at the end of a long trip: guaranteed onto a core, vouched
 the validators, made available. [Lesson 11.2](../11-assurances/02-timeouts.md) lets you walk one report through that trip,
 block by block, until it lands here.
 
-Now the Gray Paper's names for those steps. The reports in step 1 are **R!**. The round
-in step 3 is the parallel accumulation function **Δ\***, and one service's part of it,
-[lesson 16.7](../16-host-calls/07-a-services-inputs.md)'s work, is **Δ₁**. The statistics are **S(s) = (N(s), T(s), G(s))**, and the
-last-accumulation slot is an account's **a**, set to **τ′**.
+When you read the Gray Paper, these are the same steps:
+
+| Here | Gray Paper |
+| --- | --- |
+| the reports in step 1 | **R!** |
+| one round | **Δ\***, parallel accumulation |
+| one service's part of it ([lesson 16.7](../16-host-calls/07-a-services-inputs.md)) | **Δ₁** |
+| the statistics | **S(s) = (N(s), T(s), G(s))** |
+| the last-accumulation slot | an account's **a**, set to **τ′** |
 
 One round from three real vectors, step by step:
 

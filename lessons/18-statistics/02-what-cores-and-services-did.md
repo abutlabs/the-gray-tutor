@@ -3,9 +3,7 @@
 [Lesson 18.1](./01-who-did-what.md) kept score for validators, epoch by epoch. Cores and services get a scorecard
 too, but a short-lived one: it covers a single block, and the next block starts again
 from zero. This lesson builds both cards and checks them against every reports and
-preimages test vector. No reports, assurances or statistics vector checks a core's data
-load (the block-import traces carry it, for when real blocks run through), so you'll work
-one out by hand as well.
+preimages test vector.
 
 ## New words
 
@@ -29,7 +27,9 @@ for later packages to import. All of them are in the [glossary](../glossary.md).
 ## What the Gray Paper says
 
 §13, *Cores and Services*. Unlike the validators' tallies, these two "are tracked only on
-a per-block basis": nothing carries over from the block before.
+a per-block basis": nothing carries over from the block before. The Gray Paper doesn't
+say why. A guess: they show one block's load, and anyone who wants totals can add up the
+blocks.
 
 **Each core's card** is filled from three places:
 
@@ -54,11 +54,18 @@ a per-block basis": nothing carries over from the block before.
 
 A service gets a card only if it appears in at least one of the three.
 
-The Gray Paper's names: the cores' cards are **π_C**, the services' **π_S**. The reports
-taken on are **𝐈** (a bold I: the incoming reports, the ones [lesson 12.3](../12-guarantees/03-onto-the-cores.md) put onto
-cores), the newly available ones **𝐑** (a bold R,
-[lesson 11.1](../11-assurances/01-available.md)). For core c, it writes the work as R(c), with a plain R: a different thing,
-the sum of step 1. The bundle lengths are L(c), and the data load is
+When you read the Gray Paper, these are the same things:
+
+| Here | Gray Paper |
+| --- | --- |
+| the cores' cards | **π_C** |
+| the services' cards | **π_S** |
+| the reports taken on ([lesson 12.3](../12-guarantees/03-onto-the-cores.md)) | **𝐈**, a bold I |
+| the newly available reports ([lesson 11.1](../11-assurances/01-available.md)) | **𝐑**, a bold R |
+| a core's work, the sum of step 1 | R(c), a plain R: a different thing |
+| the bundle lengths | L(c) |
+
+The data load is
 
   D(c) = Σ over 𝐑's reports for core c of: bundle length + W_G · ⌈segments · 65/64⌉
 

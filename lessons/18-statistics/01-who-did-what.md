@@ -36,12 +36,20 @@ The three steps on a real epoch's turn:
 
 <EpochTallies />
 
-Why track only these? They're the work the chain can see for itself. Other work, such as
-voting on finality or auditing, happens off the chain, and the Gray Paper leaves it out.
+Why track only these? They're the work the chain can see for itself. Voting on finality
+and auditing happen off the chain, so these tallies can't hold them. For those, the Gray
+Paper has validators vote on each other's efforts, and a median is taken.
 
-The Gray Paper's names: the tally in progress is **π_V** (its "accumulator"), the last
-epoch's **π_L**. The six fields are **b, t, p, d, g, a**. The author is **H_I**, the
-reporters **𝐆** ([lesson 12.2](../12-guarantees/02-signed-and-counted.md)'s set), and "a new epoch" means ⌊τ′/E⌋ ≠ ⌊τ/E⌋.
+When you read the Gray Paper, these are the same things:
+
+| Here | Gray Paper |
+| --- | --- |
+| the tally in progress | **π_V**, its "accumulator" |
+| the last epoch's tally | **π_L** |
+| the six fields | **b, t, p, d, g, a** |
+| the block's author | **H_I** |
+| the reporters | **𝐆**, [lesson 12.2](../12-guarantees/02-signed-and-counted.md)'s set |
+| a new epoch | ⌊τ′/E⌋ ≠ ⌊τ/E⌋ |
 
 ## The tests
 

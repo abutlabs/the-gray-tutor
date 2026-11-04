@@ -42,10 +42,10 @@ One more rule, from [lesson 16.6](../16-host-calls/06-checkpoints.md): a checkpo
 and the list of transfers is part of it. Send, then panic, and the transfer never
 happened, the money included.
 
-The Gray Paper's names: transfers are the set **𝕏** (a blackboard X, not the context X),
-each one (s, d, a, m, g): source, destination, amount, memo and gas. The memo is **W_T** =
-128 bytes long. The run's list is the context's **𝐭**, one in X and one in Y, just like
-the accounts.
+In the Gray Paper, a transfer is (s, d, a, m, g): source, destination, amount, memo and
+gas. Transfers are the set **𝕏** (a blackboard X, not the context X), a memo is **W_T** =
+128 bytes long, and the run's list is the context's **𝐭**, one in X and one in Y, just
+like the accounts.
 
 ## The tests
 

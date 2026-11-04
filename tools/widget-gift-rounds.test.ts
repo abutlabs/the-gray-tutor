@@ -38,5 +38,5 @@ test("the money comes first: the balance rises before service 1 runs", () => {
 test("lesson 17.4 places the widget once, under the figure", () => {
   const at = raw.indexOf("<GiftRounds />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<GiftRounds />"));
-  assert.ok(at > raw.indexOf("(./images/04-rounds.svg)") && at < raw.indexOf("The Gray Paper's names: the loop is"));
+  assert.ok(at > raw.indexOf("(./images/04-rounds.svg)") && at < raw.indexOf("In the Gray Paper the loop is"));
 });

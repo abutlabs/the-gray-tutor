@@ -15,6 +15,24 @@ Assurances](../11-assurances/index.md), [Part 12 · Guarantees](../12-guarantees
 and [Part 17 · Accumulation](../17-accumulation/index.md), and on the foundations every
 part uses, [Parts 0 to 2](../index.md#lessons).
 
+## The big picture
+
+The chain hands out no rewards. The Gray Paper leaves that to a staking system, and asks
+the chain only to get it the facts. Three scorecards hold them:
+
+| Card | Counts | Lasts | Who it's for |
+| --- | --- | --- | --- |
+| Validators | blocks, tickets, preimages, guarantees, assurances | an epoch, and the last one is kept | the staking system, to pay them |
+| Cores | work taken on, data load, popularity | one block | the Gray Paper names nobody |
+| Services | work, preimages provided, accumulation | one block | the Gray Paper names nobody |
+
+It looks like bookkeeping, and it can still sink your client. The cards are chapter 13 of
+the state, so they're in the state root: one count wrong, and the root is wrong, and your
+client refuses a good block. [Lesson 19.6](../19-block-import/06-blocks-to-refuse.md) shows
+a real case, where a difference in gas did exactly that.
+
+The part takes about 20 minutes: 18.1 is the validators, 18.2 the cores and services.
+
 ## At a glance
 
 The whole part on one map. Boxes are what your client holds, and rounded cards are the
