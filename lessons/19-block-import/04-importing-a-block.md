@@ -1,11 +1,11 @@
 # Importing a block
 
-Everything is in place: every step of a block, the whole state, and accounts the host calls
-can work on. This lesson puts them together into Υ: give it the state before a block and
-the block, and it gives back the state after, or the reason it refuses the block. Then the
-official traces check it, as hard as anything can be checked: the state root after every
-block must be the trace's, every byte of the state accounted for. By the end of this
-lesson the `fallback` and `safrole` traces import, all 200 blocks, every root right.
+This is [lesson 0.6](../00-start/06-how-a-block-is-imported.md)'s station 5, and with it
+stations 4 and 6, for real. Give Υ the state before a block and the block, and it gives
+back the state after, or the reason it refuses the block. Then the official traces check
+it: the state root after every block must be the trace's, every byte of the state
+accounted for. By the end of this lesson the `fallback` and `safrole` traces import, all
+200 blocks, every root right.
 
 ## New words
 
