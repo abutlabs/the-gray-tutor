@@ -615,16 +615,15 @@ entries; it has no second kind of account to tell apart.
   > No: `read` may read any service's storage. The id is needed to find the entry,
   > not to ask permission.
 
-**Service 0's request for a preimage has the history [5, 9]. What bytes does its entry keep?**
+**Could your client list every storage key service 0 has, from the state alone?**
 
-- [ ] `05 09`
-  > No: each slot takes four bytes, and the count comes first.
-- [ ] `05 00 00 00 09 00 00 00`
-  > No: the slots are right, but the count is missing. Without it, a reader can't
-  > tell how many slots there are.
-- [x] `02 05 00 00 00 09 00 00 00`
-  > Yes: how many slots, `02`, then each slot in four bytes, low byte first. The
-  > helpers decode and encode it, so the host calls see [5, 9].
+- [ ] Yes: each key is in its state key
+  > No: a state key holds a hash of the storage key, and a hash can't be turned back.
+- [x] No: it can go from a key to its entry, never from an entry to its key
+  > Yes: and it never needs to, because every host call starts from a key the service
+  > names.
+- [ ] Yes, but only by asking the service
+  > No: a service reads a key it already knows. Nothing in the host calls lists them.
 
 **Every accumulate vector still passes after the host calls switch to the helpers. What does that show?**
 

@@ -376,6 +376,15 @@ your fresh copy for each service.
 ## Check your understanding
 
 ::: check
+**Refine and accumulate both run a service's code on the PVM. Who runs each?**
+
+- [ ] Every validator runs both, at import
+  > No: refine stays off the chain, on a core. Only its report reaches the block.
+- [x] A core's guarantors refine, and auditors check them. Every validator accumulates, at import
+  > Yes: the heavy work on a few machines, the light work on all of them.
+- [ ] The block's author runs both, and the others trust it
+  > No: every validator accumulates for itself, or it couldn't check the state root.
+
 **In `same_round_storage_isolation-1`, services 1729 and 1730 accumulate in one round. Can 1730 read the key 1729 writes?**
 
 - [ ] Yes: 1729 has the lower id, so it runs first, and 1730 sees its write

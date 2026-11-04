@@ -373,15 +373,17 @@ above); your `deblob` shows the shape.
 ## Check your understanding
 
 ::: check
-**In the hand-made blob, the last byte is `05`. What does it say?**
+**The bitmask has one bit for each byte of code. What does a set bit say?**
 
-- [ ] There are 5 instructions
-  > No: there are only 3 bytes of code. `05` is the bitmask, one bit per byte of code.
-- [x] Bytes 0 and 2 of the code start an instruction
-  > Yes: `05` is `0b0000_0101`. Read from the lowest bit: byte 0 yes, byte 1 no, byte 2 yes.
-- [ ] The jump table's entry points at byte 5
-  > No: the jump table is the `02` before the code: one entry, byte 2. `05` comes after
-  > the code.
+- [ ] A jump may land on this byte
+  > No: jumps have a stricter rule, which [lesson 15.3](./03-the-machine.md) gets to. A set
+  > bit only says where an instruction starts.
+- [x] An instruction starts at this byte
+  > Yes: the hand-made blob marks bytes 0 and 2, so byte 1 is the rest of the first
+  > instruction.
+- [ ] This byte is the last of its instruction
+  > No: it marks the first. The distance to the next set bit gives the instruction's
+  > length.
 
 **Why does a program blob need a bitmask at all?**
 

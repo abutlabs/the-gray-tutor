@@ -16,7 +16,7 @@ test("the markers are the lessons': 2^32 − 1 for storage, 2^32 − 2 for a pre
   assert.deepEqual([MARKER.storage(8), MARKER.preimage(8), MARKER.request(8)], [2 ** 32 - 1, 2 ** 32 - 2, 8]);
 });
 
-test("the checks: \"hello\" is 00 a5 00 6f … for service 0 and 07 a5 00 6f … for 7; [5, 9] is 02 05 00 00 00 09 00 00 00", () => {
+test("the check and the widget: \"hello\" is 00 a5 00 6f … for service 0 and 07 a5 00 6f … for 7; [5, 9] is 02 05 00 00 00 09 00 00 00", () => {
   const first4 = (s: number) => keyOf("storage", s).slice(0, 4).map((c) => hx(c.byte)).join(" ");
   assert.equal(first4(0), "00 a5 00 6f");
   assert.equal(first4(7), "07 a5 00 6f");
@@ -25,7 +25,6 @@ test("the checks: \"hello\" is 00 a5 00 6f … for service 0 and 07 a5 00 6f …
   const seven = keyOf("storage", 7).map((c) => c.byte);
   assert.deepEqual(zero.flatMap((b, i) => (b === seven[i] ? [] : [i])), [0], "only byte 0 differs");
   assert.equal(historyBytes([5, 9]).map(hx).join(" "), "02 05 00 00 00 09 00 00 00");
-  assert.match(raw, /- \[x\] `02 05 00 00 00 09 00 00 00`/);
 });
 
 test("lesson 19.3 places the widget once, after the three kinds", () => {

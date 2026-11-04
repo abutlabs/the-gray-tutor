@@ -334,15 +334,15 @@ read: most of its entries are a bug the fuzzer found that no test vector had.
   > Yes: the third test feeds two messages in three bytes at a time. With the length,
   > `readFrames` waits until all of one message is there.
 
-**In the README's PeerInfo, `app_name` is `06 66 75 7a 7a 65 72`. What is the `06`?**
+**After the handshake, who starts each exchange?**
 
-- [x] The name's length: "fuzzer" is six bytes
-  > Yes: a blob has its length in front, then its bytes. `66 75 7a 7a 65 72` is
-  > "fuzzer" in UTF-8.
-- [ ] The message's kind
-  > No: the kind is the very first byte, `00` for PeerInfo. No message starts with 6.
-- [ ] The app's version
-  > No: that's the three bytes just before, `00 01 19`, version 0.1.25.
+- [x] The fuzzer: it sends a message, and the target answers it
+  > Yes: the target listens and answers. It never sends anything it wasn't asked for.
+- [ ] The target: it asks for the next block when it's ready
+  > No: there's no message for that. The seven messages are the fuzzer's requests and the
+  > target's answers.
+- [ ] Either side, whenever it has a block
+  > No: a target doesn't make blocks. It only imports what it's sent.
 
 **The protocol keeps its recorded sessions in one folder per Gray Paper version. Why can't your 0.8.0 client play the 0.7.2 ones?**
 

@@ -452,25 +452,16 @@ note above leaves for the [hardening pass](https://github.com/abutlabs/the-gray-
 - [ ] At jump-table address 2
   > No: the 2 isn't a place in the program. It says which host call: 2 is `fetch`.
 
-**Why does Y leave an empty zone between the sections of memory?**
+**Why does Y leave an empty zone between a program's sections?**
 
-- [x] A program that runs off the end of one section hits nothing, not the next section
-  > Yes: an overrun faults or panics, instead of quietly reading or writing other data.
+- [x] So a program that runs off the end of one section hits nothing at all, instead of reading the next one
+  > Yes: the gap is a guard. An access there stops the program, instead of quietly reading
+  > or writing other data.
+- [ ] To leave room for the section to grow
+  > No: sections don't grow into the gap. The heap grows in its own place.
 - [ ] Pages have to be 64 kB apart
   > No: pages are 4,096 bytes, and inside a section they sit side by side: w and its heap
   > page at 0x30000 and 0x31000.
-- [ ] It makes memory faster to reach
-  > No: every address is reached the same way. The gaps are for safety, not speed.
-
-**Why does Y leave an empty zone between a program's sections?**
-
-- [ ] To leave room for the section to grow
-  > No: sections don't grow into the gap. The heap grows in its own place.
-- [x] So a program that runs off the end of one section hits nothing at all, and faults, instead of reading the next one
-  > Yes: the gap is a guard. An access there is a page fault, which stops the program
-  > cleanly.
-- [ ] Because pages must start at even zones
-  > No: the gap is there on purpose, as a guard, not because of alignment.
 
 **The bootstrap service starts with r8 = 3. What is the 3?**
 

@@ -369,14 +369,15 @@ program into a small one; yours needs no compiler, since Node runs TypeScript as
   > No: memory has nothing to do with it. The target can't know which network's sizes
   > to use.
 
-**Why does the target set its socket's permissions to `0666`?**
+**Your client runs a session clean against the fuzzer. What does that show?**
 
-- [ ] To make the socket a program that can be run
-  > No: `0666` has no permission to run in it. It's read and write, for everyone.
-- [ ] So that only the target can write to it
-  > No: it's the other way round. Everyone on the computer may use it.
-- [x] The fuzzer may run as a different user from the target
-  > Yes: without it, a fuzzer running as another user couldn't connect.
+- [ ] That it follows the Gray Paper exactly
+  > No: it agreed with the fuzzer's own importer, and the two could share a misreading.
+- [x] That on those seeds it reached the same state root as the fuzzer's importer, block after block
+  > Yes: the same root means the same state, byte for byte. It's strong evidence, on those
+  > seeds.
+- [ ] That it has passed the audit
+  > No: the fuzzer's own repository says it isn't the official auditing process.
 
 **The fuzzer disconnects. What must the target do?**
 
