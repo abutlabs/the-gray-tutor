@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assemble, AssemblyError, bootstrapRun, BOOTSTRAP_INFO, disassemble, exitWords, hexRows, INSTRUCTIONS, regions, replay, Session } from "../.vitepress/theme/pvm-playground.ts";
 import type { Exit, Run } from "../.vitepress/theme/pvm-playground.ts";
-import { around, DEMO, LAB, REAL, SCENARIOS } from "../.vitepress/theme/pvm-scenarios.ts";
+import { around, BREAKS, DEMO, LAB, mended, REAL, SCENARIOS, WORKS } from "../.vitepress/theme/pvm-scenarios.ts";
 import { blake2b256 } from "../.vitepress/theme/pvm-engine/src/hash.ts";
 import { toHex } from "../.vitepress/theme/pvm-engine/src/bytes.ts";
 import { ROOT, lessonText } from "./lessons.ts";
@@ -50,10 +50,14 @@ test("every program ends as its text says", () => {
       },
     },
     loop: { exit: "halt", n: 19, left: 871n, check: (s) => assert.equal(reg(s, 7), 15n) },
-    memory: { exit: { fault: 0x30000 }, n: 5, left: 1974n, check: (s) => assert.equal(reg(s, 8), 0x7788n) },
+    memory: { exit: "halt", n: 5, left: 1974n, check: (s) => assert.deepEqual([reg(s, 8), reg(s, 9)], [0x7788n, 0xdeadbeefn]) },
+    "read-only": { exit: { fault: 0x30000 }, n: 2, left: 974n, check: (s) => assert.equal(s.machine.memory.get(0x30)!.bytes[0], 0) },
     "no-page": { exit: { fault: 0x21000 }, n: 3, left: 974n },
+    "null-pointer": { exit: "panic", n: 1, left: 975n },
     "out-of-gas": { exit: "oog", n: 10, left: 16n, check: (s) => assert.equal(reg(s, 7), 1000n + 999n) },
-    jumps: { exit: "panic", n: 5, left: 954n, check: (s) => assert.equal(reg(s, 8), 2n) },
+    jumps: { exit: "halt", n: 4, left: 955n, check: (s) => assert.equal(reg(s, 8), 2n) },
+    "bad-jump": { exit: "panic", n: 2, left: 977n, check: (s) => assert.equal(reg(s, 7), 3n) },
+    "mid-block": { exit: "panic", n: 5, left: 978n, check: (s) => assert.equal(reg(s, 7), 5n) },
     "host-call": {
       exit: "halt", n: 5, left: 850n,
       check: (s) => {
@@ -82,6 +86,32 @@ test("every program ends as its text says", () => {
     assert.equal(session.machine.gas, end.left, s.id);
     end.check?.(session);
   }
+});
+
+test("the first section all halts, and every program in the second stops and is mended by its one change", () => {
+  for (const s of WORKS) if (s.id !== REAL) assert.equal(runToStop(s.source).stopped, "halt", s.id);
+  assert.deepEqual(BREAKS.map((s) => s.id), ["read-only", "no-page", "null-pointer", "out-of-gas", "bad-jump", "mid-block"]);
+  const after: Record<string, (s: Session) => void> = {
+    "read-only": (s) => assert.equal(s.machine.memory.get(0x30)!.bytes[0], 42),
+    "no-page": (s) => assert.equal(reg(s, 8), 0n),
+    "null-pointer": (s) => assert.equal(reg(s, 8), 42n),
+    "out-of-gas": (s) => assert.equal(reg(s, 7), 500500n),
+    "bad-jump": (s) => assert.equal(reg(s, 8), 2n),
+    "mid-block": (s) => assert.equal(reg(s, 7), 15n),
+  };
+  for (const s of BREAKS) {
+    assert.notEqual(runToStop(s.source).stopped, "halt", s.id);
+    assert.equal(s.source.split(s.fix!.from).length, 2, `${s.id}: the text to change is there once`);
+    const fixed = runToStop(mended(s));
+    assert.equal(fixed.stopped, "halt", s.id);
+    after[s.id](fixed);
+  }
+  // the simplest one stays simple: three instructions, and the fix is one letter
+  assert.equal(disassemble(assemble(source("read-only")).program).length, 3);
+  assert.deepEqual([BREAKS[0].fix!.from.at(-1), BREAKS[0].fix!.to.at(-1)], ["R", "W"]);
+  // "needs 21,000 gas": the first block, the passes, and the block with halt in it
+  const paid = costs(runToStop(mended(BREAKS[3])));
+  assert.deepEqual([paid[0], paid[1], paid.length, paid.slice(1, -1).reduce((a, b) => a + b, 0)], [2, 21, 1002, 21000]);
 });
 
 test("the page's plain words are the machine's numbers", () => {
@@ -115,14 +145,12 @@ test("every Try this on the page does what it says", () => {
   assert.equal(runToStop(edit("loop", "load_imm r8, 5", "load_imm r8, 50")).stopped, "oog");
   assert.equal(runToStop(edit("loop", "load_imm r8, 5", "load_imm r8, 50").replace(".gas 1000", ".gas 5000")).stopped, "halt");
   // memory
-  assert.equal(runToStop(edit("memory", ".page 0x30000 R", ".page 0x30000 W")).stopped, "halt");
   const touched = (text: string) => runToStop(text).frames[2].bytes.length;
   assert.equal(touched(edit("memory", "load_ind_u16", "load_ind_u8")), 1);
   assert.equal(touched(edit("memory", "load_ind_u16", "load_ind_u64")), 8);
   // memory that isn't there
   const pageEnd = edit("no-page", "load_ind_u64 r8, r1, 0x1000", "load_ind_u64 r8, r1, 8");
   assert.equal(runToStop(pageEnd).stopped, "halt");
-  assert.equal(runToStop(edit("no-page", "load_ind_u64 r8, r1, 0x1000", "load_u64 r8, 0x100")).stopped, "panic");
   assert.deepEqual(runToStop(edit("no-page", "load_ind_u64 r8, r1, 0x1000", "load_ind_u64 r8, r1, 4092")).stopped, { fault: 0x21000 });
   // out of gas
   assert.equal(reg(runToStop(edit("out-of-gas", ".gas 60", ".gas 23")), 7), 1000n); // one pass
@@ -131,7 +159,7 @@ test("every Try this on the page does what it says", () => {
   const entry0 = runToStop(edit("jumps", "load_imm r7, 4", "load_imm r7, 2"));
   assert.equal(entry0.stopped, "halt");
   assert.equal(reg(entry0, 8), 1n);
-  assert.equal(runToStop(edit("jumps", "load_imm r7, 3", "load_imm r7, 6")).stopped, "panic");
+  assert.equal(runToStop(edit("bad-jump", "load_imm r7, 3", "load_imm r7, 6")).stopped, "panic");
   // the host
   assert.equal(runToStop(edit("host-call", ".gas 2000", ".gas 1000")).stopped, "oog");
   const later = edit("host-call", "  ecalli 0            ; gas: how much is left?\n", "").replace("  move_reg r9, r7\n", "  move_reg r9, r7\n  ecalli 0\n");

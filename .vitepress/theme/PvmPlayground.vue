@@ -10,7 +10,7 @@ import {
   regions, replay, Session, signedText,
 } from "./pvm-playground.ts";
 import type { Frame, Line, Run } from "./pvm-playground.ts";
-import { around, DEMO, LAB, REAL, SCENARIOS } from "./pvm-scenarios.ts";
+import { around, BREAKS, DEMO, LAB, mended, REAL, SCENARIOS, WORKS } from "./pvm-scenarios.ts";
 
 const NAMES = Array.from({ length: 13 }, (_, i) => i);
 /** What Y uses a register for when a service starts; the rest are the program's own. */
@@ -66,11 +66,9 @@ const shown = computed(() => {
   return all.slice(Math.max(0, at - WINDOW.before), at + WINDOW.after);
 });
 const nextLine = computed(() => lines.value[indexOf.value.get(view.value.pc) ?? -1]);
-/** The instruction to explain: the next one, or once stopped the one it stopped on. */
-const explained = computed(() => {
-  const at = view.value.stopped === null ? view.value.pc : (last.value?.at ?? view.value.pc);
-  return lines.value[indexOf.value.get(at) ?? -1];
-});
+/** Where the machine is: the next instruction, or once stopped the one it stopped on. */
+const at = computed(() => (view.value.stopped === null ? view.value.pc : (last.value?.at ?? view.value.pc)));
+const explained = computed(() => lines.value[indexOf.value.get(at.value) ?? -1]);
 
 const spent = computed(() => run.value.gas - view.value.gas);
 const leftShare = computed(() => {
@@ -135,6 +133,12 @@ const regionName = (r: { start: number; pages: number }) => {
   return r.start + r.pages * PAGE_SIZE === Number(run.value.registers[1]) ? "stack" : "";
 };
 const pageOf = (address: number) => address - (address % PAGE_SIZE);
+/** Under a program that broke: why, and what to change. Once it's changed, what happens now. */
+const showFix = computed(() => {
+  const e = view.value.stopped;
+  return scenario.value.fix !== undefined && !edited.value && e !== null && e !== "halt";
+});
+const isMended = computed(() => scenario.value.fix !== undefined && edited.value && source.value === mended(scenario.value));
 
 function restart(next: Run) {
   run.value = next;
@@ -183,6 +187,11 @@ function build() {
     if (e instanceof AssemblyError) problem.value = e.message;
     else throw e;
   }
+}
+
+function applyFix() {
+  source.value = mended(scenario.value);
+  build();
 }
 
 function setGas() {
@@ -315,7 +324,14 @@ onBeforeUnmount(() => {
   <div ref="root" class="widget playground" tabindex="0" @keydown="onKey">
     <div class="picker">
       <button class="small demo" :class="{ chosen: demoOn }" :aria-pressed="demoOn" @click="toggleDemo">▶ Demo</button>
-      <button v-for="c in SCENARIOS" :key="c.id" class="small" :class="{ chosen: chosen === c.id }" :aria-pressed="chosen === c.id" @click="choose(c.id)">{{ c.title }}</button>
+      <p class="picker-head">Step through it: everything works</p>
+      <div class="picker-row">
+        <button v-for="c in WORKS" :key="c.id" class="small" :class="{ chosen: chosen === c.id }" :aria-pressed="chosen === c.id" @click="choose(c.id)">{{ c.title }}</button>
+      </div>
+      <p class="picker-head">Break it, then fix it: each one stops and says what to change</p>
+      <div class="picker-row">
+        <button v-for="c in BREAKS" :key="c.id" class="small" :class="{ chosen: chosen === c.id }" :aria-pressed="chosen === c.id" @click="choose(c.id)">{{ c.title }}</button>
+      </div>
     </div>
 
     <section v-if="demoOn" class="presenter" aria-label="presenter notes">
@@ -334,8 +350,8 @@ onBeforeUnmount(() => {
     </section>
 
     <section v-else class="brief">
-      <p>{{ scenario.watch }}</p>
-      <details>
+      <p v-if="!isMended">{{ scenario.watch }}</p>
+      <details v-if="scenario.tries.length">
         <summary>Try this</summary>
         <ul>
           <li v-for="t in scenario.tries" :key="t">{{ t }}</li>
@@ -361,7 +377,7 @@ onBeforeUnmount(() => {
 
     <div class="readout" aria-live="polite">
       <div class="tile"><span class="tile-label">instructions run</span><span class="tile-value">{{ view.n.toLocaleString("en") }}</span></div>
-      <div class="tile"><span class="tile-label">ı, next instruction</span><span class="tile-value">{{ view.pc.toLocaleString("en") }}</span></div>
+      <div class="tile"><span class="tile-label">{{ view.stopped === null ? "ı, next instruction" : "ı, stopped at" }}</span><span class="tile-value">{{ at.toLocaleString("en") }}</span></div>
       <div class="tile"><span class="tile-label">gas left</span><span class="tile-value">{{ view.gas.toLocaleString("en") }}</span></div>
       <div class="tile exit" :class="exitKind"><span class="tile-label">state</span><span class="tile-value">{{ exit.name }}</span></div>
       <div v-if="explained" class="tile about">
@@ -373,11 +389,24 @@ onBeforeUnmount(() => {
     <p class="says" aria-live="polite">{{ last ? last.says : loading ? "Loading the service's code…" : "Nothing has run yet. Press Step." }}</p>
     <p v-if="view.stopped !== null" class="means" :class="exitKind">{{ exit.means }}</p>
 
+    <section v-if="showFix" class="fix" aria-label="how to fix it">
+      <p><strong>Why it stopped.</strong> {{ scenario.fix!.why }}</p>
+      <p><strong>What to change.</strong> In the program, replace</p>
+      <pre>{{ scenario.fix!.from }}</pre>
+      <p>with</p>
+      <pre>{{ scenario.fix!.to }}</pre>
+      <button class="small go" @click="applyFix">Make this change</button>
+    </section>
+    <section v-else-if="isMended" class="fix mended" aria-label="fixed">
+      <p><strong>{{ view.stopped === "halt" ? "Fixed." : "Changed. Press Run." }}</strong> {{ scenario.fix!.after }}</p>
+      <button class="small" @click="choose(chosen)">Break it again</button>
+    </section>
+
     <div class="panels">
       <section class="panel code" aria-label="the code">
         <h4>Code <small>{{ lines.length.toLocaleString("en") }} instructions. ▌ starts a basic block. Click a line for a breakpoint.</small></h4>
         <ol class="lines">
-          <li v-for="l in shown" :key="l.at" :class="{ next: l.at === view.pc && view.stopped === null, ran: last?.at === l.at, stop: l.at === view.pc && view.stopped !== null, broken: breakpoints.has(l.at) }">
+          <li v-for="l in shown" :key="l.at" :class="{ next: l.at === view.pc && view.stopped === null, ran: last?.at === l.at, stop: l.at === at && view.stopped !== null && view.stopped !== 'halt', broken: breakpoints.has(l.at) }">
             <div v-if="l.label" class="label">{{ l.label }}:</div>
             <button class="line" :aria-label="`instruction at ${l.at}: ${l.text}. Toggle breakpoint`" @click="toggleBreakpoint(l.at)">
               <span class="dot">{{ breakpoints.has(l.at) ? "●" : "" }}</span>
@@ -490,7 +519,9 @@ onBeforeUnmount(() => {
   font-family: var(--vp-font-family-mono); font-size: 13px; color: var(--vp-c-text-1);
 }
 .playground:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
-.picker { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.picker { margin-bottom: 12px; }
+.picker-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.picker-head { margin: 10px 0 4px; font-size: 13px; font-weight: 600; color: var(--vp-c-text-2); }
 .picker .demo { font-weight: 600; }
 .picker .small, .presenter .small { min-height: 34px; }
 .brief { margin-bottom: 12px; line-height: 1.55; }
@@ -521,6 +552,10 @@ onBeforeUnmount(() => {
 .means.good { border-left-color: var(--bit-low-line); }
 .means.bad { border-left-color: var(--changed-line); }
 .means.warn { border-left-color: var(--bit-mark-line); }
+.fix { margin: 0 0 8px; padding: 8px 10px; border-left: 3px solid var(--changed-line); background: var(--vp-c-bg-soft); font-size: 14px; line-height: 1.5; }
+.fix.mended { border-left-color: var(--bit-low-line); }
+.fix p { margin: 0 0 6px; }
+.fix pre { margin: 0 0 6px; padding: 4px 8px; border-radius: 4px; background: var(--vp-c-bg); font-family: var(--vp-font-family-mono); font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
 .panel { min-width: 0; padding: 8px 10px; border: 1px solid var(--vp-c-divider); border-radius: 6px; }
 .panel h4 { margin: 0 0 6px; font-size: 14px; font-weight: 600; letter-spacing: 0; }

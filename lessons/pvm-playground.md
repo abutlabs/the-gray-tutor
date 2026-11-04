@@ -10,10 +10,14 @@ and [Part 16](./16-host-calls/index.md), not a drawing of it. Every number below
 the machine as it runs.
 
 Pick a program, press **Step**, and watch four things: the code, the 13 registers, the gas
-and the memory. Each program says what to watch and what to try, and you can edit any of
-them. *Any instruction* tries each of the PVM's instructions on numbers you choose. The last
-program is a real service, the code service 0 keeps in the official trace vectors. **Demo**
-walks through the machine in five minutes, with notes to read out.
+and the memory. The programs come in two sets, and you can edit any of them:
+
+- **Step through it.** Everything works. *Any instruction* tries each of the PVM's
+  instructions on numbers you choose, and the last is a real service, the code service 0
+  keeps in the official trace vectors.
+- **Break it, then fix it.** Each one stops, says why, and says what to change.
+
+**Demo** walks through the machine in five minutes, with notes to read out.
 
 <PvmPlayground />
 
@@ -44,11 +48,13 @@ A run ends in one of these ways:
 And there's one way to pause: `ecalli` asks the host to do something, and the host answers
 in r7. A service can't reach anything outside the machine any other way.
 
-The programs on this page, in order: the registers; immediates and sign extension; a loop;
-reading and writing memory; memory that isn't there; running out of gas; the jump table; host
-calls; what a block really costs; a small program that adds up numbers in memory; any one of
-the PVM's instructions, on your own numbers; and a real service's accumulate, from ı = 5 to
-a clean halt.
+The programs that work, in order: the registers; immediates and sign extension; a loop;
+reading and writing memory; the jump table; host calls; what a block really costs; a small
+program that adds up numbers in memory; any one of the PVM's instructions, on your own
+numbers; and a real service's accumulate, from ı = 5 to a clean halt.
+
+The programs that break: writing to a read-only page; memory that isn't there; a null
+pointer; running out of gas; a jump to nowhere; and a branch into a block's middle.
 
 ## Where this is in the tutorial
 

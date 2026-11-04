@@ -4,13 +4,22 @@
 
 import { layoutOf } from "./pvm-playground.ts";
 
-/** A program to learn from: what to watch as it runs, and things to try. */
+/** Why a program that breaks stopped, the one change that mends it, and what happens then. */
+export type Fix = {
+  why: string;
+  from: string; // text the program has, once
+  to: string;
+  after: string;
+};
+
+/** A program to learn from: what to watch as it runs, and things to try. One with a fix breaks. */
 export type Scenario = {
   id: string;
   title: string;
   source: string; // the assembler's text; empty for the real service
   watch: string;
   tries: string[];
+  fix?: Fix;
 };
 
 export const REAL = "real-service";
@@ -137,65 +146,19 @@ loop:
   store_ind_u64 r7, r1, 8  ; 8 bytes at r1 + 8
   load_ind_u16 r8, r1, 8   ; the first 2 of them back: 0x7788
   load_u32 r9, 0x30000     ; read-only pages can be read
-  store_u8 r7, 0x30000     ; but not written: a page fault
   halt
 `,
     watch:
-      "The memory panel jumps to each address touched, and lights the bytes. After the store, look at the order: 88 77 66 55 44 33 22 11, the smallest byte first. Then the store to the read-only page stops with a page fault: nothing is written, and ı stays on that instruction, so the code that started this machine can see exactly what failed.",
+      "The memory panel jumps to each address touched, and lights the bytes. After the store, look at the order: 88 77 66 55 44 33 22 11, the smallest byte first. The last load reads a read-only page, which is allowed: ef be ad de comes back as 0xdeadbeef.",
     tries: [
-      "Change .page 0x30000 R to W: the store works, and the program halts.",
       "Change load_ind_u16 to load_ind_u8, then to load_ind_u64, and watch how many bytes light up.",
-    ],
-  },
-  {
-    id: "no-page",
-    title: "Memory that isn't there",
-    source: `; Touching a page that doesn't exist is a fault at that page's address.
-; Touching anything below 64 KiB is worse: a panic, with no way back.
-.gas 1000
-.page 0x20000 W
-.reg r1 = 0x20000
-
-  load_imm r7, 42
-  store_ind_u64 r7, r1, 0     ; fine
-  load_ind_u64 r8, r1, 0x1000 ; one page on: nothing there
-  halt
-`,
-    watch:
-      "The load lands one page past the only page there is. The fault names the page's start, not the byte's address. At the top of a service a fault ends the run, like a panic. An inner machine started with the invoke host call is different: the fault goes back to the code that started it, which can give it the page and carry on.",
-    tries: [
-      "Change the last offset to 8: same page, so the load works, and reads zeros.",
-      "Replace the load with load_u64 r8, 0x100: nothing is there, and it's below 64 KiB, so that's a panic, not a fault.",
-      "Change the offset to 4092 with r1 as it is: 8 bytes straddling two pages, and the fault names the second.",
-    ],
-  },
-  {
-    id: "out-of-gas",
-    title: "Out of gas",
-    source: `; The same loop on a budget. A block is paid for in full on the way in, or not at all.
-.gas 60
-
-  load_imm r7, 0
-  load_imm r8, 1000
-  fallthrough
-loop:
-  add_64 r7, r7, r8
-  add_imm_64 r8, r8, -1
-  branch_ne_imm r8, 0, loop
-  halt
-`,
-    watch:
-      "Press Run. The machine stops at the door of a block it can't pay for: nothing in that block ran, so r7 holds the total of whole passes only. That's what makes gas exact: every validator stops at the same instruction, at the same gas.",
-    tries: [
-      "Set the starting gas to 23, then 22. The first block costs 2 and a pass costs 21: 23 buys one pass, and 22 buys none.",
-      "Compare the gas left at the stop with the block's price: the gas left is what couldn't be spent.",
     ],
   },
   {
     id: "jumps",
     title: "Jumps through the table",
     source: `; jump_ind can't go just anywhere. Its address is a place in the jump table:
-; address 2 is entry 0, address 4 is entry 1, and so on. Odd addresses panic.
+; address 2 is entry 0, address 4 is entry 1, and so on.
 .gas 1000
 .jump_table one, two
 
@@ -206,14 +169,12 @@ one:
   halt
 two:
   load_imm r8, 2
-  load_imm r7, 3    ; odd: not a place in the table
-  jump_ind r7, 0
+  halt
 `,
     watch:
-      "The first jump goes through the table to two. Code can't compute a jump into the middle of an instruction: every target is one the table lists. That's a big part of why the PVM can be compiled ahead of time. The second jump is to an odd address, and panics.",
+      "The jump goes through the table to two. Code can't compute a jump into the middle of an instruction: every target is one the table lists. That's a big part of why the PVM can be compiled ahead of time.",
     tries: [
-      "Change load_imm r7, 4 to 2: it takes entry 0 instead, and halts.",
-      "Change the 3 to 6: past the end of the table, also a panic.",
+      "Change load_imm r7, 4 to 2: it takes entry 0 instead, and r8 ends as 1.",
     ],
   },
   {
@@ -319,7 +280,158 @@ next:
       "Open memory at 0xfeff0000, r7's first value: the arguments are the three bytes 01 00 00, slot 1, service 0, no inputs.",
     ],
   },
+  {
+    id: "read-only",
+    title: "Writing to a read-only page",
+    source: `; A read-only page can be read, but not written.
+.gas 1000
+.page 0x30000 R
+
+  load_imm r7, 42
+  store_u8 r7, 0x30000   ; write one byte to the read-only page
+  halt
+`,
+    watch: "Press Step twice. The load is fine, and the store stops the machine. Nothing is written, and ı stays on the store, so whoever started this machine can see exactly what failed.",
+    tries: [],
+    fix: {
+      why: "The store writes to 0x30000, and that page is marked R: it can be read, not written.",
+      from: ".page 0x30000 R",
+      to: ".page 0x30000 W",
+      after: "The store writes 42, 2a in hex, at 0x30000, and the program halts.",
+    },
+  },
+  {
+    id: "no-page",
+    title: "Memory that isn't there",
+    source: `; Touching a page that doesn't exist is a fault at that page's address.
+.gas 1000
+.page 0x20000 W
+.reg r1 = 0x20000
+
+  load_imm r7, 42
+  store_ind_u64 r7, r1, 0     ; fine
+  load_ind_u64 r8, r1, 0x1000 ; one page on: nothing there
+  halt
+`,
+    watch:
+      "The load lands one page past the only page there is. The fault names the page's start, not the byte's address. At the top of a service a fault ends the run, like a panic. An inner machine started with the invoke host call is different: the fault goes back to the code that started it, which can give it the page and carry on.",
+    tries: [
+      "Change the last offset to 8: same page, so the load works, and reads zeros.",
+      "Change the offset to 4092 with r1 as it is: 8 bytes straddling two pages, and the fault names the second.",
+    ],
+    fix: {
+      why: "r1 is 0x20000, so the load reads from 0x20000 + 0x1000 = 0x21000. The only page starts at 0x20000 and ends at 0x20fff.",
+      from: ".page 0x20000 W",
+      to: ".page 0x20000 W\n.page 0x21000 W",
+      after: "The load works, and the program halts. r8 is 0: a new page is all zeros.",
+    },
+  },
+  {
+    id: "null-pointer",
+    title: "A null pointer",
+    source: `; Nothing may live in the first 64 KiB, so a pointer left at zero is always a crash.
+.gas 1000
+.page 0x20000 W
+.data 0x20000 2a
+
+  load_ind_u8 r8, r1, 0   ; read the byte r1 points at
+  halt
+`,
+    watch: "Press Run. Look at r1 in the registers, then at the state: this time it's a panic, not a page fault.",
+    tries: [],
+    fix: {
+      why: "Nothing set r1, so it's still 0, and the load reads address 0. A service's memory starts at 64 KiB, so a missing page below that is a panic, not a fault.",
+      from: ".data 0x20000 2a",
+      to: ".data 0x20000 2a\n.reg r1 = 0x20000",
+      after: "r1 points at the page now. The load reads 42 into r8, and the program halts.",
+    },
+  },
+  {
+    id: "out-of-gas",
+    title: "Out of gas",
+    source: `; The same loop on a budget. A block is paid for in full on the way in, or not at all.
+.gas 60
+
+  load_imm r7, 0
+  load_imm r8, 1000
+  fallthrough
+loop:
+  add_64 r7, r7, r8
+  add_imm_64 r8, r8, -1
+  branch_ne_imm r8, 0, loop
+  halt
+`,
+    watch:
+      "Press Run. The machine stops at the door of a block it can't pay for: nothing in that block ran, so r7 holds the total of whole passes only. That's what makes gas exact: every validator stops at the same instruction, at the same gas.",
+    tries: [
+      "Set the starting gas to 23, then 22. The first block costs 2 and a pass costs 21: 23 buys one pass, and 22 buys none.",
+      "Compare the gas left at the stop with the block's price: the gas left is what couldn't be spent.",
+    ],
+    fix: {
+      why: "A pass round the loop costs 21 and there are 1,000 passes, so the loop needs 21,000 gas. The program starts with 60.",
+      from: ".gas 60",
+      to: ".gas 30000",
+      after: "All 1,000 passes are paid for, and the program halts with r7 = 500,500.",
+    },
+  },
+  {
+    id: "bad-jump",
+    title: "A jump to nowhere",
+    source: `; jump_ind's address is a place in the jump table: address 2 is entry 0, address 4
+; is entry 1, and so on.
+.gas 1000
+.jump_table one, two
+
+  load_imm r7, 3
+  jump_ind r7, 0
+one:
+  load_imm r8, 1
+  halt
+two:
+  load_imm r8, 2
+  halt
+`,
+    watch: "Press Step twice, and look at r7 when the jump stops the machine.",
+    tries: ["Change the 3 to 6: past the end of the table, also a panic."],
+    fix: {
+      why: "r7 is 3. Places in the jump table are even, 2 for entry 0 and 4 for entry 1, so an odd address is nowhere.",
+      from: "load_imm r7, 3",
+      to: "load_imm r7, 4",
+      after: "The jump goes to entry 1, the label two, and the program halts with r8 = 2.",
+    },
+  },
+  {
+    id: "mid-block",
+    title: "A branch into a block's middle",
+    source: `; A branch may only land on the start of a basic block, and a block starts at 0 or
+; just after a block-ending instruction.
+.gas 1000
+
+  load_imm r7, 0            ; the total
+  load_imm r8, 5            ; the counter
+loop:
+  add_64 r7, r7, r8
+  add_imm_64 r8, r8, -1
+  branch_ne_imm r8, 0, loop ; back to the top, until r8 is 0
+  halt
+`,
+    watch: "Press Run. One pass round the loop runs, and the branch back stops the machine. Look for the ▌ marks in the code panel: the line it jumps to has none.",
+    tries: [],
+    fix: {
+      why: "The branch goes back to loop, but that line doesn't start a basic block: the line before it, a load_imm, doesn't end one.",
+      from: "loop:",
+      to: "  fallthrough\nloop:",
+      after: "loop's first line now starts a block. The loop adds 5 + 4 + 3 + 2 + 1, and the program halts with r7 = 15.",
+    },
+  },
 ];
+
+/** The programs that run to a clean halt, and the ones that stop and say how to mend them. */
+export const WORKS = SCENARIOS.filter((s) => !s.fix);
+export const BREAKS = SCENARIOS.filter((s) => s.fix);
+
+/** A program that breaks, with its one change made. */
+export const mended = (s: Scenario): string => s.source.replace(s.fix!.from, s.fix!.to);
 
 /** A step of the demo: where to go, what to do, and what to say. */
 export type DemoStep = {
@@ -352,8 +464,13 @@ export const DEMO: DemoStep[] = [
   },
   {
     scenario: "memory",
-    do: "Press Step twice and point at the bytes: 88 77 66, smallest first. Then press Run for the fault.",
-    say: "Memory is pages, each read-write, read-only, or absent. Little-endian, byte by byte. A store to a read-only page faults, and ı stays on that instruction, naming the page. In a service that ends the run; in an inner machine it goes back to the parent.",
+    do: "Press Step twice and point at the bytes: 88 77 66, smallest first.",
+    say: "Memory is pages, each read-write, read-only, or absent. Little-endian, byte by byte.",
+  },
+  {
+    scenario: "read-only",
+    do: "Press Run. Read why it stopped, press Make this change, then Run again.",
+    say: "A store to a read-only page faults, and ı stays on that instruction, naming the page. In a service that ends the run; in an inner machine it goes back to the parent. One letter on the page, R to W, and the same program halts.",
   },
   {
     scenario: "host-call",
