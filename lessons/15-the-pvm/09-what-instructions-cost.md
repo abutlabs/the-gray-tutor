@@ -3,7 +3,14 @@
 A program that loops forever would stall every validator running it. JAM's answer is
 *gas*: a service gets a budget, and every piece of code is paid for before it runs. Gray
 Paper 0.8.0 sets the price by imagining a modern CPU running the code and counting its
-cycles. That takes a price list and a CPU; this lesson is the price list.
+cycles, so that gas tracks the time code really takes.
+
+Think of a restaurant. This lesson is the recipe card for each dish: how long it takes and
+which stations it needs. [Lesson 15.10](./10-the-pipeline.md) is the kitchen, cooking several
+dishes at once. [Lesson 15.11](./11-the-gas-meter.md) is the bill, paid before the food comes.
+
+Don't learn this table by heart. Keep two things: an instruction's cost is a row of three
+numbers, and loads, stores, divides and `ecalli` are the expensive ones.
 
 ## What the Gray Paper says
 
@@ -28,9 +35,9 @@ Some rows depend on more than the instruction's name, through three functions:
   the target) starts with `trap` or `unlikely`. That's [lesson 15.6](./06-branches-and-calls.md)'s hint at work: a branch
   to a `trap` is usually a check that should never fail, so a CPU would guess it right.
 
-For 𝔓, App. A.9 defines š and ř: the registers an instruction reads and writes, straight
-from its row in the instruction tables, whether or not they change when it runs. A `cmov`
-reads the register it writes (it might keep it). `ecalli` reads and writes none.
+The registers an instruction reads and writes (š and ř, App. A.9) come straight from its
+row in the instruction tables. A `cmov` counts as reading the register it writes, since it
+might keep it.
 
 Pick an instruction and its registers, and watch its row:
 

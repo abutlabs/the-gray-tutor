@@ -4,7 +4,13 @@
 run it in far fewer, because it doesn't do one thing at a time. While one instruction
 waits on memory, others start; while a store crawls along, three more crawl beside it.
 The Gray Paper's gas model builds exactly such a CPU, small and made up, and charges a
-basic block the cycles that CPU needs. This lesson builds it.
+basic block the cycles that CPU needs.
+
+It's the kitchen from [lesson 15.9](./09-what-instructions-cost.md). Orders are taken in
+sequence, and dishes that don't depend on each other cook side by side, up to the number of
+stations. A dish that needs another's output waits for it. Dishes go out in the order they
+were taken, however fast each one cooked. The bill is how long the whole kitchen took, not
+the sum of the recipes. That's the whole idea; the rest of this lesson is its exact rules.
 
 ## What the Gray Paper says
 
@@ -29,10 +35,9 @@ When everything has been decoded and retired, the block's gas is the cycles take
 3, and at least 1. (Run one instruction alone and it costs exactly its own cycles: the 3
 is the pipeline's own overhead.)
 
-The Gray Paper writes this as a state 𝕊 (ı, c, d, e, t and the buffer r) and four
-transitions: X′ decodes (X^mov for `move_reg`, X^dec for the rest), X″ starts the first
-ready instruction S, X‴ ticks the clock, and X picks: decode if it can, else start if it
-can, else stop if everything is retired, else tick.
+The Gray Paper writes those stages as steps on a state 𝕊: X′ decodes, X″ starts, X‴ ticks
+the clock, and X picks which comes next: decode if it can, else start, else stop if
+everything has retired, else tick.
 
 Step through it below. Pick one of this lesson's blocks, or build your own, and move a
 cycle at a time. Each row is a line of the block; each column is the start of a cycle,
