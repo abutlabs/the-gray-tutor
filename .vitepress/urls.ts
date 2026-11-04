@@ -138,6 +138,7 @@ export const PUBLISHED: string[] = [
   "glossary",
   "symbols",
   "cryptography",
+  "pvm-playground",
   "jam-at-a-glance",
   "jam-beside-aztec",
   "gray-paper",

@@ -29,6 +29,7 @@ import CheckpointRun from "./CheckpointRun.vue";
 import ReadyQueue from "./ReadyQueue.vue";
 import SafroleEpoch from "./SafroleEpoch.vue";
 import AuthorizerPool from "./AuthorizerPool.vue";
+import PvmPlayground from "./PvmPlayground.vue";
 import PvmStepper from "./PvmStepper.vue";
 import PipelineCycles from "./PipelineCycles.vue";
 import GasMeter from "./GasMeter.vue";
@@ -294,6 +295,7 @@ export default {
     app.component("GuarantorSeats", GuarantorSeats); // 12.1
     app.component("AuthorizerPool", AuthorizerPool); // 13.1
     app.component("PvmStepper", PvmStepper); // 15.3
+    app.component("PvmPlayground", PvmPlayground); // the PVM playground
     app.component("PipelineCycles", PipelineCycles); // 15.10
     app.component("GasMeter", GasMeter); // 15.11
     app.component("CheckpointRun", CheckpointRun); // 16.6
