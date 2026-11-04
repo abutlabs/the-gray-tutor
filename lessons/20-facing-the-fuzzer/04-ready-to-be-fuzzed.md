@@ -233,6 +233,21 @@ Its *lanes* (from replays of recorded sessions, through generated blocks with mu
 to changing validator sets) go further than any trace, and the rows of
 [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) are where to look when a session ends with a wrong root.
 
+## What passing proves
+
+The fuzzer is a strong test, and it's still a test. Its own repository says, in capitals,
+that it isn't the official auditing process, and its test plan calls the fuzzer a
+best-effort tool, not the only test.
+
+| A clean session shows | It doesn't show |
+| --- | --- |
+| Your client and the fuzzer's own importer ended every block at the same state root, so with the same state, byte for byte | that they're both right: they could share a misreading of the Gray Paper |
+| It refused the bad blocks it was sent | that it refuses every bad block there is |
+| Those seeds pass, and anyone can replay them | that the next seed passes |
+| It can import blocks | that it can do anything else: author blocks, join a network, finalize, keep data available |
+
+That last row is the line between milestones. M1 is a block importer.
+
 ## The scoreboard
 
 The whole board rests on vectors like this one, block 50 of the `storage` trace, and the board's rows for the two storage traces:
@@ -405,7 +420,7 @@ test vectors whole, every state-transition family among them but for ten preimag
 refusals, and imports all eight block-import traces, each block into the state it made
 itself, every root right and every bad block refused. It speaks the
 conformance fuzzer's protocol, keeps the chain's ancestry for the one check the state
-can't make, and starts the way the fuzzer starts its targets. That's what JAM's first
-milestone, M1, asks of a client, with the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md)'s ten refusals still to add. Lesson [0.1](../00-start/01-what-you-will-build.md)
+can't make, and starts the way the fuzzer starts its targets. That's the base of what JAM's first
+milestone, M1, asks of a client, with the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) still to do before it would survive the real fuzzer ([lesson 20.3](./03-a-session.md) shows why). Lesson [0.1](../00-start/01-what-you-will-build.md)
 promised a program that answers "valid, and here is the new state" or "invalid, go away".
 It's yours.

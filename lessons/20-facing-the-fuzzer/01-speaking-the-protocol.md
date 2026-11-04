@@ -36,11 +36,10 @@ the Gray Paper, which leaves testing to others. In plain steps:
 The codec is the one you've had since [Part 2](../02-codec/index.md): the header, the block and the state's entries
 are [Part 4](../04-blocks/index.md)'s and [Part 6](../06-state-and-merklization/index.md)'s. Only the envelope is new.
 
-One honest note: the protocol's recorded example sessions are for Gray Paper 0.7.0 and
-0.7.2, whose blocks are laid out a little differently, so your 0.8.0 codec can't read
-their blocks. The README's own three examples don't change between versions, so the tests
-check those byte for byte, and check Initialize and ImportBlock by making them from the
-0.8.0 traces and reading them back.
+The tests check the README's own three examples byte for byte, and check Initialize and
+ImportBlock by making them from the 0.8.0 traces and reading them back. The protocol also
+has whole recorded sessions, one folder for each Gray Paper version: [lesson
+20.3](./03-a-session.md) plays the 0.8.0 ones.
 
 ## The tests
 
@@ -345,16 +344,15 @@ read: most of its entries are a bug the fuzzer found that no test vector had.
 - [ ] The app's version
   > No: that's the three bytes just before, `00 01 19`, version 0.1.25.
 
-**Why can't your 0.8.0 codec read the protocol's recorded example sessions?**
+**The protocol keeps its recorded sessions in one folder per Gray Paper version. Why can't your 0.8.0 client play the 0.7.2 ones?**
 
 - [ ] The protocol's messages changed in 0.8.0
   > No: the README's three examples don't change between versions, and your codec
   > reads them byte for byte.
 - [ ] They're compressed
   > No: they're plain JAM-codec bytes, the same as any message.
-- [x] They're for Gray Paper 0.7.0 and 0.7.2, whose blocks are laid out a little differently
-  > Yes: the envelope is the same, but a block inside is in the older layout. So the
-  > tests make Initialize and ImportBlock from the 0.8.0 traces instead.
+- [x] Blocks are laid out a little differently in 0.7.2
+  > Yes: the envelope is the same, but a block inside is in the older layout.
 :::
 
 ## What you have

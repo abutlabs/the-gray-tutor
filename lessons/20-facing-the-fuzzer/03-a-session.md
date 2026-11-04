@@ -1,11 +1,9 @@
 # A session
 
-The official fuzzer runs on its organizers' machines, against a client sent to them; it
-isn't something to download and point at your laptop. But its protocol is simple, and the
-traces hold everything a fuzzer needs: a genesis state, blocks, and the root after each. So
-this lesson writes a small fuzzer of your own, plays a whole trace through your target over
-a real Unix socket, and checks every answer. By the end of it your target has survived a
-`fuzzy` session, three refused blocks and all.
+The fuzzer's protocol is simple, and the traces hold everything a fuzzer needs: a genesis
+state, blocks, and the root after each. So this lesson writes a small fuzzer of your own,
+plays a whole trace through your target over a real Unix socket, and checks every answer.
+Then it plays something your client has never seen, and that's where it gets interesting.
 
 ## New words
 
@@ -227,9 +225,28 @@ every block; the *Target* panel, the target's side.
 
 ![Fuzz session panel](./images/03-fuzz-session.png)
 
-The official tools have a fuzzer of this kind too, `minifuzz`, in Python, which replays
-recorded sessions. Its recordings so far are for Gray Paper 0.7.0 and 0.7.2, so for 0.8.0
-your own fuzzer and the traces stand in for it.
+## What a stranger finds
+
+Your fuzzer replays blocks your client has already passed. The official tools have a
+fuzzer of this kind too, `minifuzz`, in Python, and it comes with recorded sessions your
+client has never seen: two for Gray Paper 0.8.0, in `fuzz-proto/examples/0.8.0` in the
+[jam-conformance](https://github.com/davxy/jam-conformance) repository.
+
+Your client passes every one of the 1,000 trace blocks. Here's what these recordings did
+to the finished client when we played them through it:
+
+| Recording | Blocks | What happened | Why |
+| --- | --- | --- | --- |
+| `forks` | 95, 61 of them to refuse | all right but one: a bad block accepted | it brings a preimage nobody asked for: one of the ten refusals on the board |
+| `no_forks` | 100 | 23 right, then a wrong root at slot 24 | a guarantee from the last rotation, counted against the wrong keys: [lesson 18.1](../18-statistics/01-who-did-what.md)'s simple road |
+
+After a wrong root the session is over: every later block builds on a state your client
+doesn't have. A few tallies wrong in one component of sixteen, and the root gives it away.
+
+Neither is a mystery: both are rows of
+[HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md), which
+this tutorial leaves for after the base rules. But no vector and no trace showed either.
+That's what a fuzzer is for.
 
 <details>
 <summary>lasair: sessions from the traces, in <code>tools/minifuzz080/make_session.py</code></summary>
