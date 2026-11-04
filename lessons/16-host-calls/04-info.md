@@ -1,10 +1,10 @@
 # Info
 
-Across the accumulate test vectors, the first question a service asks that your host
-can't answer yet is one of three: `info`, `read` or `write`. All
-three are about service *accounts*, the records and storage [lesson 14.2](../14-services/02-the-service-account.md) read out of the
-state. So the host needs to know the accounts, and the gentlest of the three goes first.
-`info` just looks.
+A service needs to know what it has: its balance, what it keeps, what it may spend. That's
+its *account*, the record and storage [lesson 14.2](../14-services/02-the-service-account.md) read out of the state. Across the
+accumulate test vectors, the first call your host can't answer yet is about accounts: `info`,
+`read` or `write`. So the host needs the accounts now, and the gentlest of the three goes
+first. `info` just looks.
 
 ## What the Gray Paper says
 

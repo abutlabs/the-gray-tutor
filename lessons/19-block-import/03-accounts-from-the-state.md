@@ -1,11 +1,14 @@
 # Accounts from the state
 
-An account read from the state is its record and a bag of entries, each under a hashed
-key. The host calls you wrote in [Part 16](../16-host-calls/index.md) and [Part 17](../17-accumulation/index.md) look things up in the test vectors'
-accounts, which keep storage, preimages and requests apart, under their own keys. They
-would find nothing in an account from the state. This lesson teaches them to find things
-in both: six small functions that know where each thing lives, and the host calls
-rewritten to use them, one at a time, without changing what they do.
+Real blocks mean real accounts, and those look nothing like the test vectors'. An account
+read from the state is its record and a bag of entries, each under a hashed key. The host
+calls you wrote in [Part 16](../16-host-calls/index.md) and [Part 17](../17-accumulation/index.md) look things up in the vectors' tidy accounts, so
+they'd find nothing. This lesson teaches them to find things in both: six small functions
+that know where each thing lives, and the host calls rewritten to use them, one at a time,
+without changing what they do.
+
+The idea is in *What the Gray Paper says*. The rest is a careful refactor: read it to build
+it, and skim it for the concepts.
 
 ## New words
 

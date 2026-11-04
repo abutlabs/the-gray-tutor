@@ -1,9 +1,9 @@
 # Fetch
 
-[Lesson 16.1](./01-calling-the-host.md) ended with a service asking for `fetch` and getting WHAT. `fetch` is how a
-service learns about the world it's running in: the chain's rules, some fresh randomness,
-and the work it has been handed. Answer it, and the service gets a lot further. Very
-nearly all the way.
+A service starts with a few numbers in its registers and no idea why it's running. `fetch`
+is how it learns about its world: the chain's rules, some fresh randomness, and the work
+it has been handed. [Lesson 16.1](./01-calling-the-host.md) ended with a service asking for it and getting WHAT.
+Answer it, and the service gets a lot further. Very nearly all the way.
 
 ## What the Gray Paper says
 
