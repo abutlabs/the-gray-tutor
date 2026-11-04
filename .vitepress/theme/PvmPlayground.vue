@@ -66,6 +66,11 @@ const shown = computed(() => {
   return all.slice(Math.max(0, at - WINDOW.before), at + WINDOW.after);
 });
 const nextLine = computed(() => lines.value[indexOf.value.get(view.value.pc) ?? -1]);
+/** The instruction to explain: the next one, or once stopped the one it stopped on. */
+const explained = computed(() => {
+  const at = view.value.stopped === null ? view.value.pc : (last.value?.at ?? view.value.pc);
+  return lines.value[indexOf.value.get(at) ?? -1];
+});
 
 const spent = computed(() => run.value.gas - view.value.gas);
 const leftShare = computed(() => {
@@ -359,6 +364,10 @@ onBeforeUnmount(() => {
       <div class="tile"><span class="tile-label">ı, next instruction</span><span class="tile-value">{{ view.pc.toLocaleString("en") }}</span></div>
       <div class="tile"><span class="tile-label">gas left</span><span class="tile-value">{{ view.gas.toLocaleString("en") }}</span></div>
       <div class="tile exit" :class="exitKind"><span class="tile-label">state</span><span class="tile-value">{{ exit.name }}</span></div>
+      <div v-if="explained" class="tile about">
+        <span class="tile-label">{{ view.stopped === null ? "next" : "stopped on" }}: <code>{{ explained.text }}</code></span>
+        <span class="about-text">{{ explained.about }}</span>
+      </div>
     </div>
 
     <p class="says" aria-live="polite">{{ last ? last.says : loading ? "Loading the service's code…" : "Nothing has run yet. Press Step." }}</p>
@@ -504,6 +513,9 @@ onBeforeUnmount(() => {
 .tile.exit.good { border-color: var(--bit-low-line); background: var(--bit-low); }
 .tile.exit.bad { border-color: var(--changed-line); background: var(--changed); }
 .tile.exit.warn { border-color: var(--bit-mark-line); background: var(--bit-mark); }
+.tile.about { flex: 1 1 260px; min-width: 0; }
+.tile.about code { padding: 0; background: none; font-size: 12px; color: var(--vp-c-text-1); overflow-wrap: anywhere; }
+.about-text { display: block; margin-top: 2px; font-size: 14px; line-height: 1.4; }
 .says { margin: 0 0 4px; padding: 8px 10px; min-height: 2.6em; border-left: 3px solid var(--vp-c-brand-1); background: var(--vp-c-bg-soft); font-family: var(--vp-font-family-mono); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
 .means { margin: 0 0 8px; padding: 6px 10px; font-size: 13px; line-height: 1.5; border-left: 3px solid var(--vp-c-divider); }
 .means.good { border-left-color: var(--bit-low-line); }

@@ -164,6 +164,30 @@ test("the instruction lab: every instruction the PVM has runs, and does somethin
   assert.equal(reg(runToStop(around("count_set_bits_64")), 7), 5n); // 0x1234
 });
 
+test("every instruction says what it means, before it runs", () => {
+  const about = (text: string) => disassemble(assemble(text).program)[0].about;
+  for (const name of INSTRUCTIONS) {
+    const lines = disassemble(assemble(around(name)).program);
+    const line = lines.find((l) => l.text.startsWith(`${name} `) || l.text === name)!;
+    assert.ok(line, `${name}: not in its program`);
+    assert.notEqual(line.about, name, `${name} has no description`);
+    assert.ok(/[.]$/.test(line.about) && !line.about.includes("undefined"), `${name}: ${line.about}`);
+  }
+  assert.equal(about("store_u8 r7, 0x30000"), "Write the lowest byte of φ7 to address 0x30000.");
+  assert.equal(about("store_ind_u64 r7, r1, 8"), "Write all 8 bytes of φ7 to the address φ1 + 8.");
+  assert.equal(about("store_imm_ind_u16 r1, 8, 42"), "Write the number 42, as 2 bytes, to the address φ1 + 8.");
+  assert.equal(about("load_ind_i8 r7, r1, 0"), "Read 1 byte from the address in φ1 into φ7, copying its top bit up to fill 64 bits.");
+  assert.equal(about("load_u32 r9, 0x30000"), "Read 4 bytes from address 0x30000 into φ9, with zeros above.");
+  assert.equal(about("add_64 r9, r7, r8"), "Add φ7 and φ8, and put that in φ9.");
+  assert.equal(about("add_imm_32 r12, r12, 1"), "Add φ12 and 1 in 32 bits, sign-extended to 64, and put that in φ12.");
+  assert.equal(about("neg_add_imm_64 r7, r8, 4"), "Subtract φ8 from 4, and put that in φ7.");
+  assert.equal(about("shlo_l_imm_alt_64 r7, r8, 4"), "Shift 4 left by φ8 bits, filling with zeros, and put that in φ7.");
+  assert.equal(about("cmov_iz_imm r7, r8, 4"), "If φ8 is 0, copy 4 into φ7. If not, φ7 stays as it is.");
+  assert.equal(about("ecalli 0"), "Stop and ask the host for call 0, gas. It answers in φ7.");
+  const real = disassemble(new Session(bootstrapRun(PREIMAGE, 1000n)).run.program);
+  assert.ok(real.every((l) => l.about.endsWith(".")), "the real service: every instruction described");
+});
+
 test("the assembler says what's wrong, by line", () => {
   const wrong: [string, RegExp][] = [
     ["bogus r1", /line 1: there's no instruction bogus/],

@@ -206,6 +206,116 @@ function other(ins: Instruction, before: bigint[], after: bigint[], m: Machine, 
   return `${ins.name}: ${to} = ${result}`;
 }
 
+/** A number as a sentence shows it: negative where it means that, hex where it's long. */
+const shown = (x: bigint): string => (x >= 2n ** 63n ? signedText(x) : x > 255n ? hex(x) : `${x}`);
+
+/** The part of a load or store's sentence that says where: a fixed address, or a sum. */
+function place(base: number | null, x: bigint): string {
+  if (base === null) return `address ${hex(x)}`;
+  return x === 0n ? `the address in φ${base}` : `the address φ${base} + ${shown(x)}`;
+}
+
+/** What a branch asks, in the same words whichever register or number it compares. */
+const QUESTIONS: Record<string, string> = {
+  eq: "equals", ne: "doesn't equal", lt_u: "is below", le_u: "is at most", ge_u: "is at least", gt_u: "is above",
+  lt_s: "is below", le_s: "is at most", ge_s: "is at least", gt_s: "is above",
+};
+
+/**
+ * What an instruction does, whatever the registers hold: its meaning, for reading before it
+ * runs. `words` says what it did with the values; this says what it's for.
+ */
+export function describe(ins: Instruction): string {
+  const { name, layout, registers: [a, b, d], immediates: [x, y], target } = ins;
+  const load = /^load_(ind_)?([ui])(8|16|32|64)$/.exec(name);
+  if (load) {
+    const n = Number(load[3]) / 8;
+    const from = place(load[1] ? b : null, x);
+    const rest = n === 8 ? "" : load[2] === "u" ? ", with zeros above" : ", copying its top bit up to fill 64 bits";
+    return `Read ${n} byte${n > 1 ? "s" : ""} from ${from} into φ${a}${rest}.`;
+  }
+  const store = /^store_(imm_)?(ind_)?u(8|16|32|64)$/.exec(name);
+  if (store) {
+    const n = Number(store[3]) / 8;
+    const size = `${n} byte${n > 1 ? "s" : ""}`;
+    const to = place(store[2] ? (store[1] ? a : b) : null, x);
+    if (store[1]) return `Write the number ${shown(y)}, as ${size}, to ${to}.`;
+    return `Write ${n === 8 ? "all 8 bytes" : n === 1 ? "the lowest byte" : `the lowest ${size}`} of φ${a} to ${to}.`;
+  }
+  if (name.startsWith("branch_")) {
+    const test = name.slice("branch_".length).replace("_imm", "");
+    const right = name.endsWith("_imm") ? shown(x) : `φ${b}`;
+    const kind = test.endsWith("_u") ? " as unsigned numbers" : test.endsWith("_s") ? " as signed numbers" : "";
+    return `If φ${a} ${QUESTIONS[test]} ${right}${kind}, jump to ${target}. If not, carry on.`;
+  }
+  switch (name) {
+    case "trap": return "Stop with a panic. Code should never reach this.";
+    case "fallthrough": return "End this basic block and carry on to the next one.";
+    case "unlikely": return "Do nothing: a hint that this path is rarely taken.";
+    case "ecalli": return `Stop and ask the host for call ${x}, ${callName(Number(x))}. It answers in φ7.`;
+    case "load_imm":
+    case "load_imm_64": return `Put the number ${shown(x)} in φ${a}.`;
+    case "move_reg": return `Copy φ${b} into φ${a}.`;
+    case "jump": return `Jump to ${target}, which must start a basic block.`;
+    case "jump_ind": return `Jump to the address φ${a} + ${shown(x)}: the halt address, or an entry of the jump table.`;
+    case "load_imm_jump": return `Put ${shown(x)} in φ${a}, then jump to ${target}.`;
+    case "load_imm_jump_ind": return `Put ${shown(x)} in φ${a}, then jump to the address φ${b} + ${shown(y)}, using φ${b} as it was before.`;
+    case "count_set_bits_64":
+    case "count_set_bits_32": return `Count the 1s in φ${b}'s ${name.slice(-2)} bits, and put that in φ${a}.`;
+    case "leading_zero_bits_64":
+    case "leading_zero_bits_32": return `Count the 0s before the first 1 in φ${b}'s ${name.slice(-2)} bits, and put that in φ${a}.`;
+    case "trailing_zero_bits_64":
+    case "trailing_zero_bits_32": return `Count the 0s after the last 1 in φ${b}'s ${name.slice(-2)} bits, and put that in φ${a}.`;
+    case "sign_extend_8":
+    case "sign_extend_16": return `Take φ${b}'s low ${name.slice(12)} bits, copy their top bit up to fill 64, and put that in φ${a}.`;
+    case "zero_extend_16": return `Take φ${b}'s low 16 bits, with zeros above, and put that in φ${a}.`;
+    case "reverse_bytes": return `Reverse the order of φ${b}'s 8 bytes, and put that in φ${a}.`;
+  }
+  const three = layout === "regRegReg";
+  const to = `φ${three ? d : a}`;
+  const swapped = name.includes("_alt") || (name.startsWith("cmov") && name.endsWith("_imm"));
+  const reg = `φ${three ? a : b}`;
+  const second = three ? `φ${b}` : shown(x);
+  const [p, q] = swapped ? [second, reg] : [reg, second];
+  const op = name.replace("_imm", "").replace("_alt", "");
+  const wide = /_32$/.test(op) ? " in 32 bits, sign-extended to 64" : "";
+  const base = op.replace(/_(32|64)$/, "");
+  const sums: Record<string, string> = {
+    add: `Add ${p} and ${q}`,
+    sub: `Subtract ${q} from ${p}`,
+    neg_add: `Subtract ${p} from ${q}`,
+    mul: `Multiply ${p} by ${q}`,
+    shlo_l: `Shift ${p} left by ${q} bits, filling with zeros`,
+    shlo_r: `Shift ${p} right by ${q} bits, filling with zeros`,
+    shar_r: `Shift ${p} right by ${q} bits, copying its top bit`,
+    rot_l: `Rotate ${p} left by ${q} bits`,
+    rot_r: `Rotate ${p} right by ${q} bits`,
+    and: `Take ${p} AND ${q}, bit by bit`,
+    or: `Take ${p} OR ${q}, bit by bit`,
+    xor: `Take ${p} XOR ${q}, bit by bit`,
+    and_inv: `Take ${p} AND NOT ${q}, bit by bit`,
+    or_inv: `Take ${p} OR NOT ${q}, bit by bit`,
+    xnor: `Take NOT (${p} XOR ${q}), bit by bit`,
+    div_u: `Divide ${p} by ${q} as unsigned numbers (by 0: every bit set)`,
+    div_s: `Divide ${p} by ${q} as signed numbers (by 0: every bit set)`,
+    rem_u: `Take the remainder of ${p} ÷ ${q} as unsigned numbers (by 0: ${p})`,
+    rem_s: `Take the remainder of ${p} ÷ ${q} as signed numbers (by 0: ${p})`,
+    mul_upper_s_s: `Multiply ${p} by ${q} as signed numbers, keeping the top 64 of the 128 bits`,
+    mul_upper_u_u: `Multiply ${p} by ${q} as unsigned numbers, keeping the top 64 of the 128 bits`,
+    mul_upper_s_u: `Multiply ${p}, signed, by ${q}, unsigned, keeping the top 64 of the 128 bits`,
+    max: `Take the larger of ${p} and ${q} as signed numbers`,
+    min: `Take the smaller of ${p} and ${q} as signed numbers`,
+    max_u: `Take the larger of ${p} and ${q} as unsigned numbers`,
+    min_u: `Take the smaller of ${p} and ${q} as unsigned numbers`,
+  };
+  if (sums[base]) return `${sums[base]}${wide}, and put that in ${to}.`;
+  const compare = /^set_(lt|gt)_([us])$/.exec(op);
+  if (compare) return `Put 1 in ${to} if ${p} is ${compare[1] === "lt" ? "below" : "above"} ${q} as ${compare[2] === "u" ? "unsigned" : "signed"} numbers, or else 0.`;
+  const move = /^cmov_(iz|nz)$/.exec(op);
+  if (move) return `If ${q} ${move[1] === "iz" ? "is 0" : "isn't 0"}, copy ${p} into ${to}. If not, ${to} stays as it is.`;
+  return name;
+}
+
 /** What one step did: enough to draw every panel, and to compare with another machine. */
 export type Frame = {
   n: number; // steps run so far, this one included
@@ -337,7 +447,7 @@ export function replay(run: Run, n: number): Session {
 }
 
 /** Each instruction of a program, in order, for the code panel. */
-export type Line = { at: number; text: string; bytes: number[]; block: boolean; terminator: boolean; label?: string; cost: Cost };
+export type Line = { at: number; text: string; about: string; bytes: number[]; block: boolean; terminator: boolean; label?: string; cost: Cost };
 
 /** The program's instructions, from byte 0: what the code panel lists. */
 export function disassemble(program: Program, labels?: Map<number, string>): Line[] {
@@ -349,6 +459,7 @@ export function disassemble(program: Program, labels?: Map<number, string>): Lin
     lines.push({
       at: i,
       text: render(ins),
+      about: describe(ins),
       bytes: [...program.code.slice(i, ins.next)],
       block: machine.blocks.has(i),
       terminator: TERMINATORS.has(ins.opcode),
