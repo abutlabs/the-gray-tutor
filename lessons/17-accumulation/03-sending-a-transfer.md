@@ -439,7 +439,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** The vector hands service 0 one work result whose output is its
-order: send service 1 a hundred, with 80,000 gas and a memo. One run, three faces:
+order: send service 1 a hundred, with 80,000 gas and a memo:
 
 ::: code-group
 
@@ -487,10 +487,9 @@ the test vector says: 255437
 
 :::
 
-The order sits in the work result's output bytes: `01 00 00 00` is service 1, `64…` is 100,
-`803801…` is 80,000, `67696674` spells "gift". Service 0's code reads them into φ₇ to
-φ₁₀ and calls `transfer`, which answers `OK`, takes the 100 from its balance and puts the
-transfer on the run's list, the line the program prints after the calls.
+Service 0 finds its order in the work result's output bytes, loads it into φ₇ to φ₁₀ and
+calls `transfer`, which answers `OK`, takes the 100 from its balance and puts the transfer on
+the run's list.
 
 **Run**
 
@@ -513,11 +512,9 @@ the test vector says: 255437
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791738827853
 ```
 
-Service 0 reads its input, sends the gift (φ₇ = 0 is `OK`), and stops having used exactly
-the vector's gas, the transfer's 80,000 included. The *Host calls* panel, on **7 · Accumulation and import**,
-shows the call
-and, just before the end, the transfer. Service 1's balance hasn't moved yet: that's
-[lesson 17.4](./04-rounds.md).
+It stops having used exactly the vector's gas, the transfer's 80,000 included. Service 1's
+balance hasn't moved yet: that's [lesson 17.4](./04-rounds.md). The *Host calls* panel, on
+**7 · Accumulation and import**, shows the call and the transfer.
 
 ![Host calls panel](./images/03-host-calls.png)
 

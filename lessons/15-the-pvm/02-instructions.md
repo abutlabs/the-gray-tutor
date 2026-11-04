@@ -417,8 +417,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the raw code bytes going in, the
-instruction decoded from them, and the lines printed. Tab across them:
+**What flows through it.** The raw code bytes going in, the
+instruction decoded from them, and the lines printed:
 
 ::: code-group
 
@@ -446,11 +446,8 @@ const computed = {
 
 :::
 
-Read the input into the output: the gaps drawn between the bytes are the bitmask's
-doing — `21 92` in bits puts a 1 at 0, 5, 9 and 12, so the decoder knows `28` at byte 0
-starts an instruction, opcode 40, `jump`, and the four bytes after it, `9a 39 01 00`,
-are its immediate, 80,282 read little-endian. Without the bitmask the same sixteen
-bytes could be sliced a dozen ways.
+The gaps between the bytes are the bitmask's doing: without it, the same sixteen bytes could
+be sliced a dozen ways.
 
 **Run**
 

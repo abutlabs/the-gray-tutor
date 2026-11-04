@@ -341,7 +341,7 @@ reported 569 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ## Watch it
 
 **What flows through it.** Service 0, the registrar, is told to create a service with 1,000
-bytes of code and give it 500. One run, three faces:
+bytes of code and give it 500:
 
 ::: code-group
 
@@ -392,10 +392,9 @@ the service stops: "halt", using 196983 gas
 
 :::
 
-The output's bytes carry the order: the code's hash `c0f2ef8d…`, its length `e803`
-(1,000), then the rest. Service 0 is the registrar and asks for id 5, so it gets id 5,
-pays the new account's 1,201 minimum, and sends it 500 more: the vector's service 5
-ends the block with 1,701, and service 0 with 1,126,013.
+Service 0 is the registrar and asks for id 5, so it gets id 5, pays the new account's 1,201
+minimum, and sends it 500 more: the vector's service 5 ends the block with 1,701, and
+service 0 with 1,126,013.
 
 **Run**
 
@@ -424,8 +423,7 @@ the test vector says: 196983
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791740247569
 ```
 
-Service 0, the registrar, creates service 5 (its choice of id), then sends it 500 as an
-endowment. The new service has no code to run yet, so in round 2 it just receives the money:
+The new service has no code to run yet, so in round 2 it just receives the money:
 `npm run accumulate` on the same vector shows it with one transfer and no gas.
 
 <details>

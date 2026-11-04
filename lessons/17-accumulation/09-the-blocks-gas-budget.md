@@ -438,7 +438,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** Two reports that can't share a round: the first asks for the
-whole budget. One run, three faces:
+whole budget:
 
 ::: code-group
 
@@ -511,10 +511,8 @@ service 2: 1 digest(s), 0 transfer(s), 0 gas
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791769474334
 ```
 
-Two rounds, one report each: the budget at work. [Lesson 17.4](./04-rounds.md)'s gift shows the other way
-to a second round, `rounds: 2, taking 1, then 0 report(s)`, round 2 being for the transfer
-alone. The *Accumulate* panel, on **7 · Accumulation and import**, has the rounds on the
-block's line.
+[Lesson 17.4](./04-rounds.md)'s gift shows the other way to a second round: a transfer alone.
+The *Accumulate* panel, on **7 · Accumulation and import**, has the rounds on the block's line.
 
 ![Accumulate panel](./images/09-accumulate.png)
 

@@ -305,7 +305,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One block's three faces — the extrinsic going in, the tally
+**What flows through it.** The extrinsic going in, the tally
 moves the program derives, the lines it prints:
 
 ::: code-group
@@ -344,7 +344,7 @@ validator 1: fresh → 1 2 3 51 1 0
 
 :::
 
-Read the input into the output: slot 123455 to 123456 crosses an epoch boundary (12
+Slot 123455 to 123456 crosses an epoch boundary (12
 slots an epoch on tiny), so every row starts `fresh`. The author, validator 1, collects
 the block, both tickets and all three preimages — 51 bytes between them — plus the
 guarantee it co-signed; validators 0, 2 and 3 each get their guarantee; and the two
@@ -370,10 +370,7 @@ validator 5: fresh → 0 0 0 0 0 0
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=statistics-1791740888363
 ```
 
-The first block of a new epoch: every tally starts fresh, the author, validator 1, gets its
-block, its 2 tickets and its 3 preimages of 51 bytes, and the four validators who signed
-guarantees get one each. The block's assurances aren't there: they went into the tally that
-just closed. The *Validator statistics* panel keeps the table.
+The *Validator statistics* panel keeps the table.
 
 ![Validator statistics panel](./images/01-validator-statistics.png)
 

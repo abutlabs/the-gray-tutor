@@ -419,7 +419,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** The same block as [lesson 17.3](./03-sending-a-transfer.md)'s, this time whole: one
-report for service 0, nothing waiting, and service 1 there to receive. One run, three faces:
+report for service 0, nothing waiting, and service 1 there to receive:
 
 ::: code-group
 
@@ -464,11 +464,9 @@ service 1: 0 digest(s), 1 transfer(s), 61711 gas
 
 :::
 
-The one report goes straight to accumulation, since nothing waits ahead of it. Round 1
-runs service 0, which sends the transfer; round 2 delivers it, the 100 into service 1's
-balance first, then service 1's code on its one transfer input; round 3 would have
-nothing to run, so there isn't one. Each service's line is its statistics, next to the
-vector's.
+Round 1 runs service 0, which sends the transfer. Round 2 delivers it: the 100 into service
+1's balance first, then service 1's code on its one transfer input. Round 3 would have
+nothing to run, so there isn't one.
 
 **Run**
 
@@ -488,9 +486,7 @@ service 1: 0 digest(s), 1 transfer(s), 61711 gas
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791739188404
 ```
 
-Two services, two rounds: service 0 with its one digest in round 1, service 1 with its
-one transfer in round 2. Each line next to the vector's, in the *Accumulate* panel on
-**7 · Accumulation and import**.
+Each service's line is next to the vector's in the *Accumulate* panel, on **7 · Accumulation and import**.
 
 ![Accumulate panel](./images/04-accumulate.png)
 

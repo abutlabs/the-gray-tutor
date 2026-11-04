@@ -348,7 +348,6 @@ service 1730: 1 digest(s), 34413 gas
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791738806530
 ```
 
-Two services in one round, each writing its own key, each using exactly the vector's gas.
 Try `npm run accumulate ../vectors/stf/accumulate/tiny/same_code_different_services-1.json`:
 service 1730 has a digest but no code of its own, so it shows 1 digest and 0 gas, just as
 the vector does. The *Accumulate* panel, on the **7 · Accumulation and import** dashboard (where all of

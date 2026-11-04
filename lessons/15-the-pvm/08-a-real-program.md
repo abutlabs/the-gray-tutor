@@ -341,8 +341,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the code and arguments going in, the
-world Y builds for them, and the lines printed. Tab across them:
+**What flows through it.** The code and arguments going in, the
+world Y builds for them, and the lines printed:
 
 ::: code-group
 
@@ -370,12 +370,6 @@ the machine stops: {"host":2}, with r10 = 0
 ```
 
 :::
-
-Read the input into the output: the three argument bytes end up in memory at
-`0xfeff0000`, and r7 and r8 point the program at them — address and length. r0 holds
-the halt address, r1 the top of Y's stack. Thirty-eight steps later the program asks
-the host its first question, `ecalli 2`, and everything it knows it read from those
-pages.
 
 **Run**
 

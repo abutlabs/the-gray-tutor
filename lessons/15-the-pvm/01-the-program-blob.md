@@ -277,8 +277,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the state entry holding the code, the
-layers the program peels from it, and the lines it prints. Tab across them:
+**What flows through it.** The state entry holding the code, the
+layers the program peels from it, and the lines it prints:
 
 ::: code-group
 
@@ -313,10 +313,9 @@ the code preimage: 159322 bytes
 
 :::
 
-Read the input by eye before the program does: the value opens `0x50`, which is 80, the
-metadata's length — and a few bytes later `6a 61 6d…` is ASCII for `jam-bootstrap-service`.
-Everything the output lists is sliced from that one state entry, layer by layer, down to
-the bitmask that says where instructions start.
+The value opens with the metadata's length, 80, and a few bytes later comes
+`jam-bootstrap-service` in ASCII. Everything the output lists is sliced from that one state
+entry, layer by layer, down to the bitmask that says where instructions start.
 
 **Run**
 

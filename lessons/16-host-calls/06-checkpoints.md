@@ -376,10 +376,6 @@ the test vector says: 16417
 
 :::
 
-The vector is still `../vectors/stf/accumulate/tiny/always_accumulate-1.json`.
-Nothing in the conversation changes; the frame around it does. Ψ_A builds the arguments,
-keeps X and Y, and because the service halts, keeps X. Its gas used is the same 16,417.
-
 **Run**
 
 ```sh
@@ -399,11 +395,11 @@ the test vector says: 16417
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791738276309
 ```
 
-The same conversation as [lesson 16.3](./03-growing-the-heap.md), through Ψ_A now. And across the accumulate vectors,
-the services that stopped at `checkpoint` go on to ask for something new, one family of
-vectors each: `bless`, `assign` and `designate` (privileges), `new`, `upgrade`, `eject` and
-`transfer` (services), `lookup`, `solicit`, `query` and `provide` (preimages), and `yield`.
-That's the rest of the host's job.
+The same conversation as [lesson 16.3](./03-growing-the-heap.md), through Ψ_A now: the service
+halts, so X is kept. And across the accumulate vectors, the services that stopped at
+`checkpoint` go on to ask for something new, one family of vectors each: `bless`, `assign`
+and `designate` (privileges), `new`, `upgrade`, `eject` and `transfer` (services), `lookup`,
+`solicit`, `query` and `provide` (preimages), and `yield`. That's the rest of the host's job.
 
 <details>
 <summary>lasair: the checkpoint, in <code>lib/pvm_host.ml</code></summary>

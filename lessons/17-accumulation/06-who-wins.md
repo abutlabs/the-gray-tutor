@@ -470,7 +470,7 @@ for (const [s, { count, transfers, gasUsed }] of statistics) {
 one block, with no blank line in it.)
 
 **What flows through it.** [Lesson 17.5](./05-privileges.md)'s hand-over, run as a whole block, so the merge
-has its say. Service 0 is the manager and holds both cores. One run, three faces:
+has its say. Service 0 is the manager and holds both cores:
 
 ::: code-group
 
@@ -530,8 +530,7 @@ service 0: 1 digest(s), 0 transfer(s), 1308944 gas
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791739226282
 ```
 
-Service 0 held both cores, gave core 0 to service 1, and the block agrees: core 0's
-assigner is 1 now. The *Accumulate* panel shows the assigners on the block's line.
+The *Accumulate* panel shows the assigners on the block's line.
 
 ![Accumulate panel](./images/06-accumulate.png)
 

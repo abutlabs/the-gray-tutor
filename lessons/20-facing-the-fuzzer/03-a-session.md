@@ -168,7 +168,7 @@ may not be listening yet.
 
 ## Run a session
 
-**What flows through it.** The three faces of a session — the trace replayed as
+**What flows through it.** The trace replayed as
 `fuzz-proto` messages going down the socket, what the fuzzer tracks, the lines it prints:
 
 ::: code-group
@@ -198,12 +198,6 @@ initialize: the genesis root
 ```
 
 :::
-
-Read the input into the output: `peer_info` comes back with the target's name, the
-first line. `initialize` hands over genesis whole, and the target's answering
-`state_root` must be the genesis root, `0x7cbff2a9…` — the second line. Then a hundred
-`import_block` messages, each answered with the root the trace promises — or, for the three
-blocks built to be refused, an `error` — and the last line counts them all matched.
 
 **Run**
 

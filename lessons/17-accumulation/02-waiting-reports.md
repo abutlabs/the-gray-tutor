@@ -445,8 +445,7 @@ service 1729: 2 digest(s), 40441 gas
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791738817098
 ```
 
-A comes in, D was waiting for it, both go, nobody's left waiting, and service 1729's two
-digests use exactly the vector's gas. Try the chains:
+Try the chains:
 `npm run accumulate ../vectors/stf/accumulate/tiny/enqueue_and_unlock_chain-4.json`.
 The *Accumulate* panel, on **7 · Accumulation and import**, shows each block's line, then its services.
 

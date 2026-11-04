@@ -304,9 +304,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the same basic block going in as
-[lesson 15.9](./09-what-instructions-cost.md) priced, the model CPU's buffer mid-flight, and the lines printed. Tab
-across them:
+**What flows through it.** The same basic block going in as
+[lesson 15.9](./09-what-instructions-cost.md) priced, the model CPU's buffer mid-flight, and the lines printed:
 
 ::: code-group
 
@@ -332,11 +331,6 @@ the block at 92078 costs 26 gas
 ```
 
 :::
-
-Read the input into the output: the block's seven instructions become five columns (the
-two `move_reg` instructions cost nothing and never enter the buffer). Each printed row is the buffer in
-one cycle where something changed, and the gas at the end is the cycle count the whole
-dance took — the pipeline's price, not the sum of the price tags.
 
 **Run**
 

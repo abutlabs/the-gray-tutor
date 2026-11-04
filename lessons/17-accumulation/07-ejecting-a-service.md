@@ -352,7 +352,7 @@ reported 561 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 No new program: `bin/host.ts` already names every call.
 
 **What flows through it.** Service 0's work orders it to eject service 2, which named service 0
-as its ejector long ago. One run, three faces:
+as its ejector long ago:
 
 ::: code-group
 
@@ -427,9 +427,7 @@ the test vector says: 151715
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791740212297
 ```
 
-Service 0 ejects service 2 (`OK`), using exactly the vector's gas. The *Host calls* panel,
-on **7 · Accumulation and import**,
-has the call by name, and `npm run accumulate` on the same vector shows the block.
+It uses exactly the vector's gas. The *Host calls* panel, on **7 · Accumulation and import**, has the call by name.
 
 ![Host calls panel](./images/07-host-calls.png)
 

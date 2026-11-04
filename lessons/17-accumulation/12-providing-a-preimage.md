@@ -492,8 +492,7 @@ reported 581 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ## Watch it
 
 **What flows through it.** Two vectors, one difference: whom service 0 provides the bytes to.
-The first, with service 1729's waiting request; the second is the same but for one id.
-Two runs, three faces:
+The first, with service 1729's waiting request; the second is the same but for one id:
 
 ::: code-group
 
@@ -543,11 +542,6 @@ the test vector says: 138939
 ```
 
 :::
-
-The work output names the target and the bytes: `00000000` (service 0) then `08` and
-`7072…` ("preimage"). Service 0 has no request for them, so `HUH`. In the second vector
-the target is `c1060000`, 1729, whose request for exactly that hash and length is `[]`:
-`OK`, and at the end of the round the bytes land and the request reads `[44]`.
 
 **Run**
 

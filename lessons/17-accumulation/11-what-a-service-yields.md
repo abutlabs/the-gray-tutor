@@ -732,7 +732,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** A new report for service 1, and one for service 2 that has been
-waiting on it in the queue. One run, three faces:
+waiting on it in the queue:
 
 ::: code-group
 
@@ -799,8 +799,7 @@ service 2: 1 digest(s), 0 transfer(s), 0 gas
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791769522327
 ```
 
-Service 1 yields; the root is the vector's. The *Accumulate* panel, on **7 · Accumulation
-and import**, shows the outputs and the root on the block's line.
+The *Accumulate* panel, on **7 · Accumulation and import**, shows the outputs and the root on the block's line.
 
 ![Accumulate panel](./images/11-accumulate.png)
 

@@ -301,9 +301,7 @@ service 0: 1 input(s), 2000000 gas, "halt"
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=accumulate-1791738519670
 ```
 
-The bin from [lesson 16.7](./07-a-services-inputs.md) needs no change: point it at the new vector, and service 0's gas
-lines up with the vector's. The *Accumulate* panel, on **7 · Accumulation and import**, shows it beside the
-others.
+The *Accumulate* panel, on **7 · Accumulation and import**, shows it beside the others.
 
 ![Accumulate panel](./images/08-accumulate.png)
 

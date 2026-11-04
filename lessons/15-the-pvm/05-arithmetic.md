@@ -423,7 +423,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — a one-instruction program going in,
+**What flows through it.** A one-instruction program going in,
 the bits it leaves in r2, and the line printed. Here is the −7 ÷ 2 case:
 
 ::: code-group
@@ -449,10 +449,7 @@ div_s_64       −7 ÷ 2: towards zero             0xfffffffffffffffd = -3
 
 :::
 
-Read the input into the output: the operand byte `0x10` packs the sources, r0 and r1,
-and the `2` names the destination, r2. One `step` runs the division; the program prints
-r2 twice, as raw bits and as a signed number, which is the whole lesson of this table —
-same bits, two readings.
+The program prints r2 twice, as raw bits and as a signed number: same bits, two readings.
 
 **Run**
 

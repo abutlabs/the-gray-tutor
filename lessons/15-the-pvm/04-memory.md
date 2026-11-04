@@ -329,8 +329,8 @@ const link = await report.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the page and registers going in, the
-memory and registers after, and the lines printed. Tab across them:
+**What flows through it.** The page and registers going in, the
+memory and registers after, and the lines printed:
 
 ::: code-group
 
@@ -359,7 +359,7 @@ load from 0x30005, where there's no page: a fault at 0x30000
 
 :::
 
-Read the input into the output: r2's value goes to memory lowest byte first, so the
+r2's value goes to memory lowest byte first, so the
 page reads backwards; loading 8 bytes undoes the reversal, loading 1 byte picks up
 `0x80` alone and sign-extends it to −128. The second machine's address has no page
 behind it, and the fault names the page's start, 0x30000, not the byte it reached for.
@@ -381,10 +381,7 @@ load from 0x30005, where there's no page: a fault at 0x30000
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=memory-1791736626608
 ```
 
-Look at the page after the store: `0x8077665544332211`, the register's bytes *backwards*.
-That's little-endian, lowest byte first, so the byte at 0x20000 is 0x80, which is why
-loading it as a signed byte gives −128. And the fault names 0x30000, the start of the
-missing page, not 0x30005. The *Memory* panel, on **6 · The PVM**, has the run.
+The *Memory* panel, on **6 · The PVM**, has the run.
 
 ![Memory panel](./images/04-memory.png)
 

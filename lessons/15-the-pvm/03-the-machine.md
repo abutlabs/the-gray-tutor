@@ -367,9 +367,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the program going in (no file this
-time: it's written in the bin itself), the machine mid-loop, and the lines printed. Tab
-across them:
+**What flows through it.** The program going in (no file this
+time: it's written in the bin itself), the machine mid-loop, and the lines printed:
 
 ::: code-group
 
@@ -402,11 +401,6 @@ the machine stops: halt, with r2 = 55
 
 :::
 
-Read the input into the output: each step decodes one instruction at `pc`, runs it, and
-prints only the registers it changed — so the loop reads as r2 climbing while r3 falls.
-The last `jump_ind` adds 0 to r0, which `newMachine` set to the halt address at the
-start, and the machine stops with the answer, 10 + 9 + … + 1 = 55, sitting in r2.
-
 **Run**
 
 ```sh
@@ -433,10 +427,9 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 34 steps: two loads, the fallthrough, ten trips round the loop at three instructions
-each, and the return. Each step shows only the registers it changed, which is why step 1
-shows none: it loads 0 into r2, which already held 0. Watch r2 climb, 10, 19, 27…, and
-r3 count down to 0. The *PVM run* panel, on **6 · The PVM**, has every step, with the
-registers each one changed.
+each, and the return, which jumps to the halt address r0 has held from the start. Each step
+shows only the registers it changed: watch r2 climb, 10, 19, 27…, to 55, and r3 count down
+to 0. The *PVM run* panel, on **6 · The PVM**, has every step.
 
 ![PVM run panel](./images/03-pvm-run.png)
 

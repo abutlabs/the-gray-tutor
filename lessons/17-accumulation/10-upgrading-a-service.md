@@ -242,7 +242,7 @@ reported 573 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ## Watch it
 
 **What flows through it.** Service 0's work carries its new code's hash and two new least
-gases. One run, three faces:
+gases:
 
 ::: code-group
 
@@ -282,10 +282,9 @@ the test vector says: 139939
 
 :::
 
-The output's bytes hold the order: the new code's hash `c0f2ef8d…`, then `7b00…` (123)
-and 456. The service's code puts the hash in memory and the two gases in φ₈ and φ₉, and
-`upgrade` swaps all three into its record: the vector's state after the block has
-`0xc0f2…`, 123 and 456 where `0xdd0e…`, 10 and 10 were.
+The service's code puts the new hash in memory and the two gases in φ₈ and φ₉, and `upgrade`
+swaps all three into its record: `0xc0f2…`, 123 and 456 where `0xdd0e…`, 10 and 10 were, as in
+the vector's state after the block.
 
 **Run**
 
@@ -303,9 +302,7 @@ the test vector says: 139939
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791769501847
 ```
 
-Call 20 answers 0, `OK`, and service 0 uses exactly the vector's gas. Its new code hash is
-in the *Host calls* panel's run too, on **7 · Accumulation and import**: the vector's
-post-state has `0xc0f2…`, with 123 and 456 as its least gases.
+It uses exactly the vector's gas. The *Host calls* panel, on **7 · Accumulation and import**, has the run.
 
 <details>
 <summary>lasair: <code>upgrade</code>, in <code>lib/pvm_host.ml</code></summary>

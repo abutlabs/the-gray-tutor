@@ -279,7 +279,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** This program reads no vector — its input is `STEPS`, the
-dependency table you just wrote. The three faces of its run:
+dependency table you just wrote:
 
 ::: code-group
 
@@ -306,11 +306,9 @@ wave 2:
 
 :::
 
-Read the input into the output: a step's `from` is everything it's made of; `waves`
-seats a step as soon as every name in its `from` exists, so τ′ (made only from H, the
-header) runs in wave 1, while γ′ — whose `from` names η′, κ′ and ψ′, all wave-1 products
-— must wait for wave 2. The printed plan is just that seating order, with each step's
-lesson beside it.
+A step's `from` is everything it's made of, and `waves` seats it as soon as all of that
+exists. So τ′, made only from the header, runs in wave 1, while γ′, which needs η′, κ′ and
+ψ′, waits for wave 2.
 
 **Run**
 

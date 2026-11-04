@@ -316,8 +316,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — sixteen tiny programs going in, one
-comparison's two readings, and the lines printed. Tab across them:
+**What flows through it.** Sixteen tiny programs going in, one
+comparison's two readings, and the lines printed:
 
 ::: code-group
 
@@ -342,11 +342,6 @@ branch_lt_s      jumps
 ```
 
 :::
-
-Read the input into the output: every program holds the same two values; only the
-opcode changes. After one `step` the program checks where the machine stands — on byte
-5 the branch jumped, just past it the branch fell through — and the signed and unsigned
-twins split exactly where reading the bits differently changes the answer.
 
 **Run**
 

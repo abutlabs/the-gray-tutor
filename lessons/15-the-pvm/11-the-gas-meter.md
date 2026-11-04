@@ -234,9 +234,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the same start as [lesson 15.8](./08-a-real-program.md)'s
-going in, twice with different budgets, the meter's arithmetic, and the lines printed.
-Tab across them:
+**What flows through it.** The same start as [lesson 15.8](./08-a-real-program.md)'s
+going in, twice with different budgets, the meter's arithmetic, and the lines printed:
 
 ::: code-group
 
@@ -262,12 +261,6 @@ const computed = {
 ```
 
 :::
-
-Read the input into the output: gas is charged a basic block at a time, as the machine
-*enters* the block, at the pipeline's price — 26 is [lesson 15.10](./10-the-pipeline.md)'s number. With 1000
-the run reaches its host call having spent 243; with 100 it pays for three blocks,
-stands at the fourth with 32 in hand against a bill of 73, and stops: out of gas, at
-the door.
 
 **Run**
 

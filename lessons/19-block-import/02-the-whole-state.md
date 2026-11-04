@@ -356,7 +356,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The three faces of the run — the trace's raw key-value
+**What flows through it.** The trace's raw key-value
 pairs going in, the state the program reads out of them, its terminal lines:
 
 ::: code-group
@@ -387,11 +387,7 @@ service 0: balance 18446744073709551615, 154 entries
 
 :::
 
-Read the input into the output: the first pair's key starts `0x0b` — the byte 11, so
-it's C(11), τ, and its 4-byte value `0x31000000` is 49 little-endian, the slot before
-block 50. The second key starts with a `0x00` marker pattern instead: one of service
-0's own 154 entries. The program's last line is the point: 16 components plus the
-accounts explain all 171 pairs, with nothing left over.
+The program's last line is the point: 16 components plus the accounts explain all 171 pairs, with nothing left over.
 
 **Run**
 

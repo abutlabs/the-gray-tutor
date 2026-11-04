@@ -467,9 +467,6 @@ service 0: 1 input(s), 2000000 gas, "halt"
 
 :::
 
-The length in the operand is 2^32, and a blob can't be that long: HUH, no request filed,
-and the service goes on to halt on the vector's 133,691 gas.
-
 **Run**
 
 ```sh

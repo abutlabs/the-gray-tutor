@@ -386,11 +386,6 @@ host call 1 (grow_heap): φ₇ = WHAT, 98003 gas left
 
 :::
 
-The vector is the bin's own, `../vectors/stf/accumulate/tiny/always_accumulate-1.json`.
-The service asks for item 0 with no room, learns it is 122 bytes for a flat 390 gas, and
-asks again at 206,752 with room for all of it. `grow_heap` your host doesn't know yet:
-WHAT, and 1,000 gas, which is where this run's gas parts from the vector's.
-
 **Run**
 
 ```sh

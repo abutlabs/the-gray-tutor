@@ -372,7 +372,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The three faces of the guarantees run — the two reports'
+**What flows through it.** The two reports'
 refine loads going in, the tallies the program adds up, its terminal lines:
 
 ::: code-group
@@ -412,11 +412,8 @@ service 42: refinement_count 2, refinement_gas_used 1518, imports 9, extrinsic_c
 
 :::
 
-Read the input into the output: each core's line is its own report's `refine_load` plus
-the `package_spec.length` as `bundle_size`, kept apart; service 42's line is the same
-two loads *added*, because both reports carry its work — 821 + 697 = 1518 gas, 8 + 1 = 9
-imports, 1526 + 1926 = 3452 extrinsic bytes, 17 + 18 = 35 exports. One block, two views:
-per core, and per service.
+Each core's line is its own report's work, kept apart. Service 42's line is the same two
+reports *added*, because both carry its work: 821 + 697 = 1518 gas. One block, two views.
 
 **Run**
 
@@ -432,10 +429,7 @@ service 42: refinement_count 2, refinement_gas_used 1518, imports 9, extrinsic_c
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=activity-1791740914594
 ```
 
-A block of two guarantees, one report for each core, both for service 42. Each core's
-card shows its own report's work. Service 42's card shows both reports' work added up:
-821 + 697 = 1518 gas. Now a block of assurances. This time the program reads no guarantees:
-it reads the assurances and the report they made available.
+Now a block of assurances. This time the program reads the assurances and the report they made available.
 
 ::: code-group
 

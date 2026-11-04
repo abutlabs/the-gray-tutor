@@ -537,7 +537,7 @@ used above the line it's written on.
 (Its `const` cousins can't.)
 
 **What flows through it.** Service 0 holds core 0's assignment, and its work tells it to hand
-the core to service 1. One run, three faces:
+the core to service 1:
 
 ::: code-group
 
@@ -659,9 +659,7 @@ the test vector says: 1305017
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791739204669
 ```
 
-The first service holds core 0 and hands it over: φ₇ = 0, `OK`. The second isn't core
-0's assigner, so it gets `HUH`, and its code, written to expect that, carries on. Both
-runs in the *Host calls* panel, on **7 · Accumulation and import**, answers by name.
+Both runs are in the *Host calls* panel, on **7 · Accumulation and import**, answers by name.
 
 ![Host calls panel](./images/05-host-calls.png)
 

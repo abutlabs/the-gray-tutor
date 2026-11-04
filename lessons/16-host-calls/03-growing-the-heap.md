@@ -319,11 +319,6 @@ the test vector says: 16417
 
 :::
 
-The vector is still the bin's own, `../vectors/stf/accumulate/tiny/always_accumulate-1.json`.
-Page 51 asked for, page 51 already the end: the call changes nothing and costs 275, not an
-unknown call's 1,000. Twice that saving is the 1,450 [lesson 16.2](./02-fetch.md) was missing, and the total
-lands on the vector's 16,417.
-
 **Run**
 
 ```sh

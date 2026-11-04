@@ -730,9 +730,7 @@ the test vector says: 507819
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=host-1791769574399
 ```
 
-Service 1 blesses (`OK`, the vectors' rule), and service 0 tries to designate a number of
-validators tiny can't have (`HUH`). Both use exactly the vector's gas. The *Host calls*
-panel shows the two runs.
+Both use exactly the vector's gas. The *Host calls* panel shows the two runs.
 
 ## The scoreboard
 

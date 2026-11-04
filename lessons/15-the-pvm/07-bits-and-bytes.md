@@ -223,8 +223,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — one number going in, one
-instruction's answer, and the lines printed. Tab across them:
+**What flows through it.** One number going in, one
+instruction's answer, and the lines printed:
 
 ::: code-group
 
@@ -248,11 +248,6 @@ sign_extend_8          0xfffffffffffffff0 = -16
 ```
 
 :::
-
-Read the input into the output: every program starts from the same r0 and runs one
-`step`; only the opcode differs. `sign_extend_8` looks at nothing but the lowest byte,
-`0xf0`, sees its top bit set, and copies that bit up through all 64 — the whole
-register becomes −16, however big r0 was.
 
 **Run**
 

@@ -317,8 +317,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — a basic block going in, one
-instruction's price tag, and the lines printed. Tab across them:
+**What flows through it.** A basic block going in, one
+instruction's price tag, and the lines printed:
 
 ::: code-group
 
@@ -345,9 +345,8 @@ store_ind_u64    cycles  25  slots 1  ALU+store
 
 :::
 
-Read the input into the output: the program only needs the code — no machine runs here.
-It walks the block instruction by instruction, prices each one (cycles, decode slots,
-the execution units it would occupy), and stops where the next basic block begins.
+No machine runs here: the program only needs the code. It prices each instruction, and stops
+where the next basic block begins.
 
 **Run**
 

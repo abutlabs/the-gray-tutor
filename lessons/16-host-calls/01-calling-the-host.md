@@ -242,7 +242,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the vector going in, what the program
+**What flows through it.** The vector going in, what the program
 builds from it, the lines the terminal prints:
 
 ::: code-group
@@ -278,12 +278,6 @@ the service stops: "panic", with 98733 gas left
 ```
 
 :::
-
-Read the input into the output: the account's `code_hash` picks the 19,049-byte blob out
-of its own `preimage_blobs` (same hash — a service holds its code as a preimage of
-itself), `slot` and `id` become the argument bytes, and the machine starts with the
-100,000 gas. The output's one host call is number 2, `fetch` — which this lesson's host
-doesn't know, so WHAT — and the service, refused, panics with 98,733 gas unspent.
 
 **Run**
 

@@ -589,7 +589,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The three faces of the run, at its first block — after this
+**What flows through it.** Its first block: after this
 one, the trace's states are never touched again, only its blocks:
 
 ::: code-group
@@ -626,11 +626,9 @@ block 1, slot 1: imported; root 0x48dc323d… = the trace's
 
 :::
 
-Read the input into the output: the header's checks pass (its `parent_state_root`
-fingerprints the 21-pair pre-state your client holds), the empty extrinsic flows through
-every wave, and the root your client computes from its *own* new state — `0x48dc323d…`
-— must equal the trace's `post_state.state_root`. From block 2 on, the comparison is the
-only thing taken from the trace: the state is yours.
+The header's checks pass, the empty extrinsic flows through every wave, and the root your
+client works out from its *own* new state must equal the trace's. From block 2 on, that
+comparison is the only thing taken from the trace: the state is yours.
 
 **Run**
 
