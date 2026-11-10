@@ -283,3 +283,57 @@ html.concepts .vp-doc p.snippet-label a { pointer-events: none; }
 .vp-doc .run-widget .vp-code-group { margin: 0 0 10px; }
 /* Concepts only folds code away; a run's tabs stay readable, each as its tab shows it */
 html.concepts .vp-doc .run-widget .vp-code-group div[class*="language-"].active { display: block; }
+
+/* The Gray Paper's own words (../gray-paper.ts fills nothing; tools/gray-paper-text.ts fills
+   the block from the paper's tex): set apart as the paper sets itself, in a serif face, so
+   a reader always knows whose words they are reading. A formula quoted again in a Part's
+   appendix (.again) is quieter: the explanation around it is the tutor's. */
+.vp-doc .gray-paper {
+  --gp-ink: var(--vp-c-text-1);
+  margin: 1.4rem 0;
+  padding: 0.1rem 1.1rem 0.5rem;
+  border-left: 4px solid var(--vp-c-text-3);
+  border-radius: 0 8px 8px 0;
+  background-color: var(--vp-c-bg-soft);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+.vp-doc .gray-paper.again { border-left-style: dotted; padding-top: 0.6rem; }
+.vp-doc .gray-paper-says {
+  margin: 0.7rem 0 0;
+  font-family: var(--vp-font-family-base);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-2);
+}
+.vp-doc .gray-paper h4 { margin: 0.3rem 0 0.4rem; font-family: inherit; }
+.vp-doc .gray-paper p { line-height: 1.65; }
+.vp-doc .gray-paper table { font-size: 0.85em; }
+.vp-doc .gray-paper mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; font-size: 1.1em; }
+/* the key under a formula: the tutor's words, so the tutor's face, small */
+.vp-doc .gray-paper .gp-key { font-family: var(--vp-font-family-base); font-size: 0.9em; }
+.vp-doc .gray-paper .gp-key table { margin: 0.4rem 0 0.8rem; }
+.vp-doc .gray-paper .gp-key td:first-child { white-space: nowrap; }
+.vp-doc .gray-paper small.gp-note { display: block; color: var(--vp-c-text-2); }
+/* a word the paper uses that a newcomer may not know: dotted, its meaning on hover or tap
+   (theme/gray-paper.ts) */
+.vp-doc abbr.gp-term { text-decoration: underline dotted var(--vp-c-text-3); text-underline-offset: 3px; cursor: help; }
+.gp-bubble {
+  position: absolute;
+  z-index: 40;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-elv);
+  box-shadow: var(--vp-shadow-3);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--vp-c-text-1);
+}
+.gp-bubble .gp-bubble-say { display: block; color: var(--vp-c-text-2); font-size: 0.78rem; }
+/* a symbol of a formula that has a gloss on this page: hover or tap for it */
+.vp-doc .gray-paper mjx-container .gp-sym { cursor: help; pointer-events: bounding-box; }
+.vp-doc .gray-paper mjx-container .gp-sym:hover { fill: var(--vp-c-brand-1); }
+.vp-doc .gray-paper details.gp-key > summary { cursor: pointer; color: var(--vp-c-text-2); font-size: 0.85em; margin: -0.2rem 0 0.6rem; }

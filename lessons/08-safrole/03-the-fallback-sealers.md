@@ -18,14 +18,64 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§6 (*The Slot-Sealer Sequence*). γ_S holds the sealers of the current epoch, one per
+::: gray-paper 6.5 5-6
+
+#### §6.5 The Slot-Sealer Sequence, continued
+
+<a id="gp-6-5-p5"></a>Finally, $F$ is the fallback key sequence function which selects an epoch's worth of validator Bandersnatch keys ($\left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{\mathsf{E}}$) from the validator key sequence $\mathbf{k}$ using the entropy collected on-chain $r$:
+
+<a id="gp-6-5-p6"></a><a id="eq-6-27"></a>
+
+$$
+\begin{equation}
+F\colon \left\{ \ \begin{aligned}
+\!\left\lgroup\mathbb{H}_{},\,\left[\!\left[\mathbb{K}\right]\!\right]_{}\right\rgroup\! &\to \left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{\mathsf{E}}\\
+\left(r,\, \mathbf{k}\right) &\mapsto \left[
+{\mathbf{k}_{\mathcal{E}^{-1}_{4}\left(\mathcal{H}\left(r \frown \mathcal{E}_{4}\left(i\right)\right)_{\dots 4}\right)}}^\circlearrowleft_{b}
+\;\middle\vert\;
+i \in \mathbb{N}_{\mathsf{E}}
+\right]
+\end{aligned} \right.\!\!\! \tag{6.27}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-valkey" class="gk-wrap">$\mathbb{K}$</span> | K | a validator's key set: 336 bytes holding its Bandersnatch, Ed25519 and BLS keys and its metadata |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-cyclic">${x}^\circlearrowleft$</span> | wrapped around | ↺: the index goes round, counting from 0 again past the end (mod the length) |
+| <span id="gk-decode">[$\mathcal{E}^{-1}\left(x\right)$](../symbols.md#decode)</span> | E inverse of | decoding: bytes back into the value they encode |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-vk-bs">$b$</span> | b | a validator's Bandersnatch key: the first 32 of its 336 bytes |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-epochindex" class="gk-wrap">$\mathbb{N}_{\mathsf{E}}$</span> | N sub E | a slot's place within its epoch: 0 to E − 1 |
+
+</details>
+
+→ [(6.27) in plain words](./gray-paper.md#ex-6-27)
+
+:::
+
+In plain words, §6.5 (*The Slot-Sealer Sequence*). γ_S holds the sealers of the current epoch, one per
 slot, and changes only when a new epoch begins. Then it becomes either the lottery's
-tickets (8.4) or, otherwise, the **fallback** sequence F(η′₂, κ′):
+tickets (8.4) or, otherwise, the **fallback** sequence F(η′₂, κ′), (6.27) above: slot
+i's sealer is the Bandersnatch key of validator ℰ₄⁻¹(H(η′₂ ⌢ ℰ₄(i))₀…₄) of κ′, counted
+round κ′.
 
-> slot i's sealer is the Bandersnatch key of validator ℰ₄⁻¹(H(η′₂ ⌢ ℰ₄(i))₀…₄) of κ′,
-> counted round κ′
-
-In words: for each slot number i, hash η′₂ with i, read the first four bytes as a number,
+Step by step: for each slot number i, hash η′₂ with i, read the first four bytes as a number,
 and take that validator of the *new* active set, wrapping round with `mod`. Two inputs,
 both fixed before the epoch begins: η′₂, randomness from two epochs back ([lesson 8.1](./01-stirring-the-entropy.md)),
 and κ′, the validators who'll be active ([lesson 8.2](./02-rotating-the-validators.md)).

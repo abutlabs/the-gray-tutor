@@ -27,7 +27,7 @@ cores. *Example:* in [Part 15](./15-the-pvm/index.md) you run a real service's c
 ([0.1](./00-start/01-what-you-will-build.md))
 
 **Gray Paper (GP).** JAM's specification: the document that defines every rule, mostly in
-maths. It is still being improved, and new versions change rules; this tutorial follows
+equations. It is still being improved, and new versions change rules; this tutorial follows
 version 0.8.0. *Example:* "§4" is its section 4.
 ([0.1](./00-start/01-what-you-will-build.md))
 
@@ -590,8 +590,17 @@ backed up as any 3 of 6 cards. ([3.3](./03-work-and-reports/03-a-work-report.md)
 **Work-report.** A core's statement about one package: its digests, and enough detail to
 check and fetch everything. ([3.3](./03-work-and-reports/03-a-work-report.md))
 
-**Authorizer.** Code that decides whether a package may use a core at all. Each core keeps
-a small pool of authorizers. ([13.1](./13-authorization/01-the-authorizer-pools.md))
+**Authorizer.** A gatekeeper for a core: a PVM program plus a blob of settings (its
+*configuration*), named by one hash, H(code hash ⌢ configuration). The core's guarantors run
+it in-core on a package and its token before refining; on the chain, its hash must be in
+the core's pool. *Example:* the same code with another public key in its configuration is
+another authorizer. ([13.1](./13-authorization/01-the-authorizer-pools.md))
+
+**Authorization token and trace.** The two blobs round an authorizer: the *token* travels
+in the package, the argument that it may use the core (a signature, say); the *trace* is
+what the authorizer's code produced when it said yes, kept in the report as `auth_output`.
+Both are opaque to the chain: only the authorizer's code reads them. *Example:* token
+`0x0102030405`, trace `0x`. ([13.1](./13-authorization/01-the-authorizer-pools.md))
 
 **Rotation.** R slots (4 on tiny, 10 on full) after which the guarantors move on to the
 next core. *Example:* on tiny, slots 12 to 15 are one rotation.

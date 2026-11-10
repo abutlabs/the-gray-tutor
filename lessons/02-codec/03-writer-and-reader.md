@@ -22,8 +22,50 @@ All three are in the [glossary](../glossary.md).
 ## What the Gray Paper says
 
 Appendix C encodes a structure by putting its parts' encodings one after another:
-*"anonymous tuples ... encoded as the concatenation of their encoded elements"*. A
-Writer does exactly that, and a Reader undoes it, in the same order.
+
+::: gray-paper C.1.1 5-8
+
+#### Appendix C.1.1 Trivial Encodings, continued
+
+<a id="gp-C-1-1-p5"></a>We define anonymous tuples to be encoded as the concatenation of their encoded elements:
+
+<a id="gp-C-1-1-p6"></a><a id="eq-C-3"></a>
+
+$$
+\begin{equation}
+\mathcal{E}_{}\left(\left(a, b, \dots\right)\right) \equiv \mathcal{E}_{}\left(a\right) \frown \mathcal{E}_{}\left(b\right) \frown \dots \tag{C.3}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+
+</details>
+
+→ [(C.3) in plain words](./gray-paper.md#ex-C-3)
+
+<a id="gp-C-1-1-p7"></a>Passing multiple arguments to the <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> functions is equivalent to passing a tuple of those arguments. Formally:
+
+<a id="gp-C-1-1-p8"></a><a id="eq-C-4"></a>
+
+$$
+\begin{align}
+\mathcal{E}_{}\left(a, b, \dots\right) &\equiv \mathcal{E}_{}\left(\left(a, b, \dots\right)\right) \tag{C.4}
+\end{align}
+$$
+
+→ [(C.4) in plain words](./gray-paper.md#ex-C-4)
+
+:::
+
+In plain words: a tuple, a structure of a few parts, is its parts' encodings glued end to
+end, with nothing between them. (C.4) only saves brackets: ℰ(a, b) means the same as
+ℰ((a, b)). A Writer does exactly that gluing, and a Reader undoes it, in the same order.
 
 ## The test
 

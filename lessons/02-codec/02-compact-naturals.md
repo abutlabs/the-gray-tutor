@@ -106,35 +106,54 @@ length.
 Appendix C defines ℰ without a subscript, for any natural below 2^64, in one to nine
 bytes. Here is the table above, in the Gray Paper's words:
 
+::: gray-paper C.1.1 9-10
+
+#### Appendix C.1.1 Trivial Encodings, continued
+
+<a id="gp-C-1-1-p9"></a>We define general natural number <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr>, able to encode naturals of up to $2^{64}$, as:
+
+<a id="gp-C-1-1-p10"></a><a id="eq-C-5"></a>
+
 $$
-\mathcal{E} \colon \left\{
-\begin{aligned}
+\begin{equation}
+\mathcal{E}_{}\colon\left\{ \begin{aligned}
 \mathbb{N}_{2^{64}} &\to \mathbb{B}_{1:9} \\
 x &\mapsto \begin{cases}
-[0] & \text{if } x = 0 \\
-\left[2^8 - 2^{8-l} + \left\lfloor \frac{x}{2^{8l}} \right\rfloor\right] \frown \mathcal{E}_l\left(x \bmod 2^{8l}\right) & \text{if } \exists l \in \mathbb{N}_8 : 2^{7l} \le x < 2^{7(l+1)} \\
-[2^8 - 1] \frown \mathcal{E}_8(x) & \text{otherwise if } x < 2^{64}
+\left[0\right] &\text{if } x = 0 \\
+\left[2^8-2^{8-l} + \left\lfloor\frac{x}{2^{8l}}\right\rfloor\right] \frown \mathcal{E}_{l}\left(x \bmod 2^{8l}\right) &\text{if } \exists l \in \mathbb{N}_8 : 2^{7l} \le x < 2^{7(l+1)} \\
+\left[2^8-1\right] \frown \mathcal{E}_{8}\left(x\right) &\text{otherwise if } x < 2^{64} \\
 \end{cases}
-\end{aligned}
-\right.
+\end{aligned} \right. \tag{C.5}
+\end{equation}
 $$
 
-| Symbol | Say it | Here |
-| --- | --- | --- |
-| [$\mathcal{E}$](../symbols.md#encode) | script E | x in 1 to 9 bytes |
-| [$\mathbb{N}_{2^{64}}$](../symbols.md#naturals) | N sub 2 to the 64 | any whole number below $2^{64}$ |
-| [$\to$](../symbols.md#to) | to | what goes in, to what comes out |
-| [$\mathbb{B}_{1:9}$](../symbols.md#blobs) | B sub 1 to 9 | 1 to 9 bytes |
-| [$\mapsto$](../symbols.md#maps-to) | maps to | x becomes... |
-| [$[\,]$](../symbols.md#sequence) | the sequence | [0] is the one byte 0 |
-| [$\lfloor\,\rfloor$](../symbols.md#floor) | floor | round down |
-| [$\bmod$](../symbols.md#mod) | mod | the remainder |
-| [$\frown$](../symbols.md#concat) | concatenate | followed by |
-| [$\mathcal{E}_l$](../symbols.md#encode-fixed) | E sub l | [lesson 2.1](./01-fixed-width-integers.md)'s fixed width: exactly l bytes |
-| [$\exists$](../symbols.md#exists) | there exists | there is some l... |
-| [$\in$](../symbols.md#in) | in | $l \in \mathbb{N}_8$: l is one of 0 to 7 |
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
 
-Each case is a row of the table above:
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnencode">[$\mathcal{E}$](../symbols.md#encode)</span> | E | the codec: a value in, its bytes out; a number alone, as a compact natural of 1 to 9 bytes |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-ffrac">$\left\lfloor\frac{x}{y}\right\rfloor$</span> | x over y, rounded down | whole-number division, the remainder dropped: ⌊7/3⌋ is 2 |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+
+</details>
+
+→ [(C.5) in plain words](./gray-paper.md#ex-C-5)
+
+:::
+
+In plain words, each case of (C.5) is a row of the table above:
 
 - **x = 0** is the byte 0. It needs a line of its own because the middle case asks for x
   to be at least $2^{7l}$, and for l = 0 that's 1.

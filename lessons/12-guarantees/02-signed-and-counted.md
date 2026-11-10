@@ -1,7 +1,8 @@
 # Signed and counted
 
 A guarantee is a promise with signatures on it: "we ran this work, and this is the
-report". This lesson checks that every signature is real: made with the key of the
+report". The three guarantors made it in-core; checking it is the chain's job, on every
+validator, and that is this lesson: every signature is real, made with the key of the
 validator it names, in the assignment the guarantee answers to. (Whether that validator
 was assigned to the report's core is a check of its own, in [lesson
 12.4](./04-bad-guarantees.md).) Then it writes down who signed: the *reporters*, which the statistics
@@ -16,8 +17,82 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§11 (*Work Report Guarantees*). For each signature (v, s) on a guarantee, with (c, k)
-the assignment the guarantee answers to ([lesson 12.1](./01-who-guarantees-what.md)):
+::: gray-paper 11.4 7-9
+
+#### §11.4 Work Report Guarantees, continued
+
+<a id="gp-11-4-p7"></a>The signature must be one whose public key is that of the validator identified in the credential, and whose message is the <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> of the hash of the work-report. The signing validators must have been assigned to the core in the given timeslot $t$, which must either be in the same rotation as this block's timeslot or in the previous rotation. Use of an inactive core is not permitted even if a timeslot in the previous rotation is used and the core was active then. Formally:
+
+<a id="gp-11-4-p8"></a><a id="eq-11-28"></a><a id="eq-11-29"></a>
+
+$$
+\begin{gather}
+\begin{aligned}
+&\begin{aligned}
+\forall \left(\mathbf{r}, t, a\right) &\in \mathbf{E}_G,\\
+\forall \left(v, s\right) &\in a
+\end{aligned} : \left\{ \,\begin{aligned}
+&v < \left\vert\mathbf{k}\right\vert \wedge \mathbf{c}_{v} = \mathbf{r}_{c} < \frac{\left\vert\kappa'\right\vert}{3}\\
+&s \in \bar{\mathbb{V}}_{(\mathbf{k}_{v})_{e}}\left\langle\mathsf{X}_G\frown\mathcal{H}\left(\mathbf{r}\right)\right\rangle\\
+&\mathsf{R}(\left\lfloor{}^{\tau'}\!/_{\mathsf{R}}\right\rfloor - 1) \le t \le \tau'
+\end{aligned} \right.\\
+&k \in \mathbf{G} \Leftrightarrow \exists \left(\mathbf{r}, t, a\right) \in \mathbf{E}_G, \exists \left(v, s\right) \in a: k = (\mathbf{k}_{v})_{e}\\
+&\quad \text{where } \left(\mathbf{c}, \mathbf{k}\right) = \begin{cases}
+\mathbf{M} &\text{if } \displaystyle \left\lfloor\frac{\tau'}{\mathsf{R}}\right\rfloor = \left\lfloor\frac{t}{\mathsf{R}}\right\rfloor \\
+\mathbf{M}^* &\text{otherwise}
+\end{cases}
+\end{aligned} \tag{11.28} \\
+\mathsf{X}_G \equiv \texttt{\$jam\_guarantee} \tag{11.29}
+\end{gather}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-g-timeslot">$t$</span> | t | a guarantee's timeslot: the slot its guarantors signed it in |
+| <span id="gk-g-credential">$a$</span> | a | a guarantee's credential: two or three pairs of a validator index and its Ed25519 signature |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-wr-core">$c$</span> | c | the core a report's work was done on, 0 to C − 1 |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-edsignature">$\bar{\mathbb{V}}_{x}\left\langle y\right\rangle$</span> | V bar sub k of m | the valid Ed25519 signatures by key k on message m: 64 bytes |
+| <span id="gk-vk-ed">$e$</span> | e | a validator's Ed25519 key: the 32 bytes after its Bandersnatch key |
+| <span id="gk-Xguarantee" class="gk-wrap">$\mathsf{X}_G$</span> | X sub G | the 13 bytes `jam_guarantee`, signed in front of a report's hash to guarantee it |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-Crotationperiod" class="gk-wrap">$\mathsf{R}$</span> | R | how often the guarantors move on to another core: every 10 slots on full, 4 on tiny |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+| <span id="gk-nicefrac">${}^{x}\!/_{y}$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-reporters" class="gk-wrap">$\mathbf{G}$</span> | G | the reporters: the Ed25519 keys of every guarantor who signed a guarantee in this block |
+| <span id="gk-Leftrightarrow">$\Leftrightarrow$</span> | exactly when | if and only if: both sides are true together, or false together |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-guarantorassignments" class="gk-wrap">$\mathbf{M}$</span> | M | the guarantor assignments: each validator's core this rotation, and the validators' keys |
+| <span id="gk-ffrac">$\left\lfloor\frac{x}{y}\right\rfloor$</span> | x over y, rounded down | whole-number division, the remainder dropped: ⌊7/3⌋ is 2 |
+| <span id="gk-guarantorassignmentsunderlastrotation" class="gk-wrap">$\mathbf{M}^*$</span> | M star | the guarantor assignments of the rotation before this one |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+
+</details>
+
+→ [(11.28), (11.29) in plain words](./gray-paper.md#ex-11-28)
+
+<a id="gp-11-4-p9"></a>We note that the Ed25519 key of each validator whose signature is in a credential is placed in the *reporters* set $\mathbf{G}$. This is utilized by the validator activity statistics bookkeeping system section [13](../18-statistics/index.md#gp-13-1-p1).
+
+:::
+
+That one rule, (11.28), holds several checks; [lesson 12.4](./04-bad-guarantees.md) takes the
+ones about who and when. In plain words, the part this lesson takes from §11.4 (*Work
+Report Guarantees*): for each signature (v, s) on a guarantee, with (𝐜, 𝐤) the assignment
+the guarantee answers to ([lesson 12.1](./01-who-guarantees-what.md)):
 
 - s must be the Ed25519 signature of k[v], validator v's key, on `$jam_guarantee` ⌢ H(the
   report). That's the same message a culprit's evidence carries ([lesson 10.2](../10-disputes/02-culprits-and-faults.md)): a
@@ -276,7 +351,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** Two guarantees in one block at slot 18, signed by the *same
-three seats* — one guarantee from this rotation, one made at slot 14, the rotation
+three seats*: one guarantee from this rotation, one made at slot 14, the rotation
 before:
 
 ::: code-group
@@ -311,7 +386,7 @@ core 1: signed by 0xad93247b…, 0x8b8c5d43…, 0xab0084d0…; all real: true
 
 :::
 
-Both guarantees carry `validator_index` 1, 4 and 5 — but each is resolved against the
+Both guarantees carry `validator_index` 1, 4 and 5, but each is resolved against the
 hand of *its own* `slot`, and the two hands seat those numbers on different cores, so
 both check out. Six signatures become three reporters: 𝐆 counts people, not autographs.
 

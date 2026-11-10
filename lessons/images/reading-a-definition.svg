@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 322" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+<style>
+  text { fill: #3c3c43; text-anchor: start; }
+  .title { font-weight: bold; }
+  .small { fill: #67676c; font-size: 12px; }
+  .bytes { fill: #0f766e; }
+  .who { fill: #c2410c; font-size: 12px; }
+  .place { fill: none; stroke: #9a9aa0; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .thing { fill: #e8f0fe; stroke: #5b8def; stroke-width: 1.5; }
+  .code { fill: #e6f6ef; stroke: #3fa97a; stroke-width: 1.5; }
+  .chain { fill: #fdf3e1; stroke: #d19a2a; stroke-width: 1.5; }
+  .line { stroke: #9a9aa0; stroke-width: 1.5; fill: none; }
+  .tip { fill: #9a9aa0; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #dfdfd6; }
+    .small { fill: #a8a8a0; }
+    .bytes { fill: #4fd1c5; }
+    .who { fill: #ff9a5c; }
+    .place { stroke: #6b6b72; }
+    .thing { fill: #1e2a44; stroke: #7aa2f7; }
+    .code { fill: #1b3329; stroke: #4fc08d; }
+    .chain { fill: #3a2e14; stroke: #e0b04a; }
+    .line { stroke: #6b6b72; }
+    .tip { fill: #6b6b72; }
+  }
+</style>
+<text x="16" y="56" font-size="18">ℰ₂ :</text>
+<line class="line" x1="392" y1="50" x2="440" y2="50"/>
+<polygon class="tip" points="440,55 440,45 448,50"/>
+<rect class="thing" x="452" y="18" width="412" height="64" rx="6"/>
+<text class="title" x="464" y="38">The name</text>
+<text class="small" x="464" y="55">what is being defined; the subscript is a</text>
+<text class="small" x="464" y="72">parameter: 2 bytes</text>
+<text x="16" y="132" font-size="18">N₆₅₅₃₆ → B₂</text>
+<line class="line" x1="392" y1="126" x2="440" y2="126"/>
+<polygon class="tip" points="440,131 440,121 448,126"/>
+<rect class="chain" x="452" y="94" width="412" height="64" rx="6"/>
+<text class="title" x="464" y="114">The type line: read it first</text>
+<text class="small" x="464" y="131">what goes in → what comes out: a number below</text>
+<text class="small" x="464" y="148">65,536 in, exactly two bytes out</text>
+<text x="16" y="208" font-size="18">x ↦ [x mod 256] ⌢ ℰ₁(⌊x / 256⌋)</text>
+<line class="line" x1="392" y1="202" x2="440" y2="202"/>
+<polygon class="tip" points="440,207 440,197 448,202"/>
+<rect class="code" x="452" y="170" width="412" height="64" rx="6"/>
+<text class="title" x="464" y="190">The body</text>
+<text class="small" x="464" y="207">what x becomes; with cases, one per line,</text>
+<text class="small" x="464" y="224">and the first whose condition holds applies</text>
+<text x="16" y="284" font-size="18">4,807 ↦ [199] ⌢ ℰ₁(18) = [199, 18]</text>
+<line class="line" x1="392" y1="278" x2="440" y2="278"/>
+<polygon class="tip" points="440,283 440,273 448,278"/>
+<rect class="thing" x="452" y="246" width="412" height="64" rx="6"/>
+<text class="title" x="464" y="266">Work it on a value</text>
+<text class="small" x="464" y="283">4,807 = 18 × 256 + 199, so the bytes are</text>
+<text class="small" x="464" y="300">c7 12: lesson 2.1's first vector</text>
+</svg>

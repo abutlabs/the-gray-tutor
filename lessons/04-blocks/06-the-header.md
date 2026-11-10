@@ -21,7 +21,47 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§5 (*The Header*) defines ten fields, here in the order Appendix C encodes them:
+§5 (*The Header*) opens with its ten fields:
+
+::: gray-paper 5 1-2
+
+#### §5 The Header {#gp-5}
+
+<a id="gp-5-p1"></a>We must first define the header in terms of its components. The header comprises a parent hash and prior state root ($\mathbf{H}_{P}$ and $\mathbf{H}_{R}$), an extrinsic hash $\mathbf{H}_{X}$, a time-slot index $\mathbf{H}_{T}$, the epoch, winning-tickets and offenders markers $\mathbf{H}_{E}$, $\mathbf{H}_{W}$ and $\mathbf{H}_{O}$, a block author index $\mathbf{H}_{I}$ and two Bandersnatch signatures; the entropy-yielding VRF signature $\mathbf{H}_{V}$ and a block seal $\mathbf{H}_{S}$. Headers may be serialized to an <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequence with and without the latter seal component using $\mathcal{E}_{}$ and $\mathcal{E}_{U}$ respectively. Formally:
+
+<a id="gp-5-p2"></a><a id="eq-5-1"></a>
+
+$$
+\begin{equation}
+\mathbf{H} \equiv \left(\mathbf{H}_{P}, \mathbf{H}_{R}, \mathbf{H}_{X}, \mathbf{H}_{T}, \mathbf{H}_{E}, \mathbf{H}_{W}, \mathbf{H}_{O}, \mathbf{H}_{I}, \mathbf{H}_{V}, \mathbf{H}_{S}\right) \tag{5.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-theheader" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk--parent">$P$</span> | P | a header's parent hash: 𝐇_P is the hash of the header before it, 32 bytes |
+| <span id="gk--priorstateroot">$R$</span> | R | a header's prior state root: 𝐇_R is the root of the state before this block, 32 bytes |
+| <span id="gk--extrinsichash">$X$</span> | X | a header's extrinsic hash: 𝐇_X stands for the block's five bags, 32 bytes |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk--epochmark">$E$</span> | E | a header's epoch mark: 𝐇_E, at an epoch's first block only, the next epoch's entropy and validator keys |
+| <span id="gk--winnersmark">$W$</span> | W | a header's winning-tickets mark: 𝐇_W, at most once an epoch, a ticket for every slot of the next (12 on tiny, 600 on full) |
+| <span id="gk--offendersmark">$O$</span> | O | a header's offenders mark: 𝐇_O, the Ed25519 keys of the validators this block convicts |
+| <span id="gk--authorindex">$I$</span> | I | a header's author index: 𝐇_I, which validator made the block, a position in κ′ |
+| <span id="gk--vrfsig">$V$</span> | V | a header's VRF signature: 𝐇_V, 96 bytes of the author's fresh randomness; the vectors' entropy source |
+| <span id="gk--sealsig">$S$</span> | S | a header's seal: 𝐇_S, the author's 96-byte Bandersnatch signature on the rest of the header |
+
+</details>
+
+→ [(5.1) in plain words](./gray-paper.md#ex-5-1)
+
+:::
+
+In plain words, here are the ten, in the order Appendix C encodes them, with the names the
+vectors give them:
 
 | Field | What it says |
 | --- | --- |
@@ -36,7 +76,134 @@ All four are in the [glossary](../glossary.md).
 | `offenders_mark` | the Ed25519 keys of validators newly convicted in disputes ([lesson 4.4](./04-disputes.md)) |
 | `seal` | the author's signature over all of the above |
 
-Two markers that are only sometimes there: that's what `option` is for ([lesson 4.5](./05-maybe-and-exactly-n.md)). And
+(C.22) and (C.23), in [lesson 4.7](./07-the-block.md#eq-C-22), are Appendix C's lines for
+this order: (C.23) is the header without its seal, the bytes the seal signs, and (C.22)
+adds the seal at the end.
+
+§5 gives the slot a rule of its own:
+
+::: gray-paper 5 11-13
+
+#### §5 The Header, continued
+
+<a id="gp-5-p11"></a>A block may only be regarded as valid once the time-slot index $\mathbf{H}_{T}$ is in the past. It is always strictly greater than that of its parent. Formally:
+
+<a id="gp-5-p12"></a><a id="eq-5-8"></a>
+
+$$
+\begin{equation}
+\mathbf{H}_{T} \in \mathbb{N}_T \,,\quad
+P\left(\mathbf{H}\right)_{T} < \mathbf{H}_{T}\ \wedge\ \mathbf{H}_{T}\cdot\mathsf{P} \leq \mathcal{T} \tag{5.8}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-getparent">$P\left(x\right)$</span> | P of | the parent of a header: P(𝐇) is the header of the block before |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+| <span id="gk-Cslotseconds" class="gk-wrap">$\mathsf{P}$</span> | P | a slot's length: 6 seconds |
+| <span id="gk-leq">$\leq$</span> | at most | less than or equal to |
+| <span id="gk-wallclock" class="gk-wrap">$\mathcal{T}$</span> | T | the wall clock: seconds since the JAM Common Era began (2025-01-01 12:00 UTC) |
+
+</details>
+
+→ [(5.8) in plain words](./gray-paper.md#ex-5-8)
+
+<a id="gp-5-p13"></a>Blocks considered invalid by this rule may become valid as $\mathcal{T}$ advances.
+
+:::
+
+In plain words: a block's slot is later than its parent's, and not in the future. Slot
+42 began 42 × 6 = 252 seconds after JAM's clock started
+([lesson 0.4](../00-start/04-the-jam-clock.md)), so a node whose clock reads less than
+that holds the block back, and takes it once its clock catches up. Your client checks the
+first half when it imports blocks ([lesson 19.4](../19-block-import/04-importing-a-block.md#the-code));
+the vectors carry no clock, so nothing in the tutorial checks the second.
+
+And the author, by number:
+
+::: gray-paper 5 17-18
+
+#### §5 The Header, continued
+
+<a id="gp-5-p17"></a>All blocks have an associated public key to identify the author of the block. We identify this as an index into the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> current validator set $\kappa'$. We denote the Bandersnatch key of the author as $\mathbf{H}_{A}$ though note that this is merely an equivalence, and is not serialized as part of the header.
+
+<a id="gp-5-p18"></a><a id="eq-5-10"></a>
+
+$$
+\begin{equation}
+\mathbf{H}_{I} \in \mathbb{N}_{\left\vert\kappa'\right\vert} \,,\quad \mathbf{H}_{A} \equiv \kappa'[\mathbf{H}_{I}]_{b} \tag{5.10}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk--authorbskey">$A$</span> | A | the author's Bandersnatch key: 𝐇_A, looked up in κ′ at 𝐇_I, never written in the header |
+| <span id="gk-vk-bs">$b$</span> | b | a validator's Bandersnatch key: the first 32 of its 336 bytes |
+
+</details>
+
+→ [(5.10) in plain words](./gray-paper.md#ex-5-10)
+
+:::
+
+In plain words, `author_index` is a position in this epoch's validator list: 3 means the
+fourth validator. H_A, its Bandersnatch key, is looked up there, never written in the
+header. Two bytes name the author; the key that checks the seal
+([Part 8](../08-safrole/index.md)) costs nothing to carry.
+
+Last, the three markers:
+
+::: gray-paper 5.1
+
+#### §5.1 The Markers {#gp-5-1}
+
+<a id="gp-5-1-p1"></a>If not $\emptyset$, then the epoch marker specifies key and entropy relevant to the following epoch in case the ticket contest does not complete adequately (a very much unexpected eventuality). Similarly, the winning-tickets marker, if not $\emptyset$, provides the series of 600 slot sealing “tickets” for the next epoch (see the next section). Finally, the offenders marker is the sequence of Ed25519 keys of newly misbehaving validators, to be fully explained in section [10](../10-disputes/index.md#gp-10-p1). Formally:
+
+<a id="gp-5-1-p2"></a><a id="eq-5-11"></a>
+
+$$
+\begin{equation}
+\mathbf{H}_{E} \in \!\left\lgroup\mathbb{H}_{}, \mathbb{H}_{}, \left[\!\left[\!\left\lgroup\overset{\backsim}{\mathbb{H}_{}}, \bar{\mathbb{H}_{}}\right\rgroup\!\right]\!\right]_{\mathbb{V}}\right\rgroup\!\boldsymbol{?}\,,\quad
+\mathbf{H}_{W} \in \left[\!\left[\mathbb{T}\right]\!\right]_{\mathsf{E}}\boldsymbol{?}\,,\quad
+\mathbf{H}_{O} \in \left[\!\left[\bar{\mathbb{H}_{}}\right]\!\right]_{} \tag{5.11}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-valcount" class="gk-wrap">$\mathbb{V}$</span> | V (the set) | the validator counts allowed: multiples of 3 from 6 to 3C, which is 1,023 on full and 6 on tiny |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-edkey" class="gk-wrap">$\bar{\mathbb{H}}$</span> | H bar | an Ed25519 public key: 32 bytes |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-safroleticket" class="gk-wrap">$\mathbb{T}$</span> | T | a ticket: a 32-byte id, and which of its maker's tries it was (its attempt) |
+
+</details>
+
+→ [(5.11) in plain words](./gray-paper.md#ex-5-11)
+
+<a id="gp-5-1-p3"></a>The terms are fully defined in sections [6.6](../08-safrole/05-one-step-of-safrole.md#gp-6-6-p1) and [10](../10-disputes/index.md#gp-10-p1).
+
+:::
+
+In plain words: two markers that are only sometimes there (the ? after their type means
+"or nothing"): that's what `option` is for ([lesson 4.5](./05-maybe-and-exactly-n.md)). And
 the tickets mark holds exactly one ticket per slot of an epoch, E of them, 12 on tiny and
 600 on full, with no length in front: that's `seqN`. The epoch mark's validator list,
 though, *does* carry its length: Gray Paper 0.8.0 lets the validator count change, so the

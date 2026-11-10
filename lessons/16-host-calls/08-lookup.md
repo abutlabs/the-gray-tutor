@@ -12,7 +12,8 @@ preimages to look in: the service's own if φ₇ is its id or 2^64 − 1, otherw
 The 32-byte hash is in memory at φ₈; if it isn't readable, the machine panics. The preimage
 comes out like `fetch`'s items: to φ₉, from byte φ₁₀, at most φ₁₁ bytes, and φ₇ becomes its
 length. A service that doesn't exist, or doesn't have that preimage: NONE. It costs 600,
-plus 248 per KiB asked for.
+plus 248 per KiB asked for. The paper's row, in B.5's table, is explained in
+[16.A](./gray-paper.md#lookup-3).
 
 Reading another service's preimages is fine: preimages are public by nature. Anyone
 holding the data could check it against the hash.
@@ -20,7 +21,7 @@ holding the data could check it against the hash.
 Three questions in one call, answered on real values: the test's "hello, JAM" under
 service 0, and the 8-byte blob service 1729 keeps in the `lookup_foreign_preimage` vector
 (its bytes spell "preimage"). Pick whose, which hash, and the window, and watch φ₇ and the
-gas answer — the gas is for the bytes *asked for*, and it's charged before the preimage is
+gas answer. The gas is for the bytes *asked for*, and it's charged before the preimage is
 even found:
 
 <LookupCall />

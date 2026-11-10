@@ -2,7 +2,9 @@
 
 Back in [lesson 4.4](../04-blocks/04-disputes.md) you decoded disputes: trials held right in the blocks. Now your client
 gets to be the court clerk. When validators challenge a work-report, two thirds of them
-plus one vote on it, and every vote is signed. The clerk's job: check every signature,
+plus one vote on it, and every vote is signed. The voting happened off the chain, by
+validators who re-ran the work; the block carries the signed votes, and the clerk, every
+validator, checks them on the chain. The clerk's job: check every signature,
 count the votes, and record the verdict, *good*, *bad* or *wonky*, in the state for
 good. This lesson is that clerk.
 
@@ -24,7 +26,123 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§10 (*Disputes, Verdicts and Judgments*).
+::: gray-paper 10.2 1-4
+
+#### §10.2 Extrinsic {#gp-10-2}
+
+<a id="gp-10-2-p1"></a>The disputes extrinsic $\mathbf{E}_D$ is functional grouping of three otherwise independent extrinsics. It comprises *verdicts* $\mathbf{E}_V$, *culprits* $\mathbf{E}_C$, and *faults* $\mathbf{E}_F$. Verdicts are a compilation of judgments coming from either the active validator set or the previous epoch's validator set, i.e.  the Ed25519 keys of $\kappa$ or $\lambda$. Culprits and faults are proofs of the misbehavior of one or more validators, respectively either by guaranteeing a work-report found to be invalid, or by signing a judgment found to be in contradiction to a work-report's validity. Both of these are considered a kind of *offense*. Formally:
+
+<a id="gp-10-2-p2"></a><a id="eq-10-2"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\mathbf{E}_D &\equiv \!\left\lgroup\mathbf{E}_V, \mathbf{E}_C, \mathbf{E}_F\right\rgroup\! \\
+\text{where } \mathbf{E}_V &\in \left[\!\left[\!\left\lgroup
+\mathbb{H}_{},
+\left\lfloor\frac{\tau}{\mathsf{E}}\right\rfloor - \mathbb{N}_2,
+\left[\!\left[\!\left\lgroup
+\left\{\,\top, \bot\,\right\},
+\mathbb{N},
+\bar{\mathbb{V}}
+\right\rgroup\!\right]\!\right]_{}
+\right\rgroup\!\right]\!\right]_{:\mathsf{N}_V}\\
+\text{and } \mathbf{E}_C &\in \left[\!\left[\!\left\lgroup\mathbb{H}_{}, \bar{\mathbb{H}_{}}, \bar{\mathbb{V}}\right\rgroup\!\right]\!\right]_{:\mathsf{N}_O} \\
+\text{and } \mathbf{E}_F &\in \left[\!\left[\!\left\lgroup\mathbb{H}_{}, \left\{\,\top,\bot\,\right\}, \bar{\mathbb{H}_{}}, \bar{\mathbb{V}}\right\rgroup\!\right]\!\right]_{:\mathsf{N}_O}
+\end{aligned} \tag{10.2}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xtdisputes" class="gk-wrap">$\mathbf{E}_D$</span> | E sub D | the disputes bag: verdicts, culprits and faults |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-xtverdicts" class="gk-wrap">$\mathbf{E}_V$</span> | E sub V | the block's verdicts: each a report's hash, an epoch, and the judges' signed votes |
+| <span id="gk-xtculprits" class="gk-wrap">$\mathbf{E}_C$</span> | E sub C | the block's culprits: guarantors of a bad report, each with the guarantee they signed |
+| <span id="gk-xtfaults" class="gk-wrap">$\mathbf{E}_F$</span> | E sub F | the block's faults: judges who voted against a verdict, each with the vote they signed |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Cmaxextrinsicverdicts" class="gk-wrap">$\mathsf{N}_V$</span> | N sub V | the most verdicts one block may carry: 16 |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-ffrac">$\left\lfloor\frac{x}{y}\right\rfloor$</span> | x over y, rounded down | whole-number division, the remainder dropped: ⌊7/3⌋ is 2 |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-top">$\top$</span> | top | true |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+| <span id="gk-edsignaturebase" class="gk-wrap">$\bar{\mathbb{V}}$</span> | V bar | an Ed25519 signature: 64 bytes |
+| <span id="gk-Cmaxextrinsicoffenses" class="gk-wrap">$\mathsf{N}_O$</span> | N sub O | the most culprits, and the most faults, one block may carry: 16 each |
+| <span id="gk-edkey" class="gk-wrap">$\bar{\mathbb{H}}$</span> | H bar | an Ed25519 public key: 32 bytes |
+
+</details>
+
+→ [(10.2) in plain words](./gray-paper.md#ex-10-2)
+
+<a id="gp-10-2-p3"></a>The signatures of all judgments must be valid in terms of one of the two allowed validator key-sets, identified by the verdict's second term which must be either the epoch index of the prior state or one less. Each verdict must contain judgments from exactly two-thirds plus one of the identified validators. Formally:
+
+<a id="gp-10-2-p4"></a><a id="eq-10-3"></a><a id="eq-10-4"></a><a id="eq-10-5"></a>
+
+$$
+\begin{gather}
+K(a) \equiv \begin{cases}
+\kappa &\text{if } a = \displaystyle \left\lfloor\frac{\tau}{\mathsf{E}}\right\rfloor\\
+\lambda &\text{otherwise}
+\end{cases} \tag{10.3} \\
+\begin{aligned}
+\forall \left(r, a, \mathbf{j}\right) \in \mathbf{E}_V : \bigwedge &\left\{ \begin{aligned}
+&\left\vert\mathbf{j}\right\vert = \left\lfloor{}^{2}\!/_{3}\left\vert\mathbf{k}\right\vert\right\rfloor + 1 \,,\\
+&\forall \left(v, i, s\right) \in \mathbf{j} :\\
+&\quad i < \left\vert\mathbf{k}\right\vert \wedge s \in \bar{\mathbb{V}}_{\mathbf{k}[i]_{e}}\left\langle\mathsf{X}_{v} \frown r\right\rangle
+\end{aligned} \right.\\
+& \text{where } \mathbf{k} = K(a)
+\end{aligned} \tag{10.4} \\
+\mathsf{X}_\top \equiv \text{{ \texttt{\$jam\_valid}}}\,,\ \mathsf{X}_\bot \equiv \text{{ \texttt{\$jam\_invalid}}} \tag{10.5}
+\end{gather}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xv-epochindex">$a$</span> | a | a verdict's epoch: this epoch's index or the one before, saying whose validators judged |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-xv-reporthash">$r$</span> | r | the hash of the work-report on trial |
+| <span id="gk-xv-judgments" class="gk-wrap">$\mathbf{j}$</span> | bold j | a verdict's judgments: the judges' signed votes, two thirds of the judges plus one |
+| <span id="gk-bigwedge">$\bigwedge$</span> | all of | every one of the conditions under it is true |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+| <span id="gk-twothirds">${}^{2}\!/_{3}$</span> | two thirds | two thirds: ⌊⅔ · 6⌋ + 1 is 5 judgments on tiny, 683 of 1,023 on full |
+| <span id="gk-xvj-validity">$v$</span> | v | a judgment's vote: ⊤ (true) the report is valid, ⊥ (false) it isn't |
+| <span id="gk-xvj-judgeindex">$i$</span> | i | the judge's index in the validator set the verdict's epoch picks |
+| <span id="gk-xvj-signature">$s$</span> | s | the judge's Ed25519 signature on the vote |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-edsignature">$\bar{\mathbb{V}}_{x}\left\langle y\right\rangle$</span> | V bar sub k of m | the valid Ed25519 signatures by key k on message m: 64 bytes |
+| <span id="gk-vk-ed">$e$</span> | e | a validator's Ed25519 key: the 32 bytes after its Bandersnatch key |
+| <span id="gk-Xvalidif">$\mathsf{X}_{x}$</span> | X sub v | the signing prefix for vote v: X sub top for valid, X sub bottom for invalid |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-Xvalid" class="gk-wrap">$\mathsf{X}_\top$</span> | X sub top | the 9 bytes `jam_valid`, signed in front of a report's hash to vote it valid |
+| <span id="gk-Xinvalid" class="gk-wrap">$\mathsf{X}_\bot$</span> | X sub bottom | the 11 bytes `jam_invalid`, signed in front of a report's hash to vote it invalid |
+
+</details>
+
+→ [(10.3), (10.4), (10.5) in plain words](./gray-paper.md#ex-10-3)
+
+:::
+
+In plain words, §10.2 says this, from the top.
+
+**What a block carries.** The disputes extrinsic 𝐄_D is three lists: verdicts 𝐄_V (at
+most N_V = 16), culprits 𝐄_C and faults 𝐄_F (at most N_O = 16 each). A verdict is a
+report's hash r, an epoch index a, and its judgments 𝐣, each a vote v (⊤ valid or ⊥
+invalid), a validator index i and an Ed25519 signature s. Culprits and faults are the
+[next lesson](./02-culprits-and-faults.md)'s.
 
 **Who votes.** A verdict's `age`, its *verdict age*, names an epoch: this one or the one
 before. Its *judges* are κ, the current validators, if the age is the current epoch, and
@@ -34,6 +152,54 @@ before. Its *judges* are κ, the current validators, if the age is the current e
 `$jam_valid` for "this report is good", `$jam_invalid` for "it isn't". The `$` is
 notation, as always: the bytes are `jam_valid` and `jam_invalid`. The prefix is part of
 the message, so a "valid" signature can't be passed off as an "invalid" one.
+
+::: gray-paper 10.2 11-12
+
+#### §10.2 Extrinsic, continued
+
+<a id="gp-10-2-p11"></a>We define $\mathbf{v}$ to derive from the sequence of verdicts introduced in the block's extrinsic. For each verdict, $\mathbf{v}$ contains only the report hash and whether the report is good ($\top$), bad ($\bot$) or wonky ($\emptyset$), which is determined from the sum of positive judgments. We require this sum to be either exactly two-thirds-plus-one, zero or one-third of the validator set indicating, respectively, that the report is good, that it's bad, or that it's wonky.<sup>1</sup> Formally:
+
+<small class="gp-note"><sup>1</sup> This requirement may seem somewhat arbitrary, but these happen to be the decision thresholds for our three possible actions and are acceptable since the security assumptions include the requirement that at least two-thirds-plus-one validators are live ([Burdges et al. 2024](https://eprint.iacr.org/2024/961) discusses the security implications in depth).</small>
+
+<a id="gp-10-2-p12"></a><a id="eq-10-12"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\mathbf{v} &\in \left[\!\left[\left(\mathbb{H}_{}, \left\{\,\top, \bot, \emptyset\,\right\}\right)\right]\!\right]_{} \\
+\mathbf{v} &\equiv \left[
+\left(r, V(a, \mathbf{j})\right)
+\;\middle\vert\;
+\left(r, a, \mathbf{j}\right) \mathrel{\unicode{x2B40}} \mathbf{E}_V
+\right] \\
+V(a, \mathbf{j}) &\equiv \begin{cases}
+\top &\text{if } t = \left\lfloor{}^{2}\!/_{3}\left\vert\mathbf{k}\right\vert\right\rfloor + 1 \\
+\bot &\text{if } t = 0 \\
+\emptyset &\text{if } t = \left\lfloor{}^{1}\!/_{3}\left\vert\mathbf{k}\right\vert\right\rfloor
+\end{cases} \\
+\text{where } t &= \sum_{\left(v, i, s\right) \in \mathbf{j}}\!\!\!\! v \\
+\text{and } \mathbf{k} &= K(a)
+\end{aligned} \tag{10.12}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-verdicts" class="gk-wrap">$\mathbf{v}$</span> | bold v | this block's verdicts boiled down: each report's hash with ⊤ good, ⊥ bad or ∅ wonky |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-onethird">${}^{1}\!/_{3}$</span> | one third | one third: ⌊⅓ · 6⌋ is 2 votes on tiny, 341 on full |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+
+</details>
+
+→ [(10.12) in plain words](./gray-paper.md#ex-10-12)
+
+:::
 
 **What it decides.** A verdict never carries a vote from every judge: it carries exactly
 ⌊2·|K|/3⌋ + 1 of them, a supermajority — 5 of tiny's 6 judges, 683 of full's 1,023.
@@ -101,6 +267,89 @@ that block is accepted, and its verdict is the evidence. What a bad or wonky ver
 removes is the report and, if it was already accumulated, the earlier block that took it
 and every block built on that. A block is refused only when its verdict is malformed: the
 wrong number of votes, or a split that isn't in the table ([lesson 10.4](./04-bad-verdicts.md)).
+
+::: gray-paper 10.1
+
+#### §10.1 The State {#gp-10-1}
+
+<a id="gp-10-1-p1"></a>The *disputes* state includes four items, three of which concern verdicts: a good-set ($\psi_G$), a bad-set ($\psi_B$) and a wonky-set ($\psi_W$) containing the hashes of all work-reports which were respectively judged to be correct, incorrect or that it appears impossible to judge. The fourth item, the <abbr class="gp-term" title="ψ_O: the keys of validators found guilty">punish-set</abbr> ($\psi_O$), is a set of Ed25519 keys representing validators which were found to have misjudged a work-report.
+
+<a id="gp-10-1-p2"></a><a id="eq-10-1"></a>
+
+$$
+\begin{equation}
+\psi \equiv \left(\psi_G, \psi_B, \psi_W, \psi_O\right) \tag{10.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-disputes" class="gk-wrap">$\psi$</span> | psi | past judgments: the reports found good, bad or wonky, and the validators who lied |
+| <span id="gk-goodset" class="gk-wrap">$\psi_G$</span> | psi sub G | the good set: hashes of every report a verdict found valid |
+| <span id="gk-badset" class="gk-wrap">$\psi_B$</span> | psi sub B | the bad set: hashes of every report a verdict found invalid |
+| <span id="gk-wonkyset" class="gk-wrap">$\psi_W$</span> | psi sub W | the wonky set: hashes of every report whose verdict split, so nobody can tell |
+| <span id="gk-offenders" class="gk-wrap">$\psi_O$</span> | psi O | the offenders: Ed25519 keys of validators found to have judged a report wrongly |
+
+</details>
+
+→ [(10.1) in plain words](./gray-paper.md#ex-10-1)
+
+:::
+
+::: gray-paper 10.2 17-18
+
+#### §10.2 Extrinsic, continued
+
+<a id="gp-10-2-p17"></a>The state's good-set, bad-set and wonky-set assimilate the hashes of the reports from each verdict. Finally, the punish-set accumulates the keys of any validators who have been found guilty of offending. Formally:
+
+<a id="gp-10-2-p18"></a><a id="eq-10-15"></a><a id="eq-10-16"></a><a id="eq-10-17"></a><a id="eq-10-18"></a>
+
+$$
+\begin{align}
+\psi_G' &\equiv \psi_G \cup \left\{\,
+r
+\;\middle\vert\;
+\left(r, \top\right) \in \mathbf{v}
+\,\right\} \tag{10.15} \\
+\psi_B' &\equiv \psi_B \cup \left\{\,
+r
+\;\middle\vert\;
+\left(r, \bot\right) \in \mathbf{v}
+\,\right\} \tag{10.16} \\
+\psi_W' &\equiv \psi_W \cup \left\{\,
+r
+\;\middle\vert\;
+\left(r, \emptyset\right) \in \mathbf{v}
+\,\right\} \tag{10.17} \\
+\begin{split}
+\psi_O' &\equiv \psi_O \cup \left\{\,
+f
+\;\middle\vert\;
+\left(f, \dots\right) \in \mathbf{E}_C
+\,\right\} \\
+&\phantom{{} \equiv \psi_O {}} \cup \left\{\,
+f
+\;\middle\vert\;
+\left(f, \dots\right) \in \mathbf{E}_F
+\,\right\}
+\end{split} \tag{10.18}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk--offenderindex">$f$</span> | f | an offender's Ed25519 key: 32 bytes |
+
+</details>
+
+→ [(10.15), (10.16), (10.17), (10.18) in plain words](./gray-paper.md#ex-10-15)
+
+:::
 
 **What the state keeps.** ψ (C(5), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)) holds three sets of report hashes, good,
 bad and wonky, plus the offenders' keys ([next lesson](./02-culprits-and-faults.md)). Each verdict's report joins the

@@ -21,8 +21,147 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§13, *Validator Activity*. The chain keeps two tallies: one for the epoch in progress,
-and the finished one from the epoch before. Each block moves them on, in this order:
+::: gray-paper 13.1 3-9
+
+#### §13.1 Validator Activity, continued
+
+<a id="gp-13-1-p3"></a>The validator statistics are made on a per-epoch basis and we retain one record of completed statistics ($\pi_L$) together with one record which serves as an accumulator for the present epoch ($\pi_V$). For each epoch we track a performance record for each validator. Together with the core and service statistics defined in the following section $\pi_C$ and $\pi_S$, these form $\pi$, which is thus a tuple of four elements.
+
+<a id="gp-13-1-p4"></a><a id="eq-13-1"></a><a id="eq-13-2"></a><a id="eq-13-3"></a>
+
+$$
+\begin{align}
+\pi &\equiv \left(\pi_V, \pi_L, \pi_C, \pi_S\right) \tag{13.1} \\
+\!\left\lgroup\pi_V, \pi_L\right\rgroup\! &\in \left[\!\left[\!\left\lgroup
+b\in \mathbb{N}\,,
+t\in \mathbb{N}\,,
+p\in \mathbb{N}\,,
+d\in \mathbb{N}\,,
+g\in \mathbb{N}\,,
+a\in \mathbb{N}
+\right\rgroup\!\right]\!\right]_{}^2
+\!\!\!\!\!\!\!\!\!\! \tag{13.2} \\
+\left\vert\pi_V\right\vert &= \left\vert\kappa\right\vert\ , \qquad \left\vert\pi_L\right\vert = \left\vert\lambda\right\vert \tag{13.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-activity" class="gk-wrap">$\pi$</span> | pi | the statistics: tallies per validator, per core and per service |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-valstatsaccumulator" class="gk-wrap">$\pi_V$</span> | pi sub V | this epoch's validator tallies: one record of six counts per validator, still counting |
+| <span id="gk-valstatsprevious" class="gk-wrap">$\pi_L$</span> | pi sub L | last epoch's validator tallies: one record of six counts per validator, finished |
+| <span id="gk-corestats" class="gk-wrap">$\pi_C$</span> | pi sub C | the cores' tallies: one record per core, for this block only |
+| <span id="gk-servicestats" class="gk-wrap">$\pi_S$</span> | pi sub S | the services' tallies: one record per service active in this block, for this block only |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-vs-blocks">$b$</span> | b | blocks the validator made |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-vs-tickets">$t$</span> | t | tickets the validator put in its blocks |
+| <span id="gk-vs-preimagecount">$p$</span> | p | preimages the validator put in its blocks |
+| <span id="gk-vs-preimagesize">$d$</span> | d | the bytes of those preimages, all together |
+| <span id="gk-vs-guarantees">$g$</span> | g | blocks in which the validator signed a guarantee, once a block |
+| <span id="gk-vs-assurances">$a$</span> | a | availability assurances the validator made |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+
+</details>
+
+→ [(13.1), (13.2), (13.3) in plain words](./gray-paper.md#ex-13-1)
+
+<a id="gp-13-1-p5"></a>The six validator statistics we track are:
+
+<a id="gp-13-1-p6"></a>
+
+- **$b$** The number of blocks produced by the validator.
+- **$t$** The number of tickets introduced by the validator.
+- **$p$** The number of preimages introduced by the validator.
+- **$d$** The total number of <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> across all preimages introduced by the validator.
+- **$g$** The number of reports guaranteed by the validator.
+- **$a$** The number of availability assurances made by the validator.
+
+<a id="gp-13-1-p7"></a>The objective statistics are updated in line with their description, formally:
+
+<a id="gp-13-1-p8"></a><a id="eq-13-4"></a><a id="eq-13-5"></a><a id="eq-13-6"></a>
+
+$$
+\begin{align}
+\begin{split}
+\pi_V^\dagger &\equiv \pi_V \text{ except } \forall v \in \mathbb{N}_{\left\vert\kappa\right\vert}: \\
+\pi_V^\dagger\left[v\right]_{a} &=
+\pi_V\left[v\right]_{a} +
+(\exists a \in \mathbf{E}_A : a_{v} = v)
+\end{split} \tag{13.4} \\
+\begin{split}
+\left(\pi_V^\ddagger, \pi_L'\right) &\equiv \begin{cases}
+\left(\pi_V^\dagger, \pi_L\right) &\text{if } e' = e \\
+\left(\left[\left(0, \dots\right), \dots\right], \pi_V^\dagger\right) &\text{otherwise}
+\end{cases} \\
+\text{where } e &= \left\lfloor\frac{\tau}{\mathsf{E}}\right\rfloor \ ,\quad e' = \left\lfloor\frac{\tau'}{\mathsf{E}}\right\rfloor
+\end{split} \tag{13.5} \\
+\begin{split}
+\pi_V' &\equiv \pi_V^\ddagger \text{ except } \forall v \in \mathbb{N}_{\left\vert\kappa'\right\vert}: \\
+\pi_V'\left[v\right]_{b} &=
+\pi_V^\ddagger\left[v\right]_{b} + (v = \mathbf{H}_{I})\\
+\pi_V'\left[v\right]_{t} &=
+\pi_V^\ddagger\left[v\right]_{t} + \begin{cases}
+\left\vert\mathbf{E}_T\right\vert &\text{if } v = \mathbf{H}_{I} \\
+0 &\text{otherwise}
+\end{cases}\\
+\pi_V'\left[v\right]_{p} &=
+\pi_V^\ddagger\left[v\right]_{p} + \begin{cases}
+\left\vert\mathbf{E}_P\right\vert &\text{if } v = \mathbf{H}_{I} \\
+0 &\text{otherwise}
+\end{cases}\\
+\pi_V'\left[v\right]_{d} &=
+\pi_V^\ddagger\left[v\right]_{d} + \begin{cases}
+\sum_{d \in \mathbf{E}_P}\left\vert d\right\vert &\text{if } v = \mathbf{H}_{I} \\
+0 &\text{otherwise}
+\end{cases}\\
+\pi_V'\left[v\right]_{g} &=
+\pi_V^\ddagger\left[v\right]_{g} + (\kappa'_{v} \in \mathbf{G})
+\end{split} \tag{13.6}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-dagger">$\dagger$</span> | dagger | a mark making a new name from an old one: δ† is δ partway through the block, 𝐭† another list of transfers |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-xtassurances" class="gk-wrap">$\mathbf{E}_A$</span> | E sub A | the assurances bag: validators saying they hold their pieces of reports |
+| <span id="gk-xa-assurer">$v$</span> | v | the assuring validator's index in κ |
+| <span id="gk-ddagger">$\ddagger$</span> | double dagger | a second midway value: after the dagger step, before the prime |
+| <span id="gk-ffrac">$\left\lfloor\frac{x}{y}\right\rfloor$</span> | x over y, rounded down | whole-number division, the remainder dropped: ⌊7/3⌋ is 2 |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--authorindex">$I$</span> | I | a header's author index: 𝐇_I, which validator made the block, a position in κ′ |
+| <span id="gk-xttickets" class="gk-wrap">$\mathbf{E}_T$</span> | E sub T | the tickets bag: entries to the block-sealing lottery |
+| <span id="gk-xtpreimages" class="gk-wrap">$\mathbf{E}_P$</span> | E sub P | the preimages bag: data a service asked for |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-reporters" class="gk-wrap">$\mathbf{G}$</span> | G | the reporters: the Ed25519 keys of every guarantor who signed a guarantee in this block |
+
+</details>
+
+→ [(13.4), (13.5), (13.6) in plain words](./gray-paper.md#ex-13-4)
+
+<a id="gp-13-1-p9"></a>Note that $\mathbf{G}$ is the *Reporters* set, as defined in equation [11.28](../12-guarantees/02-signed-and-counted.md#eq-11-28).
+
+:::
+
+In plain words: the chain keeps two tallies, one for the epoch in progress and the
+finished one from the epoch before, each with one record of six counts per validator.
+Each block moves them on in three steps, one formula each, (13.4) to (13.6):
 
 1. **Assurances count first.** Every validator who made an assurance in the block gets one
    more. They count towards the epoch the block's parent was in.
@@ -38,7 +177,8 @@ The three steps on a real epoch's turn:
 
 Why track only these? They're the work the chain can see for itself. Voting on finality
 and auditing happen off the chain, so these tallies can't hold them. For those, the Gray
-Paper has validators vote on each other's efforts, and a median is taken.
+Paper has validators vote on each other's efforts, and a median is taken ([the part's
+page](./index.md#the-big-picture) quotes it).
 
 When you read the Gray Paper, these are the same things:
 

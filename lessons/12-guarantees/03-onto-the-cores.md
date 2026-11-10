@@ -8,7 +8,54 @@ And the block makes a note of the packages it reported, for the recent history (
 
 ## What the Gray Paper says
 
-§11. ρ′, the cores after the guarantees: each guarantee's report goes on the core it
+::: gray-paper 11.5
+
+#### §11.5 Transitioning for Reports {#gp-11-5}
+
+<a id="gp-11-5-p1"></a>We define $\rho'$ as being equivalent to $\rho^\ddagger$, except where the extrinsic replaced an entry. In the case an entry is replaced, the new value includes the present time $\tau'$ so that it can be cleared if it is not made available quickly enough (see equation [11.18](../11-assurances/02-timeouts.md#eq-11-18)).
+
+<a id="gp-11-5-p2"></a><a id="eq-11-46"></a>
+
+$$
+\begin{equation}
+\forall c \in \mathbb{N}_{\mathsf{C}} : \rho'\left[c\right] \equiv \begin{cases}
+\left(\mathbf{g},\,t\mathrel{\unicode{x2AF6}}\tau'\right) &\text{if } \exists \mathbf{g} \in \mathbf{E}_G, (\mathbf{g}_{\mathbf{r}})_{c} = c \\
+\rho^\ddagger\left[c\right] &\text{otherwise}
+\end{cases} \tag{11.46}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-cX">$c$</span> | c | a core's index, 0 to C − 1 |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-availassignmentspostguarantees" class="gk-wrap">$\rho'$</span> | rho prime | the cores after this block's guarantees: each core's pending report and its slot, or nothing |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-aa-timestamp">$t$</span> | t | the slot a pending report arrived on its core |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-availassignmentspostassurances" class="gk-wrap">$\rho^\ddagger$</span> | rho double dagger | the pending reports midway: after the available ones and the timed-out ones left |
+
+</details>
+
+→ [(11.46) in plain words](./gray-paper.md#ex-11-46)
+
+<a id="gp-11-5-p3"></a>It is worth noting that $\rho'\left[c\right]$ is always $\emptyset$ for $c \ge {}^{\left\vert\kappa'\right\vert}\!/_{3}$; this in particular ensures that we will never have more reports to audit than can safely be managed with the number of active validators.
+
+<a id="gp-11-5-p4"></a>This concludes the section on reporting and assurance. We now have a complete definition of $\rho'$ together with $\mathbf{R}$ to be utilized in section [12](../17-accumulation/index.md#gp-12-p1), describing the portion of the state transition happening once a work-report is guaranteed and made available.
+
+:::
+
+In plain words, §11.5 (*Transitioning for Reports*) defines ρ′, the cores after the guarantees: each guarantee's report goes on the core it
 names, as a pending report: the whole guarantee, registered at τ′, this block's slot. A
 core can only take a report if it's free, after the disputes ([lesson 10.3](../10-disputes/03-clearing-the-cores.md)) and the
 assurances ([lesson 11.2](../11-assurances/02-timeouts.md)) have done their clearing. Every other core keeps what it had.
@@ -230,7 +277,7 @@ reported: package 0x316504b8…, exports root 0x5c9dca80…
 
 Each guarantee lands on the core its report names, stamped with the block's `slot` for
 [lesson 11.2](../11-assurances/02-timeouts.md)'s timeout clock. Notice the two orders: `avail_assignments` fills in core
-order, the reported list sorts by package hash — which is why `0x316504b8…` leads it
+order, the reported list sorts by package hash, which is why `0x316504b8…` leads it
 while core 0 holds `0x63c03371…`.
 
 **Run**

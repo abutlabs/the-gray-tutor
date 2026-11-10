@@ -7,6 +7,7 @@ sections it covers, and every part says so under its name in the sidebar.
 
 Here is every section, and the lessons that cite it. Tap a lesson to go to it. A section
 no lesson covers is either not a rule (the introduction, the thanks) or something a
-validator does beside importing blocks, which is what your client is for.
+validator does beside importing blocks, which is what your client is for. To read the
+paper's own lines, open [Reading the Gray Paper](./reading-the-gray-paper.md) first.
 
 <GrayPaperMap />

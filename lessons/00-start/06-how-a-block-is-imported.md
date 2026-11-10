@@ -94,6 +94,56 @@ off the chain, and choosing which chain is best and final are all a validator's 
 beside importing. Milestone 1 is the import alone: blocks in, state roots out, every
 wrong block refused.
 
+The last of those, choosing a chain, is why a refusal must leave the state before intact.
+Two valid blocks can name the same parent, a fork, and an importer imports both. §4.3
+says how JAM keeps forks rare and settles them, and §4.5 which block a node treats as the
+latest:
+
+::: gray-paper 4.3
+
+#### §4.3 Which History? {#gp-4-3}
+
+<a id="gp-4-3-p1"></a>A blockchain is a sequence of blocks, each cryptographically referencing some prior block by including a hash of its header, all the way back to some first block which references the <abbr class="gp-term" title="the chain's first block and state">genesis</abbr> header. We already presume consensus over this genesis header $\mathbf{H}^0$ and the state it represents already defined as $\sigma^0$.
+
+<a id="gp-4-3-p2"></a>By defining a deterministic function for deriving a single <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state for any (valid) combination of prior state and block, we are able to define a unique *canonical* state for any given block. We generally call the block with the most ancestors the *head* and its state the *head state*.
+
+<a id="gp-4-3-p3"></a>It is generally possible for two blocks to be valid and yet reference the same prior block in what is known as a *fork*. This implies the possibility of two different heads, each with their own state. While we know of no way to strictly preclude this possibility, for the system to be useful we must nonetheless attempt to minimize it. We therefore strive to ensure that:
+
+<a id="gp-4-3-p4"></a>
+
+1. It be generally unlikely for two heads to form.
+1. When two heads do form they be quickly resolved into a single head.
+1. It be possible to identify a block not much older than the head which we can be extremely confident will form part of the blockchain's history in perpetuity. When a block becomes identified as such we call it *<abbr class="gp-term" title="voted final by GRANDPA: never undone">finalized</abbr>* and this property naturally extends to all of its ancestor blocks.
+
+<a id="gp-4-3-p5"></a>These goals are achieved through a combination of two consensus mechanisms: *Safrole*, which governs the (not-necessarily forkless) extension of the blockchain; and *Grandpa*, which governs the finalization of some extension into canonical history. Thus, the former delivers point [1](#gp-4-3-p4), the latter delivers point [3](#gp-4-3-p4) and both are important for delivering point [2](#gp-4-3-p4). We describe these portions of the protocol in detail in sections [6](../08-safrole/index.md#gp-6-p1) and [19](../what-runs-where.md#gp-19-p1) respectively.
+
+<a id="gp-4-3-p6"></a>While Safrole limits <abbr class="gp-term" title="two blocks built on the same parent, splitting the chain until one side is dropped">forks</abbr> to a large extent (through cryptography, economics and common-time, below), there may be times when we wish to intentionally fork since we have come to know that a particular chain extension must be reverted. In regular operation this should never happen, however we cannot discount the possibility of malicious or malfunctioning nodes. We therefore define such an extension as any which contains a block in which data is reported which *any other* block's state has tagged as invalid (see section [10](../10-disputes/index.md#gp-10-p1) on how this is done). We further require that Grandpa not finalize any extension which contains such a block. See section [19](../what-runs-where.md#gp-19-p1) for more information here.
+
+:::
+
+::: gray-paper 4.5
+
+#### §4.5 Best block {#gp-4-5}
+
+<a id="gp-4-5-p1"></a>Given the recognition of a number of valid blocks, it is necessary to determine which should be treated as the “best” block, by which we mean the most recent block we believe will ultimately be within of all future JAM chains. The simplest and least risky means of doing this would be to inspect the Grandpa <abbr class="gp-term" title="the point after which a block can't be undone">finality</abbr> mechanism which is able to provide a block for which there is a very high degree of confidence it will remain an ancestor to any future chain head.
+
+<a id="gp-4-5-p2"></a>However, in reducing the risk of the resulting block ultimately not being within the canonical chain, Grandpa will typically return a block some small period older than the most recently authored block. (Existing deployments suggest around 1-2 blocks in the past under regular operation.) There are often circumstances when we may wish to have less latency at the risk of the returned block not ultimately forming a part of the future canonical chain. E.g. we may be in a position of being able to author a block, and we need to decide what its parent should be. Alternatively, we may care to speculate about the most recent state for the purpose of providing information to a downstream application reliant on the state of JAM.
+
+<a id="gp-4-5-p3"></a>In these cases, we define the best block as the head of the best chain, itself defined in section [19](../what-runs-where.md#gp-19-p1).
+
+:::
+
+In plain words: Safrole, which decides who may make each slot's block, keeps two blocks
+for one slot rare. GRANDPA, a vote among the validators, makes a block final: from then
+on it is in the chain's history for good, and so is everything before it. One fork is on
+purpose: a chain holding a report that a dispute has since found bad is abandoned, and
+GRANDPA won't finalize it ([Part 10](../10-disputes/index.md)). The best block is the
+newest one a node would build on, usually a block or two past the final one.
+Your client does none of this choosing: it imports whatever block it is given, onto
+whichever parent the block names, and whoever sends the blocks does the choosing: in
+[Part 20](../20-facing-the-fuzzer/index.md), the fuzzer. The rules for the best chain are §19,
+which [What runs where](../what-runs-where.md#off-the-chain-in-the-gray-paper) quotes.
+
 ## Inside station 5: what waits for what
 
 Station 5 is the *state transition function* ([lesson 0.1](./01-what-you-will-build.md)):
@@ -114,10 +164,74 @@ together, and that is the Gray Paper's own question.
 
 ## What the Gray Paper says
 
-§4.2 lists, for every new piece of state, what it is made from. Its reason for writing the
-list this way is to help clients do the work in parallel: *"we minimize the depth of the
-dependency graph"*. In plain words, the list is written so that as few steps as possible
-wait for other steps.
+§4.2 names the pieces of state, seventeen of them, each a Greek letter, and says what each
+is for. Then §4.2.1 opens the list of what every new piece is made from, with its reason
+for writing it that way:
+
+::: gray-paper 4.2
+
+#### §4.2 The State {#gp-4-2}
+
+<a id="gp-4-2-p1"></a>Our state may be logically partitioned into several largely independent segments which can both help avoid visual clutter within our protocol description and provide formality over elements of computation which may be simultaneously calculated (i.e. parallelized). We therefore pronounce an equivalence between $\sigma$ (some complete state) and a tuple of partitioned segments of that state:
+
+<a id="gp-4-2-p2"></a><a id="eq-4-4"></a>
+
+$$
+\begin{align}
+\sigma &\equiv \left(\alpha, \beta, \theta, \gamma, \delta, \eta, \iota, \kappa, \lambda, \rho, \tau, \phi, \chi, \psi, \pi, \omega, \xi\right) \tag{4.4}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-thestate" class="gk-wrap">[$\sigma$](../symbols.md#state)</span> | sigma | the state: everything the chain remembers between blocks |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-authpool" class="gk-wrap">$\alpha$</span> | alpha | the authorizer pools: for each core, up to O = 8 authorizer hashes it accepts right now |
+| <span id="gk-recent" class="gk-wrap">$\beta$</span> | beta | recent blocks: the last few blocks' hashes and roots, and the belt of accumulation outputs |
+| <span id="gk-lastaccout" class="gk-wrap">$\theta$</span> | theta | the last block's accumulation outputs: which service yielded which hash |
+| <span id="gk-safrole" class="gk-wrap">$\gamma$</span> | gamma | Safrole's state: the ticket lottery for who seals the next epoch's blocks |
+| <span id="gk-accounts" class="gk-wrap">$\delta$</span> | delta | the service accounts: every service's code hash, balance, storage and preimages |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-stagingset" class="gk-wrap">$\iota$</span> | iota | the next validators: keys queued to become active at the next epoch |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-availassignments" class="gk-wrap">$\rho$</span> | rho | the pending reports: for each core, the report waiting to be made available, and when it came |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-authqueue" class="gk-wrap">$\phi$</span> | phi | the authorizer queues: for each core, Q = 80 authorizer hashes waiting to join its pool |
+| <span id="gk-privileges" class="gk-wrap">$\chi$</span> | chi | the privileged services: who may manage, assign cores, set validators and accumulate for free |
+| <span id="gk-disputes" class="gk-wrap">$\psi$</span> | psi | past judgments: the reports found good, bad or wonky, and the validators who lied |
+| <span id="gk-activity" class="gk-wrap">$\pi$</span> | pi | the statistics: tallies per validator, per core and per service |
+| <span id="gk-ready" class="gk-wrap">$\omega$</span> | omega | the ready queue: available reports waiting on others before they can accumulate |
+| <span id="gk-accumulated" class="gk-wrap">$\xi$</span> | xi | the accumulated history: the packages accumulated in each of the last E slots |
+
+</details>
+
+→ [(4.4) in plain words](../06-state-and-merklization/gray-paper.md#ex-4-4)
+
+<a id="gp-4-2-p3"></a>In summary, $\delta$ is the portion of state dealing with *services*, analogous in JAM to the Yellow Paper's (smart contract) *accounts*, the only state of the *YP*'s Ethereum. The identities of services which hold some privileged status are tracked in $\chi$.
+
+<a id="gp-4-2-p4"></a>Validators, who are the set of economic actors uniquely privileged to help build and maintain the JAM chain, are identified within $\kappa$, archived in $\lambda$ and enqueued from $\iota$. All other state concerning the determination of these keys is held within $\gamma$. Note this is a departure from the *YP* proof-of-work definitions which were mostly stateless, and this set was not enumerated but rather limited to those with sufficient compute power to find a partial hash-collision in the SHA2-256 cryptographic hash function. An on-chain entropy pool is retained in $\eta$.
+
+<a id="gp-4-2-p5"></a>Our state also tracks two aspects of each core: $\alpha$, the authorization requirement which work done on that core must satisfy at the time of being reported on-chain, together with the queue which fills this, $\phi$; and $\rho$, each of the cores' currently assigned *work-report guarantees*, the availability of whose *work-package* must yet be assured by a <abbr class="gp-term" title="more than two thirds of the validators">super-majority</abbr> of validators.
+
+<a id="gp-4-2-p6"></a>Finally, details of the most recent blocks and timeslot index are tracked in $\beta_H$ and $\tau$ respectively, work-reports which are ready to be accumulated and work-packages which were recently accumulated are tracked in $\omega$ and $\xi$ respectively and, judgments are tracked in $\psi$ and validator statistics are tracked in $\pi$.
+
+:::
+
+::: gray-paper 4.2.1 1-1
+
+#### §4.2.1 State Transition Dependency Graph {#gp-4-2-1}
+
+<a id="gp-4-2-1-p1"></a>Much as in the *YP*, we specify $\Upsilon$ as the implication of formulating all items of posterior state in terms of the prior state and block. To aid the architecting of implementations which parallelize this computation, we minimize the depth of the dependency graph where possible. The overall dependency graph is specified here:
+
+:::
+
+In plain words: the state is seventeen parts, and the paper keeps them as separate as it
+can so that a client can work on several at once. For every new piece, the list says what
+it is made from, and it is written so that as few steps as possible wait for other steps.
+The list itself, sixteen lines, is [lesson 19.1](../19-block-import/01-the-order-of-things.md)'s.
 
 That gives an order without anyone choosing one. Steps that need only the block and the
 old state go in wave 1. A step whose inputs come from wave 1 goes in wave 2, and so on. Steps

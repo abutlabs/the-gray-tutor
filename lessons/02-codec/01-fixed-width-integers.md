@@ -40,33 +40,80 @@ header, even when it's 1: `01 00 00 00`.
 
 Appendix C, *Fixed-length Integer Encoding*, defines it one byte at a time:
 
+::: gray-paper C.1.7
+
+#### Appendix C.1.7 Fixed-length Integer Encoding {#gp-C-1-7}
+
+<a id="gp-C-1-7-p1"></a>We first define the trivial natural number <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> functions which are subscripted by the number of <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> of the final sequence. Values are encoded in a regular little-endian fashion. This is utilized for almost all integer encoding across the protocol. Formally:
+
+<a id="gp-C-1-7-p2"></a><a id="eq-C-12"></a>
+
 $$
-\mathcal{E}_l \colon \left\{
-\begin{aligned}
-\mathbb{N}_{2^{8l}} &\to \mathbb{B}_l \\
+\begin{equation}
+\mathcal{E}_{l \in \mathbb{N}}\colon\left\{ \begin{aligned}
+\mathbb{N}_{2^{8l}} &\to \mathbb{B}_{l} \\
 x &\mapsto \begin{cases}
-[\,] & \text{if } l = 0 \\
-[x \bmod 256] \frown \mathcal{E}_{l-1}\left(\left\lfloor \frac{x}{256} \right\rfloor\right) & \text{otherwise}
+\left[\right] &\text{if } l = 0 \\
+\left[x \bmod 256\right] \frown \mathcal{E}_{l - 1}\left(\left\lfloor\frac{x}{256}\right\rfloor\right) &\text{otherwise}
 \end{cases}
-\end{aligned}
-\right.
+\end{aligned} \right. \tag{C.12}
+\end{equation}
 $$
 
-| Symbol | Say it | Here |
-| --- | --- | --- |
-| [$\mathcal{E}_l$](../symbols.md#encode-fixed) | E sub l | x in exactly l bytes |
-| [$\mathbb{N}_{2^{8l}}$](../symbols.md#naturals) | N sub 2 to the 8l | a whole number that fits in l bytes |
-| [$\to$](../symbols.md#to) | to | what goes in, to what comes out |
-| [$\mathbb{B}_l$](../symbols.md#blobs) | B sub l | exactly l bytes |
-| [$\mapsto$](../symbols.md#maps-to) | maps to | x becomes... |
-| [$[\,]$](../symbols.md#sequence) | the empty sequence | no bytes at all |
-| [$\bmod$](../symbols.md#mod) | mod | the remainder: x mod 256 is x's lowest byte |
-| [$\frown$](../symbols.md#concat) | concatenate | followed by |
-| [$\lfloor\,\rfloor$](../symbols.md#floor) | floor | round down: ⌊x / 256⌋ is x without its lowest byte |
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
 
-The first line is a promise: give ℰₗ a number that fits in l bytes, and you get back
-exactly l bytes. The second says how, like a recipe: write down the lowest byte, chop it
-off, and repeat with one byte fewer, until no bytes are left. ℰ₄ is a u32, ℰ₈ a u64.
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnencode">[$\mathcal{E}$](../symbols.md#encode)</span> | E | the codec: a value in, its bytes out; a number alone, as a compact natural of 1 to 9 bytes |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+
+</details>
+
+→ [(C.12) in plain words](./gray-paper.md#ex-C-12)
+
+<a id="gp-C-1-7-p3"></a>For non-natural arguments, $\mathcal{E}_{l \in \mathbb{N}}$ corresponds to the definitions of $\mathcal{E}_{}$, except that recursive elements are made as $\mathcal{E}_{l}$ rather than $\mathcal{E}_{}$. Thus:
+
+<a id="gp-C-1-7-p4"></a><a id="eq-C-13"></a><a id="eq-C-14"></a><a id="eq-C-15"></a>
+
+$$
+\begin{align}
+\mathcal{E}_{l \in \mathbb{N}}\left(a, b, \dots\right) &\equiv \mathcal{E}_{l}\left(\left(a, b, \dots\right)\right) \tag{C.13} \\
+\mathcal{E}_{l \in \mathbb{N}}\left(\left(a, b, \dots\right)\right) &\equiv \mathcal{E}_{l}\left(a\right) \frown \mathcal{E}_{l}\left(b\right) \frown \dots \tag{C.14} \\
+\mathcal{E}_{l \in \mathbb{N}}\left(\left[\mathbf{i}_0, \mathbf{i}_1, \dots\right]\right) &\equiv \mathcal{E}_{l}\left(\mathbf{i}_0\right) \frown \mathcal{E}_{l}\left(\mathbf{i}_1\right) \frown \dots \tag{C.15}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+
+</details>
+
+→ [(C.13), (C.14), (C.15) in plain words](./gray-paper.md#ex-C-13)
+
+<a id="gp-C-1-7-p5"></a>And so on.
+
+:::
+
+In plain words, (C.12)'s first line is a promise: give ℰₗ a number that fits in l bytes,
+and you get back exactly l bytes. The second says how, like a recipe: write down the
+lowest byte, chop it off, and repeat with one byte fewer, until no bytes are left. ℰ₄ is
+a u32, ℰ₈ a u64. (C.13) to (C.15) only stretch the same ℰₗ over several numbers at once:
+ℰ₄(a, b) is ℰ₄(a) then ℰ₄(b), four bytes each, side by side.
 
 ℰₗ is defined using $\mathcal{E}_{l-1}$, a smaller case of itself: it's *recursive*. Work
 it through for 4,807 in two bytes, and each step hands one byte fewer to the next, until
@@ -81,6 +128,14 @@ $$
 &= [199, 18]
 \end{aligned}
 $$
+
+| Symbol | Say it | Here |
+| --- | --- | --- |
+| [$\mathcal{E}_l$](../symbols.md#encode-fixed) | E sub l | x in exactly l bytes |
+| [$\bmod$](../symbols.md#mod) | mod | the remainder: x mod 256 is x's lowest byte |
+| [$\frown$](../symbols.md#concat) | concatenate | followed by |
+| [$\lfloor\,\rfloor$](../symbols.md#floor) | floor | round down: ⌊x / 256⌋ is x without its lowest byte |
+| [$[\,]$](../symbols.md#sequence) | the empty sequence | no bytes at all |
 
 199 is `c7` and 18 is `12`: `c7 12`.
 

@@ -8,8 +8,115 @@ forever? It pays at every lap, and sooner or later it can't.
 
 ## What the Gray Paper says
 
-App. A.4, the start of Ψ₁. The machine carries its gas ϱ and a flag: has the basic block
-it's in been paid for yet?
+App. A.4, the start of Ψ₁:
+
+::: gray-paper A.4 3-4
+
+#### Appendix A.4 Single-Step State Transition, continued
+
+<a id="gp-A-4-p3"></a>On the very first step of execution, and every time the execution enters a new <abbr class="gp-term" title="a run of instructions with one way in; a jump may only land at its start">basic block</abbr> or jumps back to the beginning of the current basic block, the gas counter of the machine is updated according to the gas cost function $\varrho^{\Delta}$ ([A.54](./10-the-pipeline.md#eq-A-54)) of the target basic block. No instruction is allowed to execute within a basic block unless the gas cost for the entire basic block has been charged in advance. In case there's not enough gas remaining to cover the full gas cost, the execution is interrupted and the gas counter remains unchanged. Formally:
+
+<a id="gp-A-4-p4"></a><a id="eq-A-8"></a>
+
+$$
+\begin{equation}
+\left(\varepsilon^{\varrho}, \varrho^*, \tilde{\varrho}'\right) = \begin{cases}
+\left(\blacktriangleright, \varrho, \top\right) &\text{if } \tilde{\varrho} = \top \\
+\left(\blacktriangleright, \varrho - \varrho^{\Delta}(\mathbf{c}, \mathbf{k}, \mathfrak{L}(\imath)), \top\right) &\text{otherwise if } \varrho \ge \varrho^{\Delta}(\mathbf{c}, \mathbf{k}, \mathfrak{L}(\imath)) \\
+\left(\infty, \varrho, \bot\right) &\text{otherwise}
+\end{cases} \tag{A.8}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-varepsilon">$\varepsilon$</span> | epsilon | the exit reason: how a step or a run ended, from carry on to halt, panic, out of gas, fault or host call |
+| <span id="gk-gascounter" class="gk-wrap">$\varrho$</span> | rho (curly) | the gas left |
+| <span id="gk-gaschargedflag" class="gk-wrap">$\tilde{\varrho}$</span> | rho tilde | the gas flag: true once the basic block the machine is in has been paid for |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+| <span id="gk-top">$\top$</span> | top | true |
+| <span id="gk-gascostforblock" class="gk-wrap">$\varrho^{\Delta}$</span> | rho delta | a basic block's gas cost: its cycles on the model CPU, less 3, and at least 1 |
+| <span id="gk-startofbasicblock" class="gk-wrap">$\mathfrak{L}$</span> | L (gothic) | 𝔏(ı): the start of the basic block that ı is in |
+| <span id="gk-imath">$\imath$</span> | i | the instruction counter: the index in the code of the instruction to run next |
+| <span id="gk-ge">$\ge$</span> | is at least | greater than or equal to |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+
+</details>
+
+→ [(A.8) in plain words](./gray-paper.md#ex-A-8)
+
+:::
+
+and, after the instruction, which exit wins and when the flag goes off:
+
+::: gray-paper A.4 8-11
+
+#### Appendix A.4 Single-Step State Transition, continued
+
+<a id="gp-A-4-p8"></a>We define the final execution state, the value of the instruction counter, the values of the registers and the memory as follows:
+
+<a id="gp-A-4-p9"></a><a id="eq-A-10"></a>
+
+$$
+\begin{align}
+\left(\varepsilon^*, \imath^*, \varphi^*, {\mu}^*\right) &= \begin{cases}
+\left(\varepsilon^{\varrho}, \imath, \varphi, {\mu}\right) &\text{if } \varepsilon^{\varrho} \neq \blacktriangleright \\
+\left(\varepsilon^{\mu}, \imath, \varphi, {\mu}\right) &\text{otherwise if } \varepsilon^{\mu} \neq \blacktriangleright \\
+\left(\varepsilon, \imath', \varphi', {\mu}'\right) &\text{otherwise}
+\end{cases} \tag{A.10}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-mem" class="gk-wrap">${\mu}$</span> | mu | the PVM's memory: 2^32 bytes in pages of 4,096, each page readable, writable or neither |
+| <span id="gk-neq">$\neq$</span> | is not | not equal |
+| <span id="gk-mu">$\mu$</span> | mu | the PVM's memory |
+
+</details>
+
+→ [(A.10) in plain words](./gray-paper.md#ex-A-10)
+
+<a id="gp-A-4-p10"></a>We also have to adjust the state based on the executed instruction, to force a gas charge on the next step when necessary:
+
+<a id="gp-A-4-p11"></a><a id="eq-A-11"></a>
+
+$$
+\begin{equation}
+\tilde{\varrho}^* = \begin{cases}
+\bot &\text{if } \tilde{\varrho}' = \bot \lor (\mathbf{c}_\imath \in T \land \varepsilon^* \in \left\{\,\blacktriangleright\,\right\} \cup \left\{\,\hbar\,\right\} \times \mathbb{N}_R) \\
+\top &\text{otherwise}
+\end{cases} \tag{A.11}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-lor">$\lor$</span> | or | at least one side is true |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-land">$\land$</span> | and | both sides are true |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-host" class="gk-wrap">$\hbar$</span> | host call | ħ: the program asked the host for something, and waits |
+| <span id="gk-times">$\times$</span> | times | multiply; between sets, every pair of one from each |
+| <span id="gk-pvmreg" class="gk-wrap">$\mathbb{N}_R$</span> | N sub R | a register's value: a u64 |
+
+</details>
+
+→ [(A.11) in plain words](./gray-paper.md#ex-A-11)
+
+:::
+
+In plain words, the machine carries its gas ϱ and a flag, ϱ̃: has the basic block it's in
+been paid for yet?
 
 - **On a step, if the flag is off**, the block's cost ϱ^Δ ([lesson 15.10](./10-the-pipeline.md)) is due. With
   enough gas, it's paid and the flag goes on. Without enough, the machine stops with
@@ -20,6 +127,9 @@ it's in been paid for yet?
   back to the start of the same block pays again. That's how a loop pays every lap.
 - A host call doesn't reset it: `ecalli` isn't a terminator, so when the host is done, the
   rest of the block is already paid for.
+- **Which exit wins** (A.10): out of gas first, then a memory panic or fault ([lesson
+  15.4](./04-memory.md)), and only then the instruction's own result. The first two leave
+  ı, the registers and memory as they were.
 
 Try it below, on a small program of three blocks: a start, a loop that runs three laps,
 and an end with a host call. Each block's price comes from [lesson 15.10](./10-the-pipeline.md)'s model CPU.

@@ -12,3 +12,4 @@ demo/
 client/*
 !client/.gitkeep
 .verify-output/
+the-gray-tutor-overview.pdf

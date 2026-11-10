@@ -14,7 +14,7 @@
 //   Kindle's SVG support is patchy, and EPUBCheck refuses inline SVG an OPF doesn't declare;
 // - a run (run-views.ts) keeps what it is about: what goes in, what it computes, what comes out,
 //   each under its title; the shell commands and the whole output stay on the website;
-// - the Unicode maths letters (𝐑, 𝒴, 𝔹…) are written as plain letters in bold or italic: Kindle's
+// - the Unicode math letters (𝐑, 𝒴, 𝔹…) are written as plain letters in bold or italic: Kindle's
 //   fonts lack that plane, and a missing glyph is an empty box;
 // - the cover is a portrait page with the title, the shape a Kindle library shows.
 
@@ -201,6 +201,14 @@ export function chapterBody(text: string, address: string, book: Book, n: number
     summary.replaceWith(`<p class="summary"><strong>${summary.html() ?? ""}</strong></p>`);
     $(d).replaceWith(`<div class="fold">${$(d).html() ?? ""}</div>`);
   });
+  // a word of the Gray Paper's underlined with its meaning (tools/gray-paper-text.ts): on an
+  // e-reader, a note that pops up when the word is tapped, as Kindle shows EPUB 3 footnotes
+  const notes: string[] = [];
+  $("abbr.gp-term").each((k, el) => {
+    const id = `gp-term-${n}-${k + 1}`;
+    notes.push(`<aside epub:type="footnote" id="${id}" class="gp-term-note"><p><strong>${$(el).html() ?? ""}</strong>: ${escapeXml($(el).attr("title") ?? "")}</p></aside>`);
+    $(el).replaceWith(`<a epub:type="noteref" href="#${id}" class="gp-term">${$(el).html() ?? ""}</a>`);
+  });
   // the check, printed; its answers go at the chapter's end
   $(".widget.check-yourself").each((_, el) => {
     const printed = reviewQuestions($, $(el), n);
@@ -214,7 +222,10 @@ export function chapterBody(text: string, address: string, book: Book, n: number
   $("mjx-container").each((_, el) => {
     const svg = $(el).children("svg").first();
     const display = $(el).attr("display") === "true";
-    const w = exNumber(svg.attr("width"));
+    // a numbered formula (the Gray Paper's (8.2)) is drawn 100% wide, its number at the right
+    // edge; its least width, in its style, is the width that holds both
+    const least = /min-width:\s*([\d.]+)ex/.exec(svg.attr("style") ?? "")?.[1];
+    const w = svg.attr("width") === "100%" && least ? Number(least) + 2 : exNumber(svg.attr("width"));
     const h = exNumber(svg.attr("height"));
     const align = /vertical-align:\s*(-?[\d.]+)ex/.exec(svg.attr("style") ?? "")?.[1];
     svg.attr("width", `${w * EX_PX}`).attr("height", `${h * EX_PX}`).removeAttr("style");
@@ -245,8 +256,9 @@ export function chapterBody(text: string, address: string, book: Book, n: number
     }
     $(el).attr("src", addImage(book, png(svg, 2))).removeAttr("role").removeAttr("tabindex");
   });
+  if (notes.length) $.root().append(notes.join(""));
   $("a[href]").each((_, a) => { $(a).attr("href", bookHref($(a).attr("href") ?? "", address, book)); });
-  // the maths letters Kindle's fonts lack, as plain letters with their style; the text presentation
+  // the math letters Kindle's fonts lack, as plain letters with their style; the text presentation
   // selector (U+FE0E, config.ts adds it after ↕ and ♈) can draw as a box there, so it goes
   $("*").contents().filter((_, n) => n.type === "text").each((_, n) => {
     const text = (n as unknown as { data: string }).data;
@@ -274,7 +286,7 @@ const BOOK_TABS = new Set(["what goes in", "what it computes", "what comes out",
 /** A letter from Unicode's Mathematical Alphanumeric Symbols (U+1D400 to U+1D7FF). */
 const MATH_LETTER = /[\u{1D400}-\u{1D7FF}]/u;
 
-/** Each maths letter as its plain letter (NFKC folds 𝐑 to R, 𝒴 to Y), styled as the paper styles
+/** Each math letter as its plain letter (NFKC folds 𝐑 to R, 𝒴 to Y), styled as the paper styles
  *  it: bold, italic for script and fraktur, both for bold italic and bold script, bold for
  *  double-struck. The rest of the text stays as it is. */
 export function kindleLetters(html: string): string {
@@ -346,6 +358,15 @@ ol.answers > li { margin-bottom: 1em; }
 .cover { text-align: center; margin: 0; padding: 0; }
 .cover img { width: 100%; max-width: 100%; }
 .title-page { text-align: center; margin-top: 20%; }
+.gray-paper { border-left: 4px solid #555; padding: 0.1em 0 0.3em 0.8em; margin: 1em 0; }
+.gray-paper.again { border-left-style: dotted; }
+.gray-paper-says { font-family: sans-serif; font-size: 0.7em; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin: 0.4em 0 0; }
+.gray-paper h4 { font-size: 1em; margin: 0.2em 0 0.4em; }
+.gray-paper .fold { border-left: none; padding-left: 0; font-size: 0.9em; }
+.gray-paper .fold .summary { font-family: sans-serif; font-size: 0.8em; margin-bottom: 0; }
+.gp-note { font-size: 0.85em; }
+a.gp-term { color: inherit; text-decoration: underline dotted; }
+aside.gp-term-note { font-size: 0.9em; }
 `;
 
 const mediaType = (name: string) => (name.endsWith(".png") ? "image/png" : name.endsWith(".css") ? "text/css" : "application/xhtml+xml");

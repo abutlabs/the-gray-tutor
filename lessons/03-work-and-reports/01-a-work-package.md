@@ -3,6 +3,9 @@
 In [Part 2](../02-codec/index.md) you encoded a single work item. Nobody sends a work item on its own, though.
 Items travel in a *work-package*: a parcel of up to sixteen jobs, for one of JAM's cores
 (the package doesn't say which; its report will), with a permission slip stapled to the front.
+A builder makes it off the chain and hands it to a core's guarantors, who run it in-core.
+Your client decodes it, and that's all a block importer ever does with a package; [the
+part's page](./index.md) draws the whole journey.
 
 Here is a real one, the tiny test vector's: the slip on the front, a postmark saying how
 the chain looked when it was made, and two jobs inside. Tap any part to see what it's for,
@@ -17,8 +20,10 @@ bytes hold it, and the order isn't the parcel's.
   *payload*) and its gas limits. A work-package is up to 16 of them for one core, packed
   together with what's needed to let them in. *Example:* a package of one item, for
   service 42.
-- **Authorizer.** A small program that decides whether a package may use a core at all.
-  *Example:* a package names its authorizer by a service and a code hash.
+- **Authorizer.** A gatekeeper for a core: a PVM program plus a blob of settings, named by
+  one hash. It decides whether a package may use the core at all; [Part
+  13](../13-authorization/index.md) is about it. *Example:* a package names its authorizer
+  by a code hash and a configuration blob, and says which service holds the code.
 - **Refinement context.** The chain as a package saw it when it was built: a recent block
   to anchor on, and anything that must be accumulated first. *Example:* [lesson 2.6](../02-codec/06-the-first-test-vectors.md)'s
   `refine_context` vector.
@@ -31,14 +36,199 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§14 (*Packages and Items*) defines a work-package as six things:
+::: gray-paper 14.3 1-4
+
+#### §14.3 Packages and Items {#gp-14-3}
+
+<a id="gp-14-3-p1"></a>We begin by defining a *work-package*, of set $\mathbb{P}$, and its constituent *work-item*s, of set $\mathbb{W}$. A work-package includes a simple blob acting as an authorization token $\mathbf{j}$, the index of the service which hosts the authorization code $h$, an authorization code hash $u$ and a configuration blob $\mathbf{f}$, a context $\mathbf{c}$ and a sequence of work items $\mathbf{w}$:
+
+<a id="gp-14-3-p2"></a><a id="eq-14-2"></a>
+
+$$
+\begin{equation}
+\mathbb{P} \equiv \!\left\lgroup
+\mathbf{j}\in \mathbb{B}_{},\
+h\in \mathbb{N}_S,\
+u\in \mathbb{H}_{},\
+\mathbf{f}\in \mathbb{B}_{},\
+\mathbf{c}\in \mathbb{C},\
+\mathbf{w}\in \left[\!\left[\mathbb{W}\right]\!\right]_{1:\mathsf{I}}
+\right\rgroup\! \tag{14.2}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-workpackage" class="gk-wrap">$\mathbb{P}$</span> | P | the set of work-packages: up to 16 work-items for one core, with their authorizer and context |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-wp-authtoken" class="gk-wrap">$\mathbf{j}$</span> | j | the authorization token: a blob the authorizer's code reads, a signature say (`authorization`) |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-wp-authcodehost">$h$</span> | h | the service whose preimages hold the authorizer's code (`auth_code_host`) |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-wp-authcodehash">$u$</span> | u | the hash of the authorizer's code (`auth_code_hash`) |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-wp-authconfig" class="gk-wrap">$\mathbf{f}$</span> | f | the authorizer's configuration blob, its settings (`authorizer_config`) |
+| <span id="gk-wp-context" class="gk-wrap">$\mathbf{c}$</span> | c | the package's refinement context |
+| <span id="gk-workcontext" class="gk-wrap">$\mathbb{C}$</span> | C | the set of refinement contexts: the recent blocks a package was built against, and the packages it needs first |
+| <span id="gk-wp-workitems" class="gk-wrap">$\mathbf{w}$</span> | w | the package's work-items: 1 to 16 |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Cmaxpackageitems" class="gk-wrap">$\mathsf{I}$</span> | I | the most work-items a package holds, so the most digests a report holds: 16 |
+| <span id="gk-workitem" class="gk-wrap">$\mathbb{W}$</span> | W | the set of work-items: one job for one service, with its payload, gas limits, imports, extrinsics and export count |
+
+</details>
+
+→ [(14.2) in plain words](./gray-paper.md#ex-14-2)
+
+<a id="gp-14-3-p3"></a>A work item includes: $s$ the identifier of the service to which it relates, the code hash of the service at the time of reporting $c$ (whose preimage must be available from the perspective of the lookup anchor block), a payload blob $\mathbf{y}$, gas limits for Refinement and Accumulation $g$ &amp; $a$, and the three elements of its manifest, a sequence of imported data segments $\mathbf{i}$ which identify a prior exported segment through an index and the identity of an exporting work-package, $\mathbf{x}$, a sequence of extrinsic data hashes and lengths and $e$ the number of data segments exported by this work item.
+
+<a id="gp-14-3-p4"></a><a id="eq-14-3"></a>
+
+$$
+\begin{equation}
+\mathbb{W} \equiv \!\left\lgroup\begin{aligned}
+&s\in \mathbb{N}_S,
+c\in \mathbb{H}_{},
+\mathbf{y}\in \mathbb{B}_{},
+g\in \mathbb{N}_G,
+a\in \mathbb{N}_G,
+e\in \mathbb{N}, \\
+&\mathbf{i}\in \left[\!\left[\!\left\lgroup\mathbb{H}_{} \cup (\mathbb{H}_{}^\boxplus),\mathbb{N}\right\rgroup\!\right]\!\right]_{},
+\mathbf{x}\in \left[\!\left[\!\left\lgroup\mathbb{H}_{}, \mathbb{N}\right\rgroup\!\right]\!\right]_{}
+\end{aligned}\right\rgroup\! \tag{14.3}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-wi-serviceindex">$s$</span> | s | the service the item is for |
+| <span id="gk-wi-codehash">$c$</span> | c | the code hash the item expects its service to have |
+| <span id="gk-wi-payload" class="gk-wrap">$\mathbf{y}$</span> | y | the item's payload: the input its refine reads |
+| <span id="gk-wi-refgaslimit">$g$</span> | g | the gas refine may use on this item |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-wi-accgaslimit">$a$</span> | a | the gas accumulate may use on this item's result |
+| <span id="gk-wi-exportcount">$e$</span> | e | how many segments the item says it will export |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-wi-importsegments" class="gk-wrap">$\mathbf{i}$</span> | i | the segments the item imports: each a segments root (or a package hash) and an index |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-boxplus">$\boxplus$</span> | boxed | H⊞ marks a hash as a package's hash, to be swapped for that package's segments root |
+| <span id="gk-wi-extrinsics" class="gk-wrap">$\mathbf{x}$</span> | x | the item's extrinsics: each a blob's hash and length |
+
+</details>
+
+→ [(14.3) in plain words](./gray-paper.md#ex-14-3)
+
+:::
+
+The package carries a context, and §11.1.2 says what one is:
+
+::: gray-paper 11.1.2
+
+#### §11.1.2 Refinement Context {#gp-11-1-2}
+
+<a id="gp-11-1-2-p1"></a>A *refinement context*, denoted by the set $\mathbb{C}$, describes the context of the chain at the point that the report's corresponding work-package was evaluated. It identifies two historical blocks, the *anchor*, header hash $a$, timeslot $n$, <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state-root $s$ and accumulation output log super-peak $b$; and the *<abbr class="gp-term" title="the block whose state an in-core run's lookups saw; it must be final and recent">lookup-anchor</abbr>*, header hash $l$, timeslot $t$ and posterior state-root $r$. Finally, it identifies the hash of any prerequisite work-packages $\mathbf{p}$. Formally:
+
+<a id="gp-11-1-2-p2"></a><a id="eq-11-4"></a>
+
+$$
+\begin{equation}
+\mathbb{C} \equiv \!\left\lgroup\,\begin{alignedat}{5}
+a&\in \mathbb{H}_{}\,,\;
+&n&\in \mathbb{N}_T\,,\;
+&s&\in \mathbb{H}_{}\,,\;
+&b&\in \mathbb{H}_{}\,,\;\\
+l&\in \mathbb{H}_{}\,,\;
+&t&\in \mathbb{N}_T\,,\;
+&r&\in \mathbb{H}_{}\,,\;
+&\mathbf{p}&\in \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}
+\end{alignedat}\right\rgroup\! \tag{11.4}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-wc-anchortime">$n$</span> | n | the anchor block's timeslot |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-wc-anchoraccoutlog">$b$</span> | b | the anchor block's accumulation-output super-peak, the belt's root (`beefy_root`) |
+| <span id="gk-wc-lookupanchorhash">$l$</span> | l | the lookup anchor's header hash: the block whose state code is fetched from |
+| <span id="gk-wc-lookupanchortime">$t$</span> | t | the lookup anchor's timeslot: at most L = 14,400 slots old |
+| <span id="gk-wc-lookupanchorpoststate">$r$</span> | r | the lookup anchor's state root |
+| <span id="gk-wc-prerequisites" class="gk-wrap">$\mathbf{p}$</span> | p | a context's prerequisites: hashes of packages that must be accumulated first |
+| <span id="gk-protoset">$\left\{\mkern-5mu\left[\,x\,\right]\mkern-5mu\right\}$</span> | the set of | a set written in order: no repeats, kept sorted |
+
+</details>
+
+→ [(11.4) in plain words](./gray-paper.md#ex-11-4)
+
+:::
+
+And §14.3 names the package's authorizer, from two of its fields:
+
+::: gray-paper 14.3 16-18
+
+#### §14.3 Packages and Items, continued
+
+<a id="gp-14-3-p16"></a>We define the work-package's implied authorizer as $\mathbf{p}_{a}$, the hash of the authorization code hash concatenated with the configuration. We define the authorization code as $\mathbf{p}_{\mathbf{u}}$ and require that it be available at the time of the lookup anchor block from the <abbr class="gp-term" title="reading a service's preimage as it was at a past slot">historical lookup</abbr> of service $\mathbf{p}_{h}$. Formally:
+
+<a id="gp-14-3-p17"></a><a id="eq-14-11"></a>
+
+$$
+\begin{equation}
+\forall \mathbf{p} \in \mathbb{P}: \left\{ \,\begin{aligned}
+\mathbf{p}_{a} &\equiv \mathcal{H}\left(\mathbf{p}_{u} \frown \mathbf{p}_{\mathbf{f}}\right) \\
+\mathcal{E}_{}\left(\left\updownarrow\mathbf{p}_{\mathbf{m}}\right.\!, \mathbf{p}_{\mathbf{u}}\right) &\equiv \Lambda(\delta\left[\mathbf{p}_{h}\right], (\mathbf{p}_{\mathbf{c}})_{t}, \mathbf{p}_{u}) \\
+\left(\mathbf{p}_{\mathbf{m}}, \mathbf{p}_{\mathbf{u}}\right) &\in \!\left\lgroup\mathbb{B}_{}, \mathbb{B}_{}\right\rgroup\!
+\end{aligned} \right. \tag{14.11}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-var">[$\left\updownarrow x\right.\!$](../symbols.md#length-prefix)</span> | with its length | ↕x: x with its length in front, as a compact natural |
+| <span id="gk-wp-metadata" class="gk-wrap">$\mathbf{m}$</span> | m | the metadata stored in front of the code in its preimage |
+| <span id="gk-wp-authcode" class="gk-wrap">$\mathbf{u}$</span> | u | the authorizer's code, found in the code host's preimages |
+| <span id="gk-histlookup" class="gk-wrap">$\Lambda$</span> | lambda (capital) | the historical lookup: the preimage with hash h if the account had it at slot t, else ∅ |
+| <span id="gk-accounts" class="gk-wrap">$\delta$</span> | delta | the service accounts: every service's code hash, balance, storage and preimages |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+
+</details>
+
+→ [(14.11) in plain words](./gray-paper.md#ex-14-11)
+
+<a id="gp-14-3-p18"></a>(The historical lookup function, $\Lambda$, is defined in equation [9.7](../14-services/01-providing-preimages.md#eq-9-7).)
+
+:::
+
+In plain words, §14.3 (*Packages and Items*) defines a work-package as six things:
 
 - **items**: the work items, 1 to 16 of them (the Gray Paper calls the limit I = 16);
-- **context**: the refinement context from [lesson 2.6](../02-codec/06-the-first-test-vectors.md), the chain as the package saw it;
+- **context**: the refinement context from [lesson 2.6](../02-codec/06-the-first-test-vectors.md), the chain as the package saw it: two
+  recent blocks, the anchor (its hash, slot, state root and belt root) and the lookup
+  anchor (hash, slot, state root), and the hashes of any packages that must come first;
 - and the permission slip, in four parts. Each core only accepts packages that a small
   program called an *authorizer* approves. The package says where that program lives
   (`auth_code_host`, a service, and `auth_code_hash`, which code in it), hands it a token
   (`authorization`) and its settings (`authorizer_config`).
+
+The authorizer's name, a, is the hash of the code hash followed by the configuration
+(14.11): the same code with other settings is another authorizer. Its code must be found
+in the code host's preimages as they stood at the context's lookup anchor, so every
+guarantor, and later every auditor, fetches the same program.
 
 Running an authorizer is a guarantor's job. Guarantors are validators, two or three of them
 on each core at a time, that take a package in, run its authorizer and its items, and sign
@@ -124,7 +314,7 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
-What flows through this run — the file's bytes, the value they decode to, the trace printed:
+What flows through this run: the file's bytes, the value they decode to, the trace printed:
 
 ::: code-group
 

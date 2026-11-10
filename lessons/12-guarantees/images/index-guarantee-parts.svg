@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 528" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+<style>
+  text { fill: #3c3c43; text-anchor: start; }
+  .title { font-weight: bold; }
+  .small { fill: #67676c; font-size: 12px; }
+  .bytes { fill: #0f766e; }
+  .who { fill: #c2410c; font-size: 12px; }
+  .place { fill: none; stroke: #9a9aa0; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .thing { fill: #e8f0fe; stroke: #5b8def; stroke-width: 1.5; }
+  .code { fill: #e6f6ef; stroke: #3fa97a; stroke-width: 1.5; }
+  .chain { fill: #fdf3e1; stroke: #d19a2a; stroke-width: 1.5; }
+  .line { stroke: #9a9aa0; stroke-width: 1.5; fill: none; }
+  .tip { fill: #9a9aa0; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #dfdfd6; }
+    .small { fill: #a8a8a0; }
+    .bytes { fill: #4fd1c5; }
+    .who { fill: #ff9a5c; }
+    .place { stroke: #6b6b72; }
+    .thing { fill: #1e2a44; stroke: #7aa2f7; }
+    .code { fill: #1b3329; stroke: #4fc08d; }
+    .chain { fill: #3a2e14; stroke: #e0b04a; }
+    .line { stroke: #6b6b72; }
+    .tip { fill: #6b6b72; }
+  }
+</style>
+<rect class="thing" x="16" y="8" width="848" height="512" rx="10"/>
+<text class="title" x="28" y="30">a guarantee: "we three ran this package, and this is what came out"</text>
+<rect class="chain" x="28" y="44" width="824" height="330" rx="8"/>
+<text class="title" x="40" y="66">the work-report (lesson 3.3): what the core says about one package</text>
+<rect class="thing" x="40" y="78" width="390" height="64" rx="6"/>
+<text class="title" x="52" y="98">package spec</text>
+<text class="small" x="52" y="115">hash 0x63c03371…4d86, 17,180 bytes</text>
+<text class="small" x="52" y="132">erasure root, 6 shards; exports root, 3 exports</text>
+<rect class="thing" x="442" y="78" width="398" height="64" rx="6"/>
+<text class="title" x="454" y="98">context: the chain as the package saw it</text>
+<text class="small" x="454" y="115">anchor: a block at slot 12, its state and belt roots</text>
+<text class="small" x="454" y="132">lookup anchor at slot 6; no prerequisites</text>
+<rect class="code" x="40" y="160" width="390" height="64" rx="6"/>
+<text class="title" x="52" y="180">core 0, authorizer 0x9a3a97d1…42eb</text>
+<text class="small" x="52" y="197">auth_gas_used 0, auth_output 0x (the trace)</text>
+<text class="small" x="52" y="214">the gatekeeper that let it in, and what it said</text>
+<rect class="thing" x="442" y="160" width="398" height="47" rx="6"/>
+<text class="title" x="454" y="180">segment_root_lookup: []</text>
+<text class="small" x="454" y="197">which earlier packages' exports it imported</text>
+<rect class="code" x="40" y="242" width="800" height="81" rx="6"/>
+<text class="title" x="52" y="262">results: one digest per work-item, here 1, for service 42</text>
+<text class="small" x="52" y="279">code hash, payload hash, accumulate_gas 18,012: what accumulate may spend on it</text>
+<text class="small" x="52" y="296">result: ok, 12 bytes: what refine produced, to hand to accumulate</text>
+<text class="small" x="52" y="313">refine_load: 821 gas, 8 imports, 8 extrinsics of 1,526 bytes, 17 exports: what refining cost the core</text>
+<text class="small" x="40" y="369">not in a report: the payloads, the code, the package itself. Those reach the validators as erasure-coded shards.</text>
+<rect class="thing" x="28" y="386" width="200" height="47" rx="6"/>
+<text class="title" x="40" y="406">slot 14</text>
+<text class="small" x="40" y="423">when the guarantors signed</text>
+<rect class="code" x="240" y="386" width="612" height="81" rx="6"/>
+<text class="title" x="252" y="406">signatures: 2 or 3 of the core's guarantors, by validator index</text>
+<text class="small" x="252" y="423">validator 1: 0x933f1e97…6301 (Ed25519, 64 bytes)</text>
+<text class="small" x="252" y="440">validator 4: 0x31387b7f…bf0d (Ed25519, 64 bytes)</text>
+<text class="small" x="252" y="457">validator 5: 0xf097bb3a…4e09 (Ed25519, 64 bytes)</text>
+<text class="small" x="28" y="492">The chain checks the signers and signatures (Part 12) and the authorizer (Part 13).</text>
+<text class="small" x="28" y="509">It never re-runs the work: auditors do, off the chain.</text>
+</svg>

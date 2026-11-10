@@ -20,7 +20,40 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§12, after a round (Δ*), in plain steps:
+The merge is the lower half of Δ\*'s body, [quoted whole in lesson
+17.1](./01-a-blocks-accumulation.md#gp-12-2-p15): the lines for m′, 𝐳′, 𝐚′, v′, r′, 𝐢′ and
+𝐪′. They all lean on one small function, R:
+
+::: gray-paper 12.2 16-17
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p16"></a><a id="eq-12-19"></a>
+
+$$
+\begin{equation}
+R(o, a, b) \equiv \begin{cases}
+b &\text{if } a = o \\
+a &\text{otherwise}
+\end{cases} \tag{12.19}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+
+</details>
+
+→ [(12.19) in plain words](./gray-paper.md#ex-12-19)
+
+<a id="gp-12-2-p17"></a>
+
+:::
+
+In plain words, §12.2's merge after a round (Δ\*) is five steps:
 
 1. **The manager's run decides the manager.** Whoever the manager's run left as manager
    is the manager now.
@@ -34,14 +67,14 @@ All three are in the [glossary](../glossary.md).
 5. **The next round starts from the merged privileges**, and the last round's are the
    block's.
 
-Why this rule? The Gray Paper's own reason: it lets privileges be *owned*, each holder
+Why this rule? The Gray Paper's own reason, [in the sentence before
+Δ\*](./01-a-blocks-accumulation.md#gp-12-2-p14): it lets privileges be *owned*, each holder
 changing its own, and it makes it possible to remove the manager altogether.
 
-In symbols, with o the holder at the start, a the manager's choice and b the holder's:
-
-  R(o, a, b) = b if a = o, otherwise a
-
-and χ′_A[c] = R(χ_A[c], e*_A[c], (Δ₁(χ_A[c]))_A[c]), where e* is the manager's run.
+Read R with o the holder at the start, a the manager's choice and b the holder's: if the
+manager left it as it was (a = o), the holder's choice b wins; otherwise the manager's a
+does. For core c's assigner that is 𝐚′[c] = R(𝐚[c], 𝐞\*_𝐚[c], what core c's assigner's own
+run left as 𝐚[c]), where 𝐞\* is the state the manager's run left.
 
 R on two cores, starting from the test's runs:
 

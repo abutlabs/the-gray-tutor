@@ -21,9 +21,43 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix C, *Discriminator Encoding*: a value that might be missing (∅) is written with a
-**discriminator** in front, ¿x: the byte 0 for "nothing", or the byte 1 followed by the
-value.
+Appendix C, *Discriminator Encoding*, ends with a sign for a value that might be missing:
+
+::: gray-paper C.1.3 4-5
+
+#### Appendix C.1.3 Discriminator Encoding, continued
+
+<a id="gp-C-1-3-p4"></a>We also define a convenient <abbr class="gp-term" title="a number in front of a value that tells a reader how to read what follows: a length, or which kind">discriminator</abbr> operator $\mathord{\unicode{xBF}}x$ specifically for terms defined by some serializable set in union with $\emptyset$ (generally denoted for some set $S$ as $S\boldsymbol{?}$):
+
+<a id="gp-C-1-3-p5"></a><a id="eq-C-8"></a>
+
+$$
+\begin{align}
+\mathord{\unicode{xBF}}x \equiv \begin{cases}
+0 &\text{if } x = \emptyset \\
+\left(1, x\right) &\text{otherwise}
+\end{cases} \tag{C.8}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-maybe">$\mathord{\unicode{xBF}}x$</span> | maybe | ¿x: the byte 0 if x is nothing (∅), or the byte 1 and then x |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(C.8) in plain words](./gray-paper.md#ex-C-8)
+
+:::
+
+In plain words, a value that might be missing (∅) is written with a **discriminator** in
+front, ¿x: the byte 0 for "nothing", or the byte 1 followed by the value. (C.8) says it
+as a tuple, (1, x), and a tuple is its parts side by side
+([lesson 2.3](../02-codec/03-writer-and-reader.md)), so the bytes are `01` and then x's.
 
 And a sequence whose length is fixed by the protocol (the Gray Paper writes ⟦T⟧ₙ for "n
 things of type T") is just its items, one after another, no length in front.

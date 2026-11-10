@@ -24,7 +24,8 @@ per KiB of key and 248 per KiB of value asked for.
 **`write`** (host call 5, Ω_W) changes the service's *own* storage. The key is at φ₇ (φ₈
 bytes) and the value at φ₉ (φ₁₀ bytes); an empty value deletes the key. φ₇ comes back as
 the length of the value that was there before, or NONE. It costs 2,442, plus 3,358 per KiB
-of key and 216 per KiB of value.
+of key and 216 per KiB of value. The paper's rows for both, in B.5's table, are explained
+in [16.A](./gray-paper.md#read-4), with this lesson's values.
 
 The catch: every stored key costs the service deposit. [Lesson 14.2](../14-services/02-the-service-account.md)'s footprint counts one
 item and 34 + |key| + |value| bytes for each, and the minimum balance a_t grows with it.

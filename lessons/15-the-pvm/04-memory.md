@@ -17,7 +17,64 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§4 and Appendix A.
+§4 and Appendix A. §4 gives memory's shape, 𝕄: its bytes, and each page's access. What
+happens when an instruction touches it is A.4's:
+
+::: gray-paper A.4 5-7
+
+#### Appendix A.4 Single-Step State Transition, continued
+
+<a id="gp-A-4-p5"></a>During the course of executing instructions RAM may be accessed. When an index of RAM below $2^{16}$ is required, the machine always panics immediately without further changes to its state regardless of the apparent (in)accessibility of the value. Otherwise, should the given index of RAM not be accessible then machine state remains unchanged and the exit reason is a fault with the lowest inaccessible *page address* to be read. Similarly, where RAM must be mutated and yet mutable access is not possible, then machine state is unchanged, and the exit reason is a fault with the lowest page address to be written which is inaccessible.
+
+<a id="gp-A-4-p6"></a>Formally, let $\mathbf{r}$ and $\mathbf{w}$ be the set of indices by which ${\mu}$ must be subscripted for inspection and mutation respectively in order to calculate the result of $\Psi_1$. We define the memory-access exceptional execution state $\varepsilon^\mu$ as following:
+
+<a id="gp-A-4-p7"></a><a id="eq-A-9"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\varepsilon^{\mu} &= \begin{cases}
+\blacktriangleright &\text{if } \mathbf{x} = \emptyset \\
+\unicode{x21AF} &\text{if } \min(\mathbf{x}) \bmod 2^{32} < 2^{16} \\
+\unicode{x2132} \times \mathsf{Z}_P\left\lfloor\min(\mathbf{x}) \bmod 2^{32} \div \mathsf{Z}_P\right\rfloor &\text{otherwise}
+\end{cases}\\
+\text{where } \mathbf{x} &= \left\{\,x \;\middle\vert\; x \in \mathbf{r} \wedge x \bmod 2^{32} \not\in \mathbb{V}_{{\mu}}\ \vee\ x \in \mathbf{w} \wedge x \bmod 2^{32} \not\in \mathbb{V}_{{\mu}}^*\,\right\}
+\end{aligned} \tag{A.9}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-varepsilon">$\varepsilon$</span> | epsilon | the exit reason: how a step or a run ended, from carry on to halt, panic, out of gas, fault or host call |
+| <span id="gk-mu">$\mu$</span> | mu | the PVM's memory |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+| <span id="gk-emptyset">$\emptyset$</span> | empty | the empty set: no items at all |
+| <span id="gk-panic">$\unicode{x21AF}$</span> | panic | ↯: the program trapped |
+| <span id="gk-min">$\min$</span> | the least of | the smallest of the values given; min(24, j : …) is the smallest j that fits, but no more than 24 |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-fault">$\unicode{x2132}$</span> | page fault | Ⅎ: the program touched memory it may not |
+| <span id="gk-times">$\times$</span> | times | multiply; between sets, every pair of one from each |
+| <span id="gk-Cpvmpagesize" class="gk-wrap">$\mathsf{Z}_P$</span> | Z sub P | a memory page: 4,096 bytes |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+| <span id="gk-div">$\div$</span> | divided by | division, exact; rounded only where ⌊ ⌋, ⌈ ⌉ or rtz says so |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-readable">$\mathbb{V}_{x}$</span> | V sub mu | the addresses of memory μ that may be read |
+| <span id="gk-mem" class="gk-wrap">${\mu}$</span> | mu | the PVM's memory: 2^32 bytes in pages of 4,096, each page readable, writable or neither |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+| <span id="gk-writable">$\mathbb{V}_{x}^*$</span> | V sub mu star | the addresses of memory μ that may be written |
+
+</details>
+
+→ [(A.9) in plain words](./gray-paper.md#ex-A-9)
+
+:::
+
+In plain words:
 
 **RAM** is 2^32 bytes, cut into *pages* of Z_P = 4,096 bytes. Each page is *readable*
 (R), *writable* (W, which is readable too), or *inaccessible*. A fresh machine has only
@@ -36,7 +93,71 @@ carry on.
 
 Addresses wrap round at 2^32 (the GP's ↺), and every value is little-endian.
 
-**The instructions** come in families that differ only in width and form:
+**The instructions** are in three of A.5's tables. With two immediates, the stores of a
+constant:
+
+::: gray-paper A.5.4 2-2
+
+#### Appendix A.5.4 Instructions with Arguments of Two Immediates, continued
+
+<a id="gp-A-5-4-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 30 | `store_imm_u8` | ${{\mu}'}^\circlearrowleft_{\nu_X} = \nu_Y \bmod 2^8$ |
+| 31 | `store_imm_u16` | ${{\mu}'}^\circlearrowleft_{\nu_X \dots+ 2} = \mathcal{E}_{2}\left(\nu_Y \bmod 2^{16}\right)$ |
+| 32 | `store_imm_u32` | ${{\mu}'}^\circlearrowleft_{\nu_X \dots+ 4} = \mathcal{E}_{4}\left(\nu_Y \bmod 2^{32}\right)$ |
+| 33 | `store_imm_u64` | ${{\mu}'}^\circlearrowleft_{\nu_X \dots+ 8} = \mathcal{E}_{8}\left(\nu_Y\right)$ |
+
+:::
+
+With a register and an immediate, the loads and stores at a fixed address (and
+`jump_ind` and `load_imm`, from [lesson 15.3](./03-the-machine.md)):
+
+::: gray-paper A.5.6 2-2
+
+#### Appendix A.5.6 Instructions with Arguments of One Register &amp; One Immediate, continued
+
+<a id="gp-A-5-6-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 50 | `jump_ind` | $\texttt{djump}(({\varphi}_A + \nu_X) \bmod 2^{32})$ |
+| 51 | `load_imm` | ${\varphi}'_A = \nu_X$ |
+| 52 | `load_u8` | ${\varphi}'_A = {{\mu}}^\circlearrowleft_{\nu_X}$ |
+| 53 | `load_i8` | ${\varphi}'_A = \mathcal{X}_{1}\left({{\mu}}^\circlearrowleft_{\nu_X}\right)$ |
+| 54 | `load_u16` | ${\varphi}'_A = \mathcal{E}^{-1}_{2}\left({{\mu}}^\circlearrowleft_{\nu_X \dots+ 2}\right)$ |
+| 55 | `load_i16` | ${\varphi}'_A = \mathcal{X}_{2}\left(\mathcal{E}^{-1}_{2}\left({{\mu}}^\circlearrowleft_{\nu_X \dots+ 2}\right)\right)$ |
+| 56 | `load_u32` | ${\varphi}'_A = \mathcal{E}^{-1}_{4}\left({{\mu}}^\circlearrowleft_{\nu_X \dots+ 4}\right)$ |
+| 57 | `load_i32` | ${\varphi}'_A = \mathcal{X}_{4}\left(\mathcal{E}^{-1}_{4}\left({{\mu}}^\circlearrowleft_{\nu_X \dots+ 4}\right)\right)$ |
+| 58 | `load_u64` | ${\varphi}'_A = \mathcal{E}^{-1}_{8}\left({{\mu}}^\circlearrowleft_{\nu_X \dots+ 8}\right)$ |
+| 59 | `store_u8` | ${{\mu}'}^\circlearrowleft_{\nu_X} = {\varphi}_A \bmod 2^8$ |
+| 60 | `store_u16` | ${{\mu}'}^\circlearrowleft_{\nu_X \dots+ 2} = \mathcal{E}_{2}\left({\varphi}_A \bmod 2^{16}\right)$ |
+| 61 | `store_u32` | ${{\mu}'}^\circlearrowleft_{\nu_X \dots+ 4} = \mathcal{E}_{4}\left({\varphi}_A \bmod 2^{32}\right)$ |
+| 62 | `store_u64` | ${{\mu}'}^\circlearrowleft_{\nu_X \dots+ 8} = \mathcal{E}_{8}\left({\varphi}_A\right)$ |
+
+:::
+
+With a register and two immediates, the stores of a constant through a register:
+
+::: gray-paper A.5.7 2-2
+
+#### Appendix A.5.7 Instructions with Arguments of One Register &amp; Two Immediates, continued
+
+<a id="gp-A-5-7-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 70 | `store_imm_ind_u8` | ${{\mu}'}^\circlearrowleft_{{\varphi}_A + \nu_X} = \nu_Y \bmod 2^8$ |
+| 71 | `store_imm_ind_u16` | ${{\mu}'}^\circlearrowleft_{{\varphi}_A + \nu_X \dots+ 2} = \mathcal{E}_{2}\left(\nu_Y \bmod 2^{16}\right)$ |
+| 72 | `store_imm_ind_u32` | ${{\mu}'}^\circlearrowleft_{{\varphi}_A + \nu_X \dots+ 4} = \mathcal{E}_{4}\left(\nu_Y \bmod 2^{32}\right)$ |
+| 73 | `store_imm_ind_u64` | ${{\mu}'}^\circlearrowleft_{{\varphi}_A + \nu_X \dots+ 8} = \mathcal{E}_{8}\left(\nu_Y\right)$ |
+
+:::
+
+The loads and stores through a register, `load_ind_…` and `store_ind_…` (120 to 130), share
+a table with [lesson 15.5](./05-arithmetic.md)'s arithmetic, and it's quoted there. In
+plain words, the families differ only in width and form:
 
 | Instructions | Address | Does |
 | --- | --- | --- |

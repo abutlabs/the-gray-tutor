@@ -11,7 +11,78 @@ split*. All three are in the [glossary](../glossary.md) too.
 
 ## What the Gray Paper says
 
-§10, *Disputes*. Every verdict in a block must keep seven rules:
+::: gray-paper 10.2 7-10
+
+#### §10.2 Extrinsic, continued
+
+<a id="gp-10-2-p7"></a>Verdicts $\mathbf{E}_V$ must be ordered by report hash. Offender signatures $\mathbf{E}_C$ and $\mathbf{E}_F$ must each be ordered by the validator's Ed25519 key. There may be no duplicate report hashes within the extrinsic, nor amongst any past reported hashes. Formally:
+
+<a id="gp-10-2-p8"></a><a id="eq-10-8"></a><a id="eq-10-9"></a><a id="eq-10-10"></a>
+
+$$
+\begin{align}
+&\mathbf{E}_V = \left[\left(r, a, \mathbf{j}\right) \in \mathbf{E}_V\,\wr\!\wr\,r\right] \tag{10.8} \\
+&\mathbf{E}_C = \left[\left(r, f, s\right) \in \mathbf{E}_C\,\wr\!\wr\,f\right] \,,\
+\mathbf{E}_F = \left[\left(r, v, f, s\right) \in \mathbf{E}_F\,\wr\!\wr\,f\right]\!\!\!\!\!\! \tag{10.9} \\
+&\left\{\,r \;\middle\vert\; \left(r, a, \mathbf{j}\right) \in \mathbf{E}_V\,\right\} \mathrel{\unicode{x2AEF}} \psi_G \cup \psi_B \cup \psi_W \tag{10.10}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xtverdicts" class="gk-wrap">$\mathbf{E}_V$</span> | E sub V | the block's verdicts: each a report's hash, an epoch, and the judges' signed votes |
+| <span id="gk-sqorderuniqby">$\left[y\,\wr\!\wr\,x\right]$</span> | sorted, no repeats, by | sorted by the key on the right, each key once |
+| <span id="gk-xv-reporthash">$r$</span> | r | the hash of the work-report on trial |
+| <span id="gk-xv-epochindex">$a$</span> | a | a verdict's epoch: this epoch's index or the one before, saying whose validators judged |
+| <span id="gk-xv-judgments" class="gk-wrap">$\mathbf{j}$</span> | bold j | a verdict's judgments: the judges' signed votes, two thirds of the judges plus one |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-xtculprits" class="gk-wrap">$\mathbf{E}_C$</span> | E sub C | the block's culprits: guarantors of a bad report, each with the guarantee they signed |
+| <span id="gk-xc-offenderindex">$f$</span> | f | the culprit's Ed25519 key: 32 bytes |
+| <span id="gk-xc-signature">$s$</span> | s | the culprit's own guarantee signature on that report |
+| <span id="gk-xtfaults" class="gk-wrap">$\mathbf{E}_F$</span> | E sub F | the block's faults: judges who voted against a verdict, each with the vote they signed |
+| <span id="gk-xf-validity">$v$</span> | v | the fault's vote: ⊤ valid or ⊥ invalid |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-disjoint">$\mathrel{\unicode{x2AEF}}$</span> | share nothing with | the two sides have no item in common |
+| <span id="gk-goodset" class="gk-wrap">$\psi_G$</span> | psi sub G | the good set: hashes of every report a verdict found valid |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-badset" class="gk-wrap">$\psi_B$</span> | psi sub B | the bad set: hashes of every report a verdict found invalid |
+| <span id="gk-wonkyset" class="gk-wrap">$\psi_W$</span> | psi sub W | the wonky set: hashes of every report whose verdict split, so nobody can tell |
+
+</details>
+
+→ [(10.8), (10.9), (10.10) in plain words](./gray-paper.md#ex-10-8)
+
+<a id="gp-10-2-p9"></a>The judgments of all verdicts must be ordered by validator index and there may be no duplicates:
+
+<a id="gp-10-2-p10"></a><a id="eq-10-11"></a>
+
+$$
+\begin{equation}
+\forall \left(r, a, \mathbf{j}\right) \in \mathbf{E}_V : \mathbf{j} = \left[\left(v, i, s\right) \in \mathbf{j}\,\wr\!\wr\,i\right] \tag{10.11}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-xvj-judgeindex">$i$</span> | i | the judge's index in the validator set the verdict's epoch picks |
+
+</details>
+
+→ [(10.11) in plain words](./gray-paper.md#ex-10-11)
+
+:::
+
+Those are rules 1, 2 and 5 below; the other four are in the lines [lesson
+10.1](./01-votes-and-verdicts.md#what-the-gray-paper-says) quoted: the age in (10.2), the
+count and the signatures in (10.4), the split in (10.12). (10.9), the order of culprits
+and faults, is [lesson 10.5](./05-bad-culprits-and-faults.md)'s. In plain words, every
+verdict in a block must keep seven rules:
 
 1. **In order.** Verdicts are sorted by report hash, with no report twice.
    (`verdicts_not_sorted_unique`)

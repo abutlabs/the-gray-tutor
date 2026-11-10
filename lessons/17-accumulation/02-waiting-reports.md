@@ -23,7 +23,212 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§12's *History and Queuing*, in plain steps:
+::: gray-paper 12.1
+
+#### §12.1 History and Queuing {#gp-12-1}
+
+<a id="gp-12-1-p1"></a>Accumulation of a work-report is deferred in the case that it has a not-yet-fulfilled dependency and is cancelled entirely in the case of an invalid dependency. Dependencies are specified as work-package hashes and in order to know which work-packages have been accumulated already, we maintain a history of what has been accumulated. This history, $\xi$, is sufficiently large for an epoch worth of work-reports. Formally:
+
+<a id="gp-12-1-p2"></a><a id="eq-12-1"></a><a id="eq-12-2"></a>
+
+$$
+\begin{align}
+\xi &\in \left[\!\left[\left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\right]\!\right]_{\mathsf{E}} \tag{12.1} \\
+\overbrace{\xi} &\equiv \bigcup_{x \in \xi}(x) \tag{12.2}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accumulated" class="gk-wrap">$\xi$</span> | xi | the accumulated history: the packages accumulated in each of the last E slots |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-protoset">$\left\{\mkern-5mu\left[\,x\,\right]\mkern-5mu\right\}$</span> | the set of | a set written in order: no repeats, kept sorted |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-accumulatedcup" class="gk-wrap">$\overbrace{\xi}$</span> | all of xi | every work-package hash in the history ξ, its E sets joined into one: what was accumulated in the last epoch |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-bigcup">$\bigcup$</span> | the union over | everything in any of the sets it ranges over, together |
+
+</details>
+
+→ [(12.1), (12.2) in plain words](./gray-paper.md#ex-12-1)
+
+<a id="gp-12-1-p3"></a>We also maintain knowledge of ready (i.e.  available and/or audited) but not-yet-accumulated work-reports in the state item $\omega$. Each of these were made available at most one epoch ago but have or had unfulfilled dependencies. Alongside the work-report itself, we retain its unaccumulated dependencies, a set of work-package hashes. Formally:
+
+<a id="gp-12-1-p4"></a><a id="eq-12-3"></a>
+
+$$
+\begin{align}
+\omega &\in \left[\!\left[\left[\!\left[\!\left\lgroup\mathbb{R}, \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\right\rgroup\!\right]\!\right]_{}\right]\!\right]_{\mathsf{E}} \tag{12.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-ready" class="gk-wrap">$\omega$</span> | omega | the ready queue: available reports waiting on others before they can accumulate |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-workreport" class="gk-wrap">$\mathbb{R}$</span> | R | the set of work-reports: a core's signed receipt for one work-package |
+
+</details>
+
+→ [(12.3) in plain words](./gray-paper.md#ex-12-3)
+
+<a id="gp-12-1-p5"></a>The newly available work-reports, $\mathbf{R}$, are partitioned into two sequences based on the condition of having zero prerequisite work-reports. Those meeting the condition, $\mathbf{R}^!$, are accumulated immediately. Those not, $\mathbf{R}^Q$, are for queued execution. Formally:
+
+<a id="gp-12-1-p6"></a><a id="eq-12-4"></a><a id="eq-12-5"></a><a id="eq-12-6"></a>
+
+$$
+\begin{align}
+\mathbf{R}^! &\equiv \left[r \;\middle\vert\; r \mathrel{\unicode{x2B40}} \mathbf{R}, \left\vert(r_{\mathbf{c}})_{\mathbf{p}}\right\vert = 0 \wedge r_{\mathbf{l}} = \left\{\right\}\right] \tag{12.4} \\
+\mathbf{R}^Q &\equiv E(\left[
+D(r) \mid
+r \mathrel{\unicode{x2B40}} \mathbf{R},
+\left\vert(r_{\mathbf{c}})_{\mathbf{p}}\right\vert > 0 \vee r_{\mathbf{l}} \ne \left\{\right\}
+\right], \overbrace{\xi})\!\!\!\! \tag{12.5} \\
+D(r) &\equiv (r, \left\{\,(r_{\mathbf{c}})_{\mathbf{p}}\,\right\} \cup \mathcal{K}\left(r_{\mathbf{l}}\right)) \tag{12.6}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-wr-context" class="gk-wrap">$\mathbf{c}$</span> | c | a report's refinement context: the blocks its package was built against, and its prerequisites |
+| <span id="gk-wc-prerequisites" class="gk-wrap">$\mathbf{p}$</span> | p | a context's prerequisites: hashes of packages that must be accumulated first |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-wr-srlookup" class="gk-wrap">$\mathbf{l}$</span> | l | the segment-root lookup: for each package whose exports it imports by package hash, that package's segments root |
+| <span id="gk-emset">$\left\{\right\}$</span> | the empty set | a set, or a dictionary, with nothing in it |
+| <span id="gk-mid">$\mid$</span> | such that | in a sequence built from a rule: the items on the left, for every choice on the right |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+
+</details>
+
+→ [(12.4), (12.5), (12.6) in plain words](./gray-paper.md#ex-12-4)
+
+<a id="gp-12-1-p7"></a>We define the queue-editing function $E$, which is essentially a mutator function for items such as those of $\omega$, parameterized by sets of now-accumulated work-package hashes (those in $\xi$). It is used to update queues of work-reports when some of them are accumulated. Functionally, it removes all entries whose work-report's hash is in the set provided as a parameter, and removes any dependencies which appear in said set. Formally:
+
+<a id="gp-12-1-p8"></a><a id="eq-12-7"></a>
+
+$$
+\begin{equation}
+E\colon\left\{ \begin{aligned}
+&\!\left\lgroup\left[\!\left[\!\left\lgroup\mathbb{R}, \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\right\rgroup\!\right]\!\right]_{}, \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\right\rgroup\! \to \left[\!\left[\!\left\lgroup\mathbb{R}, \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\right\rgroup\!\right]\!\right]_{} \\
+&\left(\mathbf{r}, \mathbf{x}\right) \mapsto \left[
+\left(r, \mathbf{d} \setminus \mathbf{x}\right)
+\;\middle\vert\;
+\begin{aligned}
+&\left(r, \mathbf{d}\right) \mathrel{\unicode{x2B40}} \mathbf{r} ,\\
+&(r_{\mathbf{s}})_{p} \not\in \mathbf{x}
+\end{aligned}
+\right]
+\end{aligned} \right. \tag{12.7}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-setminus">$\setminus$</span> | without | the left side with every item of the right taken out |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-as-packagehash">$p$</span> | p | the work-package's hash |
+
+</details>
+
+→ [(12.7) in plain words](./gray-paper.md#ex-12-7)
+
+<a id="gp-12-1-p9"></a>We further define the accumulation priority queue function $Q$, which provides the sequence of work-reports which are able to be accumulated given a set of not-yet-accumulated work-reports and their dependencies.
+
+<a id="gp-12-1-p10"></a><a id="eq-12-8"></a>
+
+$$
+\begin{equation}
+Q\colon\left\{ \begin{aligned}
+&\left[\!\left[\!\left\lgroup\mathbb{R}, \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\right\rgroup\!\right]\!\right]_{} \to \left[\!\left[\mathbb{R}\right]\!\right]_{} \\
+&\mathbf{r} \mapsto \begin{cases}
+\left[\right] &\text{if } \mathbf{g} = \left[\right] \\
+\mathbf{g} \frown Q(E(\mathbf{r}, P(\mathbf{g})))\!\!\!\! &\text{otherwise} \\
+\, \text{where } \mathbf{g} = \left[r \;\middle\vert\; \left(r, \left\{\right\}\right) \mathrel{\unicode{x2B40}} \mathbf{r}\right]
+\end{cases}
+\end{aligned} \right. \tag{12.8}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-workreports">$\left[\!\left[\mathbb{R}\right]\!\right]$</span> | a sequence of work-reports | a list of work-reports, in order |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-local-fnsrmap">$P$</span> | P | the package hashes of some reports: P(𝐫) is the set of each report's work-package hash |
+
+</details>
+
+→ [(12.8) in plain words](./gray-paper.md#ex-12-8)
+
+<a id="gp-12-1-p11"></a>Finally, we define the mapping function $P$ which extracts the corresponding work-package hashes from a set of work-reports:
+
+<a id="gp-12-1-p12"></a><a id="eq-12-9"></a>
+
+$$
+\begin{equation}
+P\colon\left\{ \begin{aligned}
+\left\{\mkern-5mu\left[\,\mathbb{R}\,\right]\mkern-5mu\right\} &\to \left\{\mkern-5mu\left[\,\mathbb{H}_{}\,\right]\mkern-5mu\right\}\\
+\mathbf{r} &\mapsto \left\{\,
+(r_{\mathbf{s}})_{p} \;\middle\vert\; r \in \mathbf{r}
+\,\right\}
+\end{aligned} \right. \tag{12.9}
+\end{equation}
+$$
+
+→ [(12.9) in plain words](./gray-paper.md#ex-12-9)
+
+<a id="gp-12-1-p13"></a>We may now define the sequence of accumulatable work-reports in this block as $\mathbf{R}^*$:
+
+<a id="gp-12-1-p14"></a><a id="eq-12-10"></a><a id="eq-12-11"></a><a id="eq-12-12"></a>
+
+$$
+\begin{align}
+\text{let } m &= \mathbf{H}_{T} \bmod \mathsf{E} \tag{12.10} \\
+\mathbf{R}^* &\equiv \mathbf{R}^! \frown Q(\mathbf{q}) \tag{12.11} \\
+\quad \text{where } \mathbf{q} &= E(\overparen{\omega_{m \dots }} \frown \overparen{\omega_{ \dots m}} \frown \mathbf{R}^Q, P(\mathbf{R}^!)) \tag{12.12}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-concatall">$\overparen{x}$</span> | all joined | every sequence in it, joined end to end into one |
+| <span id="gk-interval">$_{x \dots y}$</span> | from x to y | the items from index x up to, not including, y |
+
+</details>
+
+→ [(12.10), (12.11), (12.12) in plain words](./gray-paper.md#ex-12-10)
+
+:::
+
+In plain words, §12.1, *History and Queuing*, is five steps:
 
 1. **Sort the new reports.** Those with no dependencies go now, as in [lesson 17.1](./01-a-blocks-accumulation.md). Each of the
    others joins the waiters with its set of dependencies, minus any package the history
@@ -41,6 +246,48 @@ All four are in the [glossary](../glossary.md).
    every other list loses whatever is now done. Lists for
    slots the chain skipped since the last block are emptied: their reports have waited a
    whole epoch, and are given up.
+
+Step 5 is in §12.3, *Final State Integration*, after the rounds have run, because only
+then is it known which reports went (the first n of R\*):
+
+::: gray-paper 12.3 7-8
+
+#### §12.3 Final State Integration, continued
+
+<a id="gp-12-3-p7"></a>We define the final state of the ready queue and the accumulated map by integrating those work-reports which were accumulated in this block and shifting any from the prior state with the oldest such items being dropped entirely:
+
+<a id="gp-12-3-p8"></a><a id="eq-12-31"></a><a id="eq-12-32"></a><a id="eq-12-33"></a>
+
+$$
+\begin{align}
+\xi'_{\mathsf{E} - 1} &= P(\mathbf{R}^*_{\dots n}) \tag{12.31} \\
+\forall i \in \mathbb{N}_{\mathsf{E} - 1}: \xi'_{i} &\equiv \xi_{i + 1} \tag{12.32} \\
+\forall i \in \mathbb{N}_{\mathsf{E}} : {\omega'}^\circlearrowleft_{m - i} &\equiv \begin{cases}
+E(\mathbf{R}^Q, \xi'_{\mathsf{E} - 1}) &\text{if } i = 0 \\
+\left[\right] &\text{if } 1 \le i < \tau' - \tau \\
+E({\omega}^\circlearrowleft_{m - i}, \xi'_{\mathsf{E} - 1}) &\text{if } i \ge \tau' - \tau
+\end{cases}
+\!\!\!\! \tag{12.33}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-cyclic">${x}^\circlearrowleft$</span> | wrapped around | ↺: the index goes round, counting from 0 again past the end (mod the length) |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-ge">$\ge$</span> | is at least | greater than or equal to |
+
+</details>
+
+→ [(12.31), (12.32), (12.33) in plain words](./gray-paper.md#ex-12-31)
+
+:::
 
 When you read the Gray Paper, these are the same things:
 

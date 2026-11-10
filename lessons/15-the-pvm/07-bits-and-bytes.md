@@ -7,8 +7,33 @@ runs every instruction in the Gray Paper but one.
 
 ## What the Gray Paper says
 
-Appendix A.5, the instructions with two registers (101 to 110). Each one makes φ′_D from
-φ_A alone, and the byte after the opcode is D + 16·A.
+Appendix A.5, the instructions with two registers (101 to 110; 100, `move_reg`, is
+[lesson 15.3](./03-the-machine.md)'s):
+
+::: gray-paper A.5.9 2-2
+
+#### Appendix A.5.9 Instructions with Arguments of Two Registers, continued
+
+<a id="gp-A-5-9-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 100 | `move_reg` | ${\varphi}'_D = {\varphi}_A$ |
+| 101 | `count_set_bits_64` | $\displaystyle{\varphi}'_D = \sum_{i = 0}^{63}\mathcal{B}_{8}({\varphi}_A)_{i}$ |
+| 102 | `count_set_bits_32` | $\displaystyle{\varphi}'_D = \sum_{i = 0}^{31}\mathcal{B}_{4}({\varphi}_A \bmod 2^{32})_{i}$ |
+| 103 | `leading_zero_bits_64` | $\displaystyle{\varphi}'_D = \max(n \in \mathbb{N}_{65})\  \text{where } \sum_{i = 0}^{i < n} \overleftarrow{\mathcal{B}}_{8}({\varphi}_A)_{i} = 0$ |
+| 104 | `leading_zero_bits_32` | $\displaystyle{\varphi}'_D = \max(n \in \mathbb{N}_{33})\  \text{where } \sum_{i = 0}^{i < n} \overleftarrow{\mathcal{B}}_{4}({\varphi}_A \bmod 2^{32})_{i} = 0$ |
+| 105 | `trailing_zero_bits_64` | $\displaystyle{\varphi}'_D = \max(n \in \mathbb{N}_{65})\  \text{where } \sum_{i = 0}^{i < n} \mathcal{B}_{8}({\varphi}_A)_{i} = 0$ |
+| 106 | `trailing_zero_bits_32` | $\displaystyle{\varphi}'_D = \max(n \in \mathbb{N}_{33})\  \text{where } \sum_{i = 0}^{i < n} \mathcal{B}_{4}({\varphi}_A \bmod 2^{32})_{i} = 0$ |
+| 107 | `sign_extend_8` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\mathcal{Z}_{1}({\varphi}_A \bmod 2^8))$ |
+| 108 | `sign_extend_16` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\mathcal{Z}_{2}({\varphi}_A \bmod 2^{16}))$ |
+| 109 | `zero_extend_16` | ${\varphi}'_D = {\varphi}_A \bmod 2^{16}$ |
+| 110 | `reverse_bytes` | $\forall i \in \mathbb{N}_8 : \mathcal{E}_{8}\left({\varphi}'_D\right)_{i} = \mathcal{E}_{8}\left({\varphi}_A\right)_{7-i}$ |
+
+:::
+
+In plain words, each one makes φ′_D from φ_A alone, and the byte after the opcode is
+D + 16·A.
 
 - **`count_set_bits`**: how many bits are 1.
 - **`leading_zero_bits`**: how many 0s come above the highest 1. **`trailing_zero_bits`**:

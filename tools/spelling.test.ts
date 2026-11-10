@@ -19,13 +19,13 @@ test("prose only: no code, URLs, numbers, paths or names, and the line numbers k
     "$$",
     "x \\mapsto \\text{otherwize}",
     "$$",
-    "Maths $\\lfloor x \\rfloor$ inline, and a lone $ sign.",
+    "Math $\\lfloor x \\rfloor$ inline, and a lone $ sign.",
     "### A heading {#qwertyid}",
   ].join("\n");
   const words = proseWords(page).map((w) => `${w.line}:${w.word}`);
   assert.deepEqual(words, [
     "1:The", "1:wrods", "1:here", "5:Some", "5:and", "6:path", "6:file", "6:the",
-    "7:linktext", "7:and", "7:alttext", "11:Maths", "11:inline", "11:and", "11:lone", "11:sign",
+    "7:linktext", "7:and", "7:alttext", "11:Math", "11:inline", "11:and", "11:lone", "11:sign",
     "12:heading",
   ]);
 });

@@ -27,13 +27,91 @@ All six are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§3 (*Notational Conventions*): H(m) is *Blake2b* with a 256-bit (32-byte) output, as
-defined in RFC 7693. JAM hashes *encodings*: to hash a value, encode it ([Part 2](../02-codec/index.md)), then
-hash the bytes.
+§3.8 (*Cryptography*) names the hash:
 
-§5 (*The Header*): a header's `parent` is the hash of its parent block's header,
-H(ℰ(parent header)). The test vectors' block-import traces are chains of real blocks, so
-that's something you can check.
+::: gray-paper 3.8.1
+
+#### §3.8.1 Hashing {#gp-3-8-1}
+
+<a id="gp-3-8-1-p1"></a>$\mathbb{H}_{}$ denotes the set of 256-bit values equivalent to $\mathbb{B}_{32}$. All hash functions in the present work output to this type and $\mathbb{H}_{0}$ is the value equal to $\left[0\right]_{32}$. We assume a function $\mathcal{H}\left(m \in \mathbb{B}_{}\right) \in \mathbb{H}_{}$ denoting the Blake2b 256-bit hash introduced by [Saarinen and Aumasson 2015](https://www.rfc-editor.org/info/rfc7693) and a function $\mathcal{H}_K\left(m \in \mathbb{B}_{}\right) \in \mathbb{H}_{}$ denoting the Keccak 256-bit hash as proposed by Bertoni et al. 2013 and utilized by Wood 2014.
+
+<a id="gp-3-8-1-p2"></a>The inputs of a hash function should be expected to be passed through our <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> codec $\mathcal{E}$ to yield an <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequence to which the cryptography may be applied. (Note that an octet sequence conveniently yields an identity transform.) We may wish to interpret a sequence of <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> as some other kind of value with the assumed decoder function $\mathcal{E}^{-1}_{}\left(x \in \mathbb{B}_{}\right)$. In both cases, we may subscript the transformation function with the number of octets we expect the octet sequence term to have. Thus, $r = \mathcal{E}_4(x \in \mathbb{N})$ would assert $x \in \mathbb{N}_{2^{32}}$ and $r \in \mathbb{B}_{4}$, whereas $s = \mathcal{E}^{-1}_{8}\left(y \in \mathbb{B}_{}\right)$ would assert $y \in \mathbb{B}_{8}$ and $s \in \mathbb{N}_{2^{64}}$.
+
+:::
+
+In plain words: H(m) is *Blake2b* with a 256-bit (32-byte) output, as defined in RFC
+7693. JAM hashes *encodings*: to hash a value, encode it ([Part 2](../02-codec/index.md)),
+then hash the bytes. Bytes encode as themselves, so a blob is hashed as it is. ℍ₀, the
+"zero hash", is 32 zero bytes, used where there is nothing to point at. Keccak, the other
+hash, waits for [Part 9](../09-recent-history/index.md).
+
+§5 (*The Header*) puts the hash to work as the chain's link:
+
+::: gray-paper 5 3-8
+
+#### §5 The Header, continued
+
+<a id="gp-5-p3"></a>The blockchain is a sequence of blocks, each cryptographically referencing some prior block by including a hash derived from the parent's header, all the way back to some first block which references the <abbr class="gp-term" title="the chain's first block and state">genesis</abbr> header. We already presume consensus over this genesis header $\mathbf{H}^0$ and the state it represents defined as $\sigma^0$.
+
+<a id="gp-5-p4"></a>Excepting the Genesis header, all block headers $\mathbf{H}$ have an associated parent header, whose hash is $\mathbf{H}_{P}$. We denote the parent header ${\mathbf{H}}^- = P\left(\mathbf{H}\right)$:
+
+<a id="gp-5-p5"></a><a id="eq-5-2"></a>
+
+$$
+\begin{equation}
+\mathbf{H}_{P} \in \mathbb{H}_{} \,,\quad \mathbf{H}_{P} \equiv \mathcal{H}\left(\mathcal{E}_{}\left(P\left(\mathbf{H}\right)\right)\right) \tag{5.2}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-header" class="gk-wrap">$\mathbf{H}$</span> | H | a block header: the parent's hash, the slot, the seals and markers |
+| <span id="gk--parent">$P$</span> | P | a header's parent hash: 𝐇_P is the hash of the header before it, 32 bytes |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-getparent">$P\left(x\right)$</span> | P of | the parent of a header: P(𝐇) is the header of the block before |
+
+</details>
+
+→ [(5.2) in plain words](./gray-paper.md#ex-5-2)
+
+<a id="gp-5-p6"></a>$P$ is thus defined as being the mapping from one block header to its parent block header. With $P$, we are able to define the set of ancestor headers $\mathbf{A}$:
+
+<a id="gp-5-p7"></a><a id="eq-5-3"></a>
+
+$$
+\begin{align}
+h \in \mathbf{A} \Leftrightarrow h = \mathbf{H} \vee (\exists i \in \mathbf{A} : h = P\left(i\right)) \tag{5.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-ancestors" class="gk-wrap">$\mathbf{A}$</span> | A | the ancestors: this header, its parent, its parent's parent, and so on back to genesis |
+| <span id="gk-Leftrightarrow">$\Leftrightarrow$</span> | exactly when | if and only if: both sides are true together, or false together |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+
+</details>
+
+→ [(5.3) in plain words](./gray-paper.md#ex-5-3)
+
+<a id="gp-5-p8"></a>We only require implementations to store headers of ancestors which were authored in the previous $\mathsf{L} = 24$ hours of any block $\mathbf{B}$ they wish to validate.
+
+:::
+
+In plain words: a header's `parent` is the hash of its parent block's header,
+H(ℰ(parent header)) (5.2). Follow `parent` back, one header at a time, and you visit
+every ancestor, all the way to genesis (5.3). A node keeps only the last 24 hours of
+them, L = 14,400 slots. The test vectors' block-import traces are chains of real blocks,
+so the link is something you can check.
 
 Try it below. The input starts as `c7 12`: 4,807 written as ℰ₂, from [lesson 2.1](../02-codec/01-fixed-width-integers.md).
 Flip any one of its bits, and about half of the hash's 256 bits flip with it, scattered,

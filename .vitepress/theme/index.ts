@@ -7,6 +7,7 @@ import { listenForResize, placeSideArrows } from "./side-arrows.ts";
 import { reloadOnStaleBuild } from "./stale.ts";
 import { listenForSnippetTaps } from "./concepts.ts";
 import { listenForEyeTaps } from "./eye.ts";
+import { listenForGlossTaps } from "./gray-paper.ts";
 import ConceptsToggle from "./ConceptsToggle.vue";
 import BitPlaces from "./BitPlaces.vue";
 import CompactNatural from "./CompactNatural.vue";
@@ -44,6 +45,7 @@ import JamNetwork from "./JamNetwork.vue";
 import SlotPlayer from "./SlotPlayer.vue";
 import StfStep from "./StfStep.vue";
 import GrayPaperRefs from "./GrayPaperRefs.vue";
+import EbookLink from "./EbookLink.vue";
 import GrayPaperMap from "./GrayPaperMap.vue";
 import ExtrinsicTree from "./ExtrinsicTree.vue";
 import VectorStep from "./VectorStep.vue";
@@ -187,6 +189,7 @@ export default {
     app.component("SlotPlayer", SlotPlayer); // JAM at a glance
     app.component("StfStep", StfStep); // the start page
     app.component("GrayPaperMap", GrayPaperMap); // the Gray Paper map
+    app.component("EbookLink", EbookLink); // the start page: the newest e-book
     app.component("ExtrinsicTree", ExtrinsicTree); // 5.2
     app.component("VectorStep", VectorStep); // 5.3
     app.component("SafroleTimeline", SafroleTimeline); // Part 8
@@ -311,6 +314,7 @@ export default {
     reloadOnStaleBuild();
     listenForSnippetTaps();
     listenForEyeTaps();
+    listenForGlossTaps();
     listenForKeys();
     listenForZoom();
     listenForResize();

@@ -3,7 +3,9 @@
 A work-report doesn't just wander into a block. Two or three validators from the core
 that did the work sign it, putting their names (and, eventually, their stake) on "this
 report is correct". A signed report is a *guarantee*: how work from the cores reaches the
-chain.
+chain. The signing happens in-core, by the three; the checking happens on the chain, by
+every validator, in [Part 12](../12-guarantees/index.md). Today your client only reads
+one.
 
 Here is the tiny vector's: the report, the slot it was signed in, and who signed. Tap
 into the report and it's [lesson 3.3](../03-work-and-reports/03-a-work-report.md)'s receipt.
@@ -32,7 +34,8 @@ Both are in the [glossary](../glossary.md).
 A block carries at most one guarantee per core, in order of core.
 
 Appendix C encodes a guarantee as the report, ℰ₄ of the slot, then the signatures with
-their length in front, each as ℰ₂ of the index and the 64-byte signature.
+their length in front, each as ℰ₂ of the index and the 64-byte signature: its (C.30),
+quoted with the whole block's in [lesson 4.7](./07-the-block.md#eq-C-30).
 
 ## The test
 

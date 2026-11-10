@@ -23,14 +23,159 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix D does it in two stages:
+§5 (*The Header*) says what the header's root is a root of:
+
+::: gray-paper 5 14-16
+
+#### §5 The Header, continued
+
+<a id="gp-5-p14"></a>The parent state root $\mathbf{H}_{R}$ is the root of a Merkle trie composed by the mapping of the *prior* state's Merkle root, which by definition is also the parent block's <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state. This is a departure from both Polkadot and the Yellow Paper's Ethereum, in both of which a block's header contains the *posterior* state's Merkle root. We do this to facilitate the pipelining of block computation and in particular of <abbr class="gp-term" title="hashing many values down to one root through a tree, so one 32-byte hash stands for them all">Merklization</abbr>.
+
+<a id="gp-5-p15"></a><a id="eq-5-9"></a>
+
+$$
+\begin{equation}
+\mathbf{H}_{R} \in \mathbb{H}_{} \,,\quad \mathbf{H}_{R} \equiv \mathcal{M}_\sigma\left(\sigma\right) \tag{5.9}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--priorstateroot">$R$</span> | R | a header's prior state root: 𝐇_R is the root of the state before this block, 32 bytes |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-merklizestate">$\mathcal{M}_\sigma\left(x\right)$</span> | M sigma of | the state root of: the 32-byte Merkle root of the whole state |
+| <span id="gk-thestate" class="gk-wrap">[$\sigma$](../symbols.md#state)</span> | sigma | the state: everything the chain remembers between blocks |
+
+</details>
+
+→ [(5.9) in plain words](./gray-paper.md#ex-5-9)
+
+<a id="gp-5-p16"></a>We assume the state-Merklization function $\mathcal{M}_\sigma$ is capable of transforming our state $\sigma$ into a 32-octet <abbr class="gp-term" title="a short hash that stands for some data, so the data can be checked against it later">commitment</abbr>. See appendix [D](./index.md#gp-D-p1) for a full definition of these two functions.
+
+:::
+
+In plain words: `parent_state_root` is the root of the state *before* this block, which is
+the state after its parent. Ethereum puts the state *after* the block in its header; JAM
+puts the one before, so an author can seal and send a block before it has hashed the state
+that block leaves behind: that root goes in the next block's header, and the two jobs
+overlap. ℳ_σ, the function that turns a state into 32 bytes, is Appendix D's, in two
+stages:
 
 1. *Serialization* turns the state into a list of entries: each a 31-byte *key* and a
    value of any length. (Which key holds what is [the next lesson](./02-state-keys.md). Today they're just
    bytes.)
-2. *Merklization* turns those entries into one 32-byte root. That's today.
+2. *Merklization* turns those entries into one 32-byte root. That's today:
 
-The trie is binary: it sorts entries by their key's bits, most significant first. Every
+::: gray-paper D.2
+
+#### Appendix D.2 Merklization {#gp-D-2}
+
+<a id="gp-D-2-p1"></a>With $T$ defined, we now define the rest of $\mathcal{M}_\sigma$ which primarily involves transforming the serialized mapping into a cryptographic commitment. We define this commitment as the root of the binary Patricia Merkle Trie with a format optimized for modern compute hardware, primarily by optimizing sizes to fit succinctly into typical memory layouts and reducing the need for unpredictable branching.
+
+:::
+
+::: gray-paper D.2.1
+
+#### Appendix D.2.1 Node Encoding and Trie Identification {#gp-D-2-1}
+
+<a id="gp-D-2-1-p1"></a>We identify (sub-)tries as the hash of their root node, with one exception: empty (sub-)tries are identified as the zero-hash, $\mathbb{H}_{0}$.
+
+<a id="gp-D-2-1-p2"></a>Nodes are fixed in size at 512 bit (64 bytes). Each node is either a branch or a leaf. The first bit discriminate between these two types.
+
+<a id="gp-D-2-1-p3"></a>In the case of a branch, the remaining 511 bits are split between the two child node hashes, using the last 255 bits of the 0-bit (left) sub-trie identity and the full 256 bits of the 1-bit (right) sub-trie identity.
+
+<a id="gp-D-2-1-p4"></a>Leaf nodes are further subdivided into embedded-value leaves and regular leaves. The second bit of the node discriminates between these.
+
+<a id="gp-D-2-1-p5"></a>In the case of an embedded-value leaf, the remaining 6 bits of the first byte are used to store the embedded value size. The following 31 bytes are dedicated to the state key. The last 32 bytes are defined as the value, filling with zeroes if its length is less than 32 bytes.
+
+<a id="gp-D-2-1-p6"></a>In the case of a regular leaf, the remaining 6 bits of the first byte are zeroed. The following 31 bytes store the state key. The last 32 bytes store the hash of the value.
+
+<a id="gp-D-2-1-p7"></a>Formally, we define the encoding functions $B$ and $L$:
+
+<a id="gp-D-2-1-p8"></a><a id="eq-D-3"></a><a id="eq-D-4"></a>
+
+$$
+\begin{align}
+B&\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{H}_{}, \mathbb{H}_{}\right\rgroup\! &\to \mathbb{b}_{512}\\
+\left(l, r\right) &\mapsto \left[0\right] \frown \text{bits}(l)_{1 \dots } \frown \text{bits}(r)
+\end{aligned} \right. \tag{D.3} \\
+L&\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{B}_{31}, \mathbb{B}_{}\right\rgroup\! &\to \mathbb{b}_{512}\\
+\left(k, v\right) &\mapsto \begin{cases}
+\left[1, 0\right] \frown \text{bits}(\mathcal{E}_{1}\left(\left\vert v\right\vert\right))_{2 \dots } \frown \text{bits}(k) \frown \text{bits}(v) \frown \left[0, 0, \dots\right] &\text{if } \left\vert v\right\vert \le 32\\
+\left[1, 1, 0, 0, 0, 0, 0, 0\right] \frown \text{bits}(k) \frown \text{bits}(\mathcal{H}\left(v\right)) &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{D.4}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-interval">$_{x \dots y}$</span> | from x to y | the items from index x up to, not including, y |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+
+</details>
+
+→ [(D.3), (D.4) in plain words](./gray-paper.md#ex-D-3)
+
+<a id="gp-D-2-1-p9"></a>We may then define the basic Merklization function $\mathcal{M}_\sigma$ as:
+
+<a id="gp-D-2-1-p10"></a><a id="eq-D-5"></a><a id="eq-D-6"></a>
+
+$$
+\begin{align}
+\mathcal{M}_\sigma\left(\sigma\right) &\equiv M(\left\{\,\left(\text{bits}(k) \mapsto \left(k, v\right)\right) \;\middle\vert\; \left(k \mapsto v\right) \in T(\sigma) \,\right\}) \tag{D.5} \\
+M(d: \left\langle\!\left\vert \mathbb{b}_{}\to\!\left\lgroup\mathbb{B}_{31}, \mathbb{B}_{}\right\rgroup\!\right\vert\!\right\rangle) &\equiv \begin{cases}
+\mathbb{H}_{0} &\text{if } \left\vert d\right\vert = 0\\
+\mathcal{H}\left(\text{bits}^{-1}(L(k, v))\right) &\text{if } \mathcal{V}\left(d\right) = \left\{\, \left(k, v\right) \,\right\}\\
+\mathcal{H}\left(\text{bits}^{-1}(B(M(l), M(r)))\right) &\text{otherwise}\\
+\quad \text{where } \forall b, p: \left(b \mapsto p\right) \in d \Leftrightarrow \left(b_{1 \dots } \mapsto p\right) \in \begin{cases}
+l &\text{if } b_0 = 0 \\
+r &\text{if } b_0 = 1
+\end{cases}
+\end{cases} \tag{D.6}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-kv">$\left(x \mapsto y\right)$</span> | k maps to v | a dictionary entry: key k, value v |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-zerohash" class="gk-wrap">$\mathbb{H}_{0}$</span> | H zero | 32 zero bytes: a placeholder where a hash isn't known yet |
+| <span id="gk-values">$\mathcal{V}\left(x\right)$</span> | V of | a dictionary's (or sequence's) values |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-Leftrightarrow">$\Leftrightarrow$</span> | exactly when | if and only if: both sides are true together, or false together |
+
+</details>
+
+→ [(D.5), (D.6) in plain words](./gray-paper.md#ex-D-5)
+
+:::
+
+In plain words, the trie is binary: it sorts entries by their key's bits, most significant first. Every
 node is exactly 64 bytes, and its first bit says what kind it is.
 
 - **A leaf** (first bit 1) holds one entry: the key, and the value itself if the value

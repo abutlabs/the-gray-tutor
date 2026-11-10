@@ -3,7 +3,10 @@
 A JAM service can't download things. If it needs data, say a new version of its own
 code, it asks for it *by its hash and length* and waits. A later block brings the data in
 its preimages extrinsic ([lesson 4.1](../04-blocks/01-tickets-and-preimages.md)), the chain checks it is what was asked for (its
-hash says so), and hands it over. This lesson is that handover.
+hash says so), and hands it over. This lesson is that handover. The asking happened on
+the chain, in the service's own accumulate code ([lesson
+16.9](../16-host-calls/09-asking-for-preimages.md)); the bytes come from off the chain,
+in a block; and the handover is on the chain again, on every validator.
 
 ## New words
 
@@ -16,9 +19,145 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§9 and §12. For every piece of data a service has asked for, it keeps a *request*,
-under [lesson 6.2](../06-state-and-merklization/02-state-keys.md)'s `requestKey(s, H(data), length)`. Its value is a short *history*,
-the slots of its life so far:
+::: gray-paper 12.4
+
+#### §12.4 Preimage Integration {#gp-12-4}
+
+<a id="gp-12-4-p1"></a>After accumulation, we must integrate all preimages provided in the lookup extrinsic to arrive at the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> account state. The lookup extrinsic is a sequence of pairs of service indices and data. These pairs must be ordered and without duplicates (equation [12.35](#eq-12-35) requires this). The data must have been solicited by a service but not yet provided in the *prior* state. Formally:
+
+<a id="gp-12-4-p2"></a><a id="eq-12-34"></a><a id="eq-12-35"></a><a id="eq-12-36"></a>
+
+$$
+\begin{align}
+\mathbf{E}_P &\in \left[\!\left[\!\left\lgroup \mathbb{N}_S,\, \mathbb{B}_{} \right\rgroup\!\right]\!\right]_{} \tag{12.34} \\
+\mathbf{E}_P &= \left[i \in \mathbf{E}_P\,\wr\!\wr\,i\right] \tag{12.35} \\
+\forall \left(s, \mathbf{d}\right) &\in \mathbf{E}_P : Y(\delta, s, \mathbf{d}) \tag{12.36}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xtpreimages" class="gk-wrap">$\mathbf{E}_P$</span> | E sub P | the preimages bag: data a service asked for |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-sqorderuniqby">$\left[y\,\wr\!\wr\,x\right]$</span> | sorted, no repeats, by | sorted by the key on the right, each key once |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-xp-serviceindex">$s$</span> | s | a preimage's service: the id of the service that asked for it, 4 bytes |
+| <span id="gk-xp-data" class="gk-wrap">$\mathbf{d}$</span> | d | a preimage's data: the bytes themselves |
+| <span id="gk-local-fnprovidable">$Y$</span> | Y | is this blob still wanted? true if the service exists and its request for the blob's hash and length is [ ]: asked, not yet given |
+| <span id="gk-accountspre" class="gk-wrap">$\delta$</span> | delta | the service accounts before the block |
+
+</details>
+
+→ [(12.34), (12.35), (12.36) in plain words](./gray-paper.md#ex-12-34)
+
+<a id="gp-12-4-p3"></a>We disregard, without prejudice, any preimages which due to the effects of accumulation are no longer useful. We define $\delta'$ as the state after the integration of the still-relevant preimages:
+
+<a id="gp-12-4-p4"></a><a id="eq-12-37"></a>
+
+$$
+\begin{equation}
+\delta' = I(\delta^\ddagger, \mathbf{E}_P) \tag{12.37}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accountspostpreimage" class="gk-wrap">$\delta'$</span> | delta prime | the service accounts after the block, the preimages provided included |
+| <span id="gk-local-fnprovide">$I$</span> | I | preimage integration: files each provided blob in its service, if that service still waits for it |
+| <span id="gk-accountspostxfer" class="gk-wrap">$\delta^\ddagger$</span> | delta double dagger | the service accounts midway: after accumulation |
+
+</details>
+
+→ [(12.37) in plain words](./gray-paper.md#ex-12-37)
+
+:::
+
+In plain words: after accumulation, each preimage in the block is handed to the service
+that asked for it. Two checks come first, on the state *before* the block:
+
+- **Y, "providable"**: a preimage (s, data) is welcome if service s has a request for
+  (H(data), length) whose history is `[]`, still waiting.
+- **Sorted, no repeats**: the block lists its preimages by service, then by the data's
+  bytes, each once.
+
+Then **I, "provide"**: for each welcome preimage, the data is stored under
+`preimageKey(s, data)` ([lesson 6.2](../06-state-and-merklization/02-state-keys.md)), and
+the request's history becomes `[τ′]`, the slot of this block. A preimage that
+accumulation made unneeded in this same block is skipped, not refused: that is the
+"disregard, without prejudice".
+
+Where do requests live? Beside the preimages, in the service's account:
+
+::: gray-paper 9.2 9-9
+
+#### §9.2 Preimage Lookups, continued
+
+<a id="gp-9-2-p9"></a>The preimage lookup for some service of index $s$ is denoted $\delta\left[s\right]_{\mathbf{p}}$ is a dictionary mapping a hash to its corresponding preimage. Additionally, there is metadata associated with the lookup denoted $\delta\left[s\right]_{\mathbf{l}}$ which is a dictionary mapping some hash and presupposed length into historical information.
+
+:::
+
+::: gray-paper 9.2.1
+
+#### §9.2.1 Invariants {#gp-9-2-1}
+
+<a id="gp-9-2-1-p1"></a>The state of the lookup system naturally satisfies a number of invariants. Firstly, any preimage value must correspond to its hash, equation [9.6](#eq-9-6). Secondly, a preimage value being in state implies that its hash and length pair has some associated status, also in equation [9.6](#eq-9-6). Formally:
+
+<a id="gp-9-2-1-p2"></a><a id="eq-9-6"></a>
+
+$$
+\begin{equation}
+\forall \mathbf{a} \in \mathbb{A}, \left(h \mapsto \mathbf{d}\right) \in \mathbf{a}_{\mathbf{p}} \Rightarrow
+h = \mathcal{H}\left(\mathbf{d}\right)\wedge
+\left(h , \left\vert\mathbf{d}\right\vert\right) \in \mathcal{K}\left(\mathbf{a}_{\mathbf{l}}\right) \tag{9.6}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-serviceaccount" class="gk-wrap">$\mathbb{A}$</span> | A | a service account: three dictionaries (storage, preimages, requests) and eight plain fields |
+| <span id="gk-kv">$\left(x \mapsto y\right)$</span> | k maps to v | a dictionary entry: key k, value v |
+| <span id="gk-sa-preimages" class="gk-wrap">$\mathbf{p}$</span> | p | an account's preimages: each a blob filed under its own 32-byte hash |
+| <span id="gk-Rightarrow">$\Rightarrow$</span> | implies | if the left holds, the right must hold too |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+| <span id="gk-sa-requests" class="gk-wrap">$\mathbf{l}$</span> | l | an account's requests: for each (hash, length) asked for, a history of up to 3 slots |
+
+</details>
+
+→ [(9.6) in plain words](./gray-paper.md#ex-9-6)
+
+:::
+
+::: gray-paper 9.2.2 1-2
+
+#### §9.2.2 Semantics {#gp-9-2-2}
+
+<a id="gp-9-2-2-p1"></a>The historical status component $h \in \left[\!\left[\mathbb{N}_T\right]\!\right]_{:3}$ is a sequence of up to three time slots and the <abbr class="gp-term" title="how many items a set has">cardinality</abbr> of this sequence implies one of four modes:
+
+<a id="gp-9-2-2-p2"></a>
+
+- $h = \left[\!\left[\right]\!\right]_{}$: The preimage is *requested*, but has not yet been supplied.
+- $h \in \left[\!\left[\mathbb{N}_T\right]\!\right]_{1}$: The preimage is *available* and has been from time $h_0$.
+- $h \in \left[\!\left[\mathbb{N}_T\right]\!\right]_{2}$: The previously available preimage is now *unavailable* since time $h_1$. It had been available from time $h_0$.
+- $h \in \left[\!\left[\mathbb{N}_T\right]\!\right]_{3}$: The preimage is *available* and has been from time $h_2$. It had previously been available from time $h_0$ until time $h_1$.
+
+:::
+
+In plain words: every piece of data a service has asked for has a *request*, under
+[lesson 6.2](../06-state-and-merklization/02-state-keys.md)'s `requestKey(s, H(data), length)`.
+Its value is a short *history*, the slots of its life so far:
 
 | History | Means |
 | --- | --- |
@@ -27,14 +166,121 @@ the slots of its life so far:
 | `[x, y]` | provided at x, forgotten at y |
 | `[x, y, z]` | available again from z, after being available from x until y |
 
-**Y, "providable"**: a preimage (s, data) is welcome if service s has a request for
-(H(data), length) whose history is `[]`. **I, "provide"**: for each welcome preimage,
-the data is stored under `preimageKey(s, data)` ([lesson 6.2](../06-state-and-merklization/02-state-keys.md)), and the request's history
-becomes `[τ′]`, the slot of this block.
-
-The data proves itself: its hash is in the key, so nobody can provide the wrong thing.
+And the invariant: every stored preimage sits under its own hash, and has a request for
+its hash and length. The data proves itself: its hash is in the key, so nobody can
+provide the wrong thing.
 
 <ProvidePreimage />
+
+### What the history is for
+
+Why keep a history at all, instead of "have it" or "don't"? Because of refine, which runs
+off the chain, on a core, where there is no state everyone agrees on:
+
+::: gray-paper 9.2 3-8
+
+#### §9.2 Preimage Lookups, continued
+
+<a id="gp-9-2-p3"></a>We begin by reformulating the portion of state concerning our data-lookup system. The purpose of this system is to provide a means of storing static data on-chain such that it may later be made available within the execution of any service code as a function accepting only the hash of the data and its length in <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr>.
+
+<a id="gp-9-2-p4"></a>During the on-chain execution of the *Accumulate* function, this is trivial to achieve since there is inherently a state which all validators verifying the block necessarily have complete knowledge of, i.e.  $\sigma$. However, for the <abbr class="gp-term" title="done by a core's guarantors, off the chain; the chain only sees the result">in-core</abbr> execution of *Refine*, there is no such state inherently available to all validators; we thus name a historical state, the *lookup anchor* which must be considered recently <abbr class="gp-term" title="voted final by GRANDPA: never undone">finalized</abbr> before the work's implications may be accumulated hence providing this guarantee.
+
+<a id="gp-9-2-p5"></a>By retaining historical information on its availability, we become confident that any validator with a recently finalized view of the chain is able to determine whether any given preimage was available at any time within the period where auditing may occur. This ensures confidence that judgments will be deterministic even without consensus on chain state.
+
+<a id="gp-9-2-p6"></a>Restated, we must be able to define some *historical* lookup function $\Lambda$ which determines whether the preimage of some hash was available for lookup by some service account at some timeslot, and if so, provide it:
+
+<a id="gp-9-2-p7"></a><a id="eq-9-5"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\Lambda\colon \left\{ \ \begin{aligned}
+\!\left\lgroup\mathbb{A}, \mathbb{N}_{(\mathbf{H}_{T} - \mathsf{D}) \dots \mathbf{H}_{T}}, \mathbb{H}_{}\right\rgroup\! &\to \mathbb{B}_{}\boldsymbol{?} \\
+(\mathbf{a}, t, \mathcal{H}\left(\mathbf{p}\right)) &\mapsto v : v \in \left\{\, \mathbf{p}, \emptyset \,\right\}
+\end{aligned} \right.
+\end{aligned} \tag{9.5}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-histlookup" class="gk-wrap">$\Lambda$</span> | lambda (capital) | the historical lookup: the preimage with hash h if the account had it at slot t, else ∅ |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-Cexpungeperiod" class="gk-wrap">$\mathsf{D}$</span> | D | the expunge period: slots a forgotten preimage is kept before it may go, 19,200 on full, 32 on tiny |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(9.5) in plain words](./gray-paper.md#ex-9-5)
+
+<a id="gp-9-2-p8"></a>This function is defined shortly below in equation [9.7](#eq-9-7).
+
+:::
+
+::: gray-paper 9.2.2 3-4
+
+#### §9.2.2 Semantics, continued
+
+<a id="gp-9-2-2-p3"></a>The <abbr class="gp-term" title="reading a service's preimage as it was at a past slot">historical lookup</abbr> function $\Lambda$ may now be defined as:
+
+<a id="gp-9-2-2-p4"></a><a id="eq-9-7"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+&\Lambda\colon \!\left\lgroup\mathbb{A}, \mathbb{N}_T, \mathbb{H}_{}\right\rgroup\! \to \mathbb{B}_{}\boldsymbol{?} \\
+&\Lambda(\mathbf{a}, t, h) \equiv \begin{cases}
+\mathbf{a}_{\mathbf{p}}\left[h\right]\!\!\!\! &\text{if } h \in \mathcal{K}\left(\mathbf{a}_{\mathbf{p}}\right) \wedge I(\mathbf{a}_{\mathbf{l}}\left[h, \left\vert\mathbf{a}_{\mathbf{p}}\left[h\right]\right\vert\right], t) \!\!\!\!\! \\
+\emptyset &\text{otherwise}
+\end{cases}\\
+& \text{where } I(\mathbf{l}, t) = \begin{cases}
+\bot &\text{if } \left[\right] = \mathbf{l} \\
+x \le t &\text{if } \left[x\right] = \mathbf{l} \\
+x \le t < y &\text{if } \left[x, y\right] = \mathbf{l} \\
+x \le t < y \vee z \le t &\text{if } \left[x, y, z\right] = \mathbf{l} \\
+\end{cases}
+\end{aligned} \tag{9.7}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+
+</details>
+
+→ [(9.7) in plain words](./gray-paper.md#ex-9-7)
+
+:::
+
+In plain words: Λ asks "did this service have the preimage with hash h at slot t?", and
+reads the answer off the request's history. `[]` is never; `[x]` is from x on; `[x, y]`
+is from x until just before y; `[x, y, z]` is that, or from z on. A guarantor running
+refine and an auditor checking it weeks later both ask Λ about the same slot, the lookup
+anchor's, and get the same bytes, even though the state has moved on in between. That is
+why a forgotten preimage isn't deleted at once: it waits out D slots (32 on tiny, 19,200
+on full) so that a lookup in that window still has its answer.
+
+Your client doesn't build Λ. Only refine's `historical_lookup` host call uses it, and your
+client never runs refine ([Part 16](../16-host-calls/index.md) lists it among the calls
+not built). The history it reads is what this lesson writes.
 
 ## The tests
 

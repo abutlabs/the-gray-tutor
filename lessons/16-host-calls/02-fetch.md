@@ -28,8 +28,46 @@ there isn't writable, the machine panics.
 <FetchCopy />
 
 The price depends on the item (its M_Y, listed in App. I): a base, plus a rate per 1,024
-bytes *asked for*, rounded up (the Gray Paper's 𝒢). Item 0 is a flat 390, item 1 a flat
-103.
+bytes *asked for*, rounded up. The paper writes that rate as 𝒢, once for every host call
+whose price grows with the bytes:
+
+::: gray-paper B.5 6-8
+
+#### Appendix B.5 General Functions, continued
+
+<a id="gp-B-5-p6"></a>Memory-sized gas for host-calls is given by a rate $L$ (gas per 1024 <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr>) and size $\ell$ (octets). The following defines the gas cost for such a size:
+
+<a id="gp-B-5-p7"></a><a id="eq-B-17"></a>
+
+$$
+\begin{equation}
+\mathcal{G}(L, \ell) \equiv \left\lceil\frac{L \cdot \ell}{1024}\right\rceil \tag{B.17}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnmemgas" class="gk-wrap">$\mathcal{G}$</span> | script G | gas for a size: 𝒢(L, ℓ) is ℓ bytes at L gas per 1,024 bytes, rounded up |
+| <span id="gk-ell">$\ell$</span> | ell | a length defined nearby: in §14 the segments exported before an item; in Appendix A, the bytes after an opcode |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+
+</details>
+
+→ [(B.17) in plain words](./gray-paper.md#ex-B-17)
+
+<a id="gp-B-5-p8"></a>With base cost $c$, total gas is $c + \mathcal{G}(L, \ell)$. The host-call table below uses this formula for all memory-sized terms.
+
+:::
+
+In plain words: 𝒢(L, ℓ) is ℓ bytes at L gas per 1,024 bytes, rounded up to a whole unit
+of gas. Item 0 is a flat 390, item 1 a flat 103. `fetch`'s own row in the paper, with
+every item any invocation can ask for, is in B.5's table, quoted and explained in
+[16.A](./gray-paper.md#fetch-2).
 
 Item 0 lists the constants in a fixed order, each in a fixed number of bytes: the three
 deposits (B_I, B_L, B_S) in 8 bytes each, then C (the cores) in 2, D and E in 4, and so on

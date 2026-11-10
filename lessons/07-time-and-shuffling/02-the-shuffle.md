@@ -14,7 +14,53 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix F defines F, a Fisher-Yates shuffle, in two layers.
+::: gray-paper F 1-2
+
+#### Appendix F Shuffling {#gp-F}
+
+<a id="gp-F-p1"></a>The Fisher-Yates shuffle function is defined formally as:
+
+<a id="gp-F-p2"></a><a id="eq-F-1"></a>
+
+$$
+\begin{equation}
+\forall T, l \in \mathbb{N}: \mathcal{F}\colon\left\{ \begin{aligned}
+\!\left\lgroup\left[\!\left[T\right]\!\right]_{l}, \left[\!\left[\mathbb{N}\right]\!\right]_{l:}\right\rgroup\! &\to \left[\!\left[T\right]\!\right]_{l}\\
+\left(\mathbf{s}, \mathbf{r}\right) &\mapsto \begin{cases}
+\left[\mathbf{s}_{\mathbf{r}_0 \bmod l}\right] \frown \mathcal{F}\left(\mathbf{s}'_{\dots l-1}, \mathbf{r}_{1\dots}\right)\  \text{where } \mathbf{s}' = \mathbf{s} \text{ except } \mathbf{s'}_{\mathbf{r}_0 \bmod l} = \mathbf{s}_{l - 1} &\text{if } \mathbf{s} \ne \left[\right]\\
+\left[\right] &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{F.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-fnfyshuffle" class="gk-wrap">$\mathcal{F}$</span> | F | the Fisher-Yates shuffle: a sequence and some entropy in, the same items in a fixed random order out |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-fyshuffle">$\mathcal{F}\left(x\right)$</span> | F of | the Fisher-Yates shuffle: the sequence reordered by an entropy, the same way on every validator |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+
+</details>
+
+→ [(F.1) in plain words](./gray-paper.md#ex-F-1)
+
+:::
+
+In plain words, Appendix F defines F, a Fisher-Yates shuffle, in two layers. This is the
+first.
 
 **F(s, r)** shuffles a sequence s with a sequence of numbers r. Take the first number,
 r₀, and l, how many items are left:
@@ -41,7 +87,57 @@ Step through it yourself, then through the eight numbers of the run below.
 
 <ShuffleSteps />
 
-**Q_l(h)** makes the numbers: l of them, from a 32-byte hash h. Hash h together with
+The second layer drives the shuffle from a hash:
+
+::: gray-paper F 3-4
+
+#### Appendix F Shuffling, continued
+
+<a id="gp-F-p3"></a>Since it is often useful to shuffle a sequence based on some random seed in the form of a hash, we provide a secondary form of the shuffle function $\mathcal{F}$ which accepts a 32-byte hash instead of the numeric sequence. We define $\mathcal{Q}_{}$, the numeric-sequence-from-hash function, thus:
+
+<a id="gp-F-p4"></a><a id="eq-F-2"></a><a id="eq-F-3"></a>
+
+$$
+\begin{align}
+\forall l \in \mathbb{N}:\ \mathcal{Q}_{l}&\colon\left\{ \begin{aligned}
+\mathbb{H}_{} &\to \left[\!\left[\mathbb{N}_{2^{32}}\right]\!\right]_{l}\\
+h &\mapsto \left[
+\mathcal{E}^{-1}_{4}\left(\mathcal{H}\left(h \frown \mathcal{E}_{4}\left(\left\lfloor{}^{i}\!/_{8}\right\rfloor\right)\right)
+_{4i \bmod 32 \dots+4}\right)
+\;\middle\vert\;
+i \mathrel{\unicode{x2B40}} \mathbb{N}_{l}
+\right]
+\end{aligned} \right. \tag{F.2} \\
+\forall T, l \in \mathbb{N}:\ \mathcal{F}&\colon\left\{ \begin{aligned}
+\!\left\lgroup\left[\!\left[T\right]\!\right]_{l}, \mathbb{H}_{}\right\rgroup\! &\to \left[\!\left[T\right]\!\right]_{l}\\
+\left(\mathbf{s}, h\right) &\mapsto \mathcal{F}\left(\mathbf{s}, \mathcal{Q}_{l}\left(h\right)\right)
+\end{aligned} \right. \tag{F.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnseqfromhash">$\mathcal{Q}_{x}$</span> | Q sub l | numbers from a hash: l numbers of 4 bytes each, read from hashes of a 32-byte seed, for the shuffle |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-decode">[$\mathcal{E}^{-1}\left(x\right)$](../symbols.md#decode)</span> | E inverse of | decoding: bytes back into the value they encode |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+| <span id="gk-nicefrac">${}^{x}\!/_{y}$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-seqfromhash">$\mathcal{Q}_{x}\left(y\right)$</span> | Q sub l of h | l numbers drawn from the hash h: 4 bytes each, from the hashes of h with a counter after it |
+
+</details>
+
+→ [(F.2), (F.3) in plain words](./gray-paper.md#ex-F-2)
+
+:::
+
+In plain words: **Q_l(h)** makes the numbers: l of them, from a 32-byte hash h. Hash h together with
 ℰ₄(0), and the 32 bytes that come out are eight 4-byte numbers, read with ℰ₄⁻¹. Hash h
 with ℰ₄(1) for the next eight, and so on. **F(s, h)** is F(s, Q_l(h)): the shuffle as JAM
 uses it, with l the length of s.

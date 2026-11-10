@@ -51,6 +51,23 @@ then creates a service at id 2 leaves the *old* service 2 in place. The id was t
 the round and is there after, so to the Gray Paper's merge it is neither created (n) nor
 removed (m). Three of the new vectors do exactly that, and end with the old service 2.
 
+What if two runs in one round each create a service at the same id? The paper rules it
+out, and says what a block that does it is:
+
+::: gray-paper 12.2 20-20
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p20"></a>We note that while forming the union of all altered, newly added service and newly removed indices, defined in the above context as $\mathcal{K}\left(\mathbf{n}\right) \cup \mathbf{m}$, different services may not each contribute the same index for a new, altered or removed service. This cannot happen for the set of removed and altered services since the code hash of removable services has no known preimage and thus cannot execute itself to make an alteration. For new services this should also never happen since new indices are explicitly selected to avoid such conflicts. In the unlikely event it does happen, the block must be considered invalid.
+
+:::
+
+In plain words: an id comes from at most one run in a round. Removed and altered ids can't
+clash, because a service that may be ejected has a code hash with no code behind it, so it
+can't run to change itself. New ids shouldn't, because each run's first free id is hashed
+from its own service's id, so two runs start in different places. And if two runs do pick the same new id, the block is invalid: a client
+rejects it, never picks a winner.
+
 ## The tests
 
 **Add to** `test/host.test.ts`

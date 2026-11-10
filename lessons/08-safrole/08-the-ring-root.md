@@ -23,7 +23,82 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§6 and Appendix G, in plain steps:
+§6.2 names the ring root:
+
+::: gray-paper 6.2 3-4
+
+#### §6.2 Safrole Basic State, continued
+
+<a id="gp-6-2-p3"></a>$\gamma_Z$ is the epoch's root, a Bandersnatch ring root composed with the one Bandersnatch key of each of the next epoch's validators, defined in $\gamma_P$ (itself defined in the next section).
+
+<a id="gp-6-2-p4"></a><a id="eq-6-4"></a>
+
+$$
+\begin{align}
+\gamma_Z &\in \overset{\circ}{\mathbb{B}_{}} \tag{6.4}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-epochroot" class="gk-wrap">$\gamma_Z$</span> | gamma Z | the ring root of the pending validators' Bandersnatch keys: 144 bytes a ticket's proof is checked against |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-ringroot" class="gk-wrap">$\overset{\circ}{\mathbb{B}}$</span> | B ring | a Bandersnatch ring root: one 144-byte commitment to a whole set of keys |
+
+</details>
+
+→ [(6.4) in plain words](./gray-paper.md#ex-6-4)
+
+:::
+
+and Appendix G says what it is, and what a ring proof is:
+
+::: gray-paper G 4-6
+
+#### Appendix G Bandersnatch VRF, continued
+
+<a id="gp-G-p4"></a>The singly-contextualized Bandersnatch RingVRF proofs $\overset{\circ}{\mathbb{V}}_{r}^{m}\left\langle c\right\rangle$ are a zk-SNARK-enabled analogue utilizing the <abbr class="gp-term" title="the VRF scheme behind ring proofs, which hides which key signed">Pedersen</abbr> VRF, also defined by [Hosseini and Galassi 2024](https://github.com/davxy/bandersnatch-vrfs-spec/blob/main/specification.pdf) and further detailed by [Burdges et al. 2023](https://eprint.iacr.org/2023/002).
+
+<a id="gp-G-p5"></a><a id="eq-G-3"></a><a id="eq-G-4"></a><a id="eq-G-5"></a>
+
+$$
+\begin{align}
+\mathcal{O}\left(\left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{}\right) \in \overset{\circ}{\mathbb{B}_{}} &\equiv \text{commit}(\left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{}) \tag{G.3} \\
+\overset{\circ}{\mathbb{V}}_{r \in \overset{\circ}{\mathbb{B}_{}}}^{m \in \mathbb{B}_{}}\left\langle c \in \mathbb{B}_{}\right\rangle \subset \mathbb{B}_{784} &\equiv \left\{\,x \;\middle\vert\; x \in \mathbb{B}_{784}, \text{verify}(r, c, m, x) = \top \,\right\} \tag{G.4} \\
+\mathcal{Y}\left(p \in \overset{\circ}{\mathbb{V}}_{r}^{m}\left\langle c\right\rangle\right) \in \mathbb{H}_{} &\equiv \text{output}(x \mid x \in \overset{\circ}{\mathbb{V}}_{r}^{m}\left\langle c\right\rangle)_{ \dots 32} \tag{G.5}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-getringroot">$\mathcal{O}\left(x\right)$</span> | O of | the ring root of a list of Bandersnatch keys |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-bsringproof">$\overset{\circ}{\mathbb{V}}_{x}^{z}\left\langle y\right\rangle$</span> | V ring sub r, context c, of m | a ring proof: signed by some key in the ring with root r, without saying which: 784 bytes |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-subset">$\subset$</span> | is a proper subset of | everything in the left is in the right, and the right has more |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-top">$\top$</span> | top | true |
+| <span id="gk-banderout">$\mathcal{Y}\left(x\right)$</span> | Y of | the 32-byte random output a Bandersnatch signature or proof carries, used as entropy |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-mid">$\mid$</span> | such that | in a sequence built from a rule: the items on the left, for every choice on the right |
+| <span id="gk-interval">$_{x \dots y}$</span> | from x to y | the items from index x up to, not including, y |
+
+</details>
+
+→ [(G.3), (G.4), (G.5) in plain words](./gray-paper.md#ex-G-3)
+
+<a id="gp-G-p6"></a>Note that in the case a key $\overset{\backsim}{\mathbb{H}_{}}$ has no corresponding Bandersnatch point when constructing the ring, then the Bandersnatch *<abbr class="gp-term" title="a fixed curve point that stands in, in a ring, for a key that is not a valid point">padding point</abbr>* as stated by [Hosseini and Galassi 2024](https://github.com/davxy/bandersnatch-vrfs-spec/blob/main/specification.pdf) should be substituted.
+
+:::
+
+In plain words, step by step:
 
 1. **The ring root.** At a new epoch, γ′_Z = 𝒪(the Bandersnatch keys of γ′_P): the ring
    root of the validators who will be active in the *next* epoch. Tickets entered this
@@ -41,7 +116,7 @@ That's [lesson 8.7](./07-entering-tickets.md)'s last missing rule.
 
 You already built a commitment like this: [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s state root squeezes the whole
 state into 32 bytes you can check facts against. γ_Z squeezes the validator list into 144
-bytes you can check *membership* against — anonymously, which a plain hash can't offer.
+bytes you can check *membership* against, anonymously, which a plain hash can't offer.
 Here is the real ring the tiny vector `enact-epoch-change-with-padding-1.json` rotates in,
 and its real γ′_Z. Tap a seat to zero its key, the way [lesson 8.2](./02-rotating-the-validators.md) zeroes an offender's,
 and the root answers:
@@ -49,7 +124,7 @@ and the root answers:
 <RingRoot />
 
 One seat is strange on purpose: validator 3's key isn't a point on the curve at all, so
-the ring holds the padding point there whether you zero it or not — the vector exists to
+the ring holds the padding point there whether you zero it or not: the vector exists to
 test exactly that. And the root's last 48 bytes never move: that third point comes from
 the fixed setup, not from the keys.
 

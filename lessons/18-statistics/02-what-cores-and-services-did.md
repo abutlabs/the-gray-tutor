@@ -26,9 +26,213 @@ for later packages to import. All of them are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§13, *Cores and Services*. Unlike the validators' tallies, these two "are tracked only on
-a per-block basis": nothing carries over from the block before. The Gray Paper doesn't
-say why. A guess: they show one block's load, and anyone who wants totals can add up the
+::: gray-paper 13.2
+
+#### §13.2 Cores and Services {#gp-13-2}
+
+<a id="gp-13-2-p1"></a>The other two components of statistics are the core and service activity statistics. These are tracked only on a per-block basis unlike the validator statistics which are tracked over the whole epoch.
+
+<a id="gp-13-2-p2"></a><a id="eq-13-7"></a><a id="eq-13-8"></a>
+
+$$
+\begin{align}
+\pi_C &\in \left[\!\left[\!\left\lgroup
+\begin{alignedat}{7}
+d&\in \mathbb{N}\,,\;
+&p&\in \mathbb{N}\,,\;
+&i&\in \mathbb{N}\,,\;
+&x&\in \mathbb{N}\,,\;\\
+z&\in \mathbb{N}\,,\;
+&e&\in \mathbb{N}\,,\;
+&l&\in \mathbb{N}\,,\;
+&u&\in \mathbb{N}_G
+\end{alignedat}
+\right\rgroup\!\right]\!\right]_{\mathsf{C}} \tag{13.7} \\
+\pi_S &\in \left\langle\!\left\vert \mathbb{N}_S\to\!\left\lgroup
+\begin{alignedat}{3}
+p&\in \left(\mathbb{N}, \mathbb{N}\right)\,,\;
+&r&\in \left(\mathbb{N}, \mathbb{N}_G\right)\,,\;\\
+i&\in \mathbb{N}\,,\;
+x\in \mathbb{N}\,,\;
+&z&\in \mathbb{N}\,,\;
+e\in \mathbb{N}\,,\;\\
+a&\in \left(\mathbb{N}, \mathbb{N}, \mathbb{N}_G\right)
+\end{alignedat}
+\right\rgroup\!\right\vert\!\right\rangle \tag{13.8}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-corestats" class="gk-wrap">$\pi_C$</span> | pi sub C | the cores' tallies: one record per core, for this block only |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-cs-daload">$d$</span> | d | a core's data load: bytes its newly available reports ask validators to keep |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-cs-popularity">$p$</span> | p | a core's popularity: how many of the block's assurances have its bit set |
+| <span id="gk-cs-importcount">$i$</span> | i | segments imported by the work of the reports the core took on |
+| <span id="gk-cs-xtcount">$x$</span> | x | work-item extrinsics in those reports: blobs sent along for refine |
+| <span id="gk-cs-xtsize">$z$</span> | z | the bytes of those extrinsics |
+| <span id="gk-cs-exportcount">$e$</span> | e | segments exported by the work of the reports the core took on |
+| <span id="gk-cs-bundlelen">$l$</span> | l | the bytes of those reports' bundles, all together |
+| <span id="gk-cs-gasused">$u$</span> | u | the gas refine used for the reports the core took on |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-servicestats" class="gk-wrap">$\pi_S$</span> | pi sub S | the services' tallies: one record per service active in this block, for this block only |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-ss-refinement">$r$</span> | r | a service's refinement: how many of its digests were reported, and the gas they used |
+| <span id="gk-ss-accumulation">$a$</span> | a | a service's accumulation this block: work-items and transfers accumulated, and gas used |
+
+</details>
+
+→ [(13.7), (13.8) in plain words](./gray-paper.md#ex-13-7)
+
+<a id="gp-13-2-p3"></a>The core statistics are updated using several intermediate values from across the overall state-transition function; $\mathbf{I}$, the incoming work-reports, as defined in [11.30](../12-guarantees/04-bad-guarantees.md#eq-11-30) and $\mathbf{R}$, the newly available work-reports, as defined in [11.17](../11-assurances/01-available.md#eq-11-17). We define the statistics as follows:
+
+<a id="gp-13-2-p4"></a><a id="eq-13-9"></a><a id="eq-13-10"></a><a id="eq-13-11"></a><a id="eq-13-12"></a>
+
+$$
+\begin{align}
+\forall c \in \mathbb{N}_{\mathsf{C}} : \pi_C'\left[c\right] &\equiv \left(
+\begin{alignedat}{5}
+i&\mathrel{\unicode{x2AF6}} R(c)_{i}\,,\;
+&x&\mathrel{\unicode{x2AF6}} R(c)_{x}\,,\;
+&z&\mathrel{\unicode{x2AF6}} R(c)_{z}\,,\\
+e&\mathrel{\unicode{x2AF6}} R(c)_{e}\,,\;
+&u&\mathrel{\unicode{x2AF6}} R(c)_{u}\,,\;
+&l&\mathrel{\unicode{x2AF6}} L(c)\,,\\
+d&\mathrel{\unicode{x2AF6}} D(c)\,,\;
+&p&\mathrel{\unicode{x2AF6}} \textstyle \sum_{a \in \mathbf{E}_A} a_{f}\left[c\right]\qquad
+\end{alignedat}
+\right)\!\!\!\! \tag{13.9} \\
+\text{where } R(c \in \mathbb{N}_{\mathsf{C}}) &\equiv
+\!\!\!\!\!\!\!\!\!\!\!
+\sum_{\mathbf{d} \in \mathbf{r}_{\mathbf{d}}, \mathbf{r} \in \mathbf{I}, \mathbf{r}_{c} = c}
+\!\!\!\!\!\!\!\!\!\!\!
+\left(
+\mathbf{d}_{i},
+\mathbf{d}_{x},
+\mathbf{d}_{z},
+\mathbf{d}_{e},
+\mathbf{d}_{u},
+\right) \tag{13.10} \\
+\text{and } L(c \in \mathbb{N}_{\mathsf{C}}) &\equiv
+\!\!\!\!\!\!\!
+\sum_{\mathbf{r} \in \mathbf{I}, \mathbf{r}_{c} = c}
+\!\!\!\!\!\!\!
+(\mathbf{r}_{\mathbf{s}})_{l} \tag{13.11} \\
+\text{and } D(c \in \mathbb{N}_{\mathsf{C}}) &\equiv
+\!\!\!\!\!\!
+\sum_{\mathbf{r} \in \mathbf{R}, \mathbf{r}_{c} = c}
+\!\!\!\!\!\!
+(\mathbf{r}_{\mathbf{s}})_{l} +
+\mathsf{W}_G\left\lceil(\mathbf{r}_{\mathbf{s}})_{n}{}^{65}\!/_{64}\right\rceil \tag{13.12}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-xtassurances" class="gk-wrap">$\mathbf{E}_A$</span> | E sub A | the assurances bag: validators saying they hold their pieces of reports |
+| <span id="gk-xa-availabilities">$f$</span> | f | an assurance's bitfield: one bit per core, 1 for "I hold my piece of its data" |
+| <span id="gk-wdX" class="gk-wrap">$\mathbf{d}$</span> | d | a work-digest |
+| <span id="gk-wrX" class="gk-wrap">$\mathbf{r}$</span> | r | a work-report |
+| <span id="gk-incomingreports" class="gk-wrap">$\mathbf{I}$</span> | I | the incoming reports: the work-reports this block's guarantees carry |
+| <span id="gk-wr-core">$c$</span> | c | the core a report's work was done on, 0 to C − 1 |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-Csegmentsize" class="gk-wrap">$\mathsf{W}_G$</span> | W sub G | a segment's size: 4,104 bytes |
+| <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
+| <span id="gk-as-segcount">$n$</span> | n | how many segments the package exported |
+| <span id="gk-nicefrac">${}^{x}\!/_{y}$</span> | over | a fraction: the top divided by the bottom |
+
+</details>
+
+→ [(13.9), (13.10), (13.11), (13.12) in plain words](./gray-paper.md#ex-13-9)
+
+<a id="gp-13-2-p5"></a>Finally, the service statistics are updated using the same intermediate values as the core statistics, but with a different set of calculations:
+
+<a id="gp-13-2-p6"></a><a id="eq-13-13"></a><a id="eq-13-14"></a><a id="eq-13-15"></a><a id="eq-13-16"></a><a id="eq-13-17"></a>
+
+$$
+\begin{align}
+\forall s \in \mathbf{s} : \pi_S'\left[s\right] &\equiv \left(
+\begin{alignedat}{5}
+i&\mathrel{\unicode{x2AF6}} R(s)_{i}\,,\;
+&x&\mathrel{\unicode{x2AF6}} R(s)_{x}\,,\;
+&z&\mathrel{\unicode{x2AF6}} R(s)_{z}\,,\\
+e&\mathrel{\unicode{x2AF6}} R(s)_{e}\,,\;
+&r&\mathrel{\unicode{x2AF6}}\left(R(s)_{n}, R(s)_{u}\right)\,,\;\\
+p&\mathrel{\unicode{x2AF6}}
+\textstyle
+\sum_{\left(s, \mathbf{d}\right)\,\in \mathbf{E}_P}\left(1, \left\vert\mathbf{d}\right\vert\right)
+\,,\;\\
+a&\mathrel{\unicode{x2AF6}}
+\mathcal{U}\left(\mathbf{S}\left[s\right], \left(0, 0, 0\right)\right)
+\end{alignedat}
+\right)\!\!\!\! \tag{13.13} \\
+\text{where } \mathbf{s} &=
+\mathbf{s}^R \cup
+\mathbf{s}^P \cup
+\mathcal{K}\left(\mathbf{S}\right) \tag{13.14} \\
+\text{and } \mathbf{s}^R &= \left\{\,
+\mathbf{d}_{s} \;\middle\vert\; \mathbf{d} \in \mathbf{r}_{\mathbf{d}}, \mathbf{r} \in \mathbf{I}
+\,\right\} \tag{13.15} \\
+\text{and } \mathbf{s}^P &= \left\{\,
+s \;\middle\vert\; \exists x: \left(s, x\right) \in \mathbf{E}_P
+\,\right\} \tag{13.16} \\
+\text{and } R(s \in \mathbb{N}_S) &\equiv
+\!\!\!\!\!\!\!\!\!\!\!
+\sum_{\mathbf{d} \in \mathbf{r}_{\mathbf{d}}, \mathbf{r} \in \mathbf{I}, \mathbf{d}_{s} = s}
+\!\!\!\!\!\!\!\!\!\!\!
+\left(
+n\mathrel{\unicode{x2AF6}}1,
+\mathbf{d}_{u},
+\mathbf{d}_{i},
+\mathbf{d}_{x},
+\mathbf{d}_{z},
+\mathbf{d}_{e}
+\right) \tag{13.17}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xp-serviceindex">$s$</span> | s | a preimage's service: the id of the service that asked for it, 4 bytes |
+| <span id="gk-xtpreimages" class="gk-wrap">$\mathbf{E}_P$</span> | E sub P | the preimages bag: data a service asked for |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-subifnone">$\mathcal{U}\left(x\right)$</span> | U of | the first of its arguments that isn't nothing (∅), or ∅ if all are |
+| <span id="gk-accumulationstatistics" class="gk-wrap">$\mathbf{S}$</span> | S | this block's accumulation tallies, per service: work-items accumulated, transfers, and gas used |
+| <span id="gk-local-servicesreported" class="gk-wrap">$\mathbf{s}^R$</span> | s sup R | the services with a digest in a report guaranteed in this block |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-local-servicesprovided" class="gk-wrap">$\mathbf{s}^P$</span> | s sup P | the services a preimage was provided for in this block |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+
+</details>
+
+→ [(13.13), (13.14), (13.15), (13.16), (13.17) in plain words](./gray-paper.md#ex-13-13)
+
+:::
+
+In plain words: unlike the validators' tallies, these two last one block each: nothing
+carries over from the block before. The Gray Paper doesn't say why. A guess: they show one block's load, and anyone who wants totals can add up the
 blocks.
 
 **Each core's card** is filled from three places:

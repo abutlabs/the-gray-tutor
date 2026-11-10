@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { LESSONS } from "./lessons.ts";
 import { compact } from "../.vitepress/theme/compact.ts";
 import { FACES, drawFace, drawLogo } from "../.vitepress/theme/albert.ts";
+import { assuranceBytes, authorizerAnatomy, guaranteeParts, readingADefinition, serviceAccountParts, whatRunsWhere } from "./diagrams-pieces.ts";
 
 /** One field of an encoding: its name and value, its bytes, and how they were written. */
 interface Field {
@@ -514,6 +515,14 @@ export const DIAGRAMS: Record<string, () => string> = {
   "08-safrole/images/04-ticket-contest.svg": ticketContest,
   "17-accumulation/images/04-rounds.svg": accumulationRounds,
   "17-accumulation/images/11-well-balanced.svg": wellBalancedTree,
+  // what the pieces are made of, and where each runs: the appendix and Parts 11 to 14's opening pages
+  "images/what-runs-where.svg": whatRunsWhere,
+  "images/reading-a-definition.svg": readingADefinition,
+  "03-work-and-reports/images/index-what-runs-where.svg": whatRunsWhere, // Part 3 opens with the same map
+  "11-assurances/images/index-assurance-bytes.svg": assuranceBytes,
+  "12-guarantees/images/index-guarantee-parts.svg": guaranteeParts,
+  "13-authorization/images/index-authorizer.svg": authorizerAnatomy,
+  "14-services/images/index-service-account.svg": serviceAccountParts,
   // Albert: the logo, and his faces, met in lesson 0.1 (.vitepress/theme/albert.ts)
   "public/logo.svg": drawLogo,
   ...Object.fromEntries(FACES.map((face) => [`00-start/images/01-albert-${face}.svg`, () => drawFace(face)])),

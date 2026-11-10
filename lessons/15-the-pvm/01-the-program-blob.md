@@ -1,7 +1,10 @@
 # The program blob
 
 [Part 15](./index.md) is the *PVM*, the Polkadot Virtual Machine: the little computer inside every
-JAM node that runs services' code. First it has to *unpack* it. A service's code arrives
+JAM node that runs services' code, and authorizers' too. It runs in two places: in-core, on
+three guarantors, for an authorizer and for refine; and on the chain, on every validator,
+for accumulate. Your client only ever does the second, but it's the same machine. First it
+has to *unpack* the code. A service's code arrives
 as one long preimage ([lesson 14.1](../14-services/01-providing-preimages.md)); inside, like nesting dolls, are a label, a memory
 layout, and the program the PVM steps through. This lesson opens the dolls on a real
 service's real code.
@@ -25,17 +28,119 @@ Three layers, from the outside in.
 **1. The code preimage** (§9): E(↕m) ⌢ c. First the **metadata** m, with its length in
 front: a name, a version, a licence, for people rather than the PVM. Then the code c.
 
-**2. The standard program** (App. A, the function Y): c holds what the program's memory
-starts with. Four sizes, ℰ₃(|o|) ⌢ ℰ₃(|w|) ⌢ ℰ₂(z) ⌢ ℰ₃(s), then the data they size:
+**2. The standard program.** Appendix A.7 says what c is, in the paper's words:
+
+::: gray-paper A.7 1-5
+
+#### Appendix A.7 Standard Program Initialization {#gp-A-7}
+
+<a id="gp-A-7-p1"></a>The software programs which will run in each of the three instances where the PVM is utilized in the main document have a very typical setup pattern characteristic of an output of a compiler and linker. This means that RAM has sections for program-specific read-only data, read-write (heap) data and the stack. An adjunct to this, very typical of our usage patterns is an extra read-only section via which invocation-specific data may be passed (i.e.  arguments). It thus makes sense to define this properly in a single initializer function. These sections are quantized into *major zones*, and one major zone is always left unallocated between sections in order to reduce accidental overrun. Sections are padded with zeroes to the nearest PVM memory page boundary.
+
+<a id="gp-A-7-p2"></a>We thus define the standard JAM program blob format $\mathfrak{j}$, which includes not only the raw PVM program blob $\mathfrak{p}$, but also information on the state of the RAM at program start. Given JAM program blob $\mathfrak{j}$ and argument data $\mathbf{a}$, we can decode the PVM program blob $\mathfrak{p}$, registers $\varphi$, and RAM ${\mu}$ by invoking the standard initialization function $Y(\mathfrak{j}, \mathbf{a})$:
+
+<a id="gp-A-7-p3"></a><a id="eq-A-41"></a>
+
+$$
+\begin{equation}
+Y\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{B}_{}, \mathbb{B}_{:\mathsf{Z}_I}\right\rgroup\! &\to \!\left\lgroup\mathbb{B}_{}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}\right\rgroup\!? \\
+\left(\mathfrak{j}, \mathbf{a}\right) &\mapsto \begin{cases}
+\left(\mathfrak{p}, \varphi, {\mu}\right) &\text{if } \exists! \left(\mathfrak{p}, \mathbf{o}, \mathbf{w}, z, s\right) \text{ which satisfy equation A.42}\\
+\emptyset &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{A.41}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-Cpvminitinputsize" class="gk-wrap">$\mathsf{Z}_I$</span> | Z sub I | the most argument data a program can be given: 2^24 bytes, 16 MiB |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-regs">$\left[\!\left[\mathbb{N}_R\right]\!\right]_{13}$</span> | thirteen registers | a sequence of 13 register values, each a u64 |
+| <span id="gk-ram" class="gk-wrap">$\mathbb{M}$</span> | M | a PVM memory: its bytes, and which pages may be read or written |
+| <span id="gk-jam-blob" class="gk-wrap">$\mathfrak{j}$</span> | j (gothic) | a standard program: four sizes, the read-only and read-write data, then the PVM blob |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-pvm-blob" class="gk-wrap">$\mathfrak{p}$</span> | p (gothic) | a PVM program blob: the jump table, the code and the bitmask, packed as bytes |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-mem" class="gk-wrap">${\mu}$</span> | mu | the PVM's memory: 2^32 bytes in pages of 4,096, each page readable, writable or neither |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(A.41) in plain words](./gray-paper.md#ex-A-41)
+
+<a id="gp-A-7-p4"></a>With conditions:
+
+<a id="gp-A-7-p5"></a><a id="eq-A-42"></a><a id="eq-A-43"></a><a id="eq-A-44"></a><a id="eq-A-45"></a>
+
+$$
+\begin{align}
+&\text{let } \mathcal{E}_3(\left\vert\mathbf{o}\right\vert) \frown \mathcal{E}_3(\left\vert\mathbf{w}\right\vert) \frown \mathcal{E}_2(z) \frown \mathcal{E}_3(s) \frown \mathbf{o} \frown \mathbf{w} \frown \mathcal{E}_4(\left\vert\mathfrak{p}\right\vert) \frown \mathfrak{p} = \mathfrak{j} \tag{A.42} \\
+&\mathsf{Z}_Z = 2^{16}\ ,\quad\mathsf{Z}_I = 2^{24} \tag{A.43} \\
+&\text{let } P(x \in \mathbb{N}) \equiv \mathsf{Z}_P\left\lceil \frac{x}{\mathsf{Z}_P} \right\rceil\quad,\qquad Z(x \in \mathbb{N}) \equiv \mathsf{Z}_Z\left\lceil \frac{x}{\mathsf{Z}_Z} \right\rceil \tag{A.44} \\
+&5\mathsf{Z}_Z + Z(\left\vert\mathbf{o}\right\vert) + Z(\left\vert\mathbf{w}\right\vert + z\mathsf{Z}_P) + Z(s) + \mathsf{Z}_I \leq 2^{32} \tag{A.45}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-Cpvminitzonesize" class="gk-wrap">$\mathsf{Z}_Z$</span> | Z sub Z | a zone: 2^16 bytes, 64 KiB; memory's sections start on zones, with an empty one between |
+| <span id="gk-rnp">$P(x)$</span> | P of | x rounded up to whole pages of 4,096 bytes |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-Cpvmpagesize" class="gk-wrap">$\mathsf{Z}_P$</span> | Z sub P | a memory page: 4,096 bytes |
+| <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-rnq">$Z(x)$</span> | Z of | x rounded up to whole zones of 65,536 bytes |
+| <span id="gk-leq">$\leq$</span> | at most | less than or equal to |
+
+</details>
+
+→ [(A.42), (A.43), (A.44), (A.45) in plain words](./gray-paper.md#ex-A-42)
+
+:::
+
+In plain words, the first line of (A.42) is the layout, and the function Y (App. A.7)
+unpacks it: c holds what the program's memory starts with. Four sizes,
+ℰ₃(|o|) ⌢ ℰ₃(|w|) ⌢ ℰ₂(z) ⌢ ℰ₃(s), then the data they size:
 
 - o, **read-only data** the program may read;
 - w, **read-write data**, followed by z pages of zeroed heap;
 - s, the **stack** size;
 
-and then ℰ₄(|p|) ⌢ p, the *program blob* itself. ([Lesson 15.4](./04-memory.md) lays these out in
-memory.)
+and then ℰ₄(|p|) ⌢ p, the *program blob* itself. The other lines of (A.42) to (A.45) say
+how those sections sit in memory: zones of Z_Z = 2^16 bytes, room for Z_I = 2^24 bytes of
+arguments, and everything within 2^32 bytes. [Lesson 15.8](./08-a-real-program.md) lays
+them out.
 
-**3. The PVM blob** (App. A, deblob): ℰ(|j|) ⌢ ℰ₁(z) ⌢ ℰ(|c|), then:
+**3. The PVM blob.** Appendix A.2 opens on it:
+
+::: gray-paper A.2 1-3
+
+#### Appendix A.2 Instructions, Opcodes and Skip-distance {#gp-A-2}
+
+<a id="gp-A-2-p1"></a>The PVM program blob $\mathfrak{p}$ is split into a series of <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> which make up the *instruction data* $\mathbf{c}$ and the *<abbr class="gp-term" title="one bit per byte of code, marking the bytes where an instruction starts">opcode bitmask</abbr>* $\mathbf{k}$ as well as the *<abbr class="gp-term" title="the list of places a computed jump may land; an address picks an entry">dynamic jump table</abbr>*, $\mathbf{j}$. The former two imply an instruction sequence, and by extension a *basic-block sequence*, itself a sequence of indices of the instructions which follow a *block-termination* instruction.
+
+<a id="gp-A-2-p2"></a>The latter, dynamic jump table, is a sequence of indices into the instruction data blob and is indexed into when dynamically-computed jumps are taken. It is encoded as a sequence of natural numbers (i.e. non-negative integers) each encoded with the same length in octets. This length, term $z$ above, is itself encoded prior.
+
+<a id="gp-A-2-p3"></a>The PVM counts instructions in <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> terms (rather than in terms of instructions) and it is thus necessary to define which octets represent the beginning of an instruction, i.e.  the opcode octet, and which do not. This is the purpose of $\mathbf{k}$, the instruction-opcode bitmask. We assert that the length of the bitmask is equal to the length of the instruction blob.
+
+:::
+
+In plain words, the blob is ℰ(|j|) ⌢ ℰ₁(z) ⌢ ℰ(|c|), then the three parts the paper names
+(the function that cuts them apart, deblob, is [(A.2)](./03-the-machine.md#eq-A-2),
+quoted in [lesson 15.3](./03-the-machine.md) beside the machine it serves):
 
 - j, the *jump table*: |j| entries of z bytes each, the places an indirect jump may land;
 - c, the *code*: the *instructions*, byte after byte;

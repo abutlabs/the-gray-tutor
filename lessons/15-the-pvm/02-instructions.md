@@ -7,8 +7,509 @@ reading real JAM service code the way a computer does.
 
 ## What the Gray Paper says
 
-Appendix A.5 (*Instruction Tables*). 139 instructions, in 13 groups. Each group shares
-one **layout**, the way its arguments sit in the bytes after the opcode:
+Three parts of Appendix A tell you how to read one instruction. A.2 says where it ends:
+
+::: gray-paper A.2 4-9
+
+#### Appendix A.2 Instructions, Opcodes and Skip-distance, continued
+
+<a id="gp-A-2-p4"></a>We define the Skip function $\text{skip}$ which provides the number of <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr>, minus one, to the next instruction's opcode, given the index of instruction's opcode index into $\mathbf{c}$ (and by extension $\mathbf{k}$):
+
+<a id="gp-A-2-p5"></a><a id="eq-A-3"></a>
+
+$$
+\begin{equation}
+\text{skip}\colon\left\{ \begin{aligned}
+\mathbb{N} &\to \mathbb{N}\\
+i &\mapsto \min(24,\ j \in \mathbb{N} : \left(\mathbf{k} \frown \left[1, 1, \dots\right]\right)_{i + 1 + j} = 1)
+\end{aligned} \right. \tag{A.3}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Fskip">$\text{skip}$</span> | skip | skip(i): how many bytes follow the opcode at i before the next opcode, at most 24 |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-min">$\min$</span> | the least of | the smallest of the values given; min(24, j : …) is the smallest j that fits, but no more than 24 |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+
+</details>
+
+→ [(A.3) in plain words](./gray-paper.md#ex-A-3)
+
+<a id="gp-A-2-p6"></a>The Skip function appends $\mathbf{k}$ with a sequence of set bits in order to ensure a well-defined result for the final instruction $\text{skip}(\left\vert\mathbf{c}\right\vert - 1)$.
+
+<a id="gp-A-2-p7"></a>Given some instruction-index $i$, its opcode is readily expressed as $\mathbf{c}_i$ and the distance in octets to move forward to the next instruction is $1 + \text{skip}(i)$. However, each instruction's “length” (defined as the number of contiguous octets starting with the opcode which are needed to fully define the instruction's semantics) is left implicit though limited to being at most 16.
+
+<a id="gp-A-2-p8"></a>We define $\zeta$ as being equivalent to the instructions $\mathbf{c}$ except with an indefinite sequence of zeroes suffixed to ensure that no out-of-bounds access is possible. This effectively defines any otherwise-undefined arguments to the final instruction and ensures that a trap will occur if the program counter passes beyond the program code. Formally:
+
+<a id="gp-A-2-p9"></a><a id="eq-A-4"></a>
+
+$$
+\begin{equation}
+\zeta \equiv \mathbf{c} \frown \left[0, 0, \dots\right] \tag{A.4}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-instructions" class="gk-wrap">$\zeta$</span> | zeta | the code 𝐜 with zeros after it forever: reading past the end gives 0, which is trap |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+
+</details>
+
+→ [(A.4) in plain words](./gray-paper.md#ex-A-4)
+
+:::
+
+In plain words: **skip(ı)** is the distance from an opcode to the next one, minus one,
+never over 24. An instruction ends where the next begins, and the bitmask k of [lesson
+15.1](./01-the-program-blob.md) is how you find the next. ζ is the code with zeros added
+forever after it, so reading past the end never fails: it reads 0, which is `trap`.
+
+A.4 says how the numbers inside an instruction are read:
+
+::: gray-paper A.4 14-17
+
+#### Appendix A.4 Single-Step State Transition, continued
+
+<a id="gp-A-4-p14"></a>We define signed/unsigned transitions for various <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> widths:
+
+<a id="gp-A-4-p15"></a><a id="eq-A-13"></a><a id="eq-A-14"></a><a id="eq-A-15"></a><a id="eq-A-16"></a><a id="eq-A-17"></a><a id="eq-A-18"></a>
+
+$$
+\begin{align}
+\mathcal{Z}_{n \in \mathbb{N}}&\colon\left\{ \begin{aligned}
+\mathbb{N}_{2^{8n}} &\to \mathbb{Z}_{-2^{8n-1}\dots2^{8n-1}}\\
+a &\mapsto \begin{cases}
+a &\text{if } a < 2^{8n-1} \\
+a -\ 2^{8n} &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{A.13} \\
+\mathcal{Z}_{n \in \mathbb{N}}^{-1} &\colon\left\{ \begin{aligned}
+\mathbb{Z}_{-2^{8n-1}\dots2^{8n-1}} &\to \mathbb{N}_{2^{8n}}\\
+a &\mapsto (2^{8n} + a) \bmod 2^{8n}
+\end{aligned} \right. \tag{A.14} \\
+\mathcal{B}_{n\in\mathbb{N}}&\colon\left\{ \begin{aligned}
+\mathbb{N}_{2^{8n}} &\to \mathbb{b}_{8n}\\
+x &\mapsto \mathbf{y}: \forall i \in \mathbb{N}_{8n} : \mathbf{y}\left[i\right] \Leftrightarrow \left\lfloor\frac{x}{2^i}\right\rfloor\bmod 2
+\end{aligned} \right. \tag{A.15} \\
+\mathcal{B}_{n\in\mathbb{N}}^{-1}&\colon\left\{ \begin{aligned}
+\mathbb{b}_{8n} &\to \mathbb{N}_{2^{8n}}\\
+\mathbf{x} &\mapsto y: \sum_{i \in \mathbb{N}_{8n}} \mathbf{x}_{i} \cdot 2^i
+\end{aligned} \right. \tag{A.16} \\
+\overleftarrow{\mathcal{B}}_{n\in\mathbb{N}}&\colon\left\{ \begin{aligned}
+\mathbb{N}_{2^{8n}} &\to \mathbb{b}_{8n}\\
+x &\mapsto \mathbf{y}: \forall i \in \mathbb{N}_{8n} : \mathbf{y}[8n - 1 - i] \Leftrightarrow \left\lfloor\frac{x}{2^i}\right\rfloor\bmod 2
+\end{aligned} \right. \tag{A.17} \\
+\overleftarrow{\mathcal{B}}_{n\in\mathbb{N}}^{-1}&\colon\left\{ \begin{aligned}
+\mathbb{b}_{8n} &\to \mathbb{N}_{2^{8n}}\\
+\mathbf{x} &\mapsto y: \sum_{i \in \mathbb{N}_{8n}} \mathbf{x}_{8n - 1 - i} \cdot 2^i
+\end{aligned} \right. \tag{A.18}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-signfunc">$\mathcal{Z}_{x}$</span> | Z sub n | an n-byte number read as signed: the byte 0xff is −1 |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+| <span id="gk-Z" class="gk-wrap">$\mathbb{Z}$</span> | Z | the integers, negative ones too; a subscript gives the range |
+| <span id="gk-unsignfunc">$\mathcal{Z}_{x}^{-1}$</span> | Z sub n inverse | a signed number put back into n bytes: −1 becomes 0xff |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-bitsfunc">$\mathcal{B}_{x}$</span> | B sub n | a number of n bytes as its 8n bits, the lowest first |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-Leftrightarrow">$\Leftrightarrow$</span> | exactly when | if and only if: both sides are true together, or false together |
+| <span id="gk-ffrac">$\left\lfloor\frac{x}{y}\right\rfloor$</span> | x over y, rounded down | whole-number division, the remainder dropped: ⌊7/3⌋ is 2 |
+| <span id="gk-unbitsfunc">$\mathcal{B}_{x}^{-1}$</span> | B sub n inverse | 8n bits, the lowest first, back into a number |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+| <span id="gk-revbitsfunc">$\overleftarrow{\mathcal{B}}_{x}$</span> | B sub n reversed | a number of n bytes as its 8n bits, the highest first, as people write numbers |
+| <span id="gk-revunbitsfunc">$\overleftarrow{\mathcal{B}}_{x}^{-1}$</span> | B sub n reversed, inverse | 8n bits, the highest first, back into a number |
+
+</details>
+
+→ [(A.13), (A.14), (A.15), (A.16), (A.17), (A.18) in plain words](./gray-paper.md#ex-A-13)
+
+<a id="gp-A-4-p16"></a>Immediate arguments are encoded in little-endian format with the most-significant bit being the sign bit. They may be compactly encoded by eliding more significant octets. Elided octets are assumed to be zero if the MSB of the value is zero, and 255 otherwise. This allows for compact representation of both positive and negative encoded values. We thus define the signed extension function operating on an input of $n$ octets as $\mathcal{X}_{n}$:
+
+<a id="gp-A-4-p17"></a><a id="eq-A-19"></a>
+
+$$
+\begin{align}
+\mathcal{X}_{n \in \left\{\,0, 1, 2, 3, 4, 8\,\right\}}\colon\left\{ \begin{aligned}
+\mathbb{N}_{2^{8n}} &\to \mathbb{N}_R\\
+x &\mapsto x + \left\lfloor\frac{x}{2^{8n-1}}\right\rfloor(2^{64}-2^{8n})
+\end{aligned} \right. \tag{A.19}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnsext">$\mathcal{X}_{x}$</span> | X sub n | sign extension: an n-byte number stretched to 64 bits, its top bit copied into every bit above |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-pvmreg" class="gk-wrap">$\mathbb{N}_R$</span> | N sub R | a register's value: a u64 |
+
+</details>
+
+→ [(A.19) in plain words](./gray-paper.md#ex-A-19)
+
+:::
+
+In plain words: a register holds 64 bits, and the same bits can be read two ways. Z_n
+reads n bytes as a *signed* number (0xff is −1), and Z_n⁻¹ turns it back. X_n stretches an
+n-byte immediate to 64 bits, copying its top bit into all the bytes above: 0xff becomes
+2^64 − 1, which is −1 read signed. (B_n and its reverse list a number's bits, lowest or
+highest first; [lesson 15.7](./07-bits-and-bytes.md) counts with them.)
+
+And A.5, where the tables start, says how long the arguments are, ℓ, then opens each table
+with its **layout**, the one line that says where each register and number sits. The
+tables themselves come in the lessons that run their instructions; here are the twelve
+layouts:
+
+::: gray-paper A.5
+
+#### Appendix A.5 Instruction Tables {#gp-A-5}
+
+<a id="gp-A-5-p1"></a>We assume the skip length $\ell$ is well-defined:
+
+<a id="gp-A-5-p2"></a><a id="eq-A-23"></a>
+
+$$
+\begin{equation}
+\ell \equiv \text{skip}(\imath) \tag{A.23}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-ell">$\ell$</span> | ell | a length defined nearby: in §14 the segments exported before an item; in Appendix A, the bytes after an opcode |
+| <span id="gk-imath">$\imath$</span> | i | the instruction counter: the index in the code of the instruction to run next |
+
+</details>
+
+→ [(A.23) in plain words](./gray-paper.md#ex-A-23)
+
+:::
+
+::: gray-paper A.5.2 1-1
+
+#### Appendix A.5.2 Instructions with Arguments of One Immediate {#gp-A-5-2}
+
+<a id="gp-A-5-2-p1"></a><a id="eq-A-24"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } l_X = \min(4, \ell) \,,\quad
+\nu_X \equiv \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+1 \dots+ l_X}\right)\right)
+\end{aligned} \tag{A.24}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-immed" class="gk-wrap">$\nu$</span> | nu | an immediate: a number written in the instruction itself; ν_X the first, ν_Y the second |
+| <span id="gk-sext">$\mathcal{X}_{x}\left(y\right)$</span> | X sub n of | sign extension: an n-byte number stretched to 64 bits, its top bit copied into every bit above |
+| <span id="gk-decode">[$\mathcal{E}^{-1}\left(x\right)$](../symbols.md#decode)</span> | E inverse of | decoding: bytes back into the value they encode |
+| <span id="gk-subrange">$_{x \dots+ y}$</span> | from x, y of them | y items, starting at index x |
+
+</details>
+
+→ [(A.24) in plain words](./gray-paper.md#ex-A-24)
+
+:::
+
+::: gray-paper A.5.3 1-1
+
+#### Appendix A.5.3 Instructions with Arguments of One Register and One Extended Width Immediate {#gp-A-5-3}
+
+<a id="gp-A-5-3-p1"></a><a id="eq-A-25"></a>
+
+$$
+\begin{equation}
+\text{let } r_A = \min(12, \zeta_{\imath+1} \bmod 16) \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \,,\quad
+\nu_X \equiv \mathcal{E}^{-1}_{8}\left(\zeta_{\imath+2 \dots+ 8}\right) \tag{A.25}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-reg" class="gk-wrap">${\varphi}$</span> | phi | the registers: φ_A, φ_B and φ_D are the ones an instruction names, φ′ the values after it runs |
+
+</details>
+
+→ [(A.25) in plain words](./gray-paper.md#ex-A-25)
+
+:::
+
+::: gray-paper A.5.4 1-1
+
+#### Appendix A.5.4 Instructions with Arguments of Two Immediates {#gp-A-5-4}
+
+<a id="gp-A-5-4-p1"></a><a id="eq-A-26"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } l_X &= \min(4, \zeta_{\imath+1} \bmod 8) \,,\quad&
+\nu_X &\equiv \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+2 \dots+ l_X}\right)\right) \\
+\text{let } l_Y &= \min(4, \max(0, \ell - l_X - 1)) \,,\quad&
+\nu_Y &\equiv \mathcal{X}_{l_Y}\left(\mathcal{E}^{-1}_{l_Y}\left(\zeta_{\imath+2+l_X \dots+ l_Y}\right)\right)
+\end{aligned} \tag{A.26}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-max">$\max$</span> | max of | the largest of the values in the brackets |
+
+</details>
+
+→ [(A.26) in plain words](./gray-paper.md#ex-A-26)
+
+:::
+
+::: gray-paper A.5.5 1-1
+
+#### Appendix A.5.5 Instructions with Arguments of One Offset {#gp-A-5-5}
+
+<a id="gp-A-5-5-p1"></a><a id="eq-A-27"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } l_X = \min(4, \ell) \,,\quad
+\nu_X \equiv \imath + \mathcal{Z}_{l_X}(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+1 \dots+ l_X}\right))
+\end{aligned} \tag{A.27}
+\end{equation}
+$$
+
+→ [(A.27) in plain words](./gray-paper.md#ex-A-27)
+
+:::
+
+::: gray-paper A.5.6 1-1
+
+#### Appendix A.5.6 Instructions with Arguments of One Register &amp; One Immediate {#gp-A-5-6}
+
+<a id="gp-A-5-6-p1"></a><a id="eq-A-28"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, \zeta_{\imath+1} \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } l_X &= \min(4, \max(0, \ell - 1)) \,,\quad&
+\nu_X &\equiv \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+2 \dots+ l_X}\right)\right)
+\end{aligned} \tag{A.28}
+\end{equation}
+$$
+
+→ [(A.28) in plain words](./gray-paper.md#ex-A-28)
+
+:::
+
+::: gray-paper A.5.7 1-1
+
+#### Appendix A.5.7 Instructions with Arguments of One Register &amp; Two Immediates {#gp-A-5-7}
+
+<a id="gp-A-5-7-p1"></a><a id="eq-A-29"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, \zeta_{\imath+1} \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } l_X &= \min(4, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor \bmod 8) \,,\quad&
+\nu_X &= \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+2 \dots+ l_X}\right)\right) \\
+\text{let } l_Y &= \min(4, \max(0, \ell - l_X - 1)) \,,\quad&
+\nu_Y &= \mathcal{X}_{l_Y}\left(\mathcal{E}^{-1}_{l_Y}\left(\zeta_{\imath+2+l_X \dots+ l_Y}\right)\right)
+\end{aligned} \tag{A.29}
+\end{equation}
+$$
+
+→ [(A.29) in plain words](./gray-paper.md#ex-A-29)
+
+:::
+
+::: gray-paper A.5.8 1-1
+
+#### Appendix A.5.8 Instructions with Arguments of One Register, One Immediate and One Offset {#gp-A-5-8}
+
+<a id="gp-A-5-8-p1"></a><a id="eq-A-30"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, \zeta_{\imath+1} \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } l_X &= \min(4, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor \bmod 8) \,,\quad&
+\nu_X &= \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+2 \dots+ l_X}\right)\right) \\
+\text{let } l_Y &= \min(4, \max(0, \ell - l_X - 1)) \,,\quad&
+\nu_Y &= \imath + \mathcal{Z}_{l_Y}(\mathcal{E}^{-1}_{l_Y}\left(\zeta_{\imath+2+l_X \dots+ l_Y}\right))
+\end{aligned} \tag{A.30}
+\end{equation}
+$$
+
+→ [(A.30) in plain words](./gray-paper.md#ex-A-30)
+
+:::
+
+::: gray-paper A.5.9 1-1
+
+#### Appendix A.5.9 Instructions with Arguments of Two Registers {#gp-A-5-9}
+
+<a id="gp-A-5-9-p1"></a><a id="eq-A-31"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_D &= \min(12, (\zeta_{\imath+1}) \bmod 16) \,,\quad&
+{\varphi}_D &\equiv {\varphi}_{r_D} \,,\quad
+{\varphi}'_D \equiv {\varphi}'_{r_D} \\
+\text{let } r_A &= \min(12, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\end{aligned} \tag{A.31}
+\end{equation}
+$$
+
+→ [(A.31) in plain words](./gray-paper.md#ex-A-31)
+
+:::
+
+::: gray-paper A.5.10 1-1
+
+#### Appendix A.5.10 Instructions with Arguments of Two Registers &amp; One Immediate {#gp-A-5-10}
+
+<a id="gp-A-5-10-p1"></a><a id="eq-A-32"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, (\zeta_{\imath+1}) \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } r_B &= \min(12, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor) \,,\quad&
+{\varphi}_B &\equiv {\varphi}_{r_B} \,,\quad
+{\varphi}'_B \equiv {\varphi}'_{r_B} \\
+\text{let } l_X &= \min(4, \max(0, \ell - 1)) \,,\quad&
+\nu_X &\equiv \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+2 \dots+ l_X}\right)\right)
+\end{aligned} \tag{A.32}
+\end{equation}
+$$
+
+→ [(A.32) in plain words](./gray-paper.md#ex-A-32)
+
+:::
+
+::: gray-paper A.5.11 1-1
+
+#### Appendix A.5.11 Instructions with Arguments of Two Registers &amp; One Offset {#gp-A-5-11}
+
+<a id="gp-A-5-11-p1"></a><a id="eq-A-33"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, (\zeta_{\imath+1}) \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } r_B &= \min(12, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor) \,,\quad&
+{\varphi}_B &\equiv {\varphi}_{r_B} \,,\quad
+{\varphi}'_B \equiv {\varphi}'_{r_B} \\
+\text{let } l_X &= \min(4, \max(0, \ell - 1)) \,,\quad&
+\nu_X &\equiv \imath + \mathcal{Z}_{l_X}(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+2 \dots+ l_X}\right))
+\end{aligned} \tag{A.33}
+\end{equation}
+$$
+
+→ [(A.33) in plain words](./gray-paper.md#ex-A-33)
+
+:::
+
+::: gray-paper A.5.12 1-1
+
+#### Appendix A.5.12 Instruction with Arguments of Two Registers and Two Immediates {#gp-A-5-12}
+
+<a id="gp-A-5-12-p1"></a><a id="eq-A-34"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, (\zeta_{\imath+1}) \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } r_B &= \min(12, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor) \,,\quad&
+{\varphi}_B &\equiv {\varphi}_{r_B} \,,\quad
+{\varphi}'_B \equiv {\varphi}'_{r_B} \\
+\text{let } l_X &= \min(4, \zeta_{\imath+2} \bmod 8) \,,\quad&
+\nu_X &= \mathcal{X}_{l_X}\left(\mathcal{E}^{-1}_{l_X}\left(\zeta_{\imath+3 \dots+ l_X}\right)\right) \\
+\text{let } l_Y &= \min(4, \max(0, \ell - l_X - 2)) \,,\quad&
+\nu_Y &= \mathcal{X}_{l_Y}\left(\mathcal{E}^{-1}_{l_Y}\left(\zeta_{\imath+3+l_X \dots+ l_Y}\right)\right)
+\end{aligned} \tag{A.34}
+\end{equation}
+$$
+
+→ [(A.34) in plain words](./gray-paper.md#ex-A-34)
+
+:::
+
+::: gray-paper A.5.13 1-1
+
+#### Appendix A.5.13 Instructions with Arguments of Three Registers {#gp-A-5-13}
+
+<a id="gp-A-5-13-p1"></a><a id="eq-A-35"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } r_A &= \min(12, (\zeta_{\imath+1}) \bmod 16) \,,\quad&
+{\varphi}_A &\equiv {\varphi}_{r_A} \,,\quad
+{\varphi}'_A \equiv {\varphi}'_{r_A} \\
+\text{let } r_B &= \min(12, \left\lfloor\frac{\zeta_{\imath+1}}{16}\right\rfloor) \,,\quad&
+{\varphi}_B &\equiv {\varphi}_{r_B} \,,\quad
+{\varphi}'_B \equiv {\varphi}'_{r_B} \\
+\text{let } r_D &= \min(12, \zeta_{\imath+2}) \,,\quad&
+{\varphi}_D &\equiv {\varphi}_{r_D} \,,\quad
+{\varphi}'_D \equiv {\varphi}'_{r_D} \\
+\end{aligned} \tag{A.35}
+\end{equation}
+$$
+
+→ [(A.35) in plain words](./gray-paper.md#ex-A-35)
+
+:::
+
+In plain words: 139 instructions, in 13 groups (A.5.1 has no arguments, so no layout).
+Each group shares one **layout**, the way its arguments sit in the bytes after the opcode:
 
 | Layout | Opcodes | Arguments |
 | --- | --- | --- |
@@ -29,15 +530,18 @@ one **layout**, the way its arguments sit in the bytes after the opcode:
 The rules for reading them, in brief:
 
 - **Registers** are four bits each: the byte after the opcode holds one in its low half
-  and one in its high half. There are 13 registers, so a number over 12 counts as 12.
+  and one in its high half. There are 13 registers, so a number over 12 counts as 12:
+  that's the min(12, …) in every layout.
 - **Immediates** are little-endian, 0 to 4 bytes long, and **sign-extended** to 64 bits
   (X): if their top bit is set, they're negative, and the missing high bytes fill with
   `ff`. Their length isn't written down: it's whatever the instruction's bytes leave,
-  which is why [lesson 15.1](./01-the-program-blob.md)'s bitmask matters.
-- **skip(ı)** is the distance from an opcode to the next one, minus one, never over 24.
-  An instruction ends where the next begins.
+  ℓ less the bytes before it, which is why [lesson 15.1](./01-the-program-blob.md)'s
+  bitmask matters. With two immediates, the first one's length is written, in 3 bits of
+  a byte (the one after the opcode, or after the registers), and the second gets what's
+  left.
 - **Offsets** are signed (Z) and relative: the target is ı plus the offset, so a jump
   back is a negative number.
+- `load_imm_64` is the one exception: its 8 bytes are read as they are, nothing to extend.
 
 <DecodeInstruction />
 

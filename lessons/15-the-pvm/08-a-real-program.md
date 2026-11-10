@@ -8,19 +8,228 @@ its first question.
 
 ## What the Gray Paper says
 
-**`ecalli`** (opcode 10, App. A.5): ε = h × ν_X. The machine stops with a *host call*, and
-ν_X says which one. The machine hands back ı pointing *at* the `ecalli`, with registers and
-memory as they were. The host answers, by changing registers or memory, and the machine
-carries on from the next instruction (Ψ_H, App. A.6). The host calls are numbered in App.
-B: `gas` is 0, `grow_heap` 1, `fetch` 2, and so on up to `provide`, 27. [Part 16](../16-host-calls/index.md) and
-[Part 17](../17-accumulation/index.md) build the 20 that accumulation uses. The other 8 (`historical_lookup`, `export`, `machine`,
-`peek`, `poke`, `pages`, `invoke`, `expunge`) only run in refine, on the cores, which a
-block importer never does.
+`ecalli`'s row, the only one in the table with one immediate (its layout is [lesson
+15.2](./02-instructions.md)'s):
 
-**Y** (App. A.7) turns a standard program ([lesson 15.1](./01-the-program-blob.md) unpacked its parts: o, w, z, s and
-the code) and some argument bytes a into a starting memory and registers. Memory is laid
-out in *zones* of Z_Z = 2^16 bytes, with an empty zone between sections, so a program that
-runs off the end of one section hits nothing at all instead of the next one:
+::: gray-paper A.5.2 2-2
+
+#### Appendix A.5.2 Instructions with Arguments of One Immediate, continued
+
+<a id="gp-A-5-2-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 10 | `ecalli` | $\varepsilon = \hbar \times \nu_X$ |
+
+:::
+
+In plain words, **`ecalli`** (opcode 10): ε = ħ × ν_X. The machine stops with a *host
+call*, and ν_X says which one. The machine hands back ı pointing *at* the `ecalli`, with
+registers and memory as they were. A.6 says what happens next:
+
+::: gray-paper A.6
+
+#### Appendix A.6 Host Call Definition {#gp-A-6}
+
+<a id="gp-A-6-p1"></a>An extended version of the PVM <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr> which is able to progress an inner *host-call* state-machine in the case of a host-call halt condition is defined as $\Psi_H$:
+
+<a id="gp-A-6-p2"></a><a id="eq-A-38"></a><a id="eq-A-39"></a><a id="eq-A-40"></a>
+
+$$
+\begin{align}
+&\Psi_H^*\colon \left\{ \begin{aligned}
+\!\left\lgroup\begin{aligned}
+&\mathbb{B}_{}, \mathbb{N}_R, \mathbb{N}_G, {\left\{\,\bot, \top\,\right\}},\\&\left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}, \Omega\left\langle X\right\rangle, X
+\end{aligned}
+\right\rgroup\!
+&\to
+\!\left\lgroup\left\{\,\unicode{x21AF}, \infty, \blacksquare\,\right\} \cup \left\{\,\unicode{x2132}\,\right\} \times \mathbb{N}_R, \mathbb{N}_R, \mathbb{Z}_G, {\left\{\,\bot, \top\,\right\}}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}, X\right\rgroup\!\\
+\left(\mathfrak{p}, \imath, \varrho, \tilde{\varrho}, \varphi, {\mu}, f, \mathbf{x}\right) &\mapsto \begin{cases}
+\text{let }(\varepsilon', \imath', \varrho', \tilde{\varrho}', \varphi', {\mu}') = \Psi(\mathfrak{p}, \imath, \varrho, \tilde{\varrho}, \varphi, {\mu}): \\[8pt]
+\left(\varepsilon', \imath', \varrho', \tilde{\varrho}', \varphi', {\mu}', \mathbf{x}\right) &\text{if } \varepsilon' \in \left\{\, \blacksquare, \unicode{x21AF}, \infty \,\right\} \cup \left\{\,\unicode{x2132}\,\right\} \times \mathbb{N}_R \\[4pt]
+\begin{aligned}
+&\Psi_H^*(\mathfrak{p}, \imath'', \varrho'', \tilde{\varrho}', \varphi'', {\mu}'', f, \mathbf{x}'')\\[2pt]
+&\quad  \text{where } \imath'' = \imath' + 1 + \text{skip}(\imath')
+\end{aligned}
+&\text{if } \bigwedge\left\{ \;\begin{aligned}
+&\varepsilon' = \hbar \times h\\[2pt]
+&\left(\blacktriangleright, \varrho'', \varphi'', {\mu}'', \mathbf{x}''\right) = f(h, \varrho', \varphi', {\mu}', \mathbf{x})
+\end{aligned} \right.\\[8pt]
+\left(\varepsilon'', \imath', \varrho'', \tilde{\varrho}', \varphi'', {\mu}'', \mathbf{x}''\right) &\text{if }  \bigwedge\left\{ \;\begin{aligned}
+&\varepsilon' = \hbar \times h\\[2pt]
+&\left(\varepsilon'', \varrho'', \varphi'', {\mu}'', \mathbf{x}''\right) = f(h, \varrho', \varphi', {\mu}', \mathbf{x})\\[2pt]
+&\varepsilon'' \in \left\{\,\unicode{x21AF}, \blacksquare, \infty\,\right\}
+\end{aligned} \right.\\[8pt]
+\end{cases} \\
+\end{aligned} \right.\!\!\!\!\!\!\!\! \tag{A.38} \\
+&\Psi_H(\mathfrak{p}, \imath, \varrho, \varphi, {\mu}, f, \mathbf{x}) \equiv \Psi_H^*(\mathfrak{p}, \imath, \varrho, \bot, \varphi, {\mu}, f, \mathbf{x}) \tag{A.39} \\
+&\Omega\left\langle X\right\rangle \equiv \!\left\lgroup\mathbb{N}, \mathbb{N}_G, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}, X\right\rgroup\! \to \!\left\lgroup\left\{\,\blacktriangleright, \blacksquare, \unicode{x21AF}, \infty\,\right\}, \mathbb{N}_G, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}, X\right\rgroup\! \tag{A.40}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Psi">$\Psi$</span> | psi (capital) | the PVM: a program, a gas limit, registers and memory in; how it stopped and what's left out |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-pvmreg" class="gk-wrap">$\mathbb{N}_R$</span> | N sub R | a register's value: a u64 |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-bool">${\left\{\,\bot, \top\,\right\}}$</span> | true or false | a yes-or-no value: true (⊤) or false (⊥) |
+| <span id="gk-regs">$\left[\!\left[\mathbb{N}_R\right]\!\right]_{13}$</span> | thirteen registers | a sequence of 13 register values, each a u64 |
+| <span id="gk-ram" class="gk-wrap">$\mathbb{M}$</span> | M | a PVM memory: its bytes, and which pages may be read or written |
+| <span id="gk-contextmutator">$\Omega\left\langle x\right\rangle$</span> | omega of X | a host's function: given a host call's number, the gas, registers, memory and the host's own context X, it says carry on or stop, with all of them updated |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-panic">$\unicode{x21AF}$</span> | panic | ↯: the program trapped |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-halt" class="gk-wrap">$\blacksquare$</span> | halt | ∎: the program finished normally |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-fault">$\unicode{x2132}$</span> | page fault | Ⅎ: the program touched memory it may not |
+| <span id="gk-times">$\times$</span> | times | multiply; between sets, every pair of one from each |
+| <span id="gk-signedgas" class="gk-wrap">$\mathbb{Z}_G$</span> | Z sub G | gas that can go negative: an i64 |
+| <span id="gk-pvm-blob" class="gk-wrap">$\mathfrak{p}$</span> | p (gothic) | a PVM program blob: the jump table, the code and the bitmask, packed as bytes |
+| <span id="gk-imath">$\imath$</span> | i | the instruction counter: the index in the code of the instruction to run next |
+| <span id="gk-gascounter" class="gk-wrap">$\varrho$</span> | rho (curly) | the gas left |
+| <span id="gk-gaschargedflag" class="gk-wrap">$\tilde{\varrho}$</span> | rho tilde | the gas flag: true once the basic block the machine is in has been paid for |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-mem" class="gk-wrap">${\mu}$</span> | mu | the PVM's memory: 2^32 bytes in pages of 4,096, each page readable, writable or neither |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-varepsilon">$\varepsilon$</span> | epsilon | the exit reason: how a step or a run ended, from carry on to halt, panic, out of gas, fault or host call |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-Fskip">$\text{skip}$</span> | skip | skip(i): how many bytes follow the opcode at i before the next opcode, at most 24 |
+| <span id="gk-bigwedge">$\bigwedge$</span> | all of | every one of the conditions under it is true |
+| <span id="gk-host" class="gk-wrap">$\hbar$</span> | host call | ħ: the program asked the host for something, and waits |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+
+</details>
+
+→ [(A.38), (A.39), (A.40) in plain words](./gray-paper.md#ex-A-38)
+
+<a id="gp-A-6-p3"></a>As with $\Phi$, on exit the instruction counter references the instruction *which caused the exit* and the machine state is that prior to this instruction. Should the machine be invoked again using this instruction counter and code, then the same instruction which caused the exit would be executed on the proper (prior) machine state.
+
+<a id="gp-A-6-p4"></a>With $\Phi_H$, host-calls (i.e.  `ecalli` instructions) are in effect handled internally with the state-mutator function provided as an argument, preventing the possibility of the result being a host-call fault. Note that in the case of a successful host-call transition, we must provide the new instruction counter value $\imath''$ explicitly alongside the fresh <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state for said instruction.
+
+:::
+
+In plain words, Ψ_H runs Ψ, and whenever it stops on a host call, hands the call to f, the
+host's function, with the gas, registers and memory and some context x of the host's own.
+If f says carry on, the machine carries on from the next instruction, ı + 1 + skip(ı),
+with whatever f changed. Any other exit ends Ψ_H. The host calls are numbered in App. B:
+`gas` is 0, `grow_heap` 1, `fetch` 2, and so on up to `provide`, 27. [Part
+16](../16-host-calls/index.md) and [Part 17](../17-accumulation/index.md) build the 20 that
+accumulation uses. The other 8 (`historical_lookup`, `export`, `machine`, `peek`, `poke`,
+`pages`, `invoke`, `expunge`) only run in refine, on the cores, which a block importer
+never does.
+
+The start: [lesson 15.1](./01-the-program-blob.md) quoted the first half of A.7, the
+standard program's layout and Y's conditions. The second half says what Y gives:
+
+::: gray-paper A.7 6-8
+
+#### Appendix A.7 Standard Program Initialization, continued
+
+<a id="gp-A-7-p6"></a>Thus, if the above conditions cannot be satisfied with unique values, then the result is $\emptyset$, otherwise it is a tuple of $\mathfrak{p}$ as above and ${\mu}$, $\varphi$ such that:
+
+<a id="gp-A-7-p7"></a><a id="eq-A-46"></a>
+
+$$
+\begin{equation}
+\forall i \in \mathbb{N}_{2^{32}} : (({\mu}_{\mathbf{v}})_{i}, ({\mu}_{\mathbf{a}})_{\left\lfloor{}^{i}\!/_{\mathsf{Z}_P}\right\rfloor}) = \left\{ \begin{alignedat}{5}
+&\left(\mathbf{v}\mathrel{\unicode{x2AF6}}\mathbf{o}_{i - \mathsf{Z}_Z},\,\mathbf{a}\mathrel{\unicode{x2AF6}} R\right) &&\ \text{if }
+\mathsf{Z}_Z
+&\ \leq i < \ &&
+\mathsf{Z}_Z + \left\vert\mathbf{o}\right\vert\\
+&\left(0, R\right) &&\ \text{if }
+\mathsf{Z}_Z + \left\vert\mathbf{o}\right\vert
+&\ \leq i < \ &&
+\mathsf{Z}_Z + P(\left\vert\mathbf{o}\right\vert) \\
+&(\mathbf{w}_{i - (2\mathsf{Z}_Z + Z(\left\vert\mathbf{o}\right\vert))}, W) &&\ \text{if }
+2\mathsf{Z}_Z + Z(\left\vert\mathbf{o}\right\vert)
+&\ \leq i < \ &&
+2\mathsf{Z}_Z + Z(\left\vert\mathbf{o}\right\vert) + \left\vert\mathbf{w}\right\vert\\
+&\left(0, W\right) &&\ \text{if }
+2\mathsf{Z}_Z + Z(\left\vert\mathbf{o}\right\vert) + \left\vert\mathbf{w}\right\vert
+&\ \leq i < \ &&
+2\mathsf{Z}_Z + Z(\left\vert\mathbf{o}\right\vert) + P(\left\vert\mathbf{w}\right\vert) + z\mathsf{Z}_P\\
+&\left(0, W\right) &&\ \text{if }
+2^{32} - 2\mathsf{Z}_Z - \mathsf{Z}_I - P(s)
+&\ \leq i < \ &&
+2^{32} - 2\mathsf{Z}_Z - \mathsf{Z}_I\\
+&(\mathbf{a}_{i - (2^{32} - \mathsf{Z}_Z - \mathsf{Z}_I)}, R) &&\ \text{if }
+2^{32} - \mathsf{Z}_Z - \mathsf{Z}_I
+&\ \leq i < \ &&
+2^{32} - \mathsf{Z}_Z - \mathsf{Z}_I + \left\vert\mathbf{a}\right\vert\\
+&\left(0, R\right) &&\ \text{if }
+2^{32} - \mathsf{Z}_Z - \mathsf{Z}_I + \left\vert\mathbf{a}\right\vert
+&\ \leq i < \ &&
+2^{32} - \mathsf{Z}_Z - \mathsf{Z}_I + P(\left\vert\mathbf{a}\right\vert)\\
+&\left(0, \emptyset\right) &&\text{otherwise}&&&
+\end{alignedat} \right.\\ \tag{A.46}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+| <span id="gk-ram-value" class="gk-wrap">$\mathbf{v}$</span> | v | memory's bytes |
+| <span id="gk-ram-access" class="gk-wrap">$\mathbf{a}$</span> | a | memory's access: for each page, readable, writable or neither |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+| <span id="gk-nicefrac">${}^{x}\!/_{y}$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-Cpvmpagesize" class="gk-wrap">$\mathsf{Z}_P$</span> | Z sub P | a memory page: 4,096 bytes |
+| <span id="gk-bracegroup">$\left\{ x \right.$</span> | as follows | a brace grouping cases: the line whose condition holds gives the value |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-Cpvminitzonesize" class="gk-wrap">$\mathsf{Z}_Z$</span> | Z sub Z | a zone: 2^16 bytes, 64 KiB; memory's sections start on zones, with an empty one between |
+| <span id="gk-leq">$\leq$</span> | at most | less than or equal to |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-rnp">$P(x)$</span> | P of | x rounded up to whole pages of 4,096 bytes |
+| <span id="gk-rnq">$Z(x)$</span> | Z of | x rounded up to whole zones of 65,536 bytes |
+| <span id="gk-Cpvminitinputsize" class="gk-wrap">$\mathsf{Z}_I$</span> | Z sub I | the most argument data a program can be given: 2^24 bytes, 16 MiB |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(A.46) in plain words](./gray-paper.md#ex-A-46)
+
+<a id="gp-A-7-p8"></a><a id="eq-A-47"></a>
+
+$$
+\begin{equation}
+\forall i \in \mathbb{N}_{13} : \varphi_{i} = \begin{cases}
+2^{32} - 2^{16} &\text{if } i = 0\\
+2^{32} - 2\mathsf{Z}_Z - \mathsf{Z}_I &\text{if } i = 1\\
+2^{32} - \mathsf{Z}_Z - \mathsf{Z}_I &\text{if } i = 7\\
+\left\vert\mathbf{a}\right\vert&\text{if } i = 8\\
+0 &\text{otherwise}
+\end{cases} \tag{A.47}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+
+</details>
+
+→ [(A.47) in plain words](./gray-paper.md#ex-A-47)
+
+:::
+
+In plain words, **Y** turns a standard program ([lesson 15.1](./01-the-program-blob.md)
+unpacked its parts: o, w, z, s and the code) and some argument bytes a into a starting
+memory and registers. Memory is laid out in *zones* of Z_Z = 2^16 bytes, with an empty zone
+between sections, so a program that runs off the end of one section hits nothing at all
+instead of the next one:
 
 | From | What | Access |
 | --- | --- | --- |
@@ -40,6 +249,69 @@ Lay out the test's tiny program or the real service, or sizes of your own:
 And the registers: r0 = 2^32 − 2^16, the halt address ([lesson 15.3](./03-the-machine.md)), so that when the
 program returns, it ends. r1 = the top of the stack, which grows down. r7 = where the
 arguments are, r8 = how many bytes. Every other register starts at 0.
+
+A.8 puts the three together:
+
+::: gray-paper A.8
+
+#### Appendix A.8 Argument Invocation Definition {#gp-A-8}
+
+<a id="gp-A-8-p1"></a>The three instances where the PVM is utilized each expect to be able to pass argument data in and receive some return data back. We thus define the common PVM program-argument invocation function $\Psi_M$:
+
+<a id="gp-A-8-p2"></a><a id="eq-A-48"></a>
+
+$$
+\begin{equation}
+\Psi_M\colon \left\{ \begin{aligned}
+\!\left\lgroup
+\mathbb{B}_{}, \mathbb{N}_R, \mathbb{N}_G, \mathbb{B}_{:\mathsf{Z}_I}, \Omega\left\langle X\right\rangle, X
+\right\rgroup\! &\to \!\left\lgroup\mathbb{N}_G, \mathbb{B}_{} \cup \left\{\,\unicode{x21AF}, \infty\,\right\}, X\right\rgroup\!\\
+\left(\mathfrak{j}, \imath, \varrho, \mathbf{a}, f, \mathbf{x}\right) &\mapsto \begin{cases}
+\left(0, \unicode{x21AF}, \mathbf{x}\right) &\text{if } Y(\mathfrak{j}, \mathbf{a}) = \emptyset\\
+R(\varrho, \Psi_H(\mathfrak{p}, \imath, \varrho, \varphi, {\mu}, f, \mathbf{x})) &\text{if } Y(\mathfrak{j}, \mathbf{a}) = \left(\mathfrak{p}, \varphi, {\mu}\right)\\
+\quad  \text{where } R \colon \left(\varrho, \left(\begin{alignedat}{5}
+&\varepsilon,\, &&\imath',\, &&\varrho',\\
+&\varphi',\, &&{\mu}',\, &&\mathbf{x}'
+\end{alignedat}
+\right)\right) \mapsto \begin{cases}
+\left(u, \infty, \mathbf{x}'\right) &\text{if } \varepsilon = \infty \\
+\left(u, \mu'_{\varphi'_{7}\dots+\varphi'_{8}}, \mathbf{x}'\right) &\text{if } \varepsilon = \blacksquare \wedge \mathbb{N}_{\varphi'_{7} \dots+ \varphi'_{8}} \subseteq \mathbb{V}_{{\mu}'} \\
+\left(u, \left[\right], \mathbf{x}'\right) &\text{if } \varepsilon = \blacksquare \wedge \mathbb{N}_{\varphi'_{7} \dots+ \varphi'_{8}} \not\subseteq \mathbb{V}_{{\mu}'} \\
+\left(u, \unicode{x21AF}, \mathbf{x}'\right) &\text{otherwise} \\
+\quad  \text{where } u = \varrho - \max(\varrho', 0)
+\end{cases}
+\!\!\!\!\!\!\!\!
+\end{cases}
+\end{aligned} \right. \tag{A.48}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-jam-blob" class="gk-wrap">$\mathfrak{j}$</span> | j (gothic) | a standard program: four sizes, the read-only and read-write data, then the PVM blob |
+| <span id="gk-memory" class="gk-wrap">$\mu$</span> | mu | the PVM's memory |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-Nrange">$\mathbb{N}_{x \dots+ y}$</span> | N from x, y of them | the y whole numbers from x on: x, x + 1, up to x + y − 1 |
+| <span id="gk-subseteq">$\subseteq$</span> | is a subset of | everything in the left is in the right |
+| <span id="gk-readable">$\mathbb{V}_{x}$</span> | V sub mu | the addresses of memory μ that may be read |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-max">$\max$</span> | max of | the largest of the values in the brackets |
+
+</details>
+
+→ [(A.48) in plain words](./gray-paper.md#ex-A-48)
+
+<a id="gp-A-8-p3"></a>Note that the first tuple item is the amount of gas consumed by the operation, but never greater than the amount of gas provided for the operation.
+
+:::
+
+In plain words, Ψ_M is what the rest of the paper calls: Y lays out the program (and if it
+can't, that's a panic, with no gas used), Ψ_H runs it with the host's f, and R reads the
+answer. A halt returns the bytes from φ′₇, φ′₈ of them; if those aren't readable, the
+answer is empty. Out of gas is ∞, and anything else a panic. It also says how much gas was
+used, never more than was given.
 
 **Where to start.** A program has more than one way in. App. B starts authorization and
 refinement at instruction 0, and accumulation at 5, with the arguments E(t, s, |i|): the

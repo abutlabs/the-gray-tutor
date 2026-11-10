@@ -15,7 +15,10 @@ papers. The fuzzer is an examiner who writes new questions as you sit there.
 | Traces | fixed chains of real blocks | rules that are wrong together |
 | The fuzzer | generated from a seed, then broken on purpose | what nobody wrote a test for |
 
-It's black-box: it knows nothing of your code or your language. For each block it makes:
+It's black-box: it knows nothing of your code or your language. It also plays only the
+chain's side: it is a block author and your client is a validator importing its blocks.
+Nothing in-core is tested here, because a block importer never runs it. For each block it
+makes:
 
 1. It imports the block itself, and works out the state root.
 2. It sends the block to your client, over a socket.

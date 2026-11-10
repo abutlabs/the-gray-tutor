@@ -32,14 +32,70 @@ down your first bug.
 
 ## What the Gray Paper says
 
-JAM keeps time in six-second *timeslots*, counted from the *JAM Common Era*: 12:00
-UTC on 1 January 2025 (GP §4, *Time*), which is 1,735,732,800 seconds after the Unix
-epoch. One slot lasts P = 6 seconds (§4, *Epochs and Slots*). So slot 0 is the first six
-seconds of the era, slot 1 the next six, and slot 600 starts exactly one hour in.
+§4.4 sets the clock's zero, and §4.8 cuts time into slots:
+
+::: gray-paper 4.4
+
+#### §4.4 Time {#gp-4-4}
+
+<a id="gp-4-4-p1"></a>We presume a pre-existing consensus over time specifically for block production and import. While this was not an assumption of Polkadot, pragmatic and resilient solutions exist including the NTP protocol and network. We utilize this assumption in only one way: we require that blocks be considered temporarily invalid if their timeslot is in the future. This is specified in detail in section [6](../08-safrole/index.md#gp-6-p1).
+
+<a id="gp-4-4-p2"></a>Formally, we define the time in terms of seconds passed since the beginning of the JAM*Common Era*, 1200 UTC on January 1, 2025.<sup>1</sup> Midday UTC is selected to ensure that all major timezones are on the same date at any exact 24-hour multiple from the beginning of the common era. Formally, this value is denoted $\mathcal{T}$.
+
+<small class="gp-note"><sup>1</sup> 1,735,732,800 seconds after the Unix Epoch.</small>
+
+:::
+
+::: gray-paper 4.8
+
+#### §4.8 Epochs and Slots {#gp-4-8}
+
+<a id="gp-4-8-p1"></a>Unlike the *YP* Ethereum with its proof-of-work consensus system, JAM defines a proof-of-authority consensus mechanism, with the authorized validators presumed to be identified by a set of public keys and decided by a *staking* mechanism residing within some system hosted by JAM. The staking system is out of scope for the present work; instead there is an API which may be utilized to update these keys, and we presume that whatever logic is needed for the staking system will be introduced and utilize this API as needed.
+
+<a id="gp-4-8-p2"></a>The Safrole mechanism subdivides time following <abbr class="gp-term" title="the chain's first block and state">genesis</abbr> into fixed length *epoch*s with each epoch divided into $\mathsf{E} = 600$ time*slot*s each of uniform length $\mathsf{P} = 6$ seconds, given an epoch period of $\mathsf{E}\cdot\mathsf{P} = 3600$ seconds or one hour.
+
+<a id="gp-4-8-p3"></a>This six-second slot period represents the minimum time between JAM blocks, and through Safrole we aim to strictly minimize <abbr class="gp-term" title="two blocks built on the same parent, splitting the chain until one side is dropped">forks</abbr> arising both due to contention within a slot (where two valid blocks may be produced within the same six-second period) and due to contention over multiple slots (where two valid blocks are produced in different time slots but with the same parent).
+
+<a id="gp-4-8-p4"></a>Formally when identifying a timeslot index, we use a natural less than $2^{32}$ (in compute parlance, a 32-bit unsigned integer) indicating the number of six-second timeslots from the JAM Common Era. For use in this context we introduce the set $\mathbb{N}_T$:
+
+<a id="gp-4-8-p5"></a><a id="eq-4-28"></a>
+
+$$
+\begin{align}
+\mathbb{N}_T \equiv \mathbb{N}_{2^{32}} \tag{4.28}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+
+</details>
+
+→ [(4.28) in plain words](./gray-paper.md#ex-4-28)
+
+<a id="gp-4-8-p6"></a>This implies that the lifespan of the proposed protocol takes us to mid-August of the year 2840, which with the current course that humanity is on should be ample.
+
+:::
+
+In plain words: JAM keeps time in six-second *timeslots*, counted from the *JAM Common
+Era*, 12:00 UTC on 1 January 2025, which is 1,735,732,800 seconds after the Unix epoch.
+One slot lasts P = 6 seconds. So slot 0 is the first six seconds of the era, slot 1 the
+next six, and slot 600 starts exactly one hour in. (600 slots make an epoch on the full
+network; the tiny one your tests run on uses 12. Epochs come back in [lesson
+7.1](../07-time-and-shuffling/01-epochs.md).)
 
 Every block header names its slot, and a block may not come from the future: its slot
 times P can't be later than the current time (§5). Why midday? So that all the major
 time zones share the same date at every whole day of the era.
+
+A slot number is a u32, (4.28), so the clock runs out after 2³² slots. Work it out and
+the paper is a year early: 2³² × 6 = 25,769,803,776 seconds after the era began is
+13 August 2841, not 2840. Either way, nobody reading this needs to worry.
 
 Try the clock. Pick a moment, or nudge it a millisecond at a time, and watch which slot
 it falls in. Stop at 5.999 seconds in: rounding down says slot 0, and rounding to the

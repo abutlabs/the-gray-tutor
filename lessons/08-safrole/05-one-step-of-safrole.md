@@ -7,7 +7,97 @@ header must carry. Then the test throws the whole post-state of every vector it 
 
 ## What the Gray Paper says
 
-Nothing new in principle: it's §6, all at once. A few last rules join in:
+Nothing new in principle: it's §6, all at once. The paper names the state this step
+changes in §6.2:
+
+::: gray-paper 6.2 1-2
+
+#### §6.2 Safrole Basic State {#gp-6-2}
+
+<a id="gp-6-2-p1"></a>We restate $\gamma$ into a number of components:
+
+<a id="gp-6-2-p2"></a><a id="eq-6-3"></a>
+
+$$
+\begin{align}
+\gamma &\equiv \!\left\lgroup
+\gamma_P,\,
+\gamma_Z,\,
+\gamma_S,\,
+\gamma_A
+\right\rgroup\! \tag{6.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-safrole" class="gk-wrap">$\gamma$</span> | gamma | Safrole's state: the ticket lottery for who seals the next epoch's blocks |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-pendingset" class="gk-wrap">$\gamma_P$</span> | gamma P | the pending validators: the key sets that become active at the next epoch |
+| <span id="gk-epochroot" class="gk-wrap">$\gamma_Z$</span> | gamma Z | the ring root of the pending validators' Bandersnatch keys: 144 bytes a ticket's proof is checked against |
+| <span id="gk-sealtickets" class="gk-wrap">$\gamma_S$</span> | gamma S | the slot sealers: one entry for each of the epoch's E slots, a winning ticket or, in the fallback, a Bandersnatch key |
+| <span id="gk-ticketaccumulator" class="gk-wrap">$\gamma_A$</span> | gamma A | the ticket lottery: the best tickets entered so far for the next epoch, at most E, lowest id first |
+
+</details>
+
+→ [(6.3) in plain words](./gray-paper.md#ex-6-3)
+
+:::
+
+In plain words: γ is four fields, the pending validators γ_P ([lesson 8.2](./02-rotating-the-validators.md)), the ring
+root γ_Z ([lesson 8.8](./08-the-ring-root.md)), the sealers γ_S ([lessons 8.3](./03-the-fallback-sealers.md) and [8.4](./04-the-lotterys-winners.md)) and the lottery γ_A
+([lesson 8.4](./04-the-lotterys-winners.md)). `safroleStep` takes them all, with τ, η, κ, λ and ι, and hands back the new ones.
+
+The epoch mark, the one rule no earlier lesson built, comes from §6.6:
+
+::: gray-paper 6.6 1-3
+
+#### §6.6 The Markers {#gp-6-6}
+
+<a id="gp-6-6-p1"></a>The epoch and winning-tickets markers are information placed in the header in order to minimize data transfer necessary to determine the validator keys associated with any given epoch. They are particularly useful to nodes which do not synchronize the entire state for any given block since they facilitate the secure tracking of changes to the validator key sequences using only the chain of headers.
+
+<a id="gp-6-6-p2"></a>As mentioned earlier, the header's epoch marker $\mathbf{H}_{E}$ is either empty or, if the block is the first in a new epoch, then a tuple of the next and current epoch randomness, along with a sequence of tuples containing both Bandersnatch keys and Ed25519 keys for each validator defining the validator keys beginning in the next epoch. Formally:
+
+<a id="gp-6-6-p3"></a><a id="eq-6-28"></a>
+
+$$
+\begin{align}
+\mathbf{H}_{E} &\equiv \begin{cases}
+\left( \eta_0, \eta_1, \left[
+\left(k_{b}, k_{e}\right)
+\;\middle\vert\;
+k \mathrel{\unicode{x2B40}} \gamma_P'
+\right] \right) &\text{if } e' > e \\
+\emptyset & \text{otherwise}
+\end{cases} \tag{6.28}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--epochmark">$E$</span> | E | a header's epoch mark: 𝐇_E, at an epoch's first block only, the next epoch's entropy and validator keys |
+| <span id="gk-entropyaccumulator" class="gk-wrap">$\eta_0$</span> | eta zero | the entropy accumulator: 32 bytes that every block's VRF output is hashed into |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-vk-bs">$b$</span> | b | a validator's Bandersnatch key: the first 32 of its 336 bytes |
+| <span id="gk-vk-ed">$e$</span> | e | a validator's Ed25519 key: the 32 bytes after its Bandersnatch key |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(6.28) in plain words](./gray-paper.md#ex-6-28)
+
+:::
+
+In plain words, a few last rules join in:
 
 - **τ′** is the block's slot ([lesson 7.1](../07-time-and-shuffling/01-epochs.md)).
 - **The epoch mark** ([lesson 4.6](../04-blocks/06-the-header.md)) appears exactly at a new epoch ([lesson 7.1](../07-time-and-shuffling/01-epochs.md)), and carries

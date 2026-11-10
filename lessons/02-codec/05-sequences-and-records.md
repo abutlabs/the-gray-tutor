@@ -51,14 +51,134 @@ bytes: gas takes the first eight, slot the last four, and nothing complains.
 
 From Appendix C:
 
-- *Sequences* encode as their items, one after another. A sequence whose length can
+::: gray-paper C.1.2
+
+#### Appendix C.1.2 Sequence Encoding {#gp-C-1-2}
+
+<a id="gp-C-1-2-p1"></a>We define the sequence <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> function $\mathcal{E}_{}\left(\left[\!\left[T\right]\!\right]_{}\right)$ for any $T$ which is itself a subset of the domain of $\mathcal{E}_{}$. We simply concatenate the serializations of each element in the sequence in turn:
+
+<a id="gp-C-1-2-p2"></a><a id="eq-C-6"></a>
+
+$$
+\begin{equation}
+\mathcal{E}_{}\left([\mathbf{i}_0, \mathbf{i}_1, ...]\right) \equiv \mathcal{E}_{}\left(\mathbf{i}_0\right) \frown \mathcal{E}_{}\left(\mathbf{i}_1\right) \frown \dots \tag{C.6}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+
+</details>
+
+→ [(C.6) in plain words](./gray-paper.md#ex-C-6)
+
+<a id="gp-C-1-2-p3"></a>Thus, conveniently, fixed length <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequences (e.g.  hashes $\mathbb{H}_{}$ and its variants) have an identity serialization.
+
+:::
+
+In plain words:
+
+- *Sequences* encode as their items, one after another (C.6). A sequence whose length can
   vary gets its length in front, the ↕ from last lesson: ↕[a, b, c] is ℰ(3) ⌢ ℰ(a) ⌢ ℰ(b)
   ⌢ ℰ(c).
 - *Tuples* encode as their elements' encodings, one after another, in the order the
-  Gray Paper lists them.
+  Gray Paper lists them ([lesson 2.3](./03-writer-and-reader.md)'s (C.3)).
 
 In code, a tuple with named elements is a *record*: an object whose fields are always
 encoded in the same order.
+
+Two more shapes are built from these two, and Appendix C gives each a line. A
+dictionary, a map from keys to values, is a sequence of (key, value) records, sorted by
+key, its length in front. A set is its items in order, smallest first:
+
+::: gray-paper C.1.5
+
+#### Appendix C.1.5 Dictionary Encoding {#gp-C-1-5}
+
+<a id="gp-C-1-5-p1"></a>In general, dictionaries are placed in the Merkle trie directly (see appendix [E](../06-state-and-merklization/gray-paper.md#gp-E-1-p1) for details). However, small dictionaries may reasonably be encoded as a sequence of pairs ordered by the key. Formally:
+
+<a id="gp-C-1-5-p2"></a><a id="eq-C-10"></a>
+
+$$
+\begin{equation}
+\forall K, V: \mathcal{E}_{}\left(d \in \left\langle\!\left\vert K\to V\right\vert\!\right\rangle\right) \equiv
+\mathcal{E}_{}\left(
+\left\updownarrow\left[
+\left(\mathcal{E}_{}\left(k\right), \mathcal{E}_{}\left(d\left[k\right]\right)\right)
+\;\middle\vert\;
+k \in \mathcal{K}\left(d\right)
+\,\wr\,k
+\right]\right.\!
+\right) \tag{C.10}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-var">[$\left\updownarrow x\right.\!$](../symbols.md#length-prefix)</span> | with its length | ↕x: x with its length in front, as a compact natural |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-orderby">$y\,\wr\,x$</span> | sorted by | [y ≀ x]: the items y, sorted by x, smallest first |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+
+</details>
+
+→ [(C.10) in plain words](./gray-paper.md#ex-C-10)
+
+:::
+
+::: gray-paper C.1.6
+
+#### Appendix C.1.6 Set Encoding {#gp-C-1-6}
+
+<a id="gp-C-1-6-p1"></a>For any values which are sets and don't already have a defined encoding above, we define the serialization of a set as the serialization of the set's elements in proper order. Formally:
+
+<a id="gp-C-1-6-p2"></a><a id="eq-C-11"></a>
+
+$$
+\begin{equation}
+\mathcal{E}_{}\left(\left\{\,a, b, c, \dots\,\right\}\right) \equiv \mathcal{E}_{}\left(a\right) \frown \mathcal{E}_{}\left(b\right) \frown \mathcal{E}_{}\left(c\right) \frown \dots  \text{where } a < b < c < \dots \tag{C.11}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+
+</details>
+
+→ [(C.11) in plain words](./gray-paper.md#ex-C-11)
+
+:::
+
+In plain words, sorting is what makes both exact: a map or a set has no order of its own,
+so two clients could write the same one in two orders and get two hashes. Sorted, there
+is only one way to write it. Take a made-up map from service 7 to the byte `aa` and from
+service 2 to `bb`, its keys as u32 and its values as single bytes. Key 2 sorts first:
+
+```text
+02            two entries: the length in front, a compact natural
+02 00 00 00   key 2, as a u32: 4 bytes
+bb            its value: 1 byte
+07 00 00 00   key 7, as a u32: 4 bytes
+aa            its value: 1 byte
+              1 + 5 + 5 = 11 bytes
+```
+
+Your client meets its first real dictionary in a work-report
+([lesson 3.3](../03-work-and-reports/03-a-work-report.md)), the segment-root lookup.
 
 ## Sequences
 

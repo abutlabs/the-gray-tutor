@@ -32,11 +32,78 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix E (*Merkle Mountain Ranges and Belts*). A belt is a list of *peaks*: peak i is
-the root of a mountain of 2^i items, or ∅ if there's no mountain of that size.
+::: gray-paper E.2 1-5
 
-**Appending** an item l (the function A, which the Gray Paper defines through a helper,
-P, that calls itself once per place): start at place 0, carrying l.
+#### Appendix E.2 Merkle Mountain Ranges and Belts {#gp-E-2}
+
+<a id="gp-E-2-p1"></a>The Merkle Mountain Range (MMR) is an append-only cryptographic data structure which yields a <abbr class="gp-term" title="a short hash that stands for some data, so the data can be checked against it later">commitment</abbr> to a sequence of values. Appending to an MMR and proof of inclusion of some item within it are both $O(\log(N))$ in time and space for the size of the set.
+
+<a id="gp-E-2-p2"></a>We define a Merkle Mountain Range as being within the set $\left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{}$, a sequence of peaks, each peak the root of a Merkle tree containing $2^i$ items where $i$ is the index in the sequence. Since we support set sizes which are not always powers-of-two-minus-one, some peaks may be empty, $\emptyset$ rather than a Merkle root.
+
+<a id="gp-E-2-p3"></a>Since the sequence of hashes is somewhat unwieldy as a commitment, Merkle Mountain Ranges are themselves generally hashed before being published. Hashing them removes the possibility of further appending so the range itself is kept on the system which needs to generate future proofs.
+
+<a id="gp-E-2-p4"></a>We define the MMB append function $\mathcal{A}$ as:
+
+<a id="gp-E-2-p5"></a><a id="eq-E-8"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\mathcal{A}&\colon\left\{ \,\begin{aligned}
+\!\left\lgroup\left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{}, \mathbb{H}_{}, \mathbb{B}_{}\to\mathbb{H}_{}\right\rgroup\! &\to \left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{}\\
+\left(\mathbf{r}, l, H\right) &\mapsto P(\mathbf{r}, l, 0, H)
+\vphantom{x'_i}\end{aligned} \right.\\
+\text{where } P&\colon\left\{ \,\begin{aligned}
+\!\left\lgroup\left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{}, \mathbb{H}_{}, \mathbb{N}, \mathbb{B}_{}\to\mathbb{H}_{}\right\rgroup\! &\to \left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{}\\
+\left(\mathbf{r}, l, n, H\right) &\mapsto \begin{cases}
+\mathbf{r} \mathbin{+\!\!+} l &\text{if } n \ge \left\vert\mathbf{r}\right\vert\\
+R(\mathbf{r}, n, l) &\text{if } n < \left\vert\mathbf{r}\right\vert \wedge \mathbf{r}_{n} = \emptyset\\
+P(R(\mathbf{r}, n, \emptyset), H(\mathbf{r}_{n} \frown l), n + 1, H) &\text{otherwise}
+\end{cases}
+\vphantom{x'_i}\end{aligned} \right.\\
+\text{and } R&\colon\left\{ \,\begin{aligned}
+\!\left\lgroup\left[\!\left[T\right]\!\right]_{}, \mathbb{N}, T\right\rgroup\! &\to \left[\!\left[T\right]\!\right]_{}\\
+\left(\mathbf{s}, i, v\right) &\mapsto \mathbf{s}'\  \text{where } \mathbf{s}' = \mathbf{s} \text{ except } \mathbf{s}'_{i} = v
+\vphantom{x'_i}\end{aligned} \right.
+\end{aligned} \tag{E.8}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnmmrappend" class="gk-wrap">$\mathcal{A}$</span> | A | append to a Merkle mountain range: its peaks and one more item in, the new peaks out |
+| <span id="gk-deffunc">$\left\{ \,\begin{aligned}x\vphantom{x'_i}\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
+| <span id="gk-ge">$\ge$</span> | is at least | greater than or equal to |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+
+</details>
+
+→ [(E.8) in plain words](./gray-paper.md#ex-E-8)
+
+:::
+
+In plain words, Appendix E.2 (*Merkle Mountain Ranges and Belts*) says: a belt is a list
+of *peaks*, and peak i is the root of a mountain of 2^i items, or ∅ if there's no
+mountain of that size. The paper says *range* (MMR) where it defines the list and *belt*
+(MMB) where it appends to one; this tutorial says belt throughout, as §7 does.
+
+**Appending** an item l (the function 𝒜, which the Gray Paper defines through a helper,
+P, that calls itself once per place, and R, which writes one place of a list): start at
+place 0, carrying l.
 
 - If the place is empty, the carried hash rests there. Done.
 - If there's a mountain there, merge: the carried hash becomes H(peak ⌢ carried), the
@@ -71,7 +138,78 @@ an archive: it can prove the past it was shown, never replay it. And that's fine
 because nothing in JAM ever rewinds the belt — it only appends, one accumulate root
 per block.
 
-The *super-peak*, M_R, squeezes a belt into one hash: take the peaks that exist, in
+::: gray-paper E.2 6-9
+
+#### Appendix E.2 Merkle Mountain Ranges and Belts, continued
+
+<a id="gp-E-2-p6"></a>We define the MMR encoding function as $\mathcal{E}_{M}$:
+
+<a id="gp-E-2-p7"></a><a id="eq-E-9"></a>
+
+$$
+\begin{equation}
+\mathcal{E}_{M}\colon\left\{ \,\begin{aligned}
+\left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{} &\to \mathbb{B}_{} \\
+\mathbf{b} &\mapsto \mathcal{E}_{}\left(\left\updownarrow\left[\mathord{\unicode{xBF}}x \;\middle\vert\; x \mathrel{\unicode{x2B40}} \mathbf{b}\right]\right.\!\right)
+\vphantom{x'_i}\end{aligned} \right. \tag{E.9}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnmmrencode" class="gk-wrap">$\mathcal{E}_{M}$</span> | E sub M | a Merkle mountain range's encoding: its peaks, each maybe empty, with their count in front |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-var">[$\left\updownarrow x\right.\!$](../symbols.md#length-prefix)</span> | with its length | ↕x: x with its length in front, as a compact natural |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-maybe">$\mathord{\unicode{xBF}}x$</span> | maybe | ¿x: the byte 0 if x is nothing (∅), or the byte 1 and then x |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+
+</details>
+
+→ [(E.9) in plain words](./gray-paper.md#ex-E-9)
+
+<a id="gp-E-2-p8"></a>We define the MMR super-peak function as $\mathcal{M}_R$:
+
+<a id="gp-E-2-p9"></a><a id="eq-E-10"></a>
+
+$$
+\begin{equation}
+\mathcal{M}_R\colon\left\{ \,\begin{aligned}
+\left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{} &\to \mathbb{H}_{} \\
+\mathbf{b} &\mapsto \begin{cases}
+\mathbb{H}_{0} &\text{if } \left\vert\mathbf{h}\right\vert = 0\\
+\mathbf{h}_0 &\text{if } \left\vert\mathbf{h}\right\vert = 1\\
+\mathcal{H}_K\left(\texttt{\$peak} \frown \mathcal{M}_R\left(\mathbf{h}_{\dots\left\vert\mathbf{h}\right\vert-1}\right) \frown \mathbf{h}_{\left\vert\mathbf{h}\right\vert-1}\right) &\text{otherwise} \\
+\text{where } \mathbf{h} = \left[h \;\middle\vert\; h \mathrel{\unicode{x2B40}} \mathbf{b}, h \ne \emptyset\right]
+\end{cases}
+\vphantom{x'_i}\end{aligned} \right. \tag{E.10}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-fnmmrsuperpeak" class="gk-wrap">$\mathcal{M}_R$</span> | M sub R | the super-peak: a mountain range's peaks hashed down to one 32-byte root, with Keccak |
+| <span id="gk-zerohash" class="gk-wrap">$\mathbb{H}_{0}$</span> | H zero | 32 zero bytes: a placeholder where a hash isn't known yet |
+| <span id="gk-keccak">$\mathcal{H}_K\left(x\right)$</span> | H sub K of | the Keccak-256 hash, as Ethereum uses it: 32 bytes |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+| <span id="gk-mmrsuperpeak">$\mathcal{M}_R\left(x\right)$</span> | M sub R of | the super-peak: one hash for a whole belt, its peaks folded together under the word `peak` |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+
+</details>
+
+→ [(E.10) in plain words](./gray-paper.md#ex-E-10)
+
+:::
+
+Two more functions. ℰ_M is how a belt is written as bytes, in the state: its length, then
+each place as an optional hash (`00` for ∅, `01` and the 32 bytes for a peak), which
+[lesson 9.2](./02-recent-blocks.md)'s `Recent` record does. And the *super-peak*, M_R,
+squeezes a belt into one hash: take the peaks that exist, in
 order. None gives 32 zero bytes, and one gives itself. Otherwise it's
 H(`$peak` ⌢ M_R(all but the last) ⌢ the last). The `$` marks an ASCII string, as in
 [lesson 5.3](../05-hashing-and-signatures/03-signatures.md): the bytes hashed are the four letters `peak`, without the `$`.
@@ -110,9 +248,49 @@ items is the one with a merge to watch, and every answer is the vector's own `be
 
 <SuperPeak />
 
-And the hash? Not Blake2b, for once. §7 says the belt uses *Keccak-256*, Ethereum's
-hash, "to maximize compatibility with legacy systems": a bridge contract on Ethereum can
-check JAM's belt with a hash it has built in.
+What does each block append? §7 says:
+
+::: gray-paper 7 6-7
+
+#### §7 Recent History, continued
+
+<a id="gp-7-p6"></a>We define the new <abbr class="gp-term" title="β_B, the belt: one running commitment to every block's accumulation outputs">Accumulation Output Log</abbr> $\beta_B$. This is formed from the block's accumulation-output sequence $\theta'$ (defined in section [12](../17-accumulation/index.md#gp-12-p1)), taking its root using the basic binary <abbr class="gp-term" title="hashing many values down to one root through a tree, so one 32-byte hash stands for them all">Merklization</abbr> function ($\mathcal{M}_B$, defined in appendix [E](../06-state-and-merklization/gray-paper.md#gp-E-1-p1)) and appending it to the previous log value with the MMB append function (defined in appendix [E.2](#gp-E-2-p1)). Throughout, the Keccak hash function is used to maximize compatibility with legacy systems:
+
+<a id="gp-7-p7"></a><a id="eq-7-6"></a><a id="eq-7-7"></a>
+
+$$
+\begin{align}
+\text{let } \mathbf{s} &= \left[\mathcal{E}_{4}\left(s\right) \frown \mathcal{E}_{}\left(h\right) \;\middle\vert\; \left(s, h\right) \mathrel{\unicode{x2B40}} \theta'\right] \tag{7.6} \\
+\beta_B' &\equiv \mathcal{A}\left(\beta_B, \mathcal{M}_B\left(\mathbf{s}, \mathcal{H}_K\right), \mathcal{H}_K\right) \tag{7.7}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-lastaccout" class="gk-wrap">$\theta$</span> | theta | the last block's accumulation outputs: which service yielded which hash |
+| <span id="gk-accoutbelt" class="gk-wrap">$\beta_B$</span> | beta sub B | the accumulation output belt: one place per binary digit of the block count, each a peak or nothing |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-mmrappend">$\mathcal{A}\left(x\right)$</span> | A of | append one item to a belt, merging equal mountains on the way, as adding 1 carries in binary |
+| <span id="gk-merklizewb">$\mathcal{M}_B\left(x\right)$</span> | M sub B of | the well-balanced Merkle root of a list: one hash for all its items |
+| <span id="gk-fnkeccak" class="gk-wrap">$\mathcal{H}_K$</span> | H sub K | Keccak-256, Ethereum's hash: 32 bytes, for what other chains must check |
+
+</details>
+
+→ [(7.6), (7.7) in plain words](./gray-paper.md#ex-7-6)
+
+:::
+
+In plain words: take this block's accumulation outputs θ′, each a service and the hash it
+yielded; write each as the service id in 4 bytes then the hash, 36 bytes; roll them into
+one root with M_B, the well-balanced Merkle root ([lesson 17.11](../17-accumulation/11-what-a-service-yields.md)
+builds it); and append that root to the belt with 𝒜. That root is the vectors'
+`accumulate_root`, the one item a block adds.
+
+And the hash? Not Blake2b, for once. The belt uses *Keccak-256*, ℋ_K, Ethereum's hash,
+"to maximize compatibility with legacy systems": a bridge contract on Ethereum can check
+JAM's belt with a hash it has built in.
 
 ## A second hash
 

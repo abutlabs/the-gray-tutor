@@ -42,10 +42,81 @@ One more rule, from [lesson 16.6](../16-host-calls/06-checkpoints.md): a checkpo
 and the list of transfers is part of it. Send, then panic, and the transfer never
 happened, the money included.
 
-In the Gray Paper, a transfer is (s, d, a, m, g): source, destination, amount, memo and
+What a transfer is made from, in §12.2, beside the operand tuple 𝕌 that a digest becomes
+([lesson 16.7](../16-host-calls/07-a-services-inputs.md)):
+
+::: gray-paper 12.2 5-7
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p5"></a>Rather than passing whole work-digests into accumulate, we extract the salient information from them and combine with information implied by their work-reports. We call this kind of combined value an *operand tuple*, $\mathbb{U}$. Likewise, we denote the set characterizing a *<abbr class="gp-term" title="a payment between services: the money leaves now, and the receiver's code runs on it in the next round">deferred transfer</abbr>* as $\mathbb{X}$, noting that a transfer includes a memo component $m$ of $\mathsf{W}_T = 128$ <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr>, together with the service index of the sender $s$, the service index of the receiver $d$, the balance to be transferred $a$ and the gas limit $g$ for the transfer. Formally:
+
+<a id="gp-12-2-p6"></a><a id="eq-12-13"></a><a id="eq-12-14"></a>
+
+$$
+\begin{align}
+\mathbb{U} &\equiv \!\left\lgroup
+\begin{alignedat}{5}
+p&\in \mathbb{H}_{},\;
+&e&\in \mathbb{H}_{},\;
+&a&\in \mathbb{H}_{},\;
+y\in \mathbb{H}_{},\;\\
+g&\in \mathbb{N}_G,\;
+&\mathbf{t}&\in \mathbb{B}_{},\;
+&\mathbf{l}&\in \mathbb{B}_{} \cup \mathbb{E}
+\end{alignedat}
+\right\rgroup\! \tag{12.13} \\
+\mathbb{X} &\equiv \!\left\lgroup
+s\in \mathbb{N}_S ,
+d\in \mathbb{N}_S ,
+a\in \mathbb{N}_B ,
+m\in \mathbb{B}_{\mathsf{W}_T} ,
+g\in \mathbb{N}_G
+\right\rgroup\! \tag{12.14}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-operandtuple" class="gk-wrap">$\mathbb{U}$</span> | U | an operand: what accumulate is told about one work-digest: package hash, exports root, authorizer, payload hash, gas, trace and result |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-ot-packagehash">$p$</span> | p | the operand's work-package hash |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-ot-segroot">$e$</span> | e | the operand's exports root: the root of the segments its package exported |
+| <span id="gk-ot-authorizer">$a$</span> | a | the authorizer hash of the report the digest came from |
+| <span id="gk-ot-payloadhash">$y$</span> | y | the hash of the work-item's payload |
+| <span id="gk-ot-gaslimit">$g$</span> | g | the gas the digest asked for, to accumulate it |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-ot-authtrace" class="gk-wrap">$\mathbf{t}$</span> | t | the authorizer's trace: the blob its code gave back when it said yes |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-ot-result" class="gk-wrap">$\mathbf{l}$</span> | l | what refine produced for the work-item: a blob, or an error |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-workerror" class="gk-wrap">$\mathbb{E}$</span> | E | the set of work errors: out of gas, panic, bad exports, oversize, BAD (no code) and BIG (code too big) |
+| <span id="gk-defxfer" class="gk-wrap">$\mathbb{X}$</span> | X | a deferred transfer: (source, destination, amount, memo, gas), the money moved now, the receiver run in the next round |
+| <span id="gk-dx-source">$s$</span> | s | a transfer's sender: the service it comes from |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-dx-dest">$d$</span> | d | a transfer's receiver: the service it goes to |
+| <span id="gk-balance" class="gk-wrap">$\mathbb{N}_B$</span> | N sub B | a balance: a u64 |
+| <span id="gk-dx-memo">$m$</span> | m | a transfer's memo: 128 bytes the sender writes for the receiver's code |
+| <span id="gk-memo" class="gk-wrap">$\mathbb{B}_{\mathsf{W}_T}$</span> | a blob of W sub T bytes | exactly 128 bytes |
+
+</details>
+
+→ [(12.13), (12.14) in plain words](./gray-paper.md#ex-12-13)
+
+<a id="gp-12-2-p7"></a>Note that the union of the two characterizes inputs to the Accumulation <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr> function $\Psi_A$ (defined in equation [B.9](../16-host-calls/06-checkpoints.md#eq-B-9)).
+
+:::
+
+In plain words, a transfer is (s, d, a, m, g): source, destination, amount, memo and
 gas. Transfers are the set **𝕏** (a blackboard X, not the context X), a memo is **W_T** =
 128 bytes long, and the run's list is the context's **𝐭**, one in X and one in Y, just
-like the accounts.
+like the accounts. A service's inputs are these two kinds side by side: transfers and
+operands.
 
 ## The tests
 

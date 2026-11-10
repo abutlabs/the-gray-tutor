@@ -23,7 +23,238 @@ All four are in the [glossary](../glossary.md), with the rest.
 
 ## What the Gray Paper says
 
-§12 in four plain steps:
+One round is the paper's Δ\*, the parallelized accumulation function. Its body is long
+because it also merges privileges, new and removed services and preimages, which later
+lessons build; this lesson needs its first lines, 𝐬 (which services run), Δ(s) (each one
+run once, from the same state 𝐞) and 𝐮 (the gas each used):
+
+::: gray-paper 12.2 14-15
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p14"></a>We come to define the parallelized accumulation function $\Delta_*$ which, with the help of the single-service accumulation function $\Delta_1$, transforms an initial <abbr class="gp-term" title="the partial state a run of accumulate works on and hands back">state-context</abbr>, together with a sequence of deferred transfers, a sequence of work-reports and a dictionary of privileged always-accumulate services, into a tuple of the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state-context, the resultant deferred-transfers and accumulation-output pairings, and the service-indexed gas usage. Note that for the privileges we employ a function $R$ which selects the service to which the manager service changed, or if no change was made, then that which the service itself changed to. This allows privileges to be `owned` and facilitates the removal of the manager service which we see as a helpful possibility. Formally:
+
+<a id="gp-12-2-p15"></a><a id="eq-12-18"></a>
+
+$$
+\begin{equation}
+\Delta_*\colon\left\{ \;\begin{aligned}\begin{aligned}
+&\!\left\lgroup\mathbb{S}, \left[\!\left[\mathbb{X}\right]\!\right]_{}, \left[\!\left[\mathbb{R}\right]\!\right]_{}, \left\langle\!\left\vert \mathbb{N}_S\to\mathbb{N}_G\right\vert\!\right\rangle\right\rgroup\! \to \!\left\lgroup\mathbb{S}, \left[\!\left[\mathbb{X}\right]\!\right]_{}, B, U\right\rgroup\! \\
+&\left(\mathbf{e}, \mathbf{t}, \mathbf{r}, \mathbf{f}\right) \mapsto \left(
+\left(
+\mathbf{d}', \mathbf{i}', \mathbf{q}', m', \mathbf{a}', v', r', \mathbf{z}'
+\right), \overparen{\mathbf{t}'}, \mathbf{b}, \mathbf{u}
+\right)\!\!\!\!\!\!\\
+&\text{where:}\\
+&\ \begin{aligned}
+\text{let } \mathbf{s} &= \left\{\,
+d_{s}
+\;\middle\vert\;
+r \in \mathbf{r}, d \in r_{\mathbf{d}}
+\,\right\} \cup \mathcal{K}\left(\mathbf{f}\right) \cup \left\{\,t_{d} \;\middle\vert\; t \in \mathbf{t}\,\right\} \\
+\Delta(s) &\equiv \Delta_1(\mathbf{e}, \mathbf{t}, \mathbf{r}, \mathbf{f}, s) \\
+\mathbf{u} &= \left[
+\left(s, \Delta(s)_{u}\right)
+\;\middle\vert\;
+s \mathrel{\unicode{x2B40}} \mathbf{s}
+\right] \\
+\mathbf{b} &= \left\{\,
+\left(s, b\right)
+\;\middle\vert\;
+s \in \mathbf{s},\,
+b = \Delta(s)_{y},\,
+b \ne \emptyset
+\,\right\} \\
+\mathbf{t}' &= \left[
+\Delta(s)_{\mathbf{t}}
+\;\middle\vert\;
+s \mathrel{\unicode{x2B40}} \mathbf{s}
+\right] \\
+\mathbf{d}' &= I(
+(\mathbf{d} \cup \mathbf{n}) \setminus \mathbf{m},
+\bigcup_{s \in \mathbf{s}} \Delta(s)_{\mathbf{p}}
+) \\
+&\left(
+\mathbf{d}, \mathbf{i}, \mathbf{q}, m, \mathbf{a}, v, r, \mathbf{z}
+\right) = \mathbf{e} \\
+\mathbf{e}^* &= \Delta(m)_{\mathbf{e}} \\
+\left(m'\!,\mathbf{z}'\right) &=
+\mathbf{e}^*_{\left(m, \mathbf{z}\right)} \\
+\forall c \in \mathbb{N}_{\mathsf{C}} :
+\mathbf{a}'_{c} &= R(
+\mathbf{a}_{c},
+(\mathbf{e}^*_{\mathbf{a}})_{c},
+((\Delta(\mathbf{a}_{c})_{\mathbf{e}})_{\mathbf{a}})_{c}
+) \\
+v' &= R(
+v,
+\mathbf{e}^*_{v},
+(\Delta(v)_{\mathbf{e}})_{v}
+) \\
+r' &= R(
+r,
+\mathbf{e}^*_{r},
+(\Delta(r)_{\mathbf{e}})_{r}
+) \\
+\mathbf{i}' &= (
+\Delta(v)_{\mathbf{e}}
+)_{\mathbf{i}} \\
+\forall c \in \mathbb{N}_{\mathsf{C}} :
+\mathbf{q}'_{c} &= ((
+\Delta(\mathbf{a}_{c})_{\mathbf{e}}
+)_{\mathbf{q}})_{c} \\
+\mathbf{n} &= \bigcup_{s \in \mathbf{s}}(
+(\Delta(s)_{\mathbf{e}})_{\mathbf{d}}
+\setminus
+\mathcal{K}\left(\mathbf{d} \setminus \left\{\,s\,\right\}\right)
+) \\
+\mathbf{m} &= \bigcup_{s \in \mathbf{s}}(
+\mathcal{K}\left(\mathbf{d}\right)
+\setminus
+\mathcal{K}\left((\Delta(s)_{\mathbf{e}})_{\mathbf{d}}\right)
+)
+\end{aligned}
+\end{aligned}\end{aligned} \right. \tag{12.18}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accpar" class="gk-wrap">$\Delta_*$</span> | Delta star | one round of accumulation: every service with work runs once, all from the same state, and their results are merged |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-partialstate" class="gk-wrap">$\mathbb{S}$</span> | S | a partial state: the parts of the state accumulation may change: accounts, next validators, authorizer queues and the privileges |
+| <span id="gk-defxfers">$\left[\!\left[\mathbb{X}\right]\!\right]$</span> | a sequence of transfers | a list of deferred transfers, in order |
+| <span id="gk-workreports">$\left[\!\left[\mathbb{R}\right]\!\right]$</span> | a sequence of work-reports | a list of work-reports, in order |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-local-fnservouts">$B$</span> | B | the yields: a set of pairs (service, 32-byte hash) |
+| <span id="gk-local-fngasused">$U$</span> | U | the gas used: a list of pairs (service, gas), one per run |
+| <span id="gk-psX" class="gk-wrap">$\mathbf{e}$</span> | e | a partial state: the accounts, next validators, queues and privileges a run works on |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-ps-accounts" class="gk-wrap">$\mathbf{d}$</span> | d | a partial state's service accounts, by service id |
+| <span id="gk-ps-stagingset" class="gk-wrap">$\mathbf{i}$</span> | i | a partial state's next validators' keys, ι |
+| <span id="gk-ps-authqueue" class="gk-wrap">$\mathbf{q}$</span> | q | a partial state's authorizer queues, ϕ: 80 hashes for each core |
+| <span id="gk-ps-manager">$m$</span> | m | the manager service's id, χ_M |
+| <span id="gk-ps-assigners" class="gk-wrap">$\mathbf{a}$</span> | a | each core's assigner service id, χ_A |
+| <span id="gk-ps-delegator">$v$</span> | v | the delegator service's id, χ_V: it sets the next validators |
+| <span id="gk-ps-registrar">$r$</span> | r | the registrar service's id, χ_R: it may create services at small ids |
+| <span id="gk-ps-alwaysaccers" class="gk-wrap">$\mathbf{z}$</span> | z | the always-accumulate services with their free gas, χ_Z |
+| <span id="gk-concatall">$\overparen{x}$</span> | all joined | every sequence in it, joined end to end into one |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-wd-serviceindex">$s$</span> | s | the service the item was for, whose accumulate gets the result |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+| <span id="gk-dx-dest">$d$</span> | d | a transfer's receiver: the service it goes to |
+| <span id="gk-local-acc" class="gk-wrap">$\Delta$</span> | Delta | inside Δ\*: Δ(s) is service s's run in this round, Δ₁ with the round's inputs |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-accone" class="gk-wrap">$\Delta_1$</span> | Delta one | one service's accumulation: adds up its gas, lines up its inputs, transfers first, and runs its code with Ψ_A |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-ao-gasused">$u$</span> | u | the gas a run used |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-ao-yield">$y$</span> | y | a run's yield: a 32-byte hash for the outside world, or nothing |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-ao-defxfers" class="gk-wrap">$\mathbf{t}$</span> | t | the transfers a run sent |
+| <span id="gk-local-fnprovide">$I$</span> | I | preimage integration: files each provided blob in its service, if that service still waits for it |
+| <span id="gk-setminus">$\setminus$</span> | without | the left side with every item of the right taken out |
+| <span id="gk-bigcup">$\bigcup$</span> | the union over | everything in any of the sets it ranges over, together |
+| <span id="gk-ao-provisions" class="gk-wrap">$\mathbf{p}$</span> | p | the preimages a run provided: pairs (service, blob) |
+| <span id="gk-local-manpost" class="gk-wrap">$\mathbf{e}^*$</span> | e star | the state the manager's run left behind |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+
+</details>
+
+→ [(12.18) in plain words](./gray-paper.md#ex-12-18)
+
+:::
+
+After the block's rounds, the paper counts what each service did, and stamps the slot on
+every service that did anything:
+
+::: gray-paper 12.3 3-6
+
+#### §12.3 Final State Integration, continued
+
+<a id="gp-12-3-p3"></a>From this formulation, we also receive $n$, the total number of work-reports accumulated and $\mathbf{u}$, the gas used in the accumulation process for each service. We compose $\mathbf{S}$, our accumulation statistics, which is a mapping from the service indices which were accumulated to the amount of gas used throughout accumulation and the number of work-items and transfers accumulated. Formally:
+
+<a id="gp-12-3-p4"></a><a id="eq-12-27"></a><a id="eq-12-28"></a>
+
+$$
+\begin{align}
+&\mathbf{S} \in \left\langle\!\left\vert \mathbb{N}_S\to\!\left\lgroup\mathbb{N}, \mathbb{N}, \mathbb{N}_G\right\rgroup\!\right\vert\!\right\rangle \tag{12.27} \\
+&\textstyle \mathbf{S} \equiv \left\{\,
+\left(s \mapsto S(s)\right)
+\;\middle\vert\;
+S(s) \ne \left(0, 0, 0\right)
+\,\right\}
+\!\!\!\! \tag{12.28} \\
+\text{where } &S(s) \equiv \left(N(s), T(s), G(s)\right) \notag \\
+\text{and } &N(s) \equiv \left\vert\left[d \;\middle\vert\;
+r \mathrel{\unicode{x2B40}} \mathbf{R}^*_{\dots n} ,
+d \mathrel{\unicode{x2B40}} r_{\mathbf{d}} ,
+d_{s} = s
+\right]\right\vert \notag \\
+\text{and } &T(s) \equiv \left\vert\left[t \;\middle\vert\;
+t \mathrel{\unicode{x2B40}} \mathbf{t} ,
+t_{d} = s
+\right]\right\vert \notag \\
+\text{and } &G(s) \equiv \sum_{\left(s, u\right) \in \mathbf{u}}(u) \notag
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accumulationstatistics" class="gk-wrap">$\mathbf{S}$</span> | S | this block's accumulation tallies, per service: work-items accumulated, transfers, and gas used |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-kv">$\left(x \mapsto y\right)$</span> | k maps to v | a dictionary entry: key k, value v |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+
+</details>
+
+→ [(12.27), (12.28) in plain words](./gray-paper.md#ex-12-27)
+
+<a id="gp-12-3-p5"></a>The second intermediate state $\delta^\ddagger$ may then be defined with the last-accumulation record being updated for all accumulated services:
+
+<a id="gp-12-3-p6"></a><a id="eq-12-29"></a><a id="eq-12-30"></a>
+
+$$
+\begin{align}
+\delta^\ddagger &\equiv \left\{\,  \left(s \mapsto a'\right)  \;\middle\vert\;  \left(s \mapsto a\right) \in \delta^\dagger \,\right\} \tag{12.29} \\
+& \text{where } a' = \begin{cases}
+a \text{ except } a'_{a} = \tau' &\text{if } s \in \mathcal{K}\left(\mathbf{S}\right) \\
+a &\text{otherwise}
+\end{cases} \tag{12.30}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accountspostxfer" class="gk-wrap">$\delta^\ddagger$</span> | delta double dagger | the service accounts midway: after accumulation |
+| <span id="gk-accountspostacc" class="gk-wrap">$\delta^\dagger$</span> | delta dagger | the service accounts right after accumulation, before slots are stamped and the block's preimages filed |
+| <span id="gk-sa-lastacc">$a$</span> | a | the slot the service last accumulated at |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+
+</details>
+
+→ [(12.29), (12.30) in plain words](./gray-paper.md#ex-12-29)
+
+:::
+
+In plain words, §12 is four steps:
 
 1. **Which reports go now.** Of the reports that just became available ([lesson 11.1](../11-assurances/01-available.md)),
    the ones with no prerequisites, and no segment-root lookups (another kind of

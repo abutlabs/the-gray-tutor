@@ -5,7 +5,9 @@ who run it, sign the resulting report, and put their stake behind it. But which
 validators get which core? If you could pick, you'd pick your friends. So JAM deals them
 out: three validators per core, shuffled with randomness nobody could steer ([lesson
 7.2](../07-time-and-shuffling/02-the-shuffle.md)), and reshuffled along every few slots so nobody stays on one core for long. This
-lesson deals the hand.
+lesson deals the hand. The dealing is on the chain: every validator works out the same
+hand from the same entropy, which is how the chain can later tell whether the right three
+signed a report ([the part's page](./index.md) draws the whole exchange).
 
 ## New words
 
@@ -20,7 +22,112 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§11 (*Guarantor Assignments*). With v validators, only the first v/3 cores are
+::: gray-paper 11.3
+
+#### §11.3 Guarantor Assignments {#gp-11-3}
+
+<a id="gp-11-3-p1"></a>As discussed in section [4.9](../what-runs-where.md#gp-4-9-p1), the amount of <abbr class="gp-term" title="done by a core's guarantors, off the chain; the chain only sees the result">in-core</abbr> computation that is possible scales with the number of validator nodes. Concretely, while there are a fixed number of cores $\mathsf{C} = 341$, only the first ${}^{\left\vert\kappa'\right\vert}\!/_{3}$ are *active* and capable of processing work-packages.
+
+<a id="gp-11-3-p2"></a>Every block, each active core has three validators uniquely assigned to guarantee work-reports for it. The core index assigned to each of the validators, as well as the validators' keys are denoted by $\mathbf{M}$:
+
+<a id="gp-11-3-p3"></a><a id="eq-11-19"></a>
+
+$$
+\begin{equation}
+\mathbf{M} \in \!\left\lgroup\left[\!\left[\mathbb{N}_{\mathsf{C}}\right]\!\right]_{\left\vert\kappa'\right\vert}, \left[\!\left[\mathbb{K}\right]\!\right]_{\left\vert\kappa'\right\vert}\right\rgroup\! \tag{11.19}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-guarantorassignments" class="gk-wrap">$\mathbf{M}$</span> | M | the guarantor assignments: each validator's core this rotation, and the validators' keys |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-valkey" class="gk-wrap">$\mathbb{K}$</span> | K | a validator's key set: 336 bytes holding its Bandersnatch, Ed25519 and BLS keys and its metadata |
+
+</details>
+
+→ [(11.19) in plain words](./gray-paper.md#ex-11-19)
+
+<a id="gp-11-3-p4"></a>We determine the core to which any given validator is assigned through a shuffle using epochal entropy and a periodic rotation to help guard the security and liveness of the network. We use $\eta_2$ for the epochal entropy rather than $\eta_1$ to avoid the possibility of <abbr class="gp-term" title="forks multiplying because validators disagree about the end of an epoch">fork-magnification</abbr> where uncertainty about chain state at the end of an epoch could give rise to two established <abbr class="gp-term" title="two blocks built on the same parent, splitting the chain until one side is dropped">forks</abbr> before it naturally resolves.
+
+<a id="gp-11-3-p5"></a>We define the rotation function $R$, the permute function $P$ and finally the guarantor assignments $\mathbf{M}$ as follows:
+
+<a id="gp-11-3-p6"></a><a id="eq-11-20"></a><a id="eq-11-21"></a><a id="eq-11-22"></a>
+
+$$
+\begin{align}
+R(\mathbf{c}, n) &\equiv \left[(x + n) \bmod \frac{\left\vert\mathbf{c}\right\vert}{3} \;\middle\vert\; x \mathrel{\unicode{x2B40}} \mathbf{c}\right] \tag{11.20} \\
+P(v, e, t) &\equiv R\left(
+\mathcal{F}\left(\left[\left\lfloor\frac{i}{3}\right\rfloor \;\middle\vert\; i \mathrel{\unicode{x2B40}} \mathbb{N}_{v}\right], e\right),
+\left\lfloor\frac{t \bmod \mathsf{E}}{\mathsf{R}}\right\rfloor
+\right) \tag{11.21} \\
+\mathbf{M} &\equiv \left(P(\left\vert\kappa'\right\vert, \eta'_2, \tau'), \Phi(\kappa')\right) \tag{11.22}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-fyshuffle">$\mathcal{F}\left(x\right)$</span> | F of | the Fisher-Yates shuffle: the sequence reordered by an entropy, the same way on every validator |
+| <span id="gk-ffrac">$\left\lfloor\frac{x}{y}\right\rfloor$</span> | x over y, rounded down | whole-number division, the remainder dropped: ⌊7/3⌋ is 2 |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-Crotationperiod" class="gk-wrap">$\mathsf{R}$</span> | R | how often the guarantors move on to another core: every 10 slots on full, 4 on tiny |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-Phi">$\Phi$</span> | Phi | the key nullifier: each key set as it is, or 336 zero bytes if its Ed25519 key is an offender's |
+
+</details>
+
+→ [(11.20), (11.21), (11.22) in plain words](./gray-paper.md#ex-11-20)
+
+<a id="gp-11-3-p7"></a>We also define $\mathbf{M}^*$, which is equivalent to the value $\mathbf{M}$ as it would have been under the previous rotation:
+
+<a id="gp-11-3-p8"></a><a id="eq-11-23"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\text{let } \left(\mathbf{k}, e\right) &= \begin{cases}
+\left(\kappa', \eta'_2\right) &\text{if } \displaystyle\left\lfloor\frac{\tau' - \mathsf{R}}{\mathsf{E}}\right\rfloor = \left\lfloor\frac{\tau'}{\mathsf{E}}\right\rfloor\\
+\left(\lambda', \eta'_3\right) &\text{otherwise}
+\end{cases} \\
+\mathbf{M}^* &\equiv \left(
+P(\left\vert\mathbf{k}\right\vert, e, \tau' - \mathsf{R}),
+\Phi(\mathbf{k})
+\right)
+\end{aligned} \tag{11.23}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-guarantorassignmentsunderlastrotation" class="gk-wrap">$\mathbf{M}^*$</span> | M star | the guarantor assignments of the rotation before this one |
+
+</details>
+
+→ [(11.23) in plain words](./gray-paper.md#ex-11-23)
+
+:::
+
+In plain words, §11.3 (*Guarantor Assignments*) says: with v validators, only the first v/3 cores are
 *active cores*: three *guarantors* each. P(v, e, t), the core of each validator at slot t:
 
 1. Start with the seats: validator i gets core ⌊i/3⌋, so `0 0 0 1 1 1 2 2 2 …`.
@@ -365,7 +472,7 @@ guarantee for core 0, made at slot 10 (the last rotation):
 :::
 
 The guarantee's own `slot` decides which hand it answers to: made at 10, it's checked
-against the *last* rotation's seats, where 1, 2 and 5 were core 0's trio — even though
+against the *last* rotation's seats, where 1, 2 and 5 were core 0's trio, even though
 this rotation has dealt validator 2 to core 1. The `entropy` list is η; the last
 rotation's hand is shuffled from its fourth entry.
 

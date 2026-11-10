@@ -17,6 +17,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+/** A quote of the Gray Paper (tools/gray-paper-text.ts): the paper's words, filled from its
+ *  tex, so the checks of the tutorial's own prose (spelling, units, keys) pass over it. */
+export const GRAY_PAPER_QUOTE = /^::: gray-paper(?:-eq)? [^\n]*\n[\s\S]*?^:::$/gm;
+
 export const ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const LESSONS = join(ROOT, "lessons");
 

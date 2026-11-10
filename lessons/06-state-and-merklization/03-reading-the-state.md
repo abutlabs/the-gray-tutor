@@ -17,7 +17,202 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix D's T says what each key's value is. Three of them:
+Appendix D's T says what each key's value is:
+
+::: gray-paper D.1 4-7
+
+#### Appendix D.1 Serialization, continued
+
+<a id="gp-D-1-p4"></a>The state <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> is then defined as the dictionary built from the amalgamation of each of the components. Cryptographic hashing ensures that there will be no duplicate state-keys given that there are no duplicate inputs to $C$. Formally, we define $T$ which transforms some state $\sigma$ into its serialized form:
+
+<a id="gp-D-1-p5"></a><a id="eq-D-2"></a>
+
+$$
+\begin{equation}
+T(\sigma) \equiv \left\{ \begin{aligned}
+&&C(1) &\mapsto \mathcal{E}_{}\left(\left[\left\updownarrow x\right.\! \;\middle\vert\; x \mathrel{\unicode{x2B40}} \alpha\right]\right) \;, \\
+&&C(2) &\mapsto \mathcal{E}_{}\left(\phi\right) \;, \\
+&&C(3) &\mapsto \mathcal{E}_{}\left(
+\left\updownarrow\left[
+\left(h, b, s, \mathcal{E}_{4}\left(t\right), \left\updownarrow\mathbf{p}\right.\!\right)
+\;\middle\vert\;
+\left(h, b, s, t, \mathbf{p}\right) \mathrel{\unicode{x2B40}} \beta_H
+\right]\right.\!,
+\mathcal{E}_{M}\left(\beta_B\right)
+\right) \;, \\
+&&C(4) &\mapsto \mathcal{E}_{}\left(
+\left\updownarrow\gamma_P\right.\!,
+\gamma_Z,
+\left\{ \begin{aligned}
+0\ &\text{if } \gamma_S \in \left[\!\left[\mathbb{T}\right]\!\right]_{\mathsf{E}}\\
+1\ &\text{if } \gamma_S \in \left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{\mathsf{E}}\\
+\end{aligned} \right\},
+\gamma_S,
+\left\updownarrow\gamma_A\right.\!
+\right) \;, \\
+&&C(5) &\mapsto \mathcal{E}_{}\left(
+\left\updownarrow\left[x \in \psi_G\,\wr\,x\right]\right.\!,
+\left\updownarrow\left[x \in \psi_B\,\wr\,x\right]\right.\!,
+\left\updownarrow\left[x \in \psi_W\,\wr\,x\right]\right.\!,
+\left\updownarrow\left[x \in \psi_O\,\wr\,x\right]\right.\!
+\right) \;, \\
+&&C(6) &\mapsto \mathcal{E}_{}\left(\eta\right) \;, \\
+&&C(7) &\mapsto \mathcal{E}_{}\left(\left\updownarrow\iota\right.\!\right) \;, \\
+&&C(8) &\mapsto \mathcal{E}_{}\left(\left\updownarrow\kappa\right.\!\right) \;, \\
+&&C(9) &\mapsto \mathcal{E}_{}\left(\left\updownarrow\lambda\right.\!\right) \;, \\
+&&C(10) &\mapsto \mathcal{E}_{}\left(
+\left[
+\mathord{\unicode{xBF}}\left(\mathbf{g}, \mathcal{E}_{4}\left(t\right)\right)
+\;\middle\vert\;
+\left(\mathbf{g}, t\right) \mathrel{\unicode{x2B40}} \rho
+\right]
+\right) \;, \\
+&&C(11) &\mapsto \mathcal{E}_{4}\left(\tau\right) \;, \\
+&&C(12) &\mapsto \mathcal{E}_{}\left(
+\mathcal{E}_{4}\left(\chi_M, \chi_A, \chi_V, \chi_R\right),
+\chi_Z
+\right) \;, \\
+&&C(13) &\mapsto \mathcal{E}_{}\left(
+\left\updownarrow\left[\mathcal{E}_{4}\left(\mathbf{v}\right) \;\middle\vert\; \mathbf{v} \mathrel{\unicode{x2B40}} \pi_V\right]\right.\!,
+\left\updownarrow\left[\mathcal{E}_{4}\left(\mathbf{v}\right) \;\middle\vert\; \mathbf{v} \mathrel{\unicode{x2B40}} \pi_L\right]\right.\!,
+\pi_C,
+\pi_S
+\right) \;, \\
+&&C(14) &\mapsto \mathcal{E}_{}\left(
+\left[
+\left\updownarrow\left[
+\left(\mathbf{r}, \left\updownarrow\mathbf{d}\right.\!\right)
+\;\middle\vert\;
+\left(\mathbf{r}, \mathbf{d}\right) \mathrel{\unicode{x2B40}} \mathbf{i}
+\right]\right.\!
+\;\middle\vert\;
+\mathbf{i} \mathrel{\unicode{x2B40}} \omega
+\right]
+\right) \;, \\
+&&C(15) &\mapsto \mathcal{E}_{}\left(
+\left[\left\updownarrow\mathbf{i}\right.\! \;\middle\vert\; \mathbf{i} \mathrel{\unicode{x2B40}} \xi\right]
+\right) \;, \\
+&&C(16) &\mapsto \mathcal{E}_{}\left(
+\left\updownarrow\left[\left(\mathcal{E}_{4}\left(s\right), \mathcal{E}_{}\left(h\right)\right) \;\middle\vert\; \left(s, h\right) \mathrel{\unicode{x2B40}} \theta\right]\right.\!
+\right) \;, \\
+\forall \left(s \mapsto \mathbf{a}\right) \in \delta: &&C(255, s) &\mapsto \mathcal{E}_{}\left(
+0,
+\mathbf{a}_{c},
+\mathcal{E}_{8}\left(
+\mathbf{a}_{b},
+\mathbf{a}_{g},
+\mathbf{a}_{m},
+\mathbf{a}_{o},
+\mathbf{a}_{f}
+\right),
+\mathcal{E}_{4}\left(
+\mathbf{a}_{i},
+\mathbf{a}_{r},
+\mathbf{a}_{a},
+\mathbf{a}_{p}
+\right)
+\right) \;, \\
+\forall \left(s \mapsto \mathbf{a}\right) \in \delta, \left(\mathbf{k} \mapsto \mathbf{v}\right) \in \mathbf{a}_{\mathbf{s}}:
+&&C(s, \mathcal{E}_{4}\left(2^{32}-1\right) \frown \mathbf{k}) &\mapsto \mathbf{v} \;, \\
+\forall \left(s \mapsto \mathbf{a}\right) \in \delta, \left(h \mapsto \mathbf{p}\right) \in \mathbf{a}_{\mathbf{p}}:
+&&C(s, \mathcal{E}_{4}\left(2^{32}-2\right) \frown h) &\mapsto \mathbf{p} \;, \\
+\forall \left(s \mapsto \mathbf{a}\right) \in \delta, \left(\left(h, l\right) \mapsto \mathbf{t}\right) \in \mathbf{a}_{\mathbf{l}}:
+&&C(s, \mathcal{E}_{4}\left(l\right) \frown h) &\mapsto \mathcal{E}_{}\left(
+\left\updownarrow\left[\mathcal{E}_{4}\left(x\right) \;\middle\vert\; x \mathrel{\unicode{x2B40}} \mathbf{t}\right]\right.\!
+\right)
+\end{aligned} \right. \tag{D.2}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-thestate" class="gk-wrap">[$\sigma$](../symbols.md#state)</span> | sigma | the state: everything the chain remembers between blocks |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-var">[$\left\updownarrow x\right.\!$](../symbols.md#length-prefix)</span> | with its length | ↕x: x with its length in front, as a compact natural |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-authpool" class="gk-wrap">$\alpha$</span> | alpha | the authorizer pools: for each core, up to O = 8 authorizer hashes it accepts right now |
+| <span id="gk-authqueue" class="gk-wrap">$\phi$</span> | phi | the authorizer queues: for each core, Q = 80 authorizer hashes waiting to join its pool |
+| <span id="gk-rh-headerhash">$h$</span> | h | a recent block's header hash |
+| <span id="gk-rh-accoutlogsuperpeak">$b$</span> | b | the belt's super-peak just after that block: the vectors' `beefy_root` |
+| <span id="gk-rh-stateroot">$s$</span> | s | a recent block's state root: the state just after it; zeros until the next block fills it in |
+| <span id="gk-rh-timeslot">$t$</span> | t | a recent block's timeslot |
+| <span id="gk-rh-reportedpackagehashes" class="gk-wrap">$\mathbf{p}$</span> | bold p | the packages a block reported: each package's hash, mapped to the root of the segments it exports |
+| <span id="gk-recenthistory" class="gk-wrap">$\beta_H$</span> | beta sub H | the last H = 8 blocks: each one's header hash, state root, belt peak and reported packages |
+| <span id="gk-mmrencode">$\mathcal{E}_{M}\left(x\right)$</span> | E sub M of | a Merkle mountain range's bytes: its count of peaks, then each peak as maybe (0, or 1 and the hash) |
+| <span id="gk-accoutbelt" class="gk-wrap">$\beta_B$</span> | beta sub B | the accumulation output belt: one place per binary digit of the block count, each a peak or nothing |
+| <span id="gk-pendingset" class="gk-wrap">$\gamma_P$</span> | gamma P | the pending validators: the key sets that become active at the next epoch |
+| <span id="gk-epochroot" class="gk-wrap">$\gamma_Z$</span> | gamma Z | the ring root of the pending validators' Bandersnatch keys: 144 bytes a ticket's proof is checked against |
+| <span id="gk-abracegroupboth">$\left\{ \begin{aligned}x\end{aligned} \right\}$</span> | whichever of | the value of the line inside whose condition holds |
+| <span id="gk-sealtickets" class="gk-wrap">$\gamma_S$</span> | gamma S | the slot sealers: one entry for each of the epoch's E slots, a winning ticket or, in the fallback, a Bandersnatch key |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-safroleticket" class="gk-wrap">$\mathbb{T}$</span> | T | a ticket: a 32-byte id, and which of its maker's tries it was (its attempt) |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-ticketaccumulator" class="gk-wrap">$\gamma_A$</span> | gamma A | the ticket lottery: the best tickets entered so far for the next epoch, at most E, lowest id first |
+| <span id="gk-sqorderby">$\left[y\,\wr\,x\right]$</span> | sorted by | the sequence's items, sorted by the key on the right |
+| <span id="gk-goodset" class="gk-wrap">$\psi_G$</span> | psi sub G | the good set: hashes of every report a verdict found valid |
+| <span id="gk-badset" class="gk-wrap">$\psi_B$</span> | psi sub B | the bad set: hashes of every report a verdict found invalid |
+| <span id="gk-wonkyset" class="gk-wrap">$\psi_W$</span> | psi sub W | the wonky set: hashes of every report whose verdict split, so nobody can tell |
+| <span id="gk-offenders" class="gk-wrap">$\psi_O$</span> | psi O | the offenders: Ed25519 keys of validators found to have judged a report wrongly |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-stagingset" class="gk-wrap">$\iota$</span> | iota | the next validators: keys queued to become active at the next epoch |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-maybe">$\mathord{\unicode{xBF}}x$</span> | maybe | ¿x: the byte 0 if x is nothing (∅), or the byte 1 and then x |
+| <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
+| <span id="gk-availassignments" class="gk-wrap">$\rho$</span> | rho | the pending reports: for each core, the report waiting to be made available, and when it came |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-manager" class="gk-wrap">$\chi_M$</span> | chi sub M | the manager: the one service that may change the privileges and grant free storage |
+| <span id="gk-assigners" class="gk-wrap">$\chi_A$</span> | chi sub A | the assigners: for each core, the service that may replace its authorizer queue |
+| <span id="gk-delegator" class="gk-wrap">$\chi_V$</span> | chi sub V | the delegator: the one service that may set the next epoch's validator keys |
+| <span id="gk-registrar" class="gk-wrap">$\chi_R$</span> | chi sub R | the registrar: the one service that may create services with the reserved low ids |
+| <span id="gk-alwaysaccers" class="gk-wrap">$\chi_Z$</span> | chi sub Z | the always-accumulate services: each accumulates every block, with this much gas |
+| <span id="gk-valstatsaccumulator" class="gk-wrap">$\pi_V$</span> | pi sub V | this epoch's validator tallies: one record of six counts per validator, still counting |
+| <span id="gk-valstatsprevious" class="gk-wrap">$\pi_L$</span> | pi sub L | last epoch's validator tallies: one record of six counts per validator, finished |
+| <span id="gk-corestats" class="gk-wrap">$\pi_C$</span> | pi sub C | the cores' tallies: one record per core, for this block only |
+| <span id="gk-servicestats" class="gk-wrap">$\pi_S$</span> | pi sub S | the services' tallies: one record per service active in this block, for this block only |
+| <span id="gk-ready" class="gk-wrap">$\omega$</span> | omega | the ready queue: available reports waiting on others before they can accumulate |
+| <span id="gk-accumulated" class="gk-wrap">$\xi$</span> | xi | the accumulated history: the packages accumulated in each of the last E slots |
+| <span id="gk-lastaccout" class="gk-wrap">$\theta$</span> | theta | the last block's accumulation outputs: which service yielded which hash |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-kv">$\left(x \mapsto y\right)$</span> | k maps to v | a dictionary entry: key k, value v |
+| <span id="gk-saX" class="gk-wrap">$\mathbf{a}$</span> | a | a service account: its code hash, balance, gas minimums, storage, preimages and the rest |
+| <span id="gk-accounts" class="gk-wrap">$\delta$</span> | delta | the service accounts: every service's code hash, balance, storage and preimages |
+| <span id="gk-sa-codehash">$c$</span> | c | an account's code hash: names the preimage holding its code |
+| <span id="gk-sa-minaccgas">$g$</span> | g | the least gas each work-item for this service must bring to accumulate |
+| <span id="gk-sa-minmemogas">$m$</span> | m | the least gas each transfer to this service must bring |
+| <span id="gk-sa-octets">$o$</span> | o | an account's octets: the bytes it keeps, with 81 per request and 34 per storage entry on top |
+| <span id="gk-sa-gratis">$f$</span> | f | an account's gratis offset: deposit it is let off, taken from its minimum balance |
+| <span id="gk-sa-items">$i$</span> | i | an account's items: 2 per request plus 1 per storage entry |
+| <span id="gk-sa-created">$r$</span> | r | the slot the service was created at |
+| <span id="gk-sa-lastacc">$a$</span> | a | the slot the service last accumulated at |
+| <span id="gk-sa-parent">$p$</span> | p | the parent: the id of the service that created this one |
+| <span id="gk-sa-storage" class="gk-wrap">$\mathbf{s}$</span> | s | an account's storage: keys to values, both any bytes, written by its own accumulate code |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-sa-requests" class="gk-wrap">$\mathbf{l}$</span> | l | an account's requests: for each (hash, length) asked for, a history of up to 3 slots |
+
+</details>
+
+→ [(D.2) in plain words](./gray-paper.md#ex-D-2)
+
+<a id="gp-D-1-p6"></a>Note that most rows describe a single mapping between a key derived from a natural and the serialization of a state component. However, the final four rows each define sets of mappings since these items act over all service accounts and in the case of the final three rows, the keys of a nested dictionary with the service.
+
+<a id="gp-D-1-p7"></a>Also note that all non-discriminator numeric serialization in state is done in fixed-length according to the size of the term.
+
+:::
+
+In plain words, (D.2) is a table: on the left a key, from [lesson 6.2](./02-state-keys.md)'s
+C, and on the right the encoding stored under it. The paper's second note is the rule of
+thumb for reading one: a number in the state is written fixed-width, ℰ₄ or ℰ₈, unless it
+is a length or a discriminator in front of something. This lesson reads three rows:
 
 | Key | Value | Codec |
 | --- | --- | --- |

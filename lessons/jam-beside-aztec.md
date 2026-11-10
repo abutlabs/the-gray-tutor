@@ -329,7 +329,7 @@ depend on the proving system being bug-free.
 - Our measurements are of six-validator tiny networks on one laptop, two clients, one
   circuit. A full network's timing is untested.
 - The 12 billion gas for Aztec's proof is an estimate: our verifier and Aztec's do
-  different maths, and the PVM may price them differently. Nobody has compiled Aztec's
+  different math, and the PVM may price them differently. Nobody has compiled Aztec's
   verifier to the PVM.
 - The service is a demo: test money anyone can mint, deposits public until claimed, and a
   circuit of ours rather than Aztec's.

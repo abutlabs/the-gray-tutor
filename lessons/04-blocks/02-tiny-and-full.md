@@ -34,8 +34,55 @@ it is holding. An assurance is four things:
 - the **validator**'s index, ℰ₂;
 - its **signature**: 64 bytes of Ed25519.
 
-One bit per core means C bits. Appendix C packs bits into bytes, eight to a byte, lowest
-bit first, so the bitfield takes ⌈C/8⌉ bytes: **1 byte on tiny, 43 on full**. A codec
+One bit per core means C bits, and Appendix C says how bits become bytes:
+
+::: gray-paper C.1.4
+
+#### Appendix C.1.4 Bit Sequence Encoding {#gp-C-1-4}
+
+<a id="gp-C-1-4-p1"></a>A sequence of bits $b \in \mathbb{b}_{}$ is a special case since encoding each individual bit as an <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> would be very wasteful. We instead pack the bits into <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> in order of least significant to most, and arrange into an octet stream. In the case of a variable length sequence, then the length is prefixed as in the general case.
+
+<a id="gp-C-1-4-p2"></a><a id="eq-C-9"></a>
+
+$$
+\begin{align}
+\mathcal{E}_{}\left(b \in \mathbb{b}_{}\right) &\equiv \begin{cases}
+\left[\right] &\text{if } b = \left[\right] \\
+\left[
+\sum\limits_{i=0}^{i < \min(8, \left\vert b\right\vert)}
+b_{i} \cdot 2^i
+\right] \frown \mathcal{E}_{}\left(b_{8 \dots }\right) &\text{otherwise}\\
+\end{cases} \tag{C.9}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-min">$\min$</span> | the least of | the smallest of the values given; min(24, j : …) is the smallest j that fits, but no more than 24 |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-interval">$_{x \dots y}$</span> | from x to y | the items from index x up to, not including, y |
+
+</details>
+
+→ [(C.9) in plain words](./gray-paper.md#ex-C-9)
+
+:::
+
+In plain words, (C.9) packs bits into bytes, eight to a byte, lowest bit first: bit 0 is
+worth 1, bit 1 is worth 2, and so on up to bit 7, worth 128. Then it does the same with
+the rest. So the bitfield takes ⌈C/8⌉ bytes: **1 byte on tiny, 43 on full**. Its length
+is fixed by C, so it carries none in front ([4.7](./07-the-block.md#eq-C-20)'s (C.20)
+writes the bitfield bare). A codec
 that reads one byte where there are 43 would misread every assurance, starting with the
 first one's validator index.
 

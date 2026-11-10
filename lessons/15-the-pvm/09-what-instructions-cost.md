@@ -14,7 +14,309 @@ numbers, and loads, stores, divides and `ecalli` are the expensive ones.
 
 ## What the Gray Paper says
 
-App. A.10, the gas cost tables. Every instruction has a row with three things:
+A.9 names the five things the price list gives for an instruction:
+
+::: gray-paper A.9 12-13
+
+#### Appendix A.9 Gas Cost Model, continued
+
+<a id="gp-A-9-p12"></a>We define the function $\check{s}(\mathbf{c}, \mathbf{k}, \imath)$ which returns the set of source registers read by the instruction at $\imath$, and the function $\check{r}(\mathbf{c}, \mathbf{k}, \imath)$ which returns the set of destination registers written by the instruction at $\imath$, as described by the equations in [A.5](./02-instructions.md#gp-A-5-p1). This is regardless of whether those registers would actually have been modified by that instruction when executed at runtime. `ecalli` is assumed to neither read nor write to any registers in this model.
+
+<a id="gp-A-9-p13"></a>We also define the function $\check{c}(\mathbf{c}, \mathbf{k}, \imath)$ which returns the number of cycles the instruction at $\imath$ needs to finish execution, $\check{d}(\mathbf{c}, \mathbf{k}, \imath)$ which returns the number of decoding slots necessary to decode it, and $\check{x}(\mathbf{c}, \mathbf{k}, \imath)$ which returns the number of virtual CPU execution units required to start its execution. These simply return the values as specified in [A.10](#gp-A-10-p1).
+
+:::
+
+and A.10 is the price list, with three helpers first:
+
+::: gray-paper A.10
+
+#### Appendix A.10 Gas Cost Tables {#gp-A-10}
+
+<a id="gp-A-10-p1"></a>For some of the instructions their cost depends on whether the destination register overlaps with any of the source registers:
+
+<a id="gp-A-10-p2"></a><a id="eq-A-62"></a>
+
+$$
+\begin{equation}
+\mathfrak{P}\colon \left\{ \begin{aligned}
+(\mathbb{N}, \mathbb{N}, \mathbb{B}_{}, \mathbb{b}_{}, \mathbb{N}_R) &\to \mathbb{N}\\
+(a, b, \mathbf{c}, \mathbf{k}, \imath) &\mapsto \begin{cases}
+a &\text{if } \check{s}(\mathbf{c}, \mathbf{k}, \imath) \cap \check{r}(\mathbf{c}, \mathbf{k}, \imath) \neq \emptyset \\
+b &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{A.62}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-pvmreg" class="gk-wrap">$\mathbb{N}_R$</span> | N sub R | a register's value: a u64 |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-imath">$\imath$</span> | i | the instruction counter: the index in the code of the instruction to run next |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-inst-srcregs" class="gk-wrap">$\check{s}$</span> | s check | the registers an instruction reads |
+| <span id="gk-cap">$\cap$</span> | intersection | only what's in both sides |
+| <span id="gk-inst-dstregs" class="gk-wrap">$\check{r}$</span> | r check | the registers an instruction writes |
+| <span id="gk-neq">$\neq$</span> | is not | not equal |
+| <span id="gk-emptyset">$\emptyset$</span> | empty | the empty set: no items at all |
+
+</details>
+
+→ [(A.62) in plain words](./gray-paper.md#ex-A-62)
+
+<a id="gp-A-10-p3"></a>For non-immediate shift and rotate instructions only the first source register matters:
+
+<a id="gp-A-10-p4"></a><a id="eq-A-63"></a>
+
+$$
+\begin{equation}
+\mathfrak{P}_{S}\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+(\mathbb{N}, \mathbb{N}, \mathbb{B}_{}, \mathbb{b}_{}, \mathbb{N}_R) &\to \mathbb{N}\\
+(a, b, \mathbf{c}, \mathbf{k}, \imath) &\mapsto \begin{cases}
+a &\text{if } {\varphi}_A = {\varphi}_D \\
+b &\text{otherwise}
+\end{cases}\\
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\\[0.2pt]
+& \text{where } (\mathbf{c}, \mathbf{k}, \imath) \mapsto ({\varphi}_A, {\varphi}_D) \text{ according to A.2 and A.5} \\
+\end{aligned}
+\end{array}
+\right.
+\tag{A.63}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegrouptwo">$\left\{ \begin{array}{@{}l@{}} \begin{aligned} x \end{aligned} \\[14pt] \hspace{8pt}\begin{aligned} y \end{aligned} \end{array} \right.$</span> | as follows | a brace grouping lines that hold together: a function's type, what each input becomes, then its helpers below |
+| <span id="gk-reg" class="gk-wrap">${\varphi}$</span> | phi | the registers: φ_A, φ_B and φ_D are the ones an instruction names, φ′ the values after it runs |
+
+</details>
+
+→ [(A.63) in plain words](./gray-paper.md#ex-A-63)
+
+<a id="gp-A-10-p5"></a>The cost of memory accesses is defined as follows:
+
+<a id="gp-A-10-p6"></a><a id="eq-A-64"></a>
+
+$$
+\begin{equation}
+\mathfrak{m} \equiv 25 \tag{A.64}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+
+</details>
+
+→ [(A.64) in plain words](./gray-paper.md#ex-A-64)
+
+<a id="gp-A-10-p7"></a>The cost of a branch depends on whether any of its targets (either the jump target or the implicit fallthrough) point to an instruction byte which is equal to the opcode for the `unlikely` or the `trap` instruction; formally:
+
+<a id="gp-A-10-p8"></a><a id="eq-A-65"></a>
+
+$$
+\begin{equation}
+\mathfrak{b}\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+(\mathbb{B}_{}, \mathbb{N}_R) &\to \mathbb{N}\\
+(\mathbf{c}, \imath) &\mapsto \begin{cases}
+1 &\text{if } \{ \zeta_{\imath + 1 + \text{skip}(\imath)}, \zeta_{\imath_{\text{target}}} \} \cap \{ \texttt{unlikely}, \texttt{trap} \} \neq \emptyset \\
+20 &\text{otherwise}
+\end{cases}
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\\[0.2pt]
+\text{where } &\mathbf{c} \mapsto \zeta \text{ according to A.4}\\
+&\imath_{\text{target}} \text{ is the target of the branch according to A.5}
+\end{aligned}
+\end{array}
+\right.
+\tag{A.65}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-instructions" class="gk-wrap">$\zeta$</span> | zeta | the code 𝐜 with zeros after it forever: reading past the end gives 0, which is trap |
+| <span id="gk-Fskip">$\text{skip}$</span> | skip | skip(i): how many bytes follow the opcode at i before the next opcode, at most 24 |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+
+</details>
+
+→ [(A.65) in plain words](./gray-paper.md#ex-A-65)
+
+<a id="gp-A-10-p9"></a>In the following table the $\mathbf{c}$, $\mathbf{k}$, and $\imath$ arguments are omitted for clarity.
+
+<a id="gp-A-10-p10"></a>
+
+| **Instruction** | $\check{c}$ | $\check{d}$ | $\check{x}_{\text{A}}$ | $\check{x}_{\text{L}}$ | $\check{x}_{\text{S}}$ | $\check{x}_{\text{M}}$ | $\check{x}_{\text{D}}$ |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `move_reg` | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `and` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `xor` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `or` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `add_64` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `sub_64` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `add_32` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `sub_32` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `and_imm` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `xor_imm` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `or_imm` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `add_imm_64` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_r_imm_64` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `shar_r_imm_64` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_l_imm_64` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `rot_r_64_imm` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `reverse_bytes` | 1 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 0 | 0 |
+| `add_imm_32` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_r_imm_32` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `shar_r_imm_32` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_l_imm_32` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `rot_r_32_imm` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `count_set_bits_64` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `count_set_bits_32` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `leading_zero_bits_64` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `leading_zero_bits_32` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `sign_extend_8` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `sign_extend_16` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `zero_extend_16` | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
+| `trailing_zero_bits_64` | 2 | 1 | 2 | 0 | 0 | 0 | 0 |
+| `trailing_zero_bits_32` | 2 | 1 | 2 | 0 | 0 | 0 | 0 |
+| `shlo_l_64` | 1 | $\mathfrak{P}_{S}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_r_64` | 1 | $\mathfrak{P}_{S}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `shar_r_64` | 1 | $\mathfrak{P}_{S}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `rot_l_64` | 1 | $\mathfrak{P}_{S}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `rot_r_64` | 1 | $\mathfrak{P}_{S}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_l_32` | 2 | $\mathfrak{P}_{S}(3, 4)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_r_32` | 2 | $\mathfrak{P}_{S}(3, 4)$ | 1 | 0 | 0 | 0 | 0 |
+| `shar_r_32` | 2 | $\mathfrak{P}_{S}(3, 4)$ | 1 | 0 | 0 | 0 | 0 |
+| `rot_l_32` | 2 | $\mathfrak{P}_{S}(3, 4)$ | 1 | 0 | 0 | 0 | 0 |
+| `rot_r_32` | 2 | $\mathfrak{P}_{S}(3, 4)$ | 1 | 0 | 0 | 0 | 0 |
+| `shlo_l_imm_alt_64` | 1 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `shlo_r_imm_alt_64` | 1 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `shar_r_imm_alt_64` | 1 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `rot_r_64_imm_alt` | 1 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `shlo_l_imm_alt_32` | 2 | 4 | 1 | 0 | 0 | 0 | 0 |
+| `shlo_r_imm_alt_32` | 2 | 4 | 1 | 0 | 0 | 0 | 0 |
+| `shar_r_imm_alt_32` | 2 | 4 | 1 | 0 | 0 | 0 | 0 |
+| `rot_r_32_imm_alt` | 2 | 4 | 1 | 0 | 0 | 0 | 0 |
+| `set_lt_u` | 3 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `set_lt_s` | 3 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `set_lt_u_imm` | 3 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `set_lt_s_imm` | 3 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `set_gt_u_imm` | 3 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `set_gt_s_imm` | 3 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `cmov_iz` | 2 | 2 | 1 | 0 | 0 | 0 | 0 |
+| `cmov_nz` | 2 | 2 | 1 | 0 | 0 | 0 | 0 |
+| `cmov_iz_imm` | 2 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `cmov_nz_imm` | 2 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `max` | 3 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `max_u` | 3 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `min` | 3 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `min_u` | 3 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `load_ind_u8` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_ind_i8` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_ind_u16` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_ind_i16` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_ind_u32` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_ind_i32` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_ind_u64` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_u8` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_i8` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_u16` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_i16` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_u32` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_i32` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `load_u64` | $\mathfrak{m}$ | 1 | 1 | 1 | 0 | 0 | 0 |
+| `store_imm_ind_u8` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_ind_u16` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_ind_u32` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_ind_u64` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_ind_u8` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_ind_u16` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_ind_u32` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_ind_u64` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_u8` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_u16` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_u32` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_imm_u64` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_u8` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_u16` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_u32` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `store_u64` | 25 | 1 | 1 | 0 | 1 | 0 | 0 |
+| `branch_eq` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_ne` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_lt_u` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_lt_s` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_ge_u` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_ge_s` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_eq_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_ne_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_lt_u_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_le_u_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_ge_u_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_gt_u_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_lt_s_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_le_s_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_ge_s_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `branch_gt_s_imm` | $\mathfrak{b}$ | 1 | 1 | 0 | 0 | 0 | 0 |
+| `div_u_32` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `div_s_32` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `rem_u_32` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `rem_s_32` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `div_u_64` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `div_s_64` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `rem_u_64` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `rem_s_64` | 60 | 4 | 1 | 0 | 0 | 0 | 1 |
+| `and_inv` | 2 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `or_inv` | 2 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `xnor` | 2 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 0 | 0 |
+| `neg_add_imm_64` | 2 | 3 | 1 | 0 | 0 | 0 | 0 |
+| `neg_add_imm_32` | 3 | 4 | 1 | 0 | 0 | 0 | 0 |
+| `load_imm` | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `load_imm_64` | 1 | 2 | 0 | 0 | 0 | 0 | 0 |
+| `mul_64` | 3 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 1 | 0 |
+| `mul_32` | 4 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 1 | 0 |
+| `mul_imm_64` | 3 | $\mathfrak{P}(1, 2)$ | 1 | 0 | 0 | 1 | 0 |
+| `mul_imm_32` | 4 | $\mathfrak{P}(2, 3)$ | 1 | 0 | 0 | 1 | 0 |
+| `mul_upper_s_s` | 4 | 4 | 1 | 0 | 0 | 1 | 0 |
+| `mul_upper_u_u` | 4 | 4 | 1 | 0 | 0 | 1 | 0 |
+| `mul_upper_s_u` | 6 | 4 | 1 | 0 | 0 | 1 | 0 |
+| `trap` | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `fallthrough` | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `unlikely` | 40 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `jump` | 15 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `load_imm_jump` | 15 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `jump_ind` | 22 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `load_imm_jump_ind` | 22 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `ecalli` | 100 | 4 | 1 | 0 | 0 | 0 | 0 |
+
+:::
+
+In plain words, every instruction has a row with three things:
 
 - **č, cycles**: how long it takes to finish. An `add_64` takes 1, a load or a store 25
   (the Gray Paper calls that 𝔪), a multiply 3 to 6, a divide 60, `ecalli` 100. And

@@ -39,7 +39,8 @@ might still need.
 
 **The round** needs one more rule. Each run works on its own copy of the accounts, so a
 run that ejected d left a copy without it. After the round, any account some run removed
-is removed, whatever the other runs' copies say: the Gray Paper's **(d ∪ n) \ m**, where
+is removed, whatever the other runs' copies say: the Gray Paper's **(d ∪ n) \ m**
+(the line for 𝐝′ in [Δ\*](./01-a-blocks-accumulation.md#gp-12-2-p15)), where
 m is every account some run removed. (n is each run's own account as it left it, plus any
 it created: [lesson 17.8](./08-creating-a-service.md).)
 

@@ -6,6 +6,10 @@ vanish: enough validators must hold their pieces of it. Every block, validators 
 this core's data". Count the 1s for a core, and if more than two thirds of the
 validators say so, the report is *available*. This lesson counts.
 
+Nothing here runs a service or an authorizer. The guarantors made the shards and the
+validators signed the assurances before the block; counting them is the chain's side, on
+every validator, and [the part's page](./index.md) draws who did what.
+
 ## New words
 
 - **Assurance and availability.** Each validator signs one bit per core: "I hold my piece
@@ -16,7 +20,140 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§11 (*Package Availability Assurances*). Each assurance carries a bitfield of C bits.
+First what it counts against: ρ, a place on each core for one report waiting for its data.
+
+::: gray-paper 11.1 1-3
+
+#### §11.1 State {#gp-11-1}
+
+<a id="gp-11-1-p1"></a>The state of the reporting and availability portion of the protocol is largely contained within $\rho$, which tracks each core's *<abbr class="gp-term" title="a guaranteed report waiting on its core until enough validators hold its pieces">availability assignment</abbr>*, if any. An availability assignment is a work-report guarantee which has been reported but is not yet known to be available to a <abbr class="gp-term" title="more than two thirds of the validators">super-majority</abbr> of validators, together with the time at which it was reported. Formally:
+
+<a id="gp-11-1-p2"></a><a id="eq-11-1"></a>
+
+$$
+\begin{equation}
+\rho \in \left[\!\left[
+\!\left\lgroup
+\mathbf{g}\in \mathbb{G} ,\,
+t\in \mathbb{N}_T
+\right\rgroup\!\boldsymbol{?}
+\right]\!\right]_{\mathsf{C}} \tag{11.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-availassignments" class="gk-wrap">$\rho$</span> | rho | the pending reports: for each core, the report waiting to be made available, and when it came |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
+| <span id="gk-guarantee" class="gk-wrap">$\mathbb{G}$</span> | G | the set of guarantees: a work-report, the slot it was made at, and two or three guarantors' signatures |
+| <span id="gk-aa-timestamp">$t$</span> | t | the slot a pending report arrived on its core |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+
+</details>
+
+→ [(11.1) in plain words](./gray-paper.md#ex-11-1)
+
+<a id="gp-11-1-p3"></a>As usual, intermediate and <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> values ($\rho^\dagger$, $\rho^\ddagger$, $\rho'$) are held under the same constraints as the prior value.
+
+:::
+
+Then the assurances themselves, and the rule that makes a report available:
+
+::: gray-paper 11.2.1 1-2
+
+#### §11.2.1 The Assurances Extrinsic {#gp-11-2-1}
+
+<a id="gp-11-2-1-p1"></a>The assurances extrinsic is a sequence of *assurance* values, at most one per validator. Each assurance is a sequence of binary values (i.e.  a bitstring), one per core, together with a signature and the index of the validator who is assuring. A value of $1$ (or $\top$, if interpreted as a Boolean) at any given index implies that the validator assures they are contributing to its availability.<sup>1</sup> Formally:
+
+<small class="gp-note"><sup>1</sup> This is a “soft” implication since there is no consequence on-chain if dishonestly reported. For more information on this implication see section [16](../what-runs-where.md#gp-16-p1).</small>
+
+<a id="gp-11-2-1-p2"></a><a id="eq-11-11"></a>
+
+$$
+\begin{align}
+\mathbf{E}_A \in \left[\!\left[\!\left\lgroup
+a\in \mathbb{H}_{},\,
+f\in \mathbb{b}_{\mathsf{C}},\,
+v\in \mathbb{N}_{\left\vert\kappa\right\vert},\,
+s\in \bar{\mathbb{V}}
+\right\rgroup\!\right]\!\right]_{} \tag{11.11}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xtassurances" class="gk-wrap">$\mathbf{E}_A$</span> | E sub A | the assurances bag: validators saying they hold their pieces of reports |
+| <span id="gk-xa-anchor">$a$</span> | a | an assurance's anchor: the parent block's header hash |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-xa-availabilities">$f$</span> | f | an assurance's bitfield: one bit per core, 1 for "I hold my piece of its data" |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-xa-assurer">$v$</span> | v | the assuring validator's index in κ |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-xa-signature">$s$</span> | s | the assurer's Ed25519 signature over the parent hash and the bitfield |
+| <span id="gk-edsignaturebase" class="gk-wrap">$\bar{\mathbb{V}}$</span> | V bar | an Ed25519 signature: 64 bytes |
+
+</details>
+
+→ [(11.11) in plain words](./gray-paper.md#ex-11-11)
+
+:::
+
+::: gray-paper 11.2.2 1-2
+
+#### §11.2.2 Available Reports {#gp-11-2-2}
+
+<a id="gp-11-2-2-p1"></a>A work-report is said to become *available* if and only if there are a clear ^2/_3 super-majority of validators who have marked its core as set within the block's assurance extrinsic. Formally, we define the sequence of newly available work-reports $\mathbf{R}$ as:
+
+<a id="gp-11-2-2-p2"></a><a id="eq-11-17"></a>
+
+$$
+\begin{align}
+\mathbf{R} &\equiv \left[
+(\rho^\dagger\left[c\right]_{\mathbf{g}})_{\mathbf{r}}
+\;\middle\vert\;
+c \mathrel{\unicode{x2B40}} \mathbb{N}_{\mathsf{C}},\;
+\sum_{a \in \mathbf{E}_A}\!a_{f}\left[c\right]\,>\,{}^{2}\!/_{3}\,\left\vert\kappa\right\vert
+\right] \tag{11.17}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-availassignmentspostjudgment" class="gk-wrap">$\rho^\dagger$</span> | rho dagger | the pending reports midway: after disputes took the judged-bad ones out |
+| <span id="gk-cX">$c$</span> | c | a core's index, 0 to C − 1 |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-twothirds">${}^{2}\!/_{3}$</span> | two thirds | two thirds: ⌊⅔ · 6⌋ + 1 is 5 judgments on tiny, 683 of 1,023 on full |
+
+</details>
+
+→ [(11.17) in plain words](./gray-paper.md#ex-11-17)
+
+:::
+
+In plain words, §11.1 says each core holds at most one report, ρ[c], with the slot it
+arrived; ρ†, ρ‡ and ρ′ are the same cores after each step of the block. §11.2
+(*Package Availability Assurances*) says each assurance carries a bitfield of C bits.
 
 **Which bit is which core?** Appendix C packs bits into bytes **least significant
 first**: core 0 is the lowest bit of byte 0, core 7 the highest, core 8 the lowest bit

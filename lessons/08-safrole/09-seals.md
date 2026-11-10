@@ -17,7 +17,83 @@ Both are in the [glossary](../glossary.md). (The *seal* itself is from [lesson 8
 
 ## What the Gray Paper says
 
-§6, *Sealing and Entropy Accumulation*. Let i be the slot's entry in γ′_S, the sealers
+::: gray-paper 6.2 9-9
+
+#### §6.2 Safrole Basic State, continued
+
+<a id="gp-6-2-p9"></a>As we state in section [6.4](#gp-6-4-p1), Safrole requires that every block header $\mathbf{H}$ contain a valid seal $\mathbf{H}_{S}$, which is a Bandersnatch signature produced with the private key corresponding to the entry at index $m'$ of the current epoch's <abbr class="gp-term" title="who may seal each slot of an epoch: E tickets, or E keys">slot-sealer sequence</abbr> $\gamma_S'$.
+
+:::
+
+::: gray-paper 6.4 1-3
+
+#### §6.4 Sealing and Entropy Accumulation {#gp-6-4}
+
+<a id="gp-6-4-p1"></a>The header must contain a valid seal and valid entropy source. These are two VRF signatures both using the private key corresponding to the slot-sealer sequence entry for the current timeslot; the message data of the former is the header's <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> omitting the seal component $\mathbf{H}_{S}$, whereas the latter is used as a bias-resistant entropy source and thus its message must already have been fixed: we use the entropy stemming from the VRF of the seal signature. Formally:
+
+<a id="gp-6-4-p2"></a><a id="eq-6-16"></a><a id="eq-6-17"></a><a id="eq-6-18"></a><a id="eq-6-19"></a><a id="eq-6-20"></a><a id="eq-6-21"></a>
+
+$$
+\begin{align}
+\text{let } i = {\gamma_S'[\mathbf{H}_{T}]}^\circlearrowleft\colon \notag \\
+\gamma_S' \in \left[\!\left[\mathbb{T}\right]\!\right]_{} &\implies \left\{ \,\begin{aligned}
+&i_{y} = \mathcal{Y}\left(\mathbf{H}_{S}\right)\,,\\
+&\mathbf{H}_{S} \in \overset{\backsim}{\mathbb{V}}_{\mathbf{H}_{A}}^{\mathcal{E}_{U}\left(\mathbf{H}\right)}\left\langle\mathsf{X}_T \frown \eta'_3 \mathbin{+\!\!+} i_{e}\right\rangle\,,\\
+&\mathbf{T} = 1
+\end{aligned} \right. \tag{6.16} \\
+\gamma_S' \in \left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{} &\implies \left\{ \,\begin{aligned}
+&i = \mathbf{H}_{A}\,,\\
+&\mathbf{H}_{S} \in \overset{\backsim}{\mathbb{V}}_{\mathbf{H}_{A}}^{\mathcal{E}_{U}\left(\mathbf{H}\right)}\left\langle\mathsf{X}_F \frown \eta'_3\right\rangle\,,\\
+&\mathbf{T} = 0
+\end{aligned} \right. \tag{6.17} \\
+\mathbf{H}_{V} &\in \overset{\backsim}{\mathbb{V}}_{\mathbf{H}_{A}}^{\left[\right]}\left\langle\mathsf{X}_E \frown \mathcal{Y}\left(\mathbf{H}_{S}\right)\right\rangle \tag{6.18} \\
+\mathsf{X}_E &= \texttt{\$jam\_entropy} \tag{6.19} \\
+\mathsf{X}_F &= \texttt{\$jam\_fallback\_seal} \tag{6.20} \\
+\mathsf{X}_T &= \texttt{\$jam\_ticket\_seal} \tag{6.21}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-cyclic">${x}^\circlearrowleft$</span> | wrapped around | ↺: the index goes round, counting from 0 again past the end (mod the length) |
+| <span id="gk-sealtickets" class="gk-wrap">$\gamma_S$</span> | gamma S | the slot sealers: one entry for each of the epoch's E slots, a winning ticket or, in the fallback, a Bandersnatch key |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-safroleticket" class="gk-wrap">$\mathbb{T}$</span> | T | a ticket: a 32-byte id, and which of its maker's tries it was (its attempt) |
+| <span id="gk-implies">$\implies$</span> | means that | if the left side holds, everything on the right must hold too |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-st-id">$y$</span> | y | a ticket's id: 32 random bytes, the output of its ring proof; a lower id wins |
+| <span id="gk-banderout">$\mathcal{Y}\left(x\right)$</span> | Y of | the 32-byte random output a Bandersnatch signature or proof carries, used as entropy |
+| <span id="gk--sealsig">$S$</span> | S | a header's seal: 𝐇_S, the author's 96-byte Bandersnatch signature on the rest of the header |
+| <span id="gk-bssignature">$\overset{\backsim}{\mathbb{V}}_{x}^{z}\left\langle y\right\rangle$</span> | V tilde sub k, context c, of m | the valid Bandersnatch signatures by key k on message m in context c: 96 bytes |
+| <span id="gk--authorbskey">$A$</span> | A | the author's Bandersnatch key: 𝐇_A, looked up in κ′ at 𝐇_I, never written in the header |
+| <span id="gk-Xticket" class="gk-wrap">$\mathsf{X}_T$</span> | X sub T | the context of a ticket and its seal: the bytes of "jam_ticket_seal" |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
+| <span id="gk-st-entryindex">$e$</span> | e | a ticket's entry index: which of its maker's attempts it is, counted from 0 |
+| <span id="gk-encodeunsignedheader">$\mathcal{E}_{U}\left(x\right)$</span> | E sub U of | the header's bytes without its seal: what the seal signs |
+| <span id="gk-isticketed" class="gk-wrap">$\mathbf{T}$</span> | T | ticketed: 1 if the block was sealed with a ticket, 0 if by the fallback |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-Xfallback" class="gk-wrap">$\mathsf{X}_F$</span> | X sub F | the context of a fallback seal: the bytes of "jam_fallback_seal" |
+| <span id="gk--vrfsig">$V$</span> | V | a header's VRF signature: 𝐇_V, 96 bytes of the author's fresh randomness; the vectors' entropy source |
+| <span id="gk-Xentropy" class="gk-wrap">$\mathsf{X}_E$</span> | X sub E | the context of the entropy source: the bytes of "jam_entropy" |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+
+</details>
+
+→ [(6.16), (6.17), (6.18), (6.19), (6.20), (6.21) in plain words](./gray-paper.md#ex-6-16)
+
+<a id="gp-6-4-p3"></a>Sealing using the ticket is of greater security, and we utilize this knowledge when determining a candidate block on which to extend the chain, detailed in section [19](../what-runs-where.md#gp-19-p1). We thus note that the block was sealed under the regular security with the boolean marker $\mathbf{T}$. We define this only for the purpose of ease of later specification.
+
+:::
+
+In plain words, §6.4, *Sealing and Entropy Accumulation*. Let i be the slot's entry in γ′_S, the sealers
 after this block ([lesson 8.4](./04-the-lotterys-winners.md)), and H_A the author's Bandersnatch key, κ′[H_I]. Then:
 
 1. **A ticket-sealed slot** (γ′_S holds tickets): H_S is H_A's signature on ℰ_U(H), for the

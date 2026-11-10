@@ -20,9 +20,59 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§4: Υ(σ, B) = σ′, a block is valid only if every rule in every part holds, and the state
-after it is every step's result, in [lesson 19.1](./01-the-order-of-things.md)'s waves. In plain steps, as your client runs
-them:
+§4.1: a block is a header and an extrinsic, the five bags of data the block carries in.
+
+::: gray-paper 4.1
+
+#### §4.1 The Block {#gp-4-1}
+
+<a id="gp-4-1-p1"></a>To aid comprehension and definition of our protocol, we partition as many of our terms as possible into their functional components. We begin with the block $\mathbf{B}$ which may be restated as the header $\mathbf{H}$ and some input data external to the system and thus said to be *extrinsic*, $\mathbf{E}$:
+
+<a id="gp-4-1-p2"></a><a id="eq-4-2"></a><a id="eq-4-3"></a>
+
+$$
+\begin{align}
+\mathbf{B} &\equiv \left(\mathbf{H}, \mathbf{E}\right) \tag{4.2} \\
+\mathbf{E} &\equiv \left(\mathbf{E}_T, \mathbf{E}_D, \mathbf{E}_P, \mathbf{E}_A, \mathbf{E}_G\right) \tag{4.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-block" class="gk-wrap">[$\mathbf{B}$](../symbols.md#block)</span> | B | a block: its header and its extrinsic |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-header" class="gk-wrap">$\mathbf{H}$</span> | H | a block header: the parent's hash, the slot, the seals and markers |
+| <span id="gk-extrinsic" class="gk-wrap">$\mathbf{E}$</span> | E | a block's extrinsic: the data it carries in, in five bags |
+| <span id="gk-xttickets" class="gk-wrap">$\mathbf{E}_T$</span> | E sub T | the tickets bag: entries to the block-sealing lottery |
+| <span id="gk-xtdisputes" class="gk-wrap">$\mathbf{E}_D$</span> | E sub D | the disputes bag: verdicts, culprits and faults |
+| <span id="gk-xtpreimages" class="gk-wrap">$\mathbf{E}_P$</span> | E sub P | the preimages bag: data a service asked for |
+| <span id="gk-xtassurances" class="gk-wrap">$\mathbf{E}_A$</span> | E sub A | the assurances bag: validators saying they hold their pieces of reports |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+
+</details>
+
+→ [(4.2), (4.3) in plain words](./gray-paper.md#ex-4-2)
+
+<a id="gp-4-1-p3"></a>The header is a collection of metadata primarily concerned with cryptographic references to the blockchain ancestors and the operands and result of the present transition. As an immutable known *a priori*, it is assumed to be available throughout the functional components of block transition. The extrinsic data is split into its several portions:
+
+<a id="gp-4-1-p4"></a>
+
+- **tickets** Tickets, used for the mechanism which manages the selection of validators for the permissioning of block authoring. This component is denoted $\mathbf{E}_T$.
+- **preimages** Static data which is presently being requested to be available for workloads to be able to fetch on demand. This is denoted $\mathbf{E}_P$.
+- **reports** Reports of newly completed workloads whose accuracy is guaranteed by specific validators. This is denoted $\mathbf{E}_G$.
+- **availability** Assurances by each validator concerning which of the input data of workloads they have correctly received and are storing locally. This is denoted $\mathbf{E}_A$.
+- **disputes** Information relating to disputes between validators over the validity of reports. This is denoted $\mathbf{E}_D$.
+
+:::
+
+In plain words: Υ(σ, 𝐁) = σ′ takes the block apart, header first, and each bag goes to
+the step that reads it. The block is valid only if every rule in every part holds, and the
+state after it is every step's result, in [lesson 19.1](./01-the-order-of-things.md)'s
+waves. Mind the order: the paper lists the bags tickets, disputes, preimages, assurances,
+guarantees, but the bytes of a block hold them in another order, and your client runs
+them in a third. In plain steps, as your client runs them:
 
 1. **The header** (§5): its parent and its state root, its slot after the state's τ, its
    extrinsic hash ([lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md)).

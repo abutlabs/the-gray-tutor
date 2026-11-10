@@ -8,6 +8,51 @@ to ask, `query` to see how the asking is going, and `forget` to give up.
 
 ## What the Gray Paper says
 
+::: gray-paper B.7 1-3
+
+#### Appendix B.7 Accumulate Functions {#gp-B-7}
+
+<a id="gp-B-7-p1"></a>This defines a number of functions broadly of the form $(\varrho' \in \mathbb{Z}_G, \varphi' \in \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mu', \left(\mathbf{x}', \mathbf{y}'\right)) = \Omega_\square(\varrho \in \mathbb{N}_G, \varphi \in \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mu \in \mathbb{M}, \left(\mathbf{x}, \mathbf{y}\right) \in \mathbb{L}^2, \dots)$. Functions which have a result component which is equivalent to the corresponding argument may have said components elided in the description. Functions may also depend upon particular additional parameters.
+
+<a id="gp-B-7-p2"></a>Other than the gas-counter which is explicitly defined, elements of PVM state are each assumed to remain unchanged by the host-call unless explicitly specified.
+
+<a id="gp-B-7-p3"></a><a id="eq-B-20"></a><a id="eq-B-21"></a>
+
+$$
+\begin{align}
+\varrho' &\equiv \varrho - g \tag{B.20} \\
+\left(\varepsilon', \varphi', \mu', \mathbf{x}', \mathbf{y}'\right) &\equiv \begin{cases}
+\left(\infty, \varphi, \mu, \mathbf{x}, \mathbf{y}\right) &\text{if } \varrho < g\\
+\left(\blacktriangleright, \varphi, \mu, \mathbf{x}, \mathbf{y}\right) \text{ except as indicated below} &\text{otherwise}
+\end{cases} \tag{B.21}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-gascounter" class="gk-wrap">$\varrho$</span> | rho (curly) | the gas left |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-execst" class="gk-wrap">$\varepsilon$</span> | epsilon | how the machine goes on after a host call: carry on (▸), halt, panic or out of gas |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-memory" class="gk-wrap">$\mu$</span> | mu | the PVM's memory |
+| <span id="gk-imX" class="gk-wrap">$\mathbf{x}$</span> | x | the regular context: what the host calls change as the service runs, kept if it halts |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+
+</details>
+
+→ [(B.20), (B.21) in plain words](./gray-paper.md#ex-B-20)
+
+:::
+
+In plain words: every host call of accumulation follows the same rule as the general ones,
+now with the pair of contexts (𝐱, 𝐲): pay first; too little gas, and nothing changes;
+whatever a call doesn't mention stays as it was. The three calls of this lesson are rows
+23 to 25 of B.7's table, each explained in
+[16.A](./gray-paper.md#query-23-solicit-24-and-forget-25).
+
 Each request is a pair, the hash h and the length z, and its value is a short history of
 up to three slots (§9):
 

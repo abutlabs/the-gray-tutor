@@ -18,7 +18,7 @@ test("the fields are lesson 14.2's ServiceInfo record, in order, each its codec'
   assert.deepEqual((SERVICE_INFO as { record: [string, string][] }).record, fields);
   assert.deepEqual(FIELDS.map((f) => f.end - f.start), fields.map(([, c]) => WIDTH[c]));
   assert.equal(RECORD_BYTES, 89);
-  assert.match(raw.replace(/\s+/g, " "), /the account's record, 89 bytes/);
+  assert.match(raw.replace(/\s+/g, " "), /the record that Appendix D keeps under C\(255, s\), 89 bytes/);
   for (const f of FIELDS) assert.ok(LETTER[f.path], `${f.path} has its letter`);
 });
 
@@ -43,5 +43,5 @@ test("the 89 bytes are what the lessons' client encodes for service 0 (reference
 test("lesson 14.2 places the record widget once, after the field table", () => {
   const at = raw.indexOf("<ServiceRecord />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ServiceRecord />"), "placed once");
-  assert.ok(at > raw.indexOf("| r, a, p |") && at < raw.indexOf("*The footprint*"));
+  assert.ok(at > raw.indexOf("| r, a, p |") && at < raw.indexOf("*the footprint*"));
 });

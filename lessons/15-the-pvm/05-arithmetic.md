@@ -7,9 +7,180 @@ are easy; the corners are where the fun is.
 
 ## What the Gray Paper says
 
-Appendix A.5, the tables with two registers and an immediate (131 to 161) and with three
-registers (190 to 230). Registers hold 64 bits, and everything is modulo 2^64. The
-corners that catch people:
+Appendix A.5, the tables with two registers and an immediate (its 131 to 161; 120 to 130
+are [lesson 15.4](./04-memory.md)'s loads and stores through a register):
+
+::: gray-paper A.5.10 2-2
+
+#### Appendix A.5.10 Instructions with Arguments of Two Registers &amp; One Immediate, continued
+
+<a id="gp-A-5-10-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 120 | `store_ind_u8` | ${{\mu}'}^\circlearrowleft_{{\varphi}_B + \nu_X} = {\varphi}_A \bmod 2^8$ |
+| 121 | `store_ind_u16` | ${{\mu}'}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 2} = \mathcal{E}_{2}\left({\varphi}_A \bmod 2^{16}\right)$ |
+| 122 | `store_ind_u32` | ${{\mu}'}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 4} = \mathcal{E}_{4}\left({\varphi}_A \bmod 2^{32}\right)$ |
+| 123 | `store_ind_u64` | ${{\mu}'}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 8} = \mathcal{E}_{8}\left({\varphi}_A\right)$ |
+| 124 | `load_ind_u8` | ${\varphi}'_A = {{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X}$ |
+| 125 | `load_ind_i8` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\mathcal{Z}_{1}({{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X}))$ |
+| 126 | `load_ind_u16` | ${\varphi}'_A = \mathcal{E}^{-1}_{2}\left({{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 2}\right)$ |
+| 127 | `load_ind_i16` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\mathcal{Z}_{2}(\mathcal{E}^{-1}_{2}\left({{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 2}\right)))$ |
+| 128 | `load_ind_u32` | ${\varphi}'_A = \mathcal{E}^{-1}_{4}\left({{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 4}\right)$ |
+| 129 | `load_ind_i32` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\mathcal{Z}_{4}(\mathcal{E}^{-1}_{4}\left({{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 4}\right)))$ |
+| 130 | `load_ind_u64` | ${\varphi}'_A = \mathcal{E}^{-1}_{8}\left({{\mu}}^\circlearrowleft_{{\varphi}_B + \nu_X \dots+ 8}\right)$ |
+| 131 | `add_imm_32` | ${\varphi}'_A = \mathcal{X}_{4}\left(({\varphi}_B + \nu_X) \bmod 2^{32}\right)$ |
+| 132 | `and_imm` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_A)_{i} = \mathcal{B}_{8}({\varphi}_B)_{i} \wedge \mathcal{B}_{8}(\nu_X)_{i}$ |
+| 133 | `xor_imm` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_A)_{i} = \mathcal{B}_{8}({\varphi}_B)_{i} \oplus \mathcal{B}_{8}(\nu_X)_{i}$ |
+| 134 | `or_imm` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_A)_{i} = \mathcal{B}_{8}({\varphi}_B)_{i} \vee \mathcal{B}_{8}(\nu_X)_{i}$ |
+| 135 | `mul_imm_32` | ${\varphi}'_A = \mathcal{X}_{4}\left(({\varphi}_B \cdot \nu_X) \bmod 2^{32}\right)$ |
+| 136 | `set_lt_u_imm` | ${\varphi}'_A = {\varphi}_B < \nu_X$ |
+| 137 | `set_lt_s_imm` | ${\varphi}'_A = \mathcal{Z}_{8}({\varphi}_B) < \mathcal{Z}_{8}(\nu_X)$ |
+| 138 | `shlo_l_imm_32` | ${\varphi}'_A = \mathcal{X}_{4}\left(({\varphi}_B \cdot 2^{\nu_X \bmod 32}) \bmod 2^{32}\right)$ |
+| 139 | `shlo_r_imm_32` | ${\varphi}'_A = \mathcal{X}_{4}\left(\left\lfloor{\varphi}_B \bmod 2^{32} \div 2^{\nu_X \bmod 32}\right\rfloor\right)$ |
+| 140 | `shar_r_imm_32` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\left\lfloor\mathcal{Z}_{4}({\varphi}_B \bmod 2^{32} ) \div 2^{\nu_X \bmod 32}\right\rfloor)$ |
+| 141 | `neg_add_imm_32` | ${\varphi}'_A = \mathcal{X}_{4}\left((\nu_X + 2^{32} - {\varphi}_B) \bmod 2^{32}\right)$ |
+| 142 | `set_gt_u_imm` | ${\varphi}'_A = {\varphi}_B > \nu_X$ |
+| 143 | `set_gt_s_imm` | ${\varphi}'_A = \mathcal{Z}_{8}({\varphi}_B) > \mathcal{Z}_{8}(\nu_X)$ |
+| 144 | `shlo_l_imm_alt_32` | ${\varphi}'_A = \mathcal{X}_{4}\left((\nu_X \cdot 2^{{\varphi}_B \bmod 32}) \bmod 2^{32}\right)$ |
+| 145 | `shlo_r_imm_alt_32` | ${\varphi}'_A = \mathcal{X}_{4}\left(\left\lfloor\nu_X \bmod 2^{32} \div 2^{{\varphi}_B \bmod 32}\right\rfloor\right)$ |
+| 146 | `shar_r_imm_alt_32` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\left\lfloor\mathcal{Z}_{4}(\nu_X \bmod 2^{32}) \div 2^{{\varphi}_B \bmod 32}\right\rfloor)$ |
+| 147 | `cmov_iz_imm` | ${\varphi}'_A = \begin{cases} \nu_X &\text{if } {\varphi}_B = 0\\ {\varphi}_A &\text{otherwise} \end{cases}$ |
+| 148 | `cmov_nz_imm` | ${\varphi}'_A = \begin{cases} \nu_X &\text{if } {\varphi}_B \ne 0\\ {\varphi}_A &\text{otherwise} \end{cases}$ |
+| 149 | `add_imm_64` | ${\varphi}'_A = ({\varphi}_B + \nu_X) \bmod 2^{64}$ |
+| 150 | `mul_imm_64` | ${\varphi}'_A = ({\varphi}_B \cdot \nu_X) \bmod 2^{64}$ |
+| 151 | `shlo_l_imm_64` | ${\varphi}'_A = \mathcal{X}_{8}\left(({\varphi}_B \cdot 2^{\nu_X \bmod 64}) \bmod 2^{64}\right)$ |
+| 152 | `shlo_r_imm_64` | ${\varphi}'_A = \mathcal{X}_{8}\left(\left\lfloor{\varphi}_B \div 2^{\nu_X \bmod 64}\right\rfloor\right)$ |
+| 153 | `shar_r_imm_64` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\left\lfloor\mathcal{Z}_{8}({\varphi}_B) \div 2^{\nu_X \bmod 64}\right\rfloor)$ |
+| 154 | `neg_add_imm_64` | ${\varphi}'_A = (\nu_X + 2^{64} - {\varphi}_B) \bmod 2^{64}$ |
+| 155 | `shlo_l_imm_alt_64` | ${\varphi}'_A = (\nu_X \cdot 2^{{\varphi}_B \bmod 64}) \bmod 2^{64}$ |
+| 156 | `shlo_r_imm_alt_64` | ${\varphi}'_A = \left\lfloor\nu_X \div 2^{{\varphi}_B \bmod 64}\right\rfloor$ |
+| 157 | `shar_r_imm_alt_64` | ${\varphi}'_A = \mathcal{Z}_{8}^{-1} (\left\lfloor\mathcal{Z}_{8}(\nu_X) \div 2^{{\varphi}_B \bmod 64}\right\rfloor)$ |
+| 158 | `rot_r_64_imm` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_A)_{i} = \mathcal{B}_{8}({\varphi}_B)_{(i + \nu_X) \bmod 64}$ |
+| 159 | `rot_r_64_imm_alt` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_A)_{i} = \mathcal{B}_{8}(\nu_X)_{(i + {\varphi}_B) \bmod 64}$ |
+| 160 | `rot_r_32_imm` | ${\varphi}'_A = \mathcal{X}_{4}\left(x\right) \  \text{where } x \in \mathbb{N}_{2^{32}}, \forall i \in \mathbb{N}_{32} : \mathcal{B}_{4}(x)_{i} = \mathcal{B}_{4}({\varphi}_B)_{(i + \nu_X) \bmod 32}$ |
+| 161 | `rot_r_32_imm_alt` | ${\varphi}'_A = \mathcal{X}_{4}\left(x\right) \  \text{where } x \in \mathbb{N}_{2^{32}}, \forall i \in \mathbb{N}_{32} : \mathcal{B}_{4}(x)_{i} = \mathcal{B}_{4}(\nu_X)_{(i + {\varphi}_B) \bmod 32}$ |
+
+:::
+
+and with three registers, with the two helpers its divisions use:
+
+::: gray-paper A.5.13 2-6
+
+#### Appendix A.5.13 Instructions with Arguments of Three Registers, continued
+
+<a id="gp-A-5-13-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 190 | `add_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(({\varphi}_A + {\varphi}_B) \bmod 2^{32}\right)$ |
+| 191 | `sub_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(({\varphi}_A + 2^{32} - ({\varphi}_B \bmod 2^{32})) \bmod 2^{32}\right)$ |
+| 192 | `mul_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(({\varphi}_A \cdot {\varphi}_B) \bmod 2^{32}\right)$ |
+| 193 | `div_u_32` | ${\varphi}'_D = \begin{cases} 2^{64} - 1 &\text{if } {\varphi}_B \bmod 2^{32} = 0\\ \mathcal{X}_{4}\left(\left\lfloor({\varphi}_A \bmod 2^{32}) \div ({\varphi}_B \bmod 2^{32})\right\rfloor\right) &\text{otherwise} \end{cases}$ |
+| 194 | `div_s_32` | ${\varphi}'_D = \begin{cases} 2^{64} - 1 &\text{if } b = 0\\ \mathcal{Z}_{8}^{-1} (a) &\text{if } a = -2^{31} \wedge b = -1\\ \mathcal{Z}_{8}^{-1} (\text{rtz}(a \div b)) &\text{otherwise} \\[2pt] \quad  \text{where } a = \mathcal{Z}_{4}({\varphi}_A \bmod 2^{32})\,,\ b = \mathcal{Z}_{4}({\varphi}_B \bmod 2^{32})\\ \end{cases}$ |
+| 195 | `rem_u_32` | ${\varphi}'_D = \begin{cases} \mathcal{X}_{4}\left({\varphi}_A \bmod 2^{32}\right) &\text{if } {\varphi}_B \bmod 2^{32} = 0\\ \mathcal{X}_{4}\left(({\varphi}_A \bmod 2^{32}) \bmod ({\varphi}_B \bmod 2^{32})\right) &\text{otherwise} \end{cases}$ |
+| 196 | `rem_s_32` | ${\varphi}'_D = \begin{cases} 0 &\text{if } a = -2^{31} \wedge b = -1 \\ \mathcal{Z}_{8}^{-1} (\text{smod}(a, b)) &\text{otherwise} \\[2pt] \quad  \text{where } a = \mathcal{Z}_{4}({\varphi}_A \bmod 2^{32})\,,\ b = \mathcal{Z}_{4}({\varphi}_B \bmod 2^{32})\\ \end{cases}$ |
+| 197 | `shlo_l_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(({\varphi}_A \cdot 2^{{\varphi}_B \bmod 32}) \bmod 2^{32}\right)$ |
+| 198 | `shlo_r_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(\left\lfloor({\varphi}_A \bmod 2^{32}) \div 2^{{\varphi}_B \bmod 32}\right\rfloor\right)$ |
+| 199 | `shar_r_32` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\left\lfloor\mathcal{Z}_{4}({\varphi}_A \bmod 2^{32}) \div 2^{{\varphi}_B \bmod 32}\right\rfloor)$ |
+| 200 | `add_64` | ${\varphi}'_D = ({\varphi}_A + {\varphi}_B) \bmod 2^{64}$ |
+| 201 | `sub_64` | ${\varphi}'_D = ({\varphi}_A + 2^{64} - {\varphi}_B) \bmod 2^{64}$ |
+| 202 | `mul_64` | ${\varphi}'_D = ({\varphi}_A \cdot {\varphi}_B) \bmod 2^{64}$ |
+| 203 | `div_u_64` | ${\varphi}'_D = \begin{cases} 2^{64} - 1 &\text{if } {\varphi}_B = 0\\ \left\lfloor{\varphi}_A \div {\varphi}_B\right\rfloor &\text{otherwise} \end{cases}$ |
+| 204 | `div_s_64` | ${\varphi}'_D = \begin{cases} 2^{64} - 1 &\text{if } {\varphi}_B = 0\\ {\varphi}_A &\text{if } \mathcal{Z}_{8}({\varphi}_A) = -2^{63} \wedge \mathcal{Z}_{8}({\varphi}_B) = -1\\ \mathcal{Z}_{8}^{-1} (\text{rtz}(\mathcal{Z}_{8}({\varphi}_A) \div \mathcal{Z}_{8}({\varphi}_B))) &\text{otherwise} \end{cases}$ |
+| 205 | `rem_u_64` | ${\varphi}'_D = \begin{cases} {\varphi}_A &\text{if } {\varphi}_B = 0\\ {\varphi}_A \bmod {\varphi}_B &\text{otherwise} \end{cases}$ |
+| 206 | `rem_s_64` | ${\varphi}'_D = \begin{cases} 0 &\text{if } \mathcal{Z}_{8}({\varphi}_A) = -2^{63} \wedge \mathcal{Z}_{8}({\varphi}_B) = -1\\ \mathcal{Z}_{8}^{-1} (\text{smod}(\mathcal{Z}_{8}({\varphi}_A), \mathcal{Z}_{8}({\varphi}_B))) &\text{otherwise} \end{cases}$ |
+| 207 | `shlo_l_64` | ${\varphi}'_D = ({\varphi}_A \cdot 2^{{\varphi}_B \bmod 64}) \bmod 2^{64}$ |
+| 208 | `shlo_r_64` | ${\varphi}'_D = \left\lfloor{\varphi}_A \div 2^{{\varphi}_B \bmod 64}\right\rfloor$ |
+| 209 | `shar_r_64` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\left\lfloor\mathcal{Z}_{8}({\varphi}_A) \div 2^{{\varphi}_B \bmod 64}\right\rfloor)$ |
+| 210 | `and` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \mathcal{B}_{8}({\varphi}_A)_{i} \wedge \mathcal{B}_{8}({\varphi}_B)_{i}$ |
+| 211 | `xor` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \mathcal{B}_{8}({\varphi}_A)_{i} \oplus \mathcal{B}_{8}({\varphi}_B)_{i}$ |
+| 212 | `or` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \mathcal{B}_{8}({\varphi}_A)_{i} \vee \mathcal{B}_{8}({\varphi}_B)_{i}$ |
+| 213 | `mul_upper_s_s` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\left\lfloor(\mathcal{Z}_{8}({\varphi}_A) \cdot \mathcal{Z}_{8}({\varphi}_B)) \div 2^{64}\right\rfloor)$ |
+| 214 | `mul_upper_u_u` | ${\varphi}'_D = \left\lfloor({\varphi}_A \cdot {\varphi}_B) \div 2^{64}\right\rfloor$ |
+| 215 | `mul_upper_s_u` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\left\lfloor(\mathcal{Z}_{8}({\varphi}_A) \cdot {\varphi}_B) \div 2^{64}\right\rfloor)$ |
+| 216 | `set_lt_u` | ${\varphi}'_D = {\varphi}_A < {\varphi}_B$ |
+| 217 | `set_lt_s` | ${\varphi}'_D = \mathcal{Z}_{8}({\varphi}_A) < \mathcal{Z}_{8}({\varphi}_B)$ |
+| 218 | `cmov_iz` | ${\varphi}'_D = \begin{cases} {\varphi}_A &\text{if } {\varphi}_B = 0\\ {\varphi}_D &\text{otherwise} \end{cases}$ |
+| 219 | `cmov_nz` | ${\varphi}'_D = \begin{cases} {\varphi}_A &\text{if } {\varphi}_B \ne 0\\ {\varphi}_D &\text{otherwise} \end{cases}$ |
+| 220 | `rot_l_64` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{(i + {\varphi}_B) \bmod 64} = \mathcal{B}_{8}({\varphi}_A)_{i}$ |
+| 221 | `rot_l_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(x\right)\  \text{where } x \in \mathbb{N}_{2^{32}}, \forall i \in \mathbb{N}_{32} : \mathcal{B}_{4}(x)_{(i + {\varphi}_B) \bmod 32} = \mathcal{B}_{4}({\varphi}_A)_{i}$ |
+| 222 | `rot_r_64` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \mathcal{B}_{8}({\varphi}_A)_{(i + {\varphi}_B) \bmod 64}$ |
+| 223 | `rot_r_32` | ${\varphi}'_D = \mathcal{X}_{4}\left(x\right)\  \text{where } x \in \mathbb{N}_{2^{32}}, \forall i \in \mathbb{N}_{32} : \mathcal{B}_{4}(x)_{i} = \mathcal{B}_{4}({\varphi}_A)_{(i + {\varphi}_B) \bmod 32}$ |
+| 224 | `and_inv` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \mathcal{B}_{8}({\varphi}_A)_{i} \wedge \lnot \mathcal{B}_{8}({\varphi}_B)_{i}$ |
+| 225 | `or_inv` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \mathcal{B}_{8}({\varphi}_A)_{i} \vee \lnot \mathcal{B}_{8}({\varphi}_B)_{i}$ |
+| 226 | `xnor` | $\forall i \in \mathbb{N}_{64} : \mathcal{B}_{8}({\varphi}'_D)_{i} = \lnot ( \mathcal{B}_{8}({\varphi}_A)_{i} \oplus \mathcal{B}_{8}({\varphi}_B)_{i} )$ |
+| 227 | `max` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\max \left( \mathcal{Z}_{8}({\varphi}_A), \mathcal{Z}_{8}({\varphi}_B) \right))$ |
+| 228 | `max_u` | ${\varphi}'_D = \max \left( {\varphi}_A, {\varphi}_B \right)$ |
+| 229 | `min` | ${\varphi}'_D = \mathcal{Z}_{8}^{-1} (\min \left( \mathcal{Z}_{8}({\varphi}_A), \mathcal{Z}_{8}({\varphi}_B) \right))$ |
+| 230 | `min_u` | ${\varphi}'_D = \min \left( {\varphi}_A, {\varphi}_B \right)$ |
+
+<a id="gp-A-5-13-p3"></a>Note that the two signed modulo operations have an idiosyncratic definition, operating as the modulo of the absolute values, but with the sign of the numerator. Formally:
+
+<a id="gp-A-5-13-p4"></a><a id="eq-A-36"></a>
+
+$$
+\begin{equation}
+\text{smod}\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{Z}, \mathbb{Z}\right\rgroup\! &\to \mathbb{Z}\\
+\left(a, b\right) &\mapsto \begin{cases}
+a &\text{if } b = 0\\
+\text{sgn}(a) \cdot (\left\vert a\right\vert \bmod \left\vert b\right\vert) &\text{otherwise} \\
+\end{cases}
+\end{aligned} \right. \tag{A.36}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-smod">$\text{smod}$</span> | signed mod | the remainder of the sizes, with the sign of the number divided: smod(−7, 2) is −1 |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-Z" class="gk-wrap">$\mathbb{Z}$</span> | Z | the integers, negative ones too; a subscript gives the range |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+
+</details>
+
+→ [(A.36) in plain words](./gray-paper.md#ex-A-36)
+
+<a id="gp-A-5-13-p5"></a>Division operations always round their result towards zero. Formally:
+
+<a id="gp-A-5-13-p6"></a><a id="eq-A-37"></a>
+
+$$
+\begin{equation}
+\text{rtz}\colon\left\{ \begin{aligned}
+\mathbb{Z} &\to \mathbb{Z}\\
+x &\mapsto \begin{cases}
+\left\lceil x\right\rceil &\text{if } x < 0\\
+\left\lfloor x\right\rfloor &\text{otherwise} \\
+\end{cases}
+\end{aligned} \right. \tag{A.37}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-rtz">$\text{rtz}$</span> | round toward zero | a division's answer rounded toward zero: −3.5 becomes −3, 3.5 becomes 3 |
+| <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
+| <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
+
+</details>
+
+→ [(A.37) in plain words](./gray-paper.md#ex-A-37)
+
+:::
+
+In plain words: registers hold 64 bits, and everything is modulo 2^64. The corners that
+catch people:
 
 - **32-bit instructions** work on the low 32 bits, and **sign-extend** the result back
   to 64: `add_32` of 2^31 − 1 and 1 isn't 2^31, it's `0xffffffff80000000`, which is

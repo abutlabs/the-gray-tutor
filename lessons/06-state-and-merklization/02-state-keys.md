@@ -17,10 +17,55 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix D. Every key is 31 bytes, made by C, which the Gray Paper calls the *state-key
-constructor*. C is one function with three cases, and what you hand it picks the case,
-like a TypeScript function overloaded on its arguments: one number; a number and a
-service; or a service and some bytes.
+Appendix D, *Serialization*:
+
+::: gray-paper D.1 1-3
+
+#### Appendix D.1 Serialization {#gp-D-1}
+
+<a id="gp-D-1-p1"></a>The <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> of state primarily involves placing all the various components of $\sigma$ into a single mapping from 31-octet sequence *state-keys* to <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequences of indefinite length. The state-key is constructed from a hash component and a chapter component, equivalent to either the index of a state component or, in the case of the inner dictionaries of $\delta$, a service index.
+
+<a id="gp-D-1-p2"></a>We define the state-key constructor functions $C$ as:
+
+<a id="gp-D-1-p3"></a><a id="eq-D-1"></a>
+
+$$
+\begin{equation}
+C\colon\left\{ \begin{aligned}
+\mathbb{N}_{2^{8}} \cup \left(\mathbb{N}_{2^{8}}, \mathbb{N}_S\right) \cup \left(\mathbb{N}_S, \mathbb{B}_{}\right) &\to \mathbb{B}_{31} \\
+i \in \mathbb{N}_{2^{8}} &\mapsto \left[i, 0, 0, \dots\right] \\
+\left(i, s \in \mathbb{N}_S\right) &\mapsto \left[i, n_0, 0, n_1, 0, n_2, 0, n_3, 0, 0, \dots\right]\  \text{where } n = \mathcal{E}_{4}\left(s\right) \\
+\left(s, h\right) &\mapsto \left[n_0, a_0, n_1, a_1, n_2, a_2, n_3, a_3, a_4, a_5, \dots, a_{26}\right]\  \text{where } n = \mathcal{E}_{4}\left(s\right), a = \mathcal{H}\left(h\right)
+\end{aligned} \right. \tag{D.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-Nbits">[$\mathbb{N}_{2^{x}}$](../symbols.md#naturals)</span> | N sub two to the n | the numbers that fit in n bits: ℕ_{2³²} is a u32 |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+
+</details>
+
+→ [(D.1) in plain words](./gray-paper.md#ex-D-1)
+
+:::
+
+In plain words: every key is 31 bytes, made by C, the *state-key constructor*. C is one
+function with three cases, and what you hand it picks the case, like a TypeScript function
+overloaded on its arguments: one number; a number and a service; or a service and some
+bytes.
 
 | Case | You hand it | Where it puts | The 31 bytes |
 | --- | --- | --- | --- |
@@ -74,7 +119,17 @@ What a service keeps comes in three kinds, and each makes its h differently:
 - a **storage** item with key k: h = ℰ₄(2^32 − 1) ⌢ k.
 
 Hashing h makes every key exactly 31 bytes, whatever went in, and the Gray Paper points
-out the bonus: a client never needs the original storage key back, only its hash. This
+out the bonus:
+
+::: gray-paper D.1 8-8
+
+#### Appendix D.1 Serialization, continued
+
+<a id="gp-D-1-p8"></a>Finally, be aware that JAM does not allow service storage keys to be directly inspected or enumerated. Thus the key values themselves are not required to be known by implementations, and only the Merklisation-ready serialisation is important, which is a fixed-size hash (alongside the service index and item marker). Implementations are free to use this fact in order to avoid storing the keys themselves.
+
+:::
+
+In plain words: a client never needs the original storage key back, only its hash. This
 lesson builds preimages and requests. Storage keys wait: your client keeps each service's
 storage as a map from key to value (read from the vectors in [lesson 14.2](../14-services/02-the-service-account.md), written
 by the `write` host call in [lesson 16.5](../16-host-calls/05-storage.md)), and needs these keys only to put that map

@@ -3,7 +3,8 @@
 Welcome! By the end of this tutorial you will have written a JAM client: a TypeScript
 program that takes a JAM block, checks it against every rule in the Gray Paper, and works
 out what the chain looks like afterwards. Byte for byte the same answer every other JAM
-client gets.
+client gets. If you'd like the whole system on one page before any of its parts, [What runs
+where](../what-runs-where.md) is the map; this lesson gives you the words for it.
 
 ## New words
 
@@ -13,7 +14,7 @@ client gets.
   *Example:* in [Part 15](../15-the-pvm/index.md) you'll run a real JAM service's code.
   [Lesson 11.2](../11-assurances/02-timeouts.md) lets you walk one piece of work across a core, block by block.
 - **Gray Paper (GP).** JAM's specification: the document that defines every rule, mostly
-  in maths. It is still being improved, and new versions change rules; this tutorial
+  in equations. It is still being improved, and new versions change rules; this tutorial
   follows version 0.8.0. *Example:* "§4" means its section 4.
 - **Client.** A program that follows a protocol's rules. A JAM client reads blocks and
   works out the chain's state, the same way every other JAM client does. *Example:*
@@ -36,11 +37,44 @@ the ones it brings in.
 In plain words: the chain remembers a *state*. Each *block* changes that state, following
 fixed rules. A client is a program that applies those rules, and every client that applies
 them correctly gets exactly the same new state. The Gray Paper says all of that in one
-equation (§4, *Overview*):
+equation, the first of §4, *Overview*:
 
-```text
-σ′ ≡ Υ(σ, B)
-```
+::: gray-paper 4
+
+#### §4 Overview {#gp-4}
+
+<a id="gp-4-p1"></a>As in the Yellow Paper, we begin our formalisms by recalling that a blockchain may be defined as a pairing of some initial state together with a block-level state-transition function. The latter defines the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state given a pairing of some prior state and a block of data applied to it. Formally, we say:
+
+<a id="gp-4-p2"></a><a id="eq-4-1"></a>
+
+$$
+\begin{align}
+\sigma' \equiv \Upsilon(\sigma, \mathbf{B}) \tag{4.1}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-thestate" class="gk-wrap">[$\sigma$](../symbols.md#state)</span> | sigma | the state: everything the chain remembers between blocks |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-transitionstate" class="gk-wrap">[$\Upsilon$](../symbols.md#transition)</span> | upsilon | the state transition: the state and a block in, the next state out |
+| <span id="gk-block" class="gk-wrap">[$\mathbf{B}$](../symbols.md#block)</span> | B | a block: its header and its extrinsic |
+
+</details>
+
+→ [(4.1) in plain words](./gray-paper.md#ex-4-1)
+
+<a id="gp-4-p3"></a>Where $\sigma$ is the prior state, $\sigma'$ is the posterior state, $B$ is some valid block and $\Upsilon$ is our block-level state-transition function.
+
+<a id="gp-4-p4"></a>Broadly speaking, JAM (and indeed blockchains in general) may be defined simply by specifying $\Upsilon$ and some *<abbr class="gp-term" title="the chain's first block and state">genesis</abbr> state* $\sigma^0$.<sup>1</sup> We also make several additional assumptions of agreed knowledge: a universally known clock, and the practical means of sharing data with other systems operating under the same consensus rules. The latter two were both assumptions silently made in the *YP*.
+
+<small class="gp-note"><sup>1</sup> Practically speaking, blockchains sometimes make assumptions of some fraction of participants whose behavior is simply *honest*, and not provably incorrect nor otherwise economically disincentivized. While the assumption may be reasonable, it must nevertheless be stated apart from the rules of state-transition.</small>
+
+:::
+
+Read the equation, (4.1), as "sigma prime is defined as upsilon of sigma and B":
 
 - **σ** (sigma) is the chain's state before a block: seventeen parts, sixteen fixed ones
   from validator keys to the last few blocks, plus the service accounts.
@@ -49,8 +83,10 @@ equation (§4, *Overview*):
 - **Υ** (upsilon) is the *state-transition function*, the machine that turns one into
   the other.
 
-That's it. A blockchain, says the Gray Paper, is a starting state plus Υ, and almost
-every other page of the paper describes one piece of Υ.
+That's it. A blockchain, says the Gray Paper, is a starting state, the genesis state,
+plus Υ, and almost every other page of the paper describes one piece of Υ. It also assumes
+two things it doesn't define: every node has a clock it agrees on
+([lesson 0.4](./04-the-jam-clock.md)), and nodes can share data with each other.
 
 A program that computes Υ is a **block importer**. Hand it a state and a block, and it
 answers either "valid, and here is the new state" or "invalid, go away". It is the first

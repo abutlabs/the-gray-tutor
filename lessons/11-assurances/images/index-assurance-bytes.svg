@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 332" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+<style>
+  text { fill: #3c3c43; text-anchor: start; }
+  .title { font-weight: bold; }
+  .small { fill: #67676c; font-size: 12px; }
+  .bytes { fill: #0f766e; }
+  .who { fill: #c2410c; font-size: 12px; }
+  .place { fill: none; stroke: #9a9aa0; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .thing { fill: #e8f0fe; stroke: #5b8def; stroke-width: 1.5; }
+  .code { fill: #e6f6ef; stroke: #3fa97a; stroke-width: 1.5; }
+  .chain { fill: #fdf3e1; stroke: #d19a2a; stroke-width: 1.5; }
+  .line { stroke: #9a9aa0; stroke-width: 1.5; fill: none; }
+  .tip { fill: #9a9aa0; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #dfdfd6; }
+    .small { fill: #a8a8a0; }
+    .bytes { fill: #4fd1c5; }
+    .who { fill: #ff9a5c; }
+    .place { stroke: #6b6b72; }
+    .thing { fill: #1e2a44; stroke: #7aa2f7; }
+    .code { fill: #1b3329; stroke: #4fc08d; }
+    .chain { fill: #3a2e14; stroke: #e0b04a; }
+    .line { stroke: #6b6b72; }
+    .tip { fill: #6b6b72; }
+  }
+</style>
+<text class="title" x="16" y="24">One assurance: "I hold my share of core 1's data", 99 bytes on tiny</text>
+<rect class="thing" x="16" y="40" width="848" height="54" rx="6"/>
+<text class="title" x="28" y="61">anchor</text>
+<text class="small" x="28" y="81">the parent block's hash</text>
+<text class="bytes" x="346" y="61">d6 1a 38 a0 … 4a 8e</text>
+<text class="small" x="346" y="81">32 bytes</text>
+<rect class="code" x="16" y="102" width="848" height="54" rx="6"/>
+<text class="title" x="28" y="123">bitfield</text>
+<text class="small" x="28" y="143">one bit per core: 0b10, core 1</text>
+<text class="bytes" x="346" y="123">02</text>
+<text class="small" x="346" y="143">1 byte on tiny (2 cores), 43 on full</text>
+<rect class="thing" x="16" y="164" width="848" height="54" rx="6"/>
+<text class="title" x="28" y="185">validator_index</text>
+<text class="small" x="28" y="205">validator 0, as a u16</text>
+<text class="bytes" x="346" y="185">00 00</text>
+<text class="small" x="346" y="205">2 bytes</text>
+<rect class="code" x="16" y="226" width="848" height="54" rx="6"/>
+<text class="title" x="28" y="247">signature</text>
+<text class="small" x="28" y="267">Ed25519, by that validator's key</text>
+<text class="bytes" x="346" y="247">f2 3d dc fb … 5e 0d</text>
+<text class="small" x="346" y="267">64 bytes</text>
+<text class="small" x="16" y="300">32 + 1 + 2 + 64 = 99 bytes. Six of these in the block at slot 12, one per validator: five say core 0, so its report is</text>
+<text class="small" x="16" y="317">available (more than two thirds of 6); four say core 1, not enough, so core 1's report waits.</text>
+</svg>

@@ -22,7 +22,97 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§10 again, after the verdicts. ψ′ here means the judged sets *after* this block's verdicts
+::: gray-paper 10.2 5-6
+
+#### §10.2 Extrinsic, continued
+
+<a id="gp-10-2-p5"></a>Offender signatures must be similarly valid and reference work-reports with judgments and may not report keys which are already in the <abbr class="gp-term" title="ψ_O: the keys of validators found guilty">punish-set</abbr>:
+
+<a id="gp-10-2-p6"></a><a id="eq-10-6"></a><a id="eq-10-7"></a>
+
+$$
+\begin{align}
+\forall \left(r, f, s\right) &\in \mathbf{E}_C : \bigwedge \left\{ \begin{aligned}
+&r \in \psi_B' \,,\\
+&f \in \mathbf{k} \,,\\
+&s \in \bar{\mathbb{V}}_{f}\left\langle\mathsf{X}_G \frown r\right\rangle
+\end{aligned} \right. \tag{10.6} \\
+\forall \left(r, v, f, s\right) &\in \mathbf{E}_F : \bigwedge \left\{ \begin{aligned}
+&r \in \psi_B' \Leftrightarrow r \not\in \psi_G' \Leftrightarrow v \,,\\
+&f \in \mathbf{k} \,,\\
+&s \in \bar{\mathbb{V}}_{f}\left\langle\mathsf{X}_{v} \frown r\right\rangle\\
+\end{aligned} \right. \tag{10.7} \\
+\text{where } \mathbf{k} &= \left\{\,i_{e} \;\middle\vert\; i \in \lambda \cup \kappa\,\right\} \setminus \psi_O \notag
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-xc-reporthash">$r$</span> | r | the hash of the bad report the culprit guaranteed |
+| <span id="gk-xc-offenderindex">$f$</span> | f | the culprit's Ed25519 key: 32 bytes |
+| <span id="gk-xc-signature">$s$</span> | s | the culprit's own guarantee signature on that report |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-xtculprits" class="gk-wrap">$\mathbf{E}_C$</span> | E sub C | the block's culprits: guarantors of a bad report, each with the guarantee they signed |
+| <span id="gk-bigwedge">$\bigwedge$</span> | all of | every one of the conditions under it is true |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-badset" class="gk-wrap">$\psi_B$</span> | psi sub B | the bad set: hashes of every report a verdict found invalid |
+| <span id="gk-edsignature">$\bar{\mathbb{V}}_{x}\left\langle y\right\rangle$</span> | V bar sub k of m | the valid Ed25519 signatures by key k on message m: 64 bytes |
+| <span id="gk-Xguarantee" class="gk-wrap">$\mathsf{X}_G$</span> | X sub G | the 13 bytes `jam_guarantee`, signed in front of a report's hash to guarantee it |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-xf-validity">$v$</span> | v | the fault's vote: ⊤ valid or ⊥ invalid |
+| <span id="gk-xtfaults" class="gk-wrap">$\mathbf{E}_F$</span> | E sub F | the block's faults: judges who voted against a verdict, each with the vote they signed |
+| <span id="gk-Leftrightarrow">$\Leftrightarrow$</span> | exactly when | if and only if: both sides are true together, or false together |
+| <span id="gk-goodset" class="gk-wrap">$\psi_G$</span> | psi sub G | the good set: hashes of every report a verdict found valid |
+| <span id="gk-Xvalidif">$\mathsf{X}_{x}$</span> | X sub v | the signing prefix for vote v: X sub top for valid, X sub bottom for invalid |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-vk-ed">$e$</span> | e | a validator's Ed25519 key: the 32 bytes after its Bandersnatch key |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-setminus">$\setminus$</span> | without | the left side with every item of the right taken out |
+| <span id="gk-offenders" class="gk-wrap">$\psi_O$</span> | psi O | the offenders: Ed25519 keys of validators found to have judged a report wrongly |
+
+</details>
+
+→ [(10.6), (10.7) in plain words](./gray-paper.md#ex-10-6)
+
+:::
+
+::: gray-paper 10.2 13-14
+
+#### §10.2 Extrinsic, continued
+
+<a id="gp-10-2-p13"></a>Any verdict containing solely valid judgments implies the same report having at least one valid entry in the faults sequence $\mathbf{E}_F$. Formally:
+
+<a id="gp-10-2-p14"></a><a id="eq-10-13"></a>
+
+$$
+\begin{align}
+\forall \left(r, \top\right) \in \mathbf{v} &:
+\exists \left(r, \dots\right) \in \mathbf{E}_F \tag{10.13}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-top">$\top$</span> | top | true |
+| <span id="gk-verdicts" class="gk-wrap">$\mathbf{v}$</span> | bold v | this block's verdicts boiled down: each report's hash with ⊤ good, ⊥ bad or ∅ wonky |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+
+</details>
+
+→ [(10.13) in plain words](./gray-paper.md#ex-10-13)
+
+:::
+
+In plain words, with (10.9) from [lesson 10.4](./04-bad-verdicts.md#what-the-gray-paper-says)
+for the order. ψ′ here means the judged sets *after* this block's verdicts
 ([lesson 10.1](./01-votes-and-verdicts.md)'s `recordVerdicts`). Every culprit must keep four rules:
 
 1. **In order.** Culprits sorted by key, no key twice. (`culprits_not_sorted_unique`)

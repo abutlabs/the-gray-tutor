@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 450" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+<style>
+  text { fill: #3c3c43; text-anchor: start; }
+  .title { font-weight: bold; }
+  .small { fill: #67676c; font-size: 12px; }
+  .bytes { fill: #0f766e; }
+  .who { fill: #c2410c; font-size: 12px; }
+  .place { fill: none; stroke: #9a9aa0; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .thing { fill: #e8f0fe; stroke: #5b8def; stroke-width: 1.5; }
+  .code { fill: #e6f6ef; stroke: #3fa97a; stroke-width: 1.5; }
+  .chain { fill: #fdf3e1; stroke: #d19a2a; stroke-width: 1.5; }
+  .line { stroke: #9a9aa0; stroke-width: 1.5; fill: none; }
+  .tip { fill: #9a9aa0; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #dfdfd6; }
+    .small { fill: #a8a8a0; }
+    .bytes { fill: #4fd1c5; }
+    .who { fill: #ff9a5c; }
+    .place { stroke: #6b6b72; }
+    .thing { fill: #1e2a44; stroke: #7aa2f7; }
+    .code { fill: #1b3329; stroke: #4fc08d; }
+    .chain { fill: #3a2e14; stroke: #e0b04a; }
+    .line { stroke: #6b6b72; }
+    .tip { fill: #6b6b72; }
+  }
+</style>
+<text class="title" x="16" y="24">In the work-package (lesson 3.1):</text>
+<rect class="thing" x="16" y="36" width="400" height="47" rx="6"/>
+<text class="title" x="28" y="56">auth_code_host: 305419896</text>
+<text class="small" x="28" y="73">the service whose preimages hold the authorizer's code</text>
+<rect class="code" x="16" y="90" width="400" height="47" rx="6"/>
+<text class="title" x="28" y="110">auth_code_hash: 0x022e5e16…6eef</text>
+<text class="small" x="28" y="127">which code: a PVM program, 32 bytes name it</text>
+<rect class="code" x="16" y="144" width="400" height="47" rx="6"/>
+<text class="title" x="28" y="164">authorizer_config: 0x00010203040506070809</text>
+<text class="small" x="28" y="181">the program's settings: 10 bytes here, any blob</text>
+<rect class="thing" x="16" y="198" width="400" height="47" rx="6"/>
+<text class="title" x="28" y="218">authorization: 0x0102030405</text>
+<text class="small" x="28" y="235">the token: this package's case for using the core</text>
+<line class="line" x1="416" y1="113" x2="448.1197562627544" y2="118.62095734598202"/>
+<polygon class="tip" points="447.2578546039931,123.54610968176054 448.98165792151565,113.6958050102035 456,120"/>
+<line class="line" x1="416" y1="167" x2="450.27199888303966" y2="133.58480108903632"/>
+<polygon class="tip" points="453.76249956368736,137.16480178713653 446.78149820239196,130.0048003909361 456,128"/>
+<text class="title" x="456" y="24">The authorizer's name:</text>
+<rect class="chain" x="456" y="100" width="408" height="64" rx="6"/>
+<text class="title" x="468" y="120">H(code hash ⌢ config)</text>
+<text class="small" x="468" y="137">= 0x6fb4f1d7…78ed</text>
+<text class="small" x="468" y="154">32 bytes. Other settings: another authorizer.</text>
+<text class="title" x="16" y="286">Who uses it, and where:</text>
+<rect class="code" x="16" y="298" width="400" height="81" rx="6"/>
+<text class="title" x="28" y="318">In-core: the 3 guarantors run the code</text>
+<text class="small" x="28" y="335">on the package and its token, in the PVM,</text>
+<text class="small" x="28" y="352">with 50,000,000 gas on full. Out: a trace (a blob).</text>
+<text class="small" x="28" y="369">The storage trace's report: 22 gas used, trace 0x.</text>
+<rect class="chain" x="456" y="298" width="408" height="81" rx="6"/>
+<text class="title" x="468" y="318">On the chain, every validator (lesson 12.4):</text>
+<text class="small" x="468" y="335">is the hash in core 1's pool α? 8 hashes, else refused.</text>
+<text class="small" x="468" y="352">The pool moves one a block from the queue ϕ,</text>
+<text class="small" x="468" y="369">80 hashes an assigner service put there (Part 13).</text>
+<rect class="thing" x="16" y="390" width="848" height="47" rx="6"/>
+<text class="title" x="28" y="410">In the work-report (lesson 3.3): authorizer_hash 0x2357426f…09f8, auth_gas_used 22, auth_output 0x</text>
+<text class="small" x="28" y="427">the storage trace's first report, block 2, core 1. The chain never sees the code or the token: only this.</text>
+</svg>

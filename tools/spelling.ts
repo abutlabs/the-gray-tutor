@@ -8,7 +8,7 @@ import { join } from "node:path";
 import en from "dictionary-en";
 import gb from "dictionary-en-gb";
 import nspell from "nspell";
-import { LESSONS, ROOT } from "./lessons.ts";
+import { GRAY_PAPER_QUOTE, LESSONS, ROOT } from "./lessons.ts";
 
 /** A word of prose, and the line it's on (from 1). */
 export type Word = { word: string; line: number };
@@ -17,7 +17,7 @@ export type Word = { word: string; line: number };
 const blank = (m: string) => "\n".repeat(m.split("\n").length - 1) || " ";
 
 /**
- * The words of a Markdown page's prose. Not prose: code (blocks, inline, <code>), maths
+ * The words of a Markdown page's prose. Not prose: code (blocks, inline, <code>), math
  * ($$ ... $$, $...$), URLs, HTML tags, numbers (0xff, u32), file names and paths
  * (HARDENING.md, …/client/src), and the Gray Paper's superscripts (X^mov).
  */
@@ -25,11 +25,12 @@ export function proseWords(markdown: string): Word[] {
   const text = markdown
     .replace(/^---\n[\s\S]*?\n---\n/, blank) // front matter
     .replace(/```[\s\S]*?```/g, blank)
+    .replace(GRAY_PAPER_QUOTE, blank) // the Gray Paper's own words, spelled as it spells them
     .replace(/<!--[\s\S]*?-->/g, blank)
     .replace(/<code>[\s\S]*?<\/code>/g, blank)
     .replace(/`[^`]+`/g, blank) // inline code, even when it wraps onto the next line
     .replace(/\$\$[\s\S]*?\$\$/g, blank) // a formula: LaTeX, not English
-    .replace(/\$[^$\s][^$\n]*\$/g, blank) // maths inside a sentence
+    .replace(/\$[^$\s][^$\n]*\$/g, blank) // math inside a sentence
     .replace(/\]\([^)\s]*\)/g, "]") // a link's address; its text stays
     .replace(/ \{#[\w-]+\}$/gm, " ") // a heading's own id: an address too
     .replace(/https?:\/\/\S+/g, " ")

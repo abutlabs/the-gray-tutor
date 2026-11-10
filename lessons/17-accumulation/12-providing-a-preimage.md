@@ -30,7 +30,70 @@ Both are in the [glossary](../glossary.md).
 
 Nothing is delivered yet. Provisions collapse like transfers: a halt keeps them all, a
 panic only those the last checkpoint kept. At the end of the round, after the accounts are
-merged, comes the Gray Paper's P:
+merged, comes the Gray Paper's I, the preimage integration function, with its test Y:
+
+::: gray-paper 12.2 18-19
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p18"></a>And $I$ is the preimage integration function, which transforms a dictionary of service states and a set of service/blob pairs into a new dictionary of service states. Preimage provisions into services which no longer exist or whose relevant request is dropped are disregarded:
+
+<a id="gp-12-2-p19"></a><a id="eq-12-20"></a><a id="eq-12-21"></a>
+
+$$
+\begin{align}
+I &\colon\left\{ \begin{aligned}
+&\!\left\lgroup\left\langle\!\left\vert \mathbb{N}_S\to\mathbb{A}\right\vert\!\right\rangle, \left\{\mkern-5mu\left[\,\!\left\lgroup\mathbb{N}_S, \mathbb{B}_{}\right\rgroup\!\,\right]\mkern-5mu\right\}\right\rgroup\! \to \left\langle\!\left\vert \mathbb{N}_S\to\mathbb{A}\right\vert\!\right\rangle \\
+&\left(\mathbf{d}, \mathbf{p}\right) \mapsto \mathbf{d}'\; \text{where } \mathbf{d}' = \mathbf{d}\;\text{except:} \\
+&\quad\forall \left(s, \mathbf{i}\right) \in \mathbf{p},\;
+Y(\mathbf{d}, s, \mathbf{i}):\\
+&\qquad \mathbf{d}'\left[s\right]_{\mathbf{l}}\left[\left(\mathcal{H}\left(\mathbf{i}\right), \left\vert\mathbf{i}\right\vert\right)\right] =\left[\tau'\right]\\
+&\qquad \mathbf{d}'\left[s\right]_{\mathbf{p}}\left[\mathcal{H}\left(\mathbf{i}\right)\right] = \mathbf{i}
+\end{aligned} \right. \tag{12.20} \\
+Y &\colon\left\{ \begin{aligned}
+&\!\left\lgroup\left\langle\!\left\vert \mathbb{N}_S\to\mathbb{A}\right\vert\!\right\rangle, \mathbb{N}_S, \mathbb{B}_{}\right\rgroup\! \to {\left\{\,\bot, \top\,\right\}} \\
+&\left(\mathbf{d}, s, \mathbf{i}\right) \mapsto \begin{cases}
+\mathbf{d}\left[s\right]_{\mathbf{l}}\left[\left(\mathcal{H}\left(\mathbf{i}\right), \left\vert\mathbf{i}\right\vert\right)\right] = \left[\right] &\text{if } s \in \mathcal{K}\left(\mathbf{d}\right) \\
+\bot &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{12.21}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-local-fnprovide">$I$</span> | I | preimage integration: files each provided blob in its service, if that service still waits for it |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-serviceaccount" class="gk-wrap">$\mathbb{A}$</span> | A | a service account: three dictionaries (storage, preimages, requests) and eight plain fields |
+| <span id="gk-protoset">$\left\{\mkern-5mu\left[\,x\,\right]\mkern-5mu\right\}$</span> | the set of | a set written in order: no repeats, kept sorted |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-local-fnprovidable">$Y$</span> | Y | is this blob still wanted? true if the service exists and its request for the blob's hash and length is [ ]: asked, not yet given |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-sa-requests" class="gk-wrap">$\mathbf{l}$</span> | l | an account's requests: for each (hash, length) asked for, a history of up to 3 slots |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-sa-preimages" class="gk-wrap">$\mathbf{p}$</span> | p | an account's preimages: each a blob filed under its own 32-byte hash |
+| <span id="gk-bool">${\left\{\,\bot, \top\,\right\}}$</span> | true or false | a yes-or-no value: true (⊤) or false (⊥) |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+
+</details>
+
+→ [(12.20), (12.21) in plain words](./gray-paper.md#ex-12-20)
+
+:::
+
+In plain words, the last step:
 
 4. **Deliver.** Each provision whose service still exists and still waits for it (its
    request is still `[]`) is stored: the bytes join the service's preimages, and the request

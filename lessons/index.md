@@ -18,6 +18,13 @@ Curious what a JAM network actually does, before you write any code?
 [JAM at a glance](./jam-at-a-glance.md) plays a real one in slow motion. It's optional: the
 lessons explain every piece as you need it.
 
+Used to passing JSON between services, but new to bytes, cores and validators? [What runs
+where](./what-runs-where.md) is the map: the three places JAM does its work, what each
+object is made from, and which code runs on every validator and which on three. Keep it
+open beside any part. And when it's time to read the paper itself, [Reading the Gray
+Paper](./reading-the-gray-paper.md) shows how its pages are laid out and reads thirteen of
+its lines aloud, one symbol at a time.
+
 Wondering how JAM compares with a network built another way?
 [JAM beside Aztec](./jam-beside-aztec.md) sets it against Ethereum's privacy rollup: why
 one validator is cheap and the other isn't, and whether JAM could run Aztec's private
@@ -47,6 +54,8 @@ with σ′, byte for byte the same as every other JAM client. Here it is on real
 <StfStep />
 
 ## How to read it
+
+<EbookLink />
 
 Each lesson builds on the ones before, and your client grows with
 them. Each part's page says what your client can do at its end, and links self-test

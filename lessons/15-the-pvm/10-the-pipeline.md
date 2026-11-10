@@ -14,7 +14,511 @@ the sum of the recipes. That's the whole idea; the rest of this lesson is its ex
 
 ## What the Gray Paper says
 
-App. A.9 describes the model CPU, cycle by cycle:
+App. A.9 first sets up the model CPU's state:
+
+::: gray-paper A.9 1-11
+
+#### Appendix A.9 Gas Cost Model {#gp-A-9}
+
+<a id="gp-A-9-p1"></a>The gas cost model for the PVM is a simplified model of a modern CPU microarchitecture, heavily inspired by what's used by production-grade compilers to predict how much time a given piece of code will take. For each <abbr class="gp-term" title="a run of instructions with one way in; a jump may only land at its start">basic block</abbr> in the program the model simulates its execution flow and computes the required number of virtual CPU cycles that would be needed to execute it.
+
+<a id="gp-A-9-p2"></a>A gas simulation state, of set $\mathbb{S}$, contains the current instruction counter $\imath$, a cycle counter $c$, the number of decode slots $d$ remaining in the current cycle, the maximum number of instructions $e$ which are still allowed to start execution in the current cycle, the remaining available execution units $t$, and the <abbr class="gp-term" title="where a CPU keeps decoded instructions, in order, until each has run and retired">reorder buffer</abbr> $\mathbf{r}$. Formally:
+
+<a id="gp-A-9-p3"></a><a id="eq-A-49"></a>
+
+$$
+\begin{equation}
+\mathbb{S} \equiv \!\left\lgroup
+\imath\in \mathbb{N}_R \cup \left\{\,\emptyset\,\right\},
+c\in \mathbb{N},
+d\in \mathbb{N},
+e\in \mathbb{N},
+t\in \mathbb{E},
+\mathbf{r}\in \left[\!\left[\mathbb{R}\right]\!\right]_{}
+\right\rgroup\!\\ \tag{A.49}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-gas-sim-ty" class="gk-wrap">$\mathbb{S}$</span> | S | the model CPU's state: where it decodes, its clock, what is left this cycle, and its reorder buffer |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-imath">$\imath$</span> | i | the instruction counter: the index in the code of the instruction to run next |
+| <span id="gk-pvmreg" class="gk-wrap">$\mathbb{N}_R$</span> | N sub R | a register's value: a u64 |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-ctr-cycles">$c$</span> | c | the model CPU's clock: the cycles so far |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-remaining-decodeslots">$d$</span> | d | decode slots left this cycle, out of 4 |
+| <span id="gk-remaining-startpercycle">$e$</span> | e | how many more instructions may start this cycle, out of 5 |
+| <span id="gk-remaining-execunits">$t$</span> | t | the execution units free right now, of each kind |
+| <span id="gk-execunits-ty" class="gk-wrap">$\mathbb{E}$</span> | E | a count of each kind of execution unit: ALU, load, store, multiply, divide |
+| <span id="gk-rob" class="gk-wrap">$\mathbf{r}$</span> | r | the reorder buffer: decoded instructions, in order, waiting, running or finished |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-rob-entry-ty" class="gk-wrap">$\mathbb{R}$</span> | R | a reorder buffer entry: its state, its cycles left, what it waits on, the registers it makes, the units it uses |
+
+</details>
+
+→ [(A.49) in plain words](./gray-paper.md#ex-A-49)
+
+<a id="gp-A-9-p4"></a>A reorder buffer entry, of set $\mathbb{R}$, contains its current state $s$, the number of cycles left $c$, a set of reorder buffer indices considered its dependencies $p$, a set of clobbered registers $r$, and the execution units used $t$. Formally:
+
+<a id="gp-A-9-p5"></a><a id="eq-A-50"></a>
+
+$$
+\begin{equation}
+\mathbb{R} \equiv \!\left\lgroup
+s\in \left\{\,\text{DEC}, \text{WAIT}, \text{EXE}, \text{FIN}, \emptyset\,\right\},
+c\in \mathbb{N},
+p \subseteq \mathbb{N},
+r \subseteq \mathbb{N}_{13},
+t\in \mathbb{E}
+\right\rgroup\!\\ \tag{A.50}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-rob-state">$s$</span> | s | an entry's state: decoding, waiting, executing, finished, or retired (∅) |
+| <span id="gk-rob-state-ty">$\left\{\,\text{DEC}, \text{WAIT}, \text{EXE}, \text{FIN}, \emptyset\,\right\}$</span> | the states | DEC decoding, WAIT waiting, EXE executing, FIN finished, ∅ retired |
+| <span id="gk-rob-deps">$p$</span> | p | the entries this one waits on: those making a register it reads |
+| <span id="gk-subseteq">$\subseteq$</span> | is a subset of | everything in the left is in the right |
+| <span id="gk-rob-regs">$r$</span> | r | the registers this entry will make, until a later entry takes one over |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+
+</details>
+
+→ [(A.50) in plain words](./gray-paper.md#ex-A-50)
+
+<a id="gp-A-9-p6"></a>A tuple of the set $\mathbb{E}$ maps each execution unit kind (${\text{A}, \text{L}, \text{S}, \text{M}, \text{D}}$) into a number:
+
+<a id="gp-A-9-p7"></a><a id="eq-A-51"></a>
+
+$$
+\begin{equation}
+\mathbb{E} \equiv \!\left\lgroup
+\text{A}\in \mathbb{N},
+\text{L}\in \mathbb{N},
+\text{S}\in \mathbb{N},
+\text{M}\in \mathbb{N},
+\text{D}\in \mathbb{N}
+\right\rgroup\! \tag{A.51}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-ALU">$\text{A}$</span> | A | arithmetic units: the model CPU has 4 |
+| <span id="gk-LOAD">$\text{L}$</span> | L | load units: the model CPU has 4 |
+| <span id="gk-STORE">$\text{S}$</span> | S | store units: the model CPU has 4 |
+| <span id="gk-MUL">$\text{M}$</span> | M | multiply units: the model CPU has 1 |
+| <span id="gk-DIV">$\text{D}$</span> | D | divide units: the model CPU has 1 |
+
+</details>
+
+→ [(A.51) in plain words](./gray-paper.md#ex-A-51)
+
+<a id="gp-A-9-p8"></a>For convenience we define addition and subtraction of two tuples of the set $\mathbb{E}$ to be equivalent to the memberwise operation of the same kind; formally:
+
+<a id="gp-A-9-p9"></a><a id="eq-A-52"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\forall a,b \in \mathbb{E};\forall \oplus \in \left\{\,+, -\,\right\}&: a \oplus b \equiv c\\
+\text{where } c \in \mathbb{E}, \forall k \in \left\{\,\text{A}, \text{L}, \text{S}, \text{M}, \text{D}\,\right\}&:c_k \equiv a_k \oplus b_k\\
+\end{aligned} \tag{A.52}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-oplus">$\oplus$</span> | o plus | in the instruction tables, xor: one or the other but not both; in the gas model, any one of the operations listed beside it |
+
+</details>
+
+→ [(A.52) in plain words](./gray-paper.md#ex-A-52)
+
+<a id="gp-A-9-p10"></a>Similarly, a comparison between two tuples of the set $\mathbb{E}$ is true if and only if the chosen comparison holds for all corresponding members:
+
+<a id="gp-A-9-p11"></a><a id="eq-A-53"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+&\forall a,b \in \mathbb{E};\forall \oplus \in \left\{\,<, >, \le, \ge\,\right\}: \\
+&\quad a \oplus b \equiv \bigwedge_{k \in \left\{\,\text{A}, \text{L}, \text{S}, \text{M}, \text{D}\,\right\}} a_k \oplus b_k
+\end{aligned} \tag{A.53}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-ge">$\ge$</span> | is at least | greater than or equal to |
+| <span id="gk-bigwedge">$\bigwedge$</span> | all of | every one of the conditions under it is true |
+
+</details>
+
+→ [(A.53) in plain words](./gray-paper.md#ex-A-53)
+
+:::
+
+then prices a block by running it, cycle by cycle:
+
+::: gray-paper A.9 14-29
+
+#### Appendix A.9 Gas Cost Model, continued
+
+<a id="gp-A-9-p14"></a>The gas cost of a given basic block starting at instruction opcode index $\imath \in \varpi$ and given the instruction data $\mathbf{c}$ and the <abbr class="gp-term" title="one bit per byte of code, marking the bytes where an instruction starts">opcode bitmask</abbr> $\mathbf{k}$ is defined by the number of virtual CPU cycles as determined by the gas cost model transition function, up until every instruction of the basic block it has ingested has been retired and the simulation has converged. Formally:
+
+<a id="gp-A-9-p15"></a><a id="eq-A-54"></a>
+
+$$
+\begin{equation}
+\varrho^{\Delta}\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+\left(\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{N}_R\right) &\to \mathbb{N}\\
+\left(\mathbf{c}, \mathbf{k}, \imath\right) &\mapsto \max(\mathbf{x}^{\text{final}}_{c} - 3, 1)\\
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\text{where } &\mathbf{x}^{\text{final}} &=&\text{ }\mathfrak{X}(\mathbf{c}, \mathbf{k}, \mathbf{x}^{\text{init}})\\
+&\mathbf{x}^{\text{init}} &=&\text{ }\left(\imath, 0, 4, 5, \left(4, 4, 4, 1, 1\right), \left[\right]\right)
+\end{aligned}
+\end{array}
+\right.
+\tag{A.54}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-gascostforblock" class="gk-wrap">$\varrho^{\Delta}$</span> | rho delta | a basic block's gas cost: its cycles on the model CPU, less 3, and at least 1 |
+| <span id="gk-abracegrouptwo">$\left\{ \begin{array}{@{}l@{}} \begin{aligned} x \end{aligned} \\[14pt] \hspace{8pt}\begin{aligned} y \end{aligned} \end{array} \right.$</span> | as follows | a brace grouping lines that hold together: a function's type, what each input becomes, then its helpers below |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-max">$\max$</span> | max of | the largest of the values in the brackets |
+| <span id="gk-gas-sim-state" class="gk-wrap">$\mathbf{x}$</span> | x | a state of the model CPU, one of 𝕊 |
+| <span id="gk-gas-sim" class="gk-wrap">$\mathfrak{X}$</span> | X (gothic) | the model CPU: runs a basic block step by step until every instruction has retired |
+| <span id="gk-const-maxdecodepercycle">$4$</span> | 4 | decode slots each cycle |
+| <span id="gk-const-maxstartpercycle">$5$</span> | 5 | the most instructions that may start each cycle |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+
+</details>
+
+→ [(A.54) in plain words](./gray-paper.md#ex-A-54)
+
+<a id="gp-A-9-p16"></a>The gas cost model simulation function $\mathfrak{X}$ is defined as follows:
+
+<a id="gp-A-9-p17"></a><a id="eq-A-55"></a>
+
+$$
+\begin{equation}
+\mathfrak{X}\colon \left\{ \begin{aligned}
+\left(\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{S}\right) &\to \mathbb{S} \\
+\left(\mathbf{c}, \mathbf{k}, \mathbf{x}\right) &\mapsto \begin{cases}
+\mathfrak{X}(\mathbf{c}, \mathbf{k}, \mathfrak{X}'(\mathbf{c}, \mathbf{k}, \mathbf{x})) &\text{if } \mathbf{x}_{\imath} \neq \emptyset \land \check{d}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \leq \mathbf{x}_{d} \land l < 32 \\
+\mathfrak{X}(\mathbf{c}, \mathbf{k}, \mathfrak{X}''(\mathbf{x})) &\text{otherwise if } \mathfrak{S}(\mathbf{x}) \neq \emptyset \land \mathbf{x}_{e} > 0 \\
+\mathbf{x} &\text{otherwise if } \mathbf{x}_{\imath} = \emptyset \land l = 0 \\
+\mathfrak{X}(\mathbf{c}, \mathbf{k}, \mathfrak{X}'''(\mathbf{x})) &\text{otherwise} \\
+\end{cases}\\
+\text{where } l &= \left\vert\left[r \;\middle\vert\;  r \mathrel{\unicode{x2B40}} {\mathbf{x}_{\mathbf{r}}}, r_{s} \neq \emptyset \right]\right\vert
+\end{aligned} \right. \tag{A.55}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-neq">$\neq$</span> | is not | not equal |
+| <span id="gk-land">$\land$</span> | and | both sides are true |
+| <span id="gk-cost-decodeslots" class="gk-wrap">$\check{d}$</span> | d check | the decode slots an instruction needs: 1 to 4 |
+| <span id="gk-leq">$\leq$</span> | at most | less than or equal to |
+| <span id="gk-find-readytostart" class="gk-wrap">$\mathfrak{S}$</span> | S (gothic) | the first waiting entry whose inputs are ready and whose units are free; ∅ if none |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-in-rob" class="gk-wrap">${\mathbf{x}_{\mathbf{r}}}$</span> | x sub r | this state's reorder buffer |
+
+</details>
+
+→ [(A.55) in plain words](./gray-paper.md#ex-A-55)
+
+<a id="gp-A-9-p18"></a>The state transition function $\mathfrak{X}'$ which decodes the instructions without triggering the virtual CPU pipeline simulation is defined as follows:
+
+<a id="gp-A-9-p19"></a><a id="eq-A-56"></a>
+
+$$
+\begin{equation}
+\mathfrak{X}'\colon \left\{ \begin{aligned}
+\left(\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{S}\right) &\to \mathbb{S} \\
+\left(\mathbf{c}, \mathbf{k}, \mathbf{x}\right) &\mapsto \begin{cases}
+\mathfrak{X}^{\text{mov}}(\mathbf{c}, \mathbf{k}, \mathbf{x}) &\text{if } \imath < \left\vert\mathbf{c}\right\vert \land \mathbf{c}_{\imath} = \texttt{move\_reg} \\
+\mathfrak{X}^{\text{dec}}(\mathbf{c}, \mathbf{k}, \mathbf{x}) &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{A.56}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+
+</details>
+
+→ [(A.56) in plain words](./gray-paper.md#ex-A-56)
+
+<a id="gp-A-9-p20"></a>The `move_reg` instruction is special-cased to be handled by the frontend of our virtual CPU, without being added to the reorder buffer:
+
+<a id="gp-A-9-p21"></a><a id="eq-A-57"></a>
+
+$$
+\begin{equation}
+\mathfrak{X}^{\text{mov}}\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+\left(\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{S}\right) &\to \mathbb{S} \\
+\left(\mathbf{c}, \mathbf{k}, \mathbf{x}\right) &\mapsto \mathbf{x}'
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\text{where } \mathbf{x}' &= \mathbf{x}\text{ except:}\\
+\mathbf{x}'_{\imath} &= \mathbf{x}_{\imath} + 1 + \text{skip}(\mathbf{x}_{\imath}) \\
+\mathbf{x}'_{d} &= \mathbf{x}_{d} - 1 \\
+\mathbf{x}'_{\mathbf{r}} &= {\mathbf{x}_{\mathbf{r}}}\text{ except:}\\
+&\begin{aligned}
+\forall j &\in \mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert} : \mathbf{x}'_{\mathbf{r}}\left[j\right]_{r} &= \begin{cases}
+{{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{r} \cup \check{r}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) &\text{if } {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{r} \cap \check{s}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \neq \emptyset \\
+{{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{r} \setminus \check{r}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) &\text{otherwise}
+\end{cases} \\
+\end{aligned}
+\end{aligned}
+\end{array}
+\right.
+\tag{A.57}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Fskip">$\text{skip}$</span> | skip | skip(i): how many bytes follow the opcode at i before the next opcode, at most 24 |
+| <span id="gk-in-rob-len" class="gk-wrap">$\mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert}$</span> | N sub the size of x sub r | the reorder buffer's indices: 0 up to its length less 1 |
+| <span id="gk-rob-entry-field">$x\left[y\right]_{z}$</span> | x at y, its z | field z of entry y of the buffer x |
+| <span id="gk-in-rob-field">${{\mathbf{x}_{\mathbf{r}}}\left[x\right]}_{y}$</span> | x sub r at x, its y | field y of entry x of the reorder buffer |
+| <span id="gk-inst-dstregs" class="gk-wrap">$\check{r}$</span> | r check | the registers an instruction writes |
+| <span id="gk-cap">$\cap$</span> | intersection | only what's in both sides |
+| <span id="gk-inst-srcregs" class="gk-wrap">$\check{s}$</span> | s check | the registers an instruction reads |
+| <span id="gk-setminus">$\setminus$</span> | without | the left side with every item of the right taken out |
+
+</details>
+
+→ [(A.57) in plain words](./gray-paper.md#ex-A-57)
+
+<a id="gp-A-9-p22"></a>Every other instruction is fully decoded and added to the reorder buffer as follows:
+
+<a id="gp-A-9-p23"></a><a id="eq-A-58"></a>
+
+$$
+\begin{equation}
+\mathfrak{X}^{\text{dec}}\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+\left(\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{S}\right) &\to \mathbb{S} \\
+\left(\mathbf{c}, \mathbf{k}, \mathbf{x}\right) &\mapsto \mathbf{x}'
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\text{where } \mathbf{x}' &= \mathbf{x}\text{ except:}\\
+\mathbf{x}'_{\imath} &= \begin{cases}
+\emptyset &\text{if } \zeta_{\imath} \in T \\
+\mathbf{x}_{\imath} + 1 + \text{skip}(\mathbf{x}_{\imath}) &\text{otherwise}
+\end{cases}\\
+\mathbf{c} &\mapsto \zeta \text{ according to A.4}\\
+\mathbf{x}'_{d} &= \mathbf{x}_{d} - \check{d}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \\
+\mathbf{r} &= {\mathbf{x}_{\mathbf{r}}}\text{ except: } \forall j \in \mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert} : \mathbf{r}\left[j\right]_{r} = {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{r} \setminus r\\
+r &= \check{r}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \\
+c &= \check{c}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \\
+t &= \check{x}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \\
+p &= \left\{\,i \;\middle\vert\;  i \in \mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert}, \check{s}(\mathbf{c}, \mathbf{k}, \mathbf{x}_{\imath}) \cap {{\mathbf{x}_{\mathbf{r}}}\left[i\right]}_{r} \neq \emptyset \,\right\} \\
+\mathbf{x}'_{\mathbf{r}} &= \mathbf{r} \mathbin{+\!\!+} \!\left\lgroup\text{DEC}, c, p, r, t\right\rgroup\! \\
+\end{aligned}
+\end{array}
+\right.
+\tag{A.58}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-instructions" class="gk-wrap">$\zeta$</span> | zeta | the code 𝐜 with zeros after it forever: reading past the end gives 0, which is trap |
+| <span id="gk-cost-cycles" class="gk-wrap">$\check{c}$</span> | c check | an instruction's cycles: 1 for an add, 25 for a load or store, 60 for a divide |
+| <span id="gk-cost-execunits" class="gk-wrap">$\check{x}$</span> | x check | the execution units an instruction needs to start |
+| <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
+| <span id="gk-state-decoding">$\text{DEC}$</span> | decoding | DEC: just entered the buffer this cycle |
+
+</details>
+
+→ [(A.58) in plain words](./gray-paper.md#ex-A-58)
+
+<a id="gp-A-9-p24"></a>The state transition function $\mathfrak{X}''$ which starts the execution of the next pending instruction is defined as follows:
+
+<a id="gp-A-9-p25"></a><a id="eq-A-59"></a>
+
+$$
+\begin{equation}
+\mathfrak{X}''\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+\mathbb{S} &\to \mathbb{S} \\
+\mathbf{x} &\mapsto \mathbf{x}'\\
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\text{where } \mathbf{x}' &= \mathbf{x}\text{ except:}\\
+\mathbf{x}'_{e} &= \mathbf{x}_{e} - 1\\
+n &= \mathfrak{S}(\mathbf{x})\\
+\mathbf{x}'_{t} &= \mathbf{x}_{t} - {{\mathbf{x}_{\mathbf{r}}}\left[n\right]}_{t}\\
+\mathbf{x}'_{\mathbf{r}} &= {\mathbf{x}_{\mathbf{r}}}\text{ except: } \mathbf{x}'_{\mathbf{r}}\left[n\right]_{s} = \text{EXE}
+\end{aligned}
+\end{array}
+\right.
+\tag{A.59}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-state-executing">$\text{EXE}$</span> | executing | EXE: running on its units |
+
+</details>
+
+→ [(A.59) in plain words](./gray-paper.md#ex-A-59)
+
+<a id="gp-A-9-p26"></a>The function $\mathfrak{S}$ which checks which instruction inside of the reorder buffer is ready to start executing (and whether such an instruction even exists) is defined as follows:
+
+<a id="gp-A-9-p27"></a><a id="eq-A-60"></a>
+
+$$
+\begin{equation}
+\mathfrak{S}\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+\mathbb{S} &\to \mathbb{N} \cup \left\{\,\emptyset\,\right\}\\
+\mathbf{x} &\mapsto \begin{cases}
+\emptyset &\text{if } s = \emptyset\\
+\min(s) &\text{otherwise}
+\end{cases}\\
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\\[0.2pt]
+\text{where } s &= \left\{\,j \in \mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert} \;\middle\vert\; {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{s} = \text{WAIT} \land {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{t} \leq \mathbf{x}_{t} \land (\forall k \in {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{p} : {{\mathbf{x}_{\mathbf{r}}}\left[k\right]}_{c} = 0)\,\right\}
+\end{aligned}
+\end{array}
+\right.
+\tag{A.60}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-min">$\min$</span> | the least of | the smallest of the values given; min(24, j : …) is the smallest j that fits, but no more than 24 |
+| <span id="gk-state-waiting">$\text{WAIT}$</span> | waiting | WAIT: decoded, and starts once its inputs are ready and its units free |
+
+</details>
+
+→ [(A.60) in plain words](./gray-paper.md#ex-A-60)
+
+<a id="gp-A-9-p28"></a>The state transition function $\mathfrak{X}'''$ which simulates the rest of the virtual CPU pipeline is defined as follows:
+
+<a id="gp-A-9-p29"></a><a id="eq-A-61"></a>
+
+$$
+\begin{equation}
+\mathfrak{X}'''\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+\mathbb{S} &\to \mathbb{S} \\
+\mathbf{x} &\mapsto \mathbf{x}'\\
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\text{where } \mathbf{x}' &= \mathbf{x}\text{ except:}\\
+\mathbf{x}'_{d} &= 4, \mathbf{x}'_{e} = 5, \mathbf{x}'_{c} = \mathbf{x}_{c} + 1\\
+\mathbf{x}'_{t} &= \mathbf{x}_{t} + \sum_{n \in \mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert}, {{\mathbf{x}_{\mathbf{r}}}\left[n\right]}_{s} = \text{EXE} \land {{\mathbf{x}_{\mathbf{r}}}\left[n\right]}_{c} = 1} {{\mathbf{x}_{\mathbf{r}}}\left[n\right]}_{t} \\
+\mathbf{x}'_{\mathbf{r}} &= {\mathbf{x}_{\mathbf{r}}}\text{ except } \forall j \in \mathbb{N}_{\left\vert{\mathbf{x}_{\mathbf{r}}}\right\vert}: \\
+&\begin{aligned}
+\mathbf{x}'_{\mathbf{r}}\left[j\right]_{s} &= \begin{cases}
+\emptyset &\text{if } \forall k \in \mathbb{N}_{j+1} : {{\mathbf{x}_{\mathbf{r}}}\left[k\right]}_{s} \in \left\{\,\text{FIN}, \emptyset\,\right\} \\
+\text{WAIT} &\text{if } {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{s} = \text{DEC} \\
+\text{FIN} &\text{if } {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{s} = \text{EXE} \land {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{c} = 0 \\
+{{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{s} &\text{otherwise} \\
+\end{cases} \\
+\mathbf{x}'_{\mathbf{r}}\left[j\right]_{c} &= \begin{cases}
+{{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{c} - 1 &\text{if } {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{s} = \text{EXE} \land {{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{c} > 0 \\
+{{\mathbf{x}_{\mathbf{r}}}\left[j\right]}_{c} &\text{otherwise} \\
+\end{cases} \\
+\end{aligned}
+\end{aligned}
+\end{array}
+\right.
+\tag{A.61}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-state-executed">$\text{FIN}$</span> | finished | FIN: done running, and retires once everything before it has |
+
+</details>
+
+→ [(A.61) in plain words](./gray-paper.md#ex-A-61)
+
+:::
+
+In plain words, the model CPU works like this:
 
 1. **Decode.** Each cycle, the front end decodes instructions in order, up to 4 decode
    slots' worth ([lesson 15.9](./09-what-instructions-cost.md)'s ď), into a *reorder buffer*. At most 32 instructions can

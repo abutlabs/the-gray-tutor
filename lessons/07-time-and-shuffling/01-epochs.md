@@ -19,19 +19,131 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§6 (*Timekeeping*): a slot's epoch is e = ⌊slot / E⌋, and its *phase*, where it falls
-within the epoch, is m = slot mod E. A block starts a new epoch when its epoch, e′, is
-greater than the epoch of the block before it, e. (The block before it is the one whose
-slot is τ, the time in the state: [lesson 6.3](../06-state-and-merklization/03-reading-the-state.md).)
+::: gray-paper 6.1
+
+#### §6.1 Timekeeping {#gp-6-1}
+
+<a id="gp-6-1-p1"></a>Here, $\tau$ defines the most recent block's slot index, which we transition to the slot index as defined in the block's header:
+
+<a id="gp-6-1-p2"></a><a id="eq-6-1"></a>
+
+$$
+\begin{equation}
+\tau \in \mathbb{N}_T \ ,\quad
+\tau' \equiv \mathbf{H}_{T} \tag{6.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+
+</details>
+
+→ [(6.1) in plain words](./gray-paper.md#ex-6-1)
+
+<a id="gp-6-1-p3"></a>We track the slot index in state as $\tau$ in order that we are able to easily both identify a new epoch and determine the slot at which the prior block was authored. We denote $e$ as the prior's epoch index and $m$ as the prior's slot phase index within that epoch and $e'$ and $m'$ are the corresponding values for the present block:
+
+<a id="gp-6-1-p4"></a><a id="eq-6-2"></a>
+
+$$
+\begin{align}
+\mathrm{let}\quad e \,\mathsf{R}\, m = \frac{\tau}{\mathsf{E}} \,,\quad
+e' \,\mathsf{R}\, m' = \frac{\tau'}{\mathsf{E}} \tag{6.2}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-remainder">$\,\mathsf{R}\,$</span> | R | the remainder of a division |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+
+</details>
+
+→ [(6.2) in plain words](./gray-paper.md#ex-6-2)
+
+:::
+
+In plain words, §6.1 (*Timekeeping*): τ, the time in the state, is the slot of the block
+before this one ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)), and
+τ′, the time after this block, is this block's own slot. A slot's epoch is
+e = ⌊slot / E⌋, and its *phase*, where it falls within the epoch, is m = slot mod E: the
+quotient and the remainder of one division. A block starts a new epoch when its epoch,
+e′, is greater than the epoch of the block before it, e.
 
 Two things happen exactly then:
 
 - **The header carries an epoch mark** ([lesson 4.6](../04-blocks/06-the-header.md)): η₀, η₁ and the next validators.
-- **The entropy history moves along one.** η ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)) is four hashes. η₀ is the
-  *entropy accumulator*: every block stirs fresh randomness into it. η₁, η₂ and η₃ are what η₀
-  was at the end of each of the last three epochs. So at a new epoch, η′₁ is the old η₀,
-  η′₂ the old η₁, η′₃ the old η₂, and the oldest is forgotten. In any other block, they
-  stay as they are.
+- **The entropy history moves along one**, as below.
+
+The paper keeps the entropy's history in §6.4:
+
+::: gray-paper 6.4 4-5
+
+#### §6.4 Sealing and Entropy Accumulation, continued
+
+<a id="gp-6-4-p4"></a>In addition to the entropy accumulator $\eta_0$, we retain three additional historical values of the accumulator at the point of each of the three most recently ended epochs, $\eta_1$, $\eta_2$ and $\eta_3$. The second-oldest of these $\eta_2$ is utilized to help ensure future entropy is unbiased (see equation [6.30](../08-safrole/07-entering-tickets.md#eq-6-30)) and seed the fallback slot-sealer generation function with randomness (see equation [6.25](../08-safrole/04-the-lotterys-winners.md#eq-6-25)). The oldest is used to regenerate this randomness when verifying the seal above (see equations [6.17](../08-safrole/09-seals.md#eq-6-17) and [6.16](../08-safrole/09-seals.md#eq-6-16)).
+
+<a id="gp-6-4-p5"></a><a id="eq-6-22"></a>
+
+$$
+\begin{align}
+\eta &\in \left[\!\left[\mathbb{H}_{}\right]\!\right]_{4} \tag{6.22}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+
+</details>
+
+→ [(6.22) in plain words](./gray-paper.md#ex-6-22)
+
+:::
+
+and moves it along at a new epoch:
+
+::: gray-paper 6.4 8-9
+
+#### §6.4 Sealing and Entropy Accumulation, continued
+
+<a id="gp-6-4-p8"></a>On an epoch transition (identified as the condition $e' > e$), we therefore rotate the accumulator value into the history $\eta_1$, $\eta_2$ and $\eta_3$:
+
+<a id="gp-6-4-p9"></a><a id="eq-6-24"></a>
+
+$$
+\begin{align}
+\left(\eta'_1, \eta'_2, \eta'_3\right) &\equiv \begin{cases}
+\left(\eta_0, \eta_1, \eta_2\right) &\text{if } e' > e \\
+\left(\eta_1, \eta_2, \eta_3\right) &\text{otherwise}
+\end{cases} \tag{6.24}
+\end{align}
+$$
+
+→ [(6.24) in plain words](./gray-paper.md#ex-6-24)
+
+:::
+
+In plain words: η ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)) is
+four hashes. η₀ is the *entropy accumulator*: every block stirs fresh randomness into it.
+η₁, η₂ and η₃ are what η₀ was at the end of each of the last three epochs. So at a new
+epoch, η′₁ is the old η₀, η′₂ the old η₁, η′₃ the old η₂, and the oldest is forgotten. In
+any other block, they stay as they are.
 
 Why keep old randomness? Some decisions must use randomness nobody could have steered
 when the decision was set up. Randomness from a finished epoch is fixed, and the ticket

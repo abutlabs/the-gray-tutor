@@ -1,7 +1,8 @@
 # Privileges
 
 Some services are more equal than others. One may hand out privileges. One, for each core,
-picks which authorizers that core will use. One picks the next validators. One may create
+picks which authorizers that core will accept, by filling its queue ([Part
+13](../13-authorization/index.md)'s gatekeepers). One picks the next validators. One may create
 services with small ids. The chain keeps a record of who's who, and a privileged service
 changes it from inside its own accumulation, with a host call. This lesson builds the
 record and the first of those calls, `assign`. [Lesson 17.6](./06-who-wins.md) sorts out what happens when two
@@ -20,7 +21,59 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§9 lists five privileges, χ:
+::: gray-paper 9.4
+
+#### §9.4 Service Privileges {#gp-9-4}
+
+<a id="gp-9-4-p1"></a>JAM includes the ability to bestow privileges on a number of services. The portion of state in which this is held is denoted $\chi$ and includes five kinds of privilege. The first, $\chi_M$, is the index of the *manager* service which is the service able to effect an alteration of $\chi$ from block to block as well as bestow services with storage deposit credits. The next, $\chi_V$, is able to set $\iota$. Then $\chi_R$ alone is able to create new service accounts with indices in the <abbr class="gp-term" title="service ids below S = 2¹⁶, which only the registrar may create">protected range</abbr>. The following, $\chi_A$, are the service indices capable of altering the authorizer queue $\phi$, one for each core.
+
+<a id="gp-9-4-p2"></a>Finally, $\chi_Z$ is a small dictionary containing the indices of services which automatically accumulate in each block together with a basic amount of gas with which each accumulates. Formally:
+
+<a id="gp-9-4-p3"></a><a id="eq-9-9"></a><a id="eq-9-10"></a><a id="eq-9-11"></a>
+
+$$
+\begin{align}
+\chi &\equiv \!\left\lgroup
+\chi_M,
+\chi_V,
+\chi_R,
+\chi_A,
+\chi_Z
+\right\rgroup\! \tag{9.9} \\
+\chi_M &\in \mathbb{N}_S \ ,\qquad
+\chi_V \in \mathbb{N}_S \ ,\qquad
+\chi_R \in \mathbb{N}_S \tag{9.10} \\
+\chi_A &\in \left[\!\left[\mathbb{N}_S\right]\!\right]_{\mathsf{C}} \ ,\qquad
+\chi_Z \in \left\langle\!\left\vert \mathbb{N}_S\to\mathbb{N}_G\right\vert\!\right\rangle \tag{9.11}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-privileges" class="gk-wrap">$\chi$</span> | chi | the privileged services: who may manage, assign cores, set validators and accumulate for free |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-manager" class="gk-wrap">$\chi_M$</span> | chi sub M | the manager: the one service that may change the privileges and grant free storage |
+| <span id="gk-delegator" class="gk-wrap">$\chi_V$</span> | chi sub V | the delegator: the one service that may set the next epoch's validator keys |
+| <span id="gk-registrar" class="gk-wrap">$\chi_R$</span> | chi sub R | the registrar: the one service that may create services with the reserved low ids |
+| <span id="gk-assigners" class="gk-wrap">$\chi_A$</span> | chi sub A | the assigners: for each core, the service that may replace its authorizer queue |
+| <span id="gk-alwaysaccers" class="gk-wrap">$\chi_Z$</span> | chi sub Z | the always-accumulate services: each accumulates every block, with this much gas |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+
+</details>
+
+→ [(9.9), (9.10), (9.11) in plain words](./gray-paper.md#ex-9-9)
+
+:::
+
+In plain words, §9.4 lists five privileges, χ:
 
 - the *manager*, χ_M, may change all the others at once (with `bless`);
 - an *assigner* for each core, χ_A, may set that core's authorizer queue (`assign`);
@@ -47,8 +100,61 @@ Try it with service 0 holding every privilege:
 
 And the checkpoint rule holds again: the privileges and the queues are part of what a run
 can change, so a failure undoes the changes made since its last checkpoint, and a
-checkpoint keeps them. In the Gray Paper they sit in the run's partial state (e, in both X
-and Y), next to the accounts: queues ϕ, privileges χ.
+checkpoint keeps them. In the Gray Paper they sit in the run's partial state, 𝕊, next to
+the accounts:
+
+::: gray-paper 12.2 8-9
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p8"></a>Our formalisms continue by defining $\mathbb{S}$ as a characterization of (i.e.  values capable of representing) state components which are both needed and mutable by the accumulation process. This comprises the service accounts state (as in $\delta$), the upcoming validator keys $\iota$, the queue of authorizers $\phi$ and the privileges state $\chi$. Formally:
+
+<a id="gp-12-2-p9"></a><a id="eq-12-15"></a>
+
+$$
+\begin{equation}
+\mathbb{S} \equiv \!\left\lgroup\begin{aligned}
+&\mathbf{d}\in \left\langle\!\left\vert \mathbb{N}_S\to\mathbb{A}\right\vert\!\right\rangle \,,\;
+\mathbf{i}\in \left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}} \,,\;
+\mathbf{q}\in \left[\!\left[\left[\!\left[\mathbb{H}_{}\right]\!\right]_{\mathsf{Q}}\right]\!\right]_{\mathsf{C}} \,,\;
+m\in \mathbb{N}_S \,,\\
+&\mathbf{a}\in \left[\!\left[\mathbb{N}_S\right]\!\right]_{\mathsf{C}} \,,\;
+v\in \mathbb{N}_S \,,\;
+r\in \mathbb{N}_S \,,\;
+\mathbf{z}\in \left\langle\!\left\vert \mathbb{N}_S\to\mathbb{N}_G\right\vert\!\right\rangle
+\end{aligned}\right\rgroup\! \tag{12.15}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-partialstate" class="gk-wrap">$\mathbb{S}$</span> | S | a partial state: the parts of the state accumulation may change: accounts, next validators, authorizer queues and the privileges |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-ps-accounts" class="gk-wrap">$\mathbf{d}$</span> | d | a partial state's service accounts, by service id |
+| <span id="gk-serviceaccount" class="gk-wrap">$\mathbb{A}$</span> | A | a service account: three dictionaries (storage, preimages, requests) and eight plain fields |
+| <span id="gk-ps-stagingset" class="gk-wrap">$\mathbf{i}$</span> | i | a partial state's next validators' keys, ι |
+| <span id="gk-allvalkeys">$\left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}}$</span> | a sequence of K, of a size in V | a validator set: a 336-byte key set for each validator; 6 on tiny, 1,023 on full |
+| <span id="gk-ps-authqueue" class="gk-wrap">$\mathbf{q}$</span> | q | a partial state's authorizer queues, ϕ: 80 hashes for each core |
+| <span id="gk-Cauthqueuesize" class="gk-wrap">$\mathsf{Q}$</span> | Q | how many authorizers a core's queue holds: 80 |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-ps-manager">$m$</span> | m | the manager service's id, χ_M |
+| <span id="gk-ps-assigners" class="gk-wrap">$\mathbf{a}$</span> | a | each core's assigner service id, χ_A |
+| <span id="gk-ps-delegator">$v$</span> | v | the delegator service's id, χ_V: it sets the next validators |
+| <span id="gk-ps-registrar">$r$</span> | r | the registrar service's id, χ_R: it may create services at small ids |
+| <span id="gk-ps-alwaysaccers" class="gk-wrap">$\mathbf{z}$</span> | z | the always-accumulate services with their free gas, χ_Z |
+
+</details>
+
+→ [(12.15) in plain words](./gray-paper.md#ex-12-15)
+
+:::
+
+In plain words, a partial state 𝐞 is everything a run may change: the accounts 𝐝, the next
+validators' keys 𝐢 (ι), the authorizer queues 𝐪 (ϕ), and the five privileges m, 𝐚, v, r
+and 𝐳 (χ_M, χ_A, χ_V, χ_R, χ_Z). A run holds two of them, in X and in Y, and a failure
+falls back from one to the other.
 
 ## The tests
 

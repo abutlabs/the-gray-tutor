@@ -7,7 +7,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createMarkdownRenderer } from "vitepress";
 import type MarkdownIt from "markdown-it";
-import { LESSONS, ROOT, readParts, lessonText } from "./lessons.ts";
+import { LESSONS, ROOT, readParts, lessonText, GRAY_PAPER_QUOTE } from "./lessons.ts";
 import { unitCodes } from "../.vitepress/units.ts";
 import { sayUnit, unitOf, unitParts } from "../.vitepress/theme/units.ts";
 import { explain, flatten, ITEM } from "../.vitepress/theme/vector-map.ts";
@@ -31,7 +31,7 @@ test("bits are 0b…, bytes are 0x… or hex pairs, and a lone pair only when it
 test("the lessons write bits with 0b: no bare run of 0s and 1s that could be read as bytes or decimal", () => {
   const bare: string[] = [];
   for (const file of [...readParts().flatMap((p) => p.lessons.map((l) => l.file)), "glossary.md", "symbols.md"]) {
-    const prose = lessonText(file).replace(/```[\s\S]*?```/g, "");
+    const prose = lessonText(file).replace(/```[\s\S]*?```/g, "").replace(GRAY_PAPER_QUOTE, "");
     for (const [, code] of prose.matchAll(/(?<!`)`([^`\n]+)`(?!`)/g)) {
       if (/^[01]+x{2,}$/.test(code)) { bare.push(`${file}: \`${code}\``); continue; } // a bit pattern, 110xxxxx
       if (!/^[01]+( [01]+)*$/.test(code) || !code.includes("1")) continue; // all zeros is zero in any base

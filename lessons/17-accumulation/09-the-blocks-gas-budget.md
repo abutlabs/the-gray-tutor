@@ -21,7 +21,161 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§12, Δ+ in full, in plain steps:
+Δ+, the outer accumulation, round after round:
+
+::: gray-paper 12.2 12-13
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p12"></a>We define the outer accumulation function $\Delta_+$ which transforms a gas-limit, a sequence of deferred transfers, a sequence of work-reports, an initial partial-state and a dictionary of services enjoying free accumulation, into a tuple of the number of work-reports accumulated, a <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> <abbr class="gp-term" title="the partial state a run of accumulate works on and hands back">state-context</abbr>, the resultant accumulation-output pairings, the service-indexed gas usage and the sequence of processed transfers:
+
+<a id="gp-12-2-p13"></a><a id="eq-12-17"></a>
+
+$$
+\begin{equation}
+\Delta_+\colon\left\{ \begin{aligned}
+&\!\left\lgroup\mathbb{N}_G, \left[\!\left[\mathbb{X}\right]\!\right]_{}, \left[\!\left[\mathbb{R}\right]\!\right]_{}, \mathbb{S}, \left\langle\!\left\vert \mathbb{N}_S\to\mathbb{N}_G\right\vert\!\right\rangle\right\rgroup\! \to \!\left\lgroup\mathbb{N}, \mathbb{S}, B, U, \left[\!\left[\mathbb{X}\right]\!\right]_{}\right\rgroup\! \\
+&\left(g, \mathbf{t}, \mathbf{r}, \mathbf{e}, \mathbf{f}\right) \!\mapsto\! \begin{cases}
+\left(0, \mathbf{e}, \left\{\right\}, \left[\right], \left[\right]\right) &
+\text{if } n = 0 \\
+\left(i + j, \mathbf{e}', \mathbf{b}^* \!\cup \mathbf{b}, \mathbf{u}^* \!\!\frown \mathbf{u}, \mathbf{t} \frown \mathbf{t}^\dagger\right)\!\!\!\! &
+\text{o/w}\!\!\!\!\!\!\!\! \\
+\end{cases} \\
+&\quad \text{where } i = \max(\mathbb{N}_{\left\vert\mathbf{r}\right\vert + 1}): \\
+&\qquad \sum_{r \in \mathbf{r}_{\dots i}, d \in r_{\mathbf{d}}}\!\!\!\!\!\!\!\!(d_{g}) + \sum_{t \in \mathbf{t}}(t_{g}) + \!\!\!\!\sum_{x \in \mathcal{V}\left(\mathbf{f}\right)}\!\!\!\!(x) \le g \\
+&\quad \text{and } n = i + \left\vert\mathbf{t}\right\vert + \left\vert\mathbf{f}\right\vert \\
+&\quad \text{and } \left(\mathbf{e}^*\!\!, \mathbf{t}^*\!\!, \mathbf{b}^*\!\!, \mathbf{u}^*\right) = \Delta_*(\mathbf{e}, \mathbf{t},\mathbf{r}_{\dots i}, \mathbf{f}) \\
+&\quad \text{and } \left(j, \mathbf{e}'\!, \mathbf{b}, \mathbf{u}, \mathbf{t}^\dagger\right) = \Delta_+(g^*, \mathbf{t}^*\!\!, \mathbf{r}_{i\dots}, \mathbf{e}^*\!\!, \left\{\right\})\\
+&\quad \text{and } g^* = g + \sum_{t \in \mathbf{t^*}}(t_{g}) - \!\!\!\!\!\!\sum_{\left(s, u\right) \in \mathbf{u}^*}\!\!\!\!\!\!(u)
+\end{aligned} \right. \tag{12.17}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accseq" class="gk-wrap">$\Delta_+$</span> | Delta plus | the outer accumulation: rounds of Δ\*, each taking the reports that fit the gas left, until no reports fit and no transfers wait |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-defxfers">$\left[\!\left[\mathbb{X}\right]\!\right]$</span> | a sequence of transfers | a list of deferred transfers, in order |
+| <span id="gk-workreports">$\left[\!\left[\mathbb{R}\right]\!\right]$</span> | a sequence of work-reports | a list of work-reports, in order |
+| <span id="gk-partialstate" class="gk-wrap">$\mathbb{S}$</span> | S | a partial state: the parts of the state accumulation may change: accounts, next validators, authorizer queues and the privileges |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-local-fnservouts">$B$</span> | B | the yields: a set of pairs (service, 32-byte hash) |
+| <span id="gk-local-fngasused">$U$</span> | U | the gas used: a list of pairs (service, gas), one per run |
+| <span id="gk-psX" class="gk-wrap">$\mathbf{e}$</span> | e | a partial state: the accounts, next validators, queues and privileges a run works on |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-emset">$\left\{\right\}$</span> | the empty set | a set, or a dictionary, with nothing in it |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-dagger">$\dagger$</span> | dagger | a mark making a new name from an old one: δ† is δ partway through the block, 𝐭† another list of transfers |
+| <span id="gk-max">$\max$</span> | max of | the largest of the values in the brackets |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-wr-digests" class="gk-wrap">$\mathbf{d}$</span> | d | the report's digests, one per work-item, 1 to 16 of them (`results`) |
+| <span id="gk-wd-gaslimit">$g$</span> | g | the gas the item's accumulation may use (`accumulate_gas`) |
+| <span id="gk-values">$\mathcal{V}\left(x\right)$</span> | V of | a dictionary's (or sequence's) values |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-accpar" class="gk-wrap">$\Delta_*$</span> | Delta star | one round of accumulation: every service with work runs once, all from the same state, and their results are merged |
+
+</details>
+
+→ [(12.17) in plain words](./gray-paper.md#ex-12-17)
+
+:::
+
+And where the block calls it, with the budget g, in §12.3:
+
+::: gray-paper 12.3 1-2
+
+#### §12.3 Final State Integration {#gp-12-3}
+
+<a id="gp-12-3-p1"></a>Given the result of the top-level $\Delta_+$, we may define the posterior state $\chi'$, $\phi'$ and $\iota'$ as well as the first intermediate state of the service-accounts $\delta^\dagger$ and the <abbr class="gp-term" title="β_B, the belt: one running commitment to every block's accumulation outputs">Accumulation Output Log</abbr> $\theta'$:
+
+<a id="gp-12-3-p2"></a><a id="eq-12-24"></a><a id="eq-12-25"></a><a id="eq-12-26"></a>
+
+$$
+\begin{align}
+&\text{let } g = \max\left(
+\mathsf{G}_T,
+\mathsf{G}_A \cdot \mathsf{C} + \textstyle \sum_{x \in \mathcal{V}\left(\chi_Z\right)}(x)
+\right) \notag \\
+& \text{and } \mathbf{e} = \left(
+\mathbf{d}\mathrel{\unicode{x2AF6}}\delta,
+\mathbf{i}\mathrel{\unicode{x2AF6}}\iota,
+\mathbf{q}\mathrel{\unicode{x2AF6}}\phi,
+m\mathrel{\unicode{x2AF6}}\chi_M,
+\mathbf{a}\mathrel{\unicode{x2AF6}}\chi_A,
+v\mathrel{\unicode{x2AF6}}\chi_V,
+r\mathrel{\unicode{x2AF6}}\chi_R,
+\mathbf{z}\mathrel{\unicode{x2AF6}}\chi_Z
+\right)
+\!\!\!\!\! \notag \\
+&\left(
+n, \mathbf{e}', \mathbf{b}, \mathbf{u}, \mathbf{t}
+\right) \equiv \Delta_+(g, \left[\right], \mathbf{R}^*, \mathbf{e}, \chi_Z) \tag{12.24} \\
+&\theta' \equiv \left[\left(s, h\right) \in \mathbf{b}\right] \tag{12.25} \\
+&\left(
+\mathbf{d}\mathrel{\unicode{x2AF6}}\delta^\dagger,
+\mathbf{i}\mathrel{\unicode{x2AF6}}\iota',
+\mathbf{q}\mathrel{\unicode{x2AF6}}\phi',
+m\mathrel{\unicode{x2AF6}}\chi_M',
+\mathbf{a}\mathrel{\unicode{x2AF6}}\chi_A',
+v\mathrel{\unicode{x2AF6}}\chi_V',
+r\mathrel{\unicode{x2AF6}}\chi_R',
+\mathbf{z}\mathrel{\unicode{x2AF6}}\chi_Z'
+\right) \equiv \mathbf{e}'
+\!\!\!\!\! \tag{12.26}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Cblockaccgas" class="gk-wrap">$\mathsf{G}_T$</span> | G sub T | the gas for a whole block's accumulation: 3,500,000,000 on full, 20,000,000 on tiny |
+| <span id="gk-Creportaccgas" class="gk-wrap">$\mathsf{G}_A$</span> | G sub A | the most gas a report's accumulation may be given: 10,000,000 |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+| <span id="gk-alwaysaccers" class="gk-wrap">$\chi_Z$</span> | chi sub Z | the always-accumulate services: each accumulates every block, with this much gas |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-accountspre" class="gk-wrap">$\delta$</span> | delta | the service accounts before the block |
+| <span id="gk-ps-stagingset" class="gk-wrap">$\mathbf{i}$</span> | i | a partial state's next validators' keys, ι |
+| <span id="gk-stagingset" class="gk-wrap">$\iota$</span> | iota | the next validators: keys queued to become active at the next epoch |
+| <span id="gk-ps-authqueue" class="gk-wrap">$\mathbf{q}$</span> | q | a partial state's authorizer queues, ϕ: 80 hashes for each core |
+| <span id="gk-authqueue" class="gk-wrap">$\phi$</span> | phi | the authorizer queues: for each core, Q = 80 authorizer hashes waiting to join its pool |
+| <span id="gk-ps-manager">$m$</span> | m | the manager service's id, χ_M |
+| <span id="gk-manager" class="gk-wrap">$\chi_M$</span> | chi sub M | the manager: the one service that may change the privileges and grant free storage |
+| <span id="gk-ps-assigners" class="gk-wrap">$\mathbf{a}$</span> | a | each core's assigner service id, χ_A |
+| <span id="gk-assigners" class="gk-wrap">$\chi_A$</span> | chi sub A | the assigners: for each core, the service that may replace its authorizer queue |
+| <span id="gk-ps-delegator">$v$</span> | v | the delegator service's id, χ_V: it sets the next validators |
+| <span id="gk-delegator" class="gk-wrap">$\chi_V$</span> | chi sub V | the delegator: the one service that may set the next epoch's validator keys |
+| <span id="gk-ps-registrar">$r$</span> | r | the registrar service's id, χ_R: it may create services at small ids |
+| <span id="gk-registrar" class="gk-wrap">$\chi_R$</span> | chi sub R | the registrar: the one service that may create services with the reserved low ids |
+| <span id="gk-ps-alwaysaccers" class="gk-wrap">$\mathbf{z}$</span> | z | the always-accumulate services with their free gas, χ_Z |
+| <span id="gk-local-numberofreportsaccumulated">$n$</span> | n | how many reports the block accumulated: the first n of 𝐑\* |
+| <span id="gk-local-servicegasused" class="gk-wrap">$\mathbf{u}$</span> | u | the gas each service used: a pair (service, gas) for every run, over all rounds |
+| <span id="gk-local-processedtransfers" class="gk-wrap">$\mathbf{t}$</span> | t | every transfer delivered in the block's rounds |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-lastaccout" class="gk-wrap">$\theta$</span> | theta | the last block's accumulation outputs: which service yielded which hash |
+| <span id="gk-accountspostacc" class="gk-wrap">$\delta^\dagger$</span> | delta dagger | the service accounts right after accumulation, before slots are stamped and the block's preimages filed |
+
+</details>
+
+→ [(12.24), (12.25), (12.26) in plain words](./gray-paper.md#ex-12-24)
+
+:::
+
+In plain words, Δ+ in full is five steps:
 
 1. **The budget.** g = max(G_T, G_A × C + the always-accumulate services' gas). G_A is
    the most gas one report may ask for ([lesson 12.5](../12-guarantees/05-bad-reports.md)), C the number of cores.

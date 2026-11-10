@@ -19,34 +19,401 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix A.
+Appendix A.1 opens with the machine itself, Ψ, and with deblob, which cuts a program blob
+into the three parts of [lesson 15.1](./01-the-program-blob.md):
+
+::: gray-paper A.1
+
+#### Appendix A.1 Basic Definition {#gp-A-1}
+
+<a id="gp-A-1-p1"></a>We declare the general PVM function $\Psi$. We assume a single-step <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr> function define $\Psi_1$ and define the full PVM recursively as a sequence of such mutations up until the single-step mutation results in a halting condition. We additionally define the function $\text{deblob}$ which extracts the instruction data, <abbr class="gp-term" title="one bit per byte of code, marking the bytes where an instruction starts">opcode bitmask</abbr> and <abbr class="gp-term" title="the list of places a computed jump may land; an address picks an entry">dynamic jump table</abbr> from a PVM program blob, validates its structure, and verifies whether the given $\imath$ is a valid instruction counter location within the program:
+
+<a id="gp-A-1-p2"></a><a id="eq-A-1"></a><a id="eq-A-2"></a>
+
+$$
+\begin{align}
+\Psi&\colon \left\{ \begin{aligned}
+\!\left\lgroup\mathbb{B}_{}, \mathbb{N}_R, \mathbb{N}_G, {\left\{\,\bot, \top\,\right\}}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}\right\rgroup\! &\to \!\left\lgroup\left\{\,\blacksquare, \unicode{x21AF}, \infty\,\right\} \cup \left\{\,\unicode{x2132}, \hbar\,\right\} \times \mathbb{N}_R, \mathbb{N}_R, \mathbb{N}_G, {\left\{\,\bot, \top\,\right\}}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}\right\rgroup\!\\
+\left(\mathfrak{p}, \imath, \varrho, \tilde{\varrho}, \varphi, {\mu}\right) &\mapsto \begin{cases}
+\Psi(\mathfrak{p}, \imath', \varrho', \tilde{\varrho}', \varphi', {\mu}') &\text{if } \varepsilon = \blacktriangleright\\
+\left(\varepsilon, 0, \varrho', \tilde{\varrho}', \varphi', {\mu}'\right) &\text{if } \varepsilon \in \left\{\, \unicode{x21AF}, \blacksquare \,\right\}\\
+\left(\varepsilon, \imath, \varrho', \tilde{\varrho}', \varphi, {\mu}\right) &\text{otherwise}
+\end{cases} \\
+\text{where } \left(\varepsilon, \imath', \varrho', \tilde{\varrho}', \varphi', {\mu}'\right) &= \begin{cases}
+\Psi_1(\mathbf{c}, \mathbf{k}, \mathbf{j}, \imath, \varrho, \tilde{\varrho}, \varphi, {\mu}) &\text{if } \left(\mathbf{c}, \mathbf{k}, \mathbf{j}\right) = \text{deblob}(\mathfrak{p}, \imath) \\
+\left(\unicode{x21AF}, \imath, \varrho, \tilde{\varrho}, \varphi, {\mu}\right) &\text{otherwise}
+\end{cases}
+\end{aligned} \right. \tag{A.1} \\
+\text{deblob}&\colon
+\left\{
+\begin{array}{@{}l@{}}
+\begin{aligned}
+(\mathbb{B}_{}, \mathbb{N}_R) &\to \!\left\lgroup\mathbb{B}_{}, \mathbb{b}_{}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{}\right\rgroup\! \cup \nabla \\
+(\mathfrak{p}, \imath) &\mapsto \begin{cases}
+\left(\mathbf{c}, \mathbf{k}, \mathbf{j}\right) &\text{if } \exists!\,\mathbf{c}, \mathbf{k}, \mathbf{j} : \mathfrak{p} = \mathcal{E}_{}\left(\left\vert\mathbf{j}\right\vert\right) \frown \mathcal{E}_{1}\left(z\right) \frown \mathcal{E}_{}\left(\left\vert\mathbf{c}\right\vert\right) \frown \mathcal{E}_{z}\left(\mathbf{j}\right) \frown \mathcal{E}_{}\left(\mathbf{c}\right) \frown \mathcal{E}_{}\left(\mathbf{k}\right)\,,\ \mathfrak{v}_{\text{blob}}(\mathbf{c}, \mathbf{k}, 0) \land \mathfrak{v}_{\text{inst}}(\mathbf{c}, \mathbf{k}, \imath) \\
+\nabla &\text{otherwise}
+\end{cases} \\
+\end{aligned}
+\\[14pt]
+\hspace{8pt}\begin{aligned}
+\\[0.2pt]
+\text{where } \mathfrak{v}_{\text{blob}}\colon&\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{N}_R\right\rgroup\! &\to {\left\{\,\bot, \top\,\right\}} \\
+(\mathbf{c}, \mathbf{k}, \imath) &\mapsto \begin{cases}
+\top &\text{if } \imath > 0 \land \imath = \left\vert\mathbf{k}\right\vert\\
+\bot &\text{otherwise if } \imath + 1 + \text{skip}(\imath) = \left\vert\mathbf{k}\right\vert \land \mathbf{c}_\imath \not\in T\\
+\mathfrak{v}_{\text{blob}}(\mathbf{c}, \mathbf{k}, \imath + 1 + \text{skip}(\imath)) &\text{otherwise if } \mathfrak{v}_{\text{inst}}(\mathbf{c}, \mathbf{k}, \imath)\\
+\bot &\text{otherwise}
+\end{cases}
+\end{aligned} \right.\\
+\mathfrak{v}_{\text{inst}}\colon&\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{B}_{}, \mathbb{b}_{}, \mathbb{N}_R\right\rgroup\! &\to {\left\{\,\bot, \top\,\right\}} \\
+(\mathbf{c}, \mathbf{k}, \imath) &\mapsto \left\vert\mathbf{k}\right\vert = \left\vert\mathbf{c}\right\vert \land \imath < \left\vert\mathbf{k}\right\vert \land \mathbf{k}_{\imath} = 1 \land \mathbf{c}_\imath \in U
+\end{aligned} \right.\\
+\\[0.2pt]
+&U\text{ and }T\text{ are described in sec. A.3, and \emph{skip} in eq. A.3}
+\end{aligned}
+\end{array}
+\right.
+\tag{A.2}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Psi">$\Psi$</span> | psi (capital) | the PVM: a program, a gas limit, registers and memory in; how it stopped and what's left out |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-pvmreg" class="gk-wrap">$\mathbb{N}_R$</span> | N sub R | a register's value: a u64 |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-bool">${\left\{\,\bot, \top\,\right\}}$</span> | true or false | a yes-or-no value: true (⊤) or false (⊥) |
+| <span id="gk-regs">$\left[\!\left[\mathbb{N}_R\right]\!\right]_{13}$</span> | thirteen registers | a sequence of 13 register values, each a u64 |
+| <span id="gk-ram" class="gk-wrap">$\mathbb{M}$</span> | M | a PVM memory: its bytes, and which pages may be read or written |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-halt" class="gk-wrap">$\blacksquare$</span> | halt | ∎: the program finished normally |
+| <span id="gk-panic">$\unicode{x21AF}$</span> | panic | ↯: the program trapped |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-fault">$\unicode{x2132}$</span> | page fault | Ⅎ: the program touched memory it may not |
+| <span id="gk-host" class="gk-wrap">$\hbar$</span> | host call | ħ: the program asked the host for something, and waits |
+| <span id="gk-times">$\times$</span> | times | multiply; between sets, every pair of one from each |
+| <span id="gk-pvm-blob" class="gk-wrap">$\mathfrak{p}$</span> | p (gothic) | a PVM program blob: the jump table, the code and the bitmask, packed as bytes |
+| <span id="gk-imath">$\imath$</span> | i | the instruction counter: the index in the code of the instruction to run next |
+| <span id="gk-gascounter" class="gk-wrap">$\varrho$</span> | rho (curly) | the gas left |
+| <span id="gk-gaschargedflag" class="gk-wrap">$\tilde{\varrho}$</span> | rho tilde | the gas flag: true once the basic block the machine is in has been paid for |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-mem" class="gk-wrap">${\mu}$</span> | mu | the PVM's memory: 2^32 bytes in pages of 4,096, each page readable, writable or neither |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-varepsilon">$\varepsilon$</span> | epsilon | the exit reason: how a step or a run ended, from carry on to halt, panic, out of gas, fault or host call |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-deblob">$\text{deblob}$</span> | deblob | cuts a program blob into its code 𝐜, bitmask 𝐤 and jump table 𝐣, checking it is well formed; ∇ if it isn't |
+| <span id="gk-abracegrouptwo">$\left\{ \begin{array}{@{}l@{}} \begin{aligned} x \end{aligned} \\[14pt] \hspace{8pt}\begin{aligned} y \end{aligned} \end{array} \right.$</span> | as follows | a brace grouping lines that hold together: a function's type, what each input becomes, then its helpers below |
+| <span id="gk-bitstring">$\mathbb{b}$</span> | b sub n | bits: a run of true-or-false values; a subscript is how many |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-error" class="gk-wrap">$\nabla$</span> | error | ∇: an error result |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-land">$\land$</span> | and | both sides are true |
+| <span id="gk-top">$\top$</span> | top | true |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+
+</details>
+
+→ [(A.1), (A.2) in plain words](./gray-paper.md#ex-A-1)
+
+<a id="gp-A-1-p3"></a>The PVM exit reason $\varepsilon \in \left\{\,\blacksquare, \unicode{x21AF}, \infty\,\right\} \cup \left\{\,\unicode{x2132}, \hbar\,\right\} \times \mathbb{N}_R$ may be one of regular halt $\blacksquare$, panic $\unicode{x21AF}$ or out-of-gas $\infty$, or alternatively a host-call $\hbar$, in which the host-call identifier is associated, or page-fault $\unicode{x2132}$ in which case the address into RAM is associated.
+
+<a id="gp-A-1-p4"></a>In the case of a final halt, either through panic or success, the instruction counter returned is zero. In all other cases, the return value of the instruction counter indexes the one *which caused the exit to happen* and the machine state represents the prior state of said instruction, thus ensuring *de facto* consistency. In order to continue beyond these exit cases, some environmental factor must be adjusted; for a page-fault, RAM must be changed, for a gas-underflow, more gas must be supplied and for a host-call, the instruction-counter must be incremented and the relevant host-call state-transition performed.
+
+:::
+
+In plain words:
 
 **The state**: ı, the instruction counter, and φ, thirteen *registers* of 64 bits each. (A
 curly phi: the straight ϕ of [lesson 6.2](../06-state-and-merklization/02-state-keys.md) is the authorizer queue. Memory comes in [lesson 15.4](./04-memory.md),
-the gas counter in [lesson 15.11](./11-the-gas-meter.md).)
+the gas counter and its flag in [lesson 15.11](./11-the-gas-meter.md).)
 
 Why thirteen? A Gray Paper footnote says it: RISC-V has 16, but compiled code uses 13, since
 two are reserved for the operating system and one is fixed at zero. To the machine they're
 all alike. Only a program's start ([lesson 15.8](./08-a-real-program.md)) and the host calls ([Part 16](../16-host-calls/index.md)) give some of
 them a job: r0 the way back, r1 the stack, r7 and up the arguments.
 
-**One step, Ψ₁**: run the instruction at ı. Unless it says otherwise, an instruction
-moves ı on to the next one, ı + 1 + skip(ı), and the step ends with ε = ▸, carry on. A
-step can also end with *halt* (finished well) or *panic* (finished badly).
+**Ψ** steps until ε is anything but ▸: it runs one step, Ψ₁, and if that says carry on,
+runs Ψ again on what came out. deblob checks the blob as it cuts: every instruction must
+have a known opcode, the last one must be a terminator (below), and ı must start an
+instruction. If not, Ψ panics without running anything. When it stops, the exit reason says why:
+halt or panic (and then ı comes back as 0), out of gas, a page fault with its address, or
+a host call with its number. For the last three, ı stays *on* the instruction that
+stopped it, so whoever runs the machine can fix things and carry on.
 
-**Ψ** steps until ε is anything but ▸.
+Then A.3, the basic blocks:
 
-*Basic blocks* (A.3): a basic block starts at 0, and right after every *terminator*:
+::: gray-paper A.3
+
+#### Appendix A.3 Basic Blocks and Termination Instructions {#gp-A-3}
+
+<a id="gp-A-3-p1"></a>Instructions of the following opcodes are considered basic-block termination instructions; other than $\texttt{trap}$ &amp; $\texttt{fallthrough}$, they correspond to instructions which may define the instruction-counter to be something other than its prior value plus the instruction's skip amount:
+
+<a id="gp-A-3-p2"></a>
+
+- Trap and fallthrough: $\texttt{trap}$ , $\texttt{fallthrough}$
+- Jumps: $\texttt{jump}$ , $\texttt{jump\_ind}$
+- Load-and-Jumps: $\texttt{load\_imm\_jump}$ , $\texttt{load\_imm\_jump\_ind}$
+- Branches: $\texttt{branch\_eq}$ , $\texttt{branch\_ne}$ , $\texttt{branch\_ge\_u}$ , $\texttt{branch\_ge\_s}$ , $\texttt{branch\_lt\_u}$ , $\texttt{branch\_lt\_s}$ , $\texttt{branch\_eq\_imm}$ , $\texttt{branch\_ne\_imm}$
+- Immediate branches: $\texttt{branch\_lt\_u\_imm}$ , $\texttt{branch\_lt\_s\_imm}$ , $\texttt{branch\_le\_u\_imm}$ , $\texttt{branch\_le\_s\_imm}$ , $\texttt{branch\_ge\_u\_imm}$ , $\texttt{branch\_ge\_s\_imm}$ , $\texttt{branch\_gt\_u\_imm}$ , $\texttt{branch\_gt\_s\_imm}$
+
+<a id="gp-A-3-p3"></a>We denote this set, as opcode indices rather than names, as $T$, which is a subset of all valid opcode indices $U$. We define the instruction opcode indices denoting the beginning of basic-blocks as $\varpi$:
+
+<a id="gp-A-3-p4"></a><a id="eq-A-5"></a>
+
+$$
+\begin{equation}
+\varpi \equiv \left(\left\{\,0\,\right\} \cup \left\{\,n + 1 + \text{skip}(n) \;\middle\vert\; n \in \mathbb{N}_{\left\vert\mathbf{c}\right\vert} \wedge \mathbf{k}_{n} = 1 \wedge \mathbf{c}_{n} \in T\,\right\}\right) \cap \left\{\,n \;\middle\vert\; \mathbf{k}_{n} = 1 \wedge \mathbf{c}_{n} \in U\,\right\} \tag{A.5}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-basicblocks" class="gk-wrap">$\varpi$</span> | pi (curly) | where basic blocks start: at 0, and just after every terminator |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-Fskip">$\text{skip}$</span> | skip | skip(i): how many bytes follow the opcode at i before the next opcode, at most 24 |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-cap">$\cap$</span> | intersection | only what's in both sides |
+
+</details>
+
+→ [(A.5) in plain words](./gray-paper.md#ex-A-5)
+
+<a id="gp-A-3-p5"></a>For convenience we will define function $\mathfrak{L}$ which represents the start of a <abbr class="gp-term" title="a run of instructions with one way in; a jump may only land at its start">basic block</abbr> for any $\imath$ within that basic block. Formally:
+
+<a id="gp-A-3-p6"></a><a id="eq-A-6"></a>
+
+$$
+\begin{equation}
+\mathfrak{L}\colon \left\{ \begin{aligned}
+\mathbb{N}_R &\to \mathbb{N}_R\\
+\imath &\mapsto \max(j \in \varpi : j \le \imath)
+\end{aligned} \right. \tag{A.6}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-startofbasicblock" class="gk-wrap">$\mathfrak{L}$</span> | L (gothic) | 𝔏(ı): the start of the basic block that ı is in |
+| <span id="gk-max">$\max$</span> | max of | the largest of the values in the brackets |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+
+</details>
+
+→ [(A.6) in plain words](./gray-paper.md#ex-A-6)
+
+:::
+
+In plain words, a *basic block* starts at 0, and right after every *terminator*:
 `trap`, `fallthrough`, jumps and branches. Apart from `trap` and `fallthrough`, these are
-the instructions that can send ı somewhere other than the next instruction. The rule that matters: **a jump or branch
-may only land at the start of a basic block**, or the machine panics. A branch checks
-*both* places it might go, its target and the next instruction, whether it's taken or
-not.
+the instructions that can send ı somewhere other than the next instruction. ϖ is the set
+of block starts, and 𝔏(ı) the start of the block ı is in ([lesson
+15.11](./11-the-gas-meter.md) charges gas by it).
+
+A.4 gives one step, Ψ₁, and what an instruction does unless its row says otherwise:
+
+::: gray-paper A.4 1-2
+
+#### Appendix A.4 Single-Step State Transition {#gp-A-4}
+
+<a id="gp-A-4-p1"></a>We must now define the single-step PVM state-transition function $\Psi_1$:
+
+<a id="gp-A-4-p2"></a><a id="eq-A-7"></a>
+
+$$
+\begin{equation}
+\Psi_1\colon \left\{ \begin{aligned}
+\!\left\lgroup\mathbb{B}_{}, \mathbb{b}_{}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{}, \mathbb{N}_R, \mathbb{N}_G, {\left\{\,\bot, \top\,\right\}}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}\right\rgroup\! &\to \!\left\lgroup\left\{\,\unicode{x21AF}, \blacksquare, \blacktriangleright \,\right\} \cup \left\{\,\unicode{x2132}, \hbar\,\right\} \times \mathbb{N}_R, \mathbb{N}_R, \mathbb{N}_G, {\left\{\,\bot, \top\,\right\}}, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}\right\rgroup\!\\
+\left(\mathfrak{p}, \mathbf{k}, \mathbf{j}, \imath, \varrho, \tilde{\varrho}, \varphi, {\mu}\right) &\mapsto \left(\varepsilon^*, \imath^*, \varrho^*, \tilde{\varrho}^*, \varphi^*, {\mu}^*\right)
+\end{aligned} \right. \tag{A.7}
+\end{equation}
+$$
+
+→ [(A.7) in plain words](./gray-paper.md#ex-A-7)
+
+:::
+
+::: gray-paper A.4 12-13
+
+#### Appendix A.4 Single-Step State Transition, continued
+
+<a id="gp-A-4-p12"></a>We define $\varepsilon$ together with the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> values of regular execution (denoted as prime) of each of the items of the machine state as being in accordance with the table below. When transitioning machine state for an instruction, a number of conditions typically hold true and instructions are defined essentially by their exceptions to these rules. Specifically, the machine does not halt, the instruction counter increments by one and RAM &amp; registers are unchanged. Formally:
+
+<a id="gp-A-4-p13"></a><a id="eq-A-12"></a>
+
+$$
+\begin{equation}
+\varepsilon = \blacktriangleright,\quad \imath' = \imath + 1 + \text{skip}(\imath),\quad \varphi' = \varphi,\quad{\mu}' = {\mu} \text{ except as indicated } \tag{A.12}
+\end{equation}
+$$
+
+→ [(A.12) in plain words](./gray-paper.md#ex-A-12)
+
+:::
+
+In plain words, **one step, Ψ₁**: run the instruction at ı. Unless it says otherwise, an
+instruction moves ı on to the next one, ı + 1 + skip(ı), changes no register or memory,
+and the step ends with ε = ▸, carry on. A step can also end with *halt* (finished well)
+or *panic* (finished badly).
+
+And the three ways an instruction can move ı somewhere else:
+
+::: gray-paper A.4 18-24
+
+#### Appendix A.4 Single-Step State Transition, continued
+
+<a id="gp-A-4-p18"></a>Any alterations of the program counter stemming from an unconditional static jump must be to the start of a basic block or else a panic occurs. Formally:
+
+<a id="gp-A-4-p19"></a><a id="eq-A-20"></a>
+
+$$
+\begin{equation}
+\texttt{sjump}(b) \implies \left(\varepsilon, \imath'\right) = \begin{cases}
+\left(\unicode{x21AF}, \imath\right) &\text{if } b \not\in \varpi \\
+\left(\blacktriangleright, b\right) &\text{otherwise}
+\end{cases} \tag{A.20}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+| <span id="gk-implies">$\implies$</span> | means that | if the left side holds, everything on the right must hold too |
+
+</details>
+
+→ [(A.20) in plain words](./gray-paper.md#ex-A-20)
+
+<a id="gp-A-4-p20"></a>Similarly, conditional jumps are valid if and only if both branches point to the start of a basic block (regardless of whether a branch is taken), otherwise a panic occurs:
+
+<a id="gp-A-4-p21"></a><a id="eq-A-21"></a>
+
+$$
+\begin{equation}
+\texttt{branch}(b, C) \implies \left(\varepsilon, \imath'\right) = \begin{cases}
+\left(\unicode{x21AF}, \imath\right) &\text{if } b \not\in \varpi \lor \imath + 1 + \text{skip}(\imath) \not\in \varpi \\
+\left(\blacktriangleright, \imath + 1 + \text{skip}(\imath)\right) &\text{otherwise if } \lnot C \\
+\left(\blacktriangleright, b\right) &\text{otherwise}
+\end{cases} \tag{A.21}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-lor">$\lor$</span> | or | at least one side is true |
+| <span id="gk-lnot">$\lnot$</span> | not | the opposite: true becomes false, a bit 1 becomes 0 |
+
+</details>
+
+→ [(A.21) in plain words](./gray-paper.md#ex-A-21)
+
+<a id="gp-A-4-p22"></a>Jumps whose next instruction is dynamically computed must use an address which may be indexed into the jump-table $\mathbf{j}$. Through a quirk of tooling<sup>1</sup>, we define the dynamic address required by the instructions as the jump table index incremented by one and then multiplied by our jump alignment factor $\mathsf{Z}_A = 2$.
+
+<small class="gp-note"><sup>1</sup> The popular code generation backend LLVM requires and assumes in its code generation that dynamically computed jump destinations always have a certain memory alignment. Since at present we depend on this for our tooling, we must acquiesce to its assumptions.</small>
+
+<a id="gp-A-4-p23"></a>As with other irregular alterations to the program counter, target code index must be the start of a basic block or else a panic occurs. Formally:
+
+<a id="gp-A-4-p24"></a><a id="eq-A-22"></a>
+
+$$
+\begin{equation}
+\texttt{djump}(a) \implies \left(\varepsilon, \imath'\right) = \begin{cases}
+\left(\blacksquare, \imath\right) &\text{if } a = 2^{32} - 2^{16}\\
+\left(\unicode{x21AF}, \imath\right) &\text{otherwise if } a = 0 \vee a > \left\vert\mathbf{j}\right\vert\cdot\mathsf{Z}_A \vee a \bmod \mathsf{Z}_A \ne 0 \vee \mathbf{j}_{({}^{a}\!/_{\mathsf{Z}_A}) - 1} \not\in \varpi \\
+(\blacktriangleright, \mathbf{j}_{({}^{a}\!/_{\mathsf{Z}_A}) - 1}) &\text{otherwise}
+\end{cases} \tag{A.22}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+| <span id="gk-Cpvmdynaddralign" class="gk-wrap">$\mathsf{Z}_A$</span> | Z sub A | the jump alignment, 2: a dynamic jump's address is (its jump table index + 1) × 2 |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+| <span id="gk-nicefrac">${}^{x}\!/_{y}$</span> | over | a fraction: the top divided by the bottom |
+
+</details>
+
+→ [(A.22) in plain words](./gray-paper.md#ex-A-22)
+
+:::
+
+In plain words, the rule that matters: **a jump or branch may only land at the start of a
+basic block**, or the machine panics. A branch checks *both* places it might go, its
+target and the next instruction, whether it's taken or not.
 
 **Halting**: `jump_ind` jumps through the jump table by address, and one address is
 special: 2^32 − 2^16. Jumping there halts the machine. It's also where r0 points when a
 program starts (r0 is the return address), so when the outermost function returns,
-the machine stops.
+the machine stops. Any other address a is (index + 1) × 2: 2 is the table's first entry,
+4 its second, and 0 or an odd number panics.
+
+The tables' rows for three of this lesson's instructions (the rest are quoted in the
+lessons that finish their families):
+
+::: gray-paper A.5.1
+
+#### Appendix A.5.1 Instructions without Arguments {#gp-A-5-1}
+
+<a id="gp-A-5-1-p1"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 0 | `trap` | $\varepsilon = \unicode{x21AF}$ |
+| 1 | `fallthrough` | $\texttt{sjump}(\imath + 1 + \text{skip}(\imath))$ |
+| 2 | `unlikely` |  |
+
+:::
+
+::: gray-paper A.5.3 2-2
+
+#### Appendix A.5.3 Instructions with Arguments of One Register and One Extended Width Immediate, continued
+
+<a id="gp-A-5-3-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 20 | `load_imm_64` | ${\varphi}'_A = \nu_X$ |
+
+:::
+
+::: gray-paper A.5.5 2-2
+
+#### Appendix A.5.5 Instructions with Arguments of One Offset, continued
+
+<a id="gp-A-5-5-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 40 | `jump` | $\texttt{sjump}(\nu_X)$ |
+
+:::
 
 This lesson's instructions, from the tables: `trap` (panic), `fallthrough`, `jump`,
 `jump_ind`, `load_imm`, `load_imm_64`, `move_reg`, `add_imm_64`, `add_64`, `sub_64`,

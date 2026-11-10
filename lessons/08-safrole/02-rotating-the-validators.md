@@ -17,7 +17,124 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§6 (*Key Rotation*). The state holds four sets of validator keys:
+::: gray-paper 6.3
+
+#### §6.3 Key Rotation {#gp-6-3}
+
+<a id="gp-6-3-p1"></a>In addition to the active sequence of validator keys $\kappa$ and staging sequence $\iota$, internal to the Safrole state we retain a pending sequence $\gamma_P$. The active validator keys identifies the nodes which are currently privileged to author blocks and carry out the validation processes, whereas the pending keys $\gamma_P$, which is reset to $\iota$ at the beginning of each epoch, is the sequence of keys which will be active in the next epoch and which determine the Bandersnatch ring root which authorizes tickets into the slot-sealer contest for the next epoch. The length of each sequence is always a multiple of 3 between 6 and $3\mathsf{C}$.
+
+<a id="gp-6-3-p2"></a><a id="eq-6-7"></a><a id="eq-6-8"></a>
+
+$$
+\begin{gather}
+\iota \in \left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}} \;,\quad
+\gamma_P \in \left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}} \;,\quad
+\kappa \in \left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}} \;,\quad
+\lambda \in \left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}} \tag{6.7} \\
+\mathbb{V} \equiv \left\{\,3c \;\middle\vert\; c \in \mathbb{N}_{2 \dots \mathsf{C}+1}\,\right\} \tag{6.8}
+\end{gather}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-stagingset" class="gk-wrap">$\iota$</span> | iota | the next validators: keys queued to become active at the next epoch |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-allvalkeys">$\left[\!\left[\mathbb{K}\right]\!\right]_{\mathbb{V}}$</span> | a sequence of K, of a size in V | a validator set: a 336-byte key set for each validator; 6 on tiny, 1,023 on full |
+| <span id="gk-pendingset" class="gk-wrap">$\gamma_P$</span> | gamma P | the pending validators: the key sets that become active at the next epoch |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-valcount" class="gk-wrap">$\mathbb{V}$</span> | V (the set) | the validator counts allowed: multiples of 3 from 6 to 3C, which is 1,023 on full and 6 on tiny |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-Nclamp">$\mathbb{N}_{x \dots y}$</span> | N from x to y | the whole numbers from x up to, not including, y |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+
+</details>
+
+→ [(6.7), (6.8) in plain words](./gray-paper.md#ex-6-7)
+
+<a id="gp-6-3-p3"></a>We must introduce $\mathbb{K}$, the set of validator key tuples. This is a combination of a set of cryptographic public keys and metadata which is an opaque <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequence, but utilized to specify practical identifiers for the validator, not least a hardware address.
+
+<a id="gp-6-3-p4"></a>The set of validator keys itself is equivalent to the set of 336-octet sequences. However, for clarity, we divide the sequence into four easily denoted components. For any validator key $k$, the Bandersnatch key is denoted $k_{b}$, and is equivalent to the first 32-octets; the Ed25519 key, $k_{e}$, is the second 32 <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr>; the BLS key denoted $k_{l}$ is equivalent to the following 144 octets, and finally the metadata $k_{m}$ is the last 128 octets. Formally:
+
+<a id="gp-6-3-p5"></a><a id="eq-6-9"></a><a id="eq-6-10"></a><a id="eq-6-11"></a><a id="eq-6-12"></a><a id="eq-6-13"></a>
+
+$$
+\begin{align}
+\mathbb{K} &\equiv \mathbb{B}_{336} \tag{6.9} \\
+\forall k \in \mathbb{K} : k_{b} \in \overset{\backsim}{\mathbb{H}_{}} &\equiv k_{0 \dots+ 32} \tag{6.10} \\
+\forall k \in \mathbb{K} : k_{e} \in \bar{\mathbb{H}_{}} &\equiv k_{32 \dots+ 32} \tag{6.11} \\
+\forall k \in \mathbb{K} : k_{l} \in \overset{\mathrm{B\!L\!S}}{\mathbb{B}_{}} &\equiv k_{64 \dots+ 144} \tag{6.12} \\
+\forall k \in \mathbb{K} : k_{m} \in \mathbb{B}_{128} &\equiv k_{208 \dots+ 128} \tag{6.13}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-valkey" class="gk-wrap">$\mathbb{K}$</span> | K | a validator's key set: 336 bytes holding its Bandersnatch, Ed25519 and BLS keys and its metadata |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-vkX">$k$</span> | k | one validator's key set: 336 bytes |
+| <span id="gk-vk-bs">$b$</span> | b | a validator's Bandersnatch key: the first 32 of its 336 bytes |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-subrange">$_{x \dots+ y}$</span> | from x, y of them | y items, starting at index x |
+| <span id="gk-vk-ed">$e$</span> | e | a validator's Ed25519 key: the 32 bytes after its Bandersnatch key |
+| <span id="gk-edkey" class="gk-wrap">$\bar{\mathbb{H}}$</span> | H bar | an Ed25519 public key: 32 bytes |
+| <span id="gk-vk-bls">$l$</span> | l | a validator's BLS key: the 144 bytes from byte 64 |
+| <span id="gk-blskey">$\overset{\mathrm{B\!L\!S}}{\mathbb{B}}$</span> | B BLS | a BLS public key: 144 bytes |
+| <span id="gk-vk-metadata">$m$</span> | m | a validator's metadata: its last 128 bytes, an address and other details the chain never reads |
+| <span id="gk-metadatakey" class="gk-wrap">$\mathbb{B}_{128}$</span> | B sub 128 | 128 bytes: room for a validator's metadata |
+
+</details>
+
+→ [(6.9), (6.10), (6.11), (6.12), (6.13) in plain words](./gray-paper.md#ex-6-9)
+
+<a id="gp-6-3-p6"></a>With a new epoch under regular conditions, validator keys get rotated and the epoch's Bandersnatch ring root is updated into $\gamma_Z'$:
+
+<a id="gp-6-3-p7"></a><a id="eq-6-14"></a><a id="eq-6-15"></a>
+
+$$
+\begin{align}
+\left(\gamma_P', \kappa', \lambda', \gamma_Z'\right) &\equiv \begin{cases}
+(\Phi(\iota), \gamma_P, \kappa, z) &\text{if } e' > e \\ \left(\gamma_P, \kappa, \lambda, \gamma_Z\right) &\text{otherwise}
+\end{cases} \tag{6.14} \\
+\text{where } z &= \mathcal{O}\left(\left[k_{b} \;\middle\vert\; k \mathrel{\unicode{x2B40}} \gamma_P'\right]\right) \notag \\
+\Phi(\mathbf{k}) &\equiv \left[
+\begin{rcases}
+\left[0, 0, \dots\right] &\text{if } k_{e} \in \psi_O' \\
+k &\text{otherwise}
+\end{rcases}
+\;\middle\vert\;
+k \mathrel{\unicode{x2B40}} \mathbf{k}
+\right] \tag{6.15}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-epochroot" class="gk-wrap">$\gamma_Z$</span> | gamma Z | the ring root of the pending validators' Bandersnatch keys: 144 bytes a ticket's proof is checked against |
+| <span id="gk-Phi">$\Phi$</span> | Phi | the key nullifier: each key set as it is, or 336 zero bytes if its Ed25519 key is an offender's |
+| <span id="gk-getringroot">$\mathcal{O}\left(x\right)$</span> | O of | the ring root of a list of Bandersnatch keys |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-offenders" class="gk-wrap">$\psi_O$</span> | psi O | the offenders: Ed25519 keys of validators found to have judged a report wrongly |
+
+</details>
+
+→ [(6.14), (6.15) in plain words](./gray-paper.md#ex-6-14)
+
+<a id="gp-6-3-p8"></a>Note that on epoch changes the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> queued validator key sequence $\gamma_P'$ is defined such that incoming keys belonging to the offenders $\psi_O'$ are replaced with a <abbr class="gp-term" title="a validator key set of 336 zero bytes, which nobody can sign with">null key</abbr> containing only zeroes. The origin of the offenders is explained in section [10](../10-disputes/index.md#gp-10-p1).
+
+:::
+
+In plain words, §6.3 (*Key Rotation*). The state holds four sets of validator keys:
 
 | Set | Name | Who they are |
 | --- | --- | --- |
@@ -25,6 +142,10 @@ Both are in the [glossary](../glossary.md).
 | γ_P | pending | active from the next epoch |
 | κ | active | validating right now |
 | λ | previous | last epoch's, still needed to check what they signed |
+
+Each set is a list of validator key sets, a multiple of 3 long, from 6 to 3C: always 6 on
+tiny, and 1,023 on full, the most it allows. Each key set is 336 bytes: the Bandersnatch key (bytes 0 to 31), the Ed25519 key
+(32 to 63), the BLS key (64 to 207) and the metadata (208 to 335).
 
 At a new epoch, everyone moves along one: κ′ = γ_P, λ′ = κ, and γ′_P = Φ(ι). ι itself
 stays, since only that privileged service changes it. In any other block, nothing moves.

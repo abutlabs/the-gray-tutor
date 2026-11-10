@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
-import { LESSONS, ROOT, clientPackages, lessonsThrough, readParts } from "./lessons.ts";
+import { LESSONS, ROOT, clientPackages, lessonsThrough, readParts, GRAY_PAPER_QUOTE } from "./lessons.ts";
 import { FACES } from "../.vitepress/theme/albert.ts";
 
 const parts = readParts();
@@ -306,7 +306,8 @@ test("every Gray Paper formula has a key, its symbols linked to symbols.md", () 
   const KEY = "| Symbol | Say it | Here |";
   const problems: string[] = [];
   for (const file of lessonAt.keys()) {
-    const text = readFileSync(join(LESSONS, file), "utf8").replace(/```[\s\S]*?```/g, "");
+    // the paper's own quotes carry their own key (tools/gray-paper-text.test.ts)
+    const text = readFileSync(join(LESSONS, file), "utf8").replace(/```[\s\S]*?```/g, "").replace(GRAY_PAPER_QUOTE, "");
     const section = /^## What the Gray Paper says\n([\s\S]*?)(?=^## )/m.exec(text)?.[1] ?? "";
     if (!section.includes("$$")) continue;
     const lines = section.split("\n");

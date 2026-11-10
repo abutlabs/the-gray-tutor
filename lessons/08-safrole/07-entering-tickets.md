@@ -16,7 +16,172 @@ as in [lesson 11.3](../11-assurances/03-bad-assurances.md), and the vectors give
 
 ## What the Gray Paper says
 
-§6, *The Extrinsic and Tickets*. A block's tickets extrinsic is a list of (attempt, ring
+::: gray-paper 6.7
+
+#### §6.7 The Extrinsic and Tickets {#gp-6-7}
+
+<a id="gp-6-7-p1"></a>The extrinsic $\mathbf{E}_T$ is a sequence of proofs of valid tickets; a ticket implies an entry in our epochal “contest” to determine which validators are privileged to author a block for each timeslot in the following epoch. Tickets specify an entry index (a natural number less than the maximum number of ticket entries per validator, defined in equation [6.30](#eq-6-30)) together with a proof of ticket's validity. The proof implies a <abbr class="gp-term" title="a ticket's 32-byte random id, the output of its ring proof; lower wins">ticket identifier</abbr>, a high-entropy <abbr class="gp-term" title="nobody, not even its maker, can steer the value">unbiasable</abbr> 32-octet sequence, which is used both as a score in the aforementioned contest and as input for the block's entropy source $\text{VRF}$ signature.
+
+<a id="gp-6-7-p2"></a>Towards the end of the epoch (i.e.  $\mathsf{Y}$ slots from the start) this contest is closed implying successive blocks within the same epoch must have an empty tickets extrinsic. At this point, the following epoch's <abbr class="gp-term" title="who may seal each slot of an epoch: E tickets, or E keys">slot-sealer sequence</abbr> becomes fixed.
+
+<a id="gp-6-7-p3"></a>We define the extrinsic as a sequence of proofs of valid tickets, each of which is a tuple of an entry index and a proof of ticket validity. To ensure the accumulator can be saturated, when there are fewer validators, each validator is permitted more tickets. Formally:
+
+<a id="gp-6-7-p4"></a><a id="eq-6-30"></a><a id="eq-6-31"></a>
+
+$$
+\begin{align}
+\begin{split}
+\mathbf{E}_T &\in \left[\!\left[\!\left\lgroup
+e\in \mathbb{N}_{n},\,
+p\in \overset{\circ}{\mathbb{V}}_{\gamma_Z'}^{\left[\right]}\left\langle\mathsf{X}_T \frown \eta'_2 \mathbin{+\!\!+} e\right\rangle
+\right\rgroup\!\right]\!\right]_{} \\
+&\phantom{{}\in{}}  \text{where } n = \left\lceil\frac{2\mathsf{E}}{\left\vert\gamma_P'\right\vert}\right\rceil
+\end{split} \tag{6.30} \\
+\left\vert\mathbf{E}_T\right\vert &\le \begin{cases}
+\mathsf{K} &\text{if } m' < \mathsf{Y} \\
+0 &\text{otherwise}
+\end{cases} \tag{6.31}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xttickets" class="gk-wrap">$\mathbf{E}_T$</span> | E sub T | the tickets bag: entries to the block-sealing lottery |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-xt-entryindex">$e$</span> | e | an entered ticket's attempt number, 0 to n − 1: which of its maker's tickets this is |
+| <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
+| <span id="gk-xt-proof">$p$</span> | p | an entered ticket's ring proof: 784 bytes proving a pending validator made it, without saying which |
+| <span id="gk-bsringproof">$\overset{\circ}{\mathbb{V}}_{x}^{z}\left\langle y\right\rangle$</span> | V ring sub r, context c, of m | a ring proof: signed by some key in the ring with root r, without saying which: 784 bytes |
+| <span id="gk-epochroot" class="gk-wrap">$\gamma_Z$</span> | gamma Z | the ring root of the pending validators' Bandersnatch keys: 144 bytes a ticket's proof is checked against |
+| <span id="gk-Xticket" class="gk-wrap">$\mathsf{X}_T$</span> | X sub T | the context of a ticket and its seal: the bytes of "jam_ticket_seal" |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
+| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-pendingset" class="gk-wrap">$\gamma_P$</span> | gamma P | the pending validators: the key sets that become active at the next epoch |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-Cmaxblocktickets" class="gk-wrap">$\mathsf{K}$</span> | K | the most tickets one block may carry: 16 on full, 3 on tiny |
+| <span id="gk-Cepochtailstart" class="gk-wrap">$\mathsf{Y}$</span> | Y | the slot of an epoch at which the ticket lottery closes: 500 on full, 10 on tiny |
+
+</details>
+
+→ [(6.30), (6.31) in plain words](./gray-paper.md#ex-6-30)
+
+<a id="gp-6-7-p5"></a>We define $\mathbf{n}$ as the sequence of new tickets, with the ticket identifier, a hash, defined as the output component of the Bandersnatch RingVRF proof:
+
+<a id="gp-6-7-p6"></a><a id="eq-6-32"></a>
+
+$$
+\begin{align}
+\mathbf{n} &\equiv \left[
+\left(
+y\mathrel{\unicode{x2AF6}}\mathcal{Y}\left(i_{p}\right),\,
+e\mathrel{\unicode{x2AF6}} i_{e}
+\right)
+\;\middle\vert\;
+i \mathrel{\unicode{x2B40}} \mathbf{E}_T
+\right] \tag{6.32}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-st-id">$y$</span> | y | a ticket's id: 32 random bytes, the output of its ring proof; a lower id wins |
+| <span id="gk-banderout">$\mathcal{Y}\left(x\right)$</span> | Y of | the 32-byte random output a Bandersnatch signature or proof carries, used as entropy |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+
+</details>
+
+→ [(6.32) in plain words](./gray-paper.md#ex-6-32)
+
+<a id="gp-6-7-p7"></a>The tickets submitted via the extrinsic must already have been placed in order of their implied identifier. Duplicate identifiers are never allowed lest a validator submit the same ticket multiple times:
+
+<a id="gp-6-7-p8"></a><a id="eq-6-33"></a><a id="eq-6-34"></a>
+
+$$
+\begin{align}
+\mathbf{n} &= \left[x \in \mathbf{n}\,\wr\!\wr\,x_{y}\right] \tag{6.33} \\
+\left\{\,  x_{y}  \;\middle\vert\;  x \in \mathbf{n} \,\right\} &\mathrel{\unicode{x2AEF}} \left\{\,  x_{y}  \;\middle\vert\;  x \in \gamma_A \,\right\} \tag{6.34}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-sqorderuniqby">$\left[y\,\wr\!\wr\,x\right]$</span> | sorted, no repeats, by | sorted by the key on the right, each key once |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-disjoint">$\mathrel{\unicode{x2AEF}}$</span> | share nothing with | the two sides have no item in common |
+| <span id="gk-ticketaccumulator" class="gk-wrap">$\gamma_A$</span> | gamma A | the ticket lottery: the best tickets entered so far for the next epoch, at most E, lowest id first |
+
+</details>
+
+→ [(6.33), (6.34) in plain words](./gray-paper.md#ex-6-33)
+
+<a id="gp-6-7-p9"></a>The new ticket accumulator $\gamma_A'$ is constructed by merging new tickets into the previous accumulator value (or the empty sequence if it is a new epoch):
+
+<a id="gp-6-7-p10"></a><a id="eq-6-35"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\gamma_A' &\equiv  {\overrightarrow{\left[x \in \mathbf{n} \cup \begin{cases} \emptyset\ &\text{if } e' > e \\ \gamma_A\ &\text{otherwise} \end{cases}\,\wr\,x_{y}\right]~}}^{\mathsf{E}} \\
+\end{aligned} \tag{6.35}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-overrightarrow">$\overrightarrow$</span> | the first n of | with a number above: keep only the leftmost n items |
+| <span id="gk-sqorderby">$\left[y\,\wr\,x\right]$</span> | sorted by | the sequence's items, sorted by the key on the right |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(6.35) in plain words](./gray-paper.md#ex-6-35)
+
+<a id="gp-6-7-p11"></a>The maximum size of the ticket accumulator is $\mathsf{E}$. On each block, the accumulator becomes the lowest items of the sorted union of tickets from prior accumulator $\gamma_A$ and the submitted tickets. It is invalid to include useless tickets in the extrinsic, so all submitted tickets must exist in their <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> ticket accumulator. Formally:
+
+<a id="gp-6-7-p12"></a><a id="eq-6-36"></a>
+
+$$
+\begin{align}
+\mathbf{n} \subseteq \gamma_A' \tag{6.36}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-subseteq">$\subseteq$</span> | is a subset of | everything in the left is in the right |
+
+</details>
+
+→ [(6.36) in plain words](./gray-paper.md#ex-6-36)
+
+<a id="gp-6-7-p13"></a>Note that it can be shown that in the case of an empty extrinsic $\mathbf{E}_T = \left[\right]$, as implied by $m' \ge \mathsf{Y}$, and unchanged epoch ($e' = e$), then $\gamma_A' = \gamma_A$.
+
+:::
+
+In plain words, §6.7, *The Extrinsic and Tickets*. A block's tickets extrinsic is a list of (attempt, ring
 proof). In plain steps:
 
 1. **Only while the lottery is open, and only K at a time.** Once the block's phase m′ is
@@ -33,7 +198,7 @@ proof). In plain steps:
 
 Steps 1, 2 and 6 are three different caps, and two of them both read as "max tickets": n
 is what one *validator* may make for the epoch, K is what one *block* may carry. Here are
-the numbers side by side — flip to full and step the blocks to see the whole supply flow
+the numbers side by side. Flip to full and step the blocks to see the whole supply flow
 through the pipe:
 
 <TicketBudget />

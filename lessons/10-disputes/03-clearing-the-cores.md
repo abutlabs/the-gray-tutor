@@ -8,12 +8,56 @@ finishes what an honest block's disputes do to the state.
 
 ## What the Gray Paper says
 
-§11 defines **ρ** (C(10), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)): for each core, either nothing or a *pending
+::: gray-paper 10.2 15-16
+
+#### §10.2 Extrinsic, continued
+
+<a id="gp-10-2-p15"></a>We clear any availability assignments for work-reports which we judged as uncertain or invalid:
+
+<a id="gp-10-2-p16"></a><a id="eq-10-14"></a>
+
+$$
+\begin{equation}
+\forall c \in \mathbb{N}_{\mathsf{C}} : \rho^\dagger\left[c\right] = \begin{cases}
+\emptyset &\!\!\!\!\text{if }
+\left(\mathcal{H}\left((\rho\left[c\right]_{\mathbf{g}})_{\mathbf{r}}\right), v\right) \in \mathbf{v},
+v \in \left\{\,\bot, \emptyset\,\right\} \\
+\rho\left[c\right] &\!\!\!\!\text{otherwise}
+\end{cases}\!\!\!\!\!\!\! \tag{10.14}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-availassignmentspostjudgment" class="gk-wrap">$\rho^\dagger$</span> | rho dagger | the pending reports midway: after disputes took the judged-bad ones out |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-availassignments" class="gk-wrap">$\rho$</span> | rho | the pending reports: for each core, the report waiting to be made available, and when it came |
+| <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-vs-valid">$v$</span> | v | a verdict's outcome: ⊤ good, ⊥ bad or ∅ wonky |
+| <span id="gk-verdicts" class="gk-wrap">$\mathbf{v}$</span> | bold v | this block's verdicts boiled down: each report's hash with ⊤ good, ⊥ bad or ∅ wonky |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
+
+</details>
+
+→ [(10.14) in plain words](./gray-paper.md#ex-10-14)
+
+:::
+
+In plain words: §11 defines **ρ** (C(10), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)): for each core, either nothing or a *pending
 report*: the guarantee that put it there ([lesson 4.3](../04-blocks/03-guarantees.md), report, slot and signatures) and
 the slot it arrived in.
 
-§10 then clears it (equation *removenonpositive*): ρ†, ρ after the judgments, is ρ with
-every core emptied whose report was judged **bad or wonky** in this block. Which report
+§10 then clears it, in (10.14): ρ†, ρ after the judgments, is ρ with every core emptied
+whose report was judged **bad or wonky** in this block, ⊥ or ∅ in 𝐯. Which report
 is it? The verdict names a report by its hash, H(ℰ(report)), the very same hash
 [lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md) put in the extrinsic hash. So: hash each pending report, and compare.
 

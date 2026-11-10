@@ -2,8 +2,10 @@
 
 So far your client has believed every assurance it was handed. A real block can carry a
 broken one: signed with the wrong key, anchored on the wrong block, claiming a core with
-nothing on it. This lesson writes down the five rules an assurance must keep and checks
-them against every assurances vector, including the six on each size meant to fail.
+nothing on it. The assurance was signed off the chain, by one validator; the checking is
+on the chain, by all of them. This lesson writes down the five rules an assurance must
+keep and checks them against every assurances vector, including the six on each size
+meant to fail.
 
 ## New words
 
@@ -19,7 +21,101 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§11.2, *The Assurances Extrinsic*. Every assurance in a block must keep five rules:
+::: gray-paper 11.2.1 3-8
+
+#### §11.2.1 The Assurances Extrinsic, continued
+
+<a id="gp-11-2-1-p3"></a>The assurances must all be anchored on the parent and ordered by validator index:
+
+<a id="gp-11-2-1-p4"></a><a id="eq-11-12"></a><a id="eq-11-13"></a>
+
+$$
+\begin{align}
+\forall a &\in \mathbf{E}_A : a_{a} = \mathbf{H}_{P} \tag{11.12} \\
+\forall i &\in \left\{\, 1 \dots \left\vert\mathbf{E}_A\right\vert \,\right\} : \mathbf{E}_A\left[i - 1\right]_{v} < \mathbf{E}_A\left[i\right]_{v} \tag{11.13}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-xtassurances" class="gk-wrap">$\mathbf{E}_A$</span> | E sub A | the assurances bag: validators saying they hold their pieces of reports |
+| <span id="gk-xa-anchor">$a$</span> | a | an assurance's anchor: the parent block's header hash |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--parent">$P$</span> | P | a header's parent hash: 𝐇_P is the hash of the header before it, 32 bytes |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-xa-assurer">$v$</span> | v | the assuring validator's index in κ |
+
+</details>
+
+→ [(11.12), (11.13) in plain words](./gray-paper.md#ex-11-12)
+
+<a id="gp-11-2-1-p5"></a>The signature must be one whose public key is that of the validator assuring and whose message is the <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> of the parent hash $\mathbf{H}_{P}$ and the aforementioned bitstring:
+
+<a id="gp-11-2-1-p6"></a><a id="eq-11-14"></a><a id="eq-11-15"></a>
+
+$$
+\begin{align}
+&\forall a \in \mathbf{E}_A : a_{s} \in \bar{\mathbb{V}}_{\kappa\left[a_{v}\right]_{e}}\left\langle\mathsf{X}_A \frown \mathcal{H}\left(\mathcal{E}_{}\left(\mathbf{H}_{P}, a_{f}\right)\right)\right\rangle \tag{11.14} \\
+&\mathsf{X}_A \equiv \texttt{\$jam\_available} \tag{11.15}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xa-signature">$s$</span> | s | the assurer's Ed25519 signature over the parent hash and the bitfield |
+| <span id="gk-edsignature">$\bar{\mathbb{V}}_{x}\left\langle y\right\rangle$</span> | V bar sub k of m | the valid Ed25519 signatures by key k on message m: 64 bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-vk-ed">$e$</span> | e | a validator's Ed25519 key: the 32 bytes after its Bandersnatch key |
+| <span id="gk-Xavailable" class="gk-wrap">$\mathsf{X}_A$</span> | X sub A | the context string an assurance signs: `jam_available` |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-xa-availabilities">$f$</span> | f | an assurance's bitfield: one bit per core, 1 for "I hold my piece of its data" |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+
+</details>
+
+→ [(11.14), (11.15) in plain words](./gray-paper.md#ex-11-14)
+
+<a id="gp-11-2-1-p7"></a>A bit may only be set if the corresponding core has an <abbr class="gp-term" title="a guaranteed report waiting on its core until enough validators hold its pieces">availability assignment</abbr>:
+
+<a id="gp-11-2-1-p8"></a><a id="eq-11-16"></a>
+
+$$
+\begin{equation}
+\forall a \in \mathbf{E}_A, c \in \mathbb{N}_{\mathsf{C}} :
+\quad a_{f}\left[c\right] \Rightarrow \rho^\dagger\left[c\right] \ne \emptyset \tag{11.16}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-cX">$c$</span> | c | a core's index, 0 to C − 1 |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-Rightarrow">$\Rightarrow$</span> | implies | if the left holds, the right must hold too |
+| <span id="gk-availassignmentspostjudgment" class="gk-wrap">$\rho^\dagger$</span> | rho dagger | the pending reports midway: after disputes took the judged-bad ones out |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(11.16) in plain words](./gray-paper.md#ex-11-16)
+
+:::
+
+In plain words, §11.2.1 (*The Assurances Extrinsic*), with the assurance's own type from
+[lesson 11.1](./01-available.md), gives every assurance in a block five rules:
 
 1. **Anchored on the parent.** Its anchor is H_P, the hash of the block before this one.
    (`bad_attestation_parent`)
@@ -315,7 +411,7 @@ assurance_for_not_engaged_core-1: core_not_engaged
 :::
 
 The first assurance looks perfect and fails invisibly: only the signature check over
-its bytes catches it. The second fails by shape alone — a set bit for a core with no
+its bytes catches it. The second fails by shape alone: a set bit for a core with no
 pending report is an assurance of nothing.
 
 **Run**

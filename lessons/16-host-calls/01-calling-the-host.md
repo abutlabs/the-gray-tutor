@@ -3,8 +3,9 @@
 Since [lesson 15.8](../15-the-pvm/08-a-real-program.md), your machine stops at `ecalli`, the program's way of asking the
 outside world for something, and that's where the story ended. A real service asks all
 the time: how much gas is left? What work came in? What's in my storage? This lesson
-gives the machine a host that answers, so it can carry on. It answers just one question,
-for now.
+gives the machine a host that answers, so it can carry on. The host is your client: the
+machine stops, your client does the work and writes the answer into a register, the same
+on every validator. It answers just one question, for now.
 
 ## New words
 
@@ -15,24 +16,103 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-**Ψ_H** (App. A.6) runs the machine, and on each *host call* h hands the machine to a host
-function. The host answers by changing the gas, the registers or the memory, and then
-either the machine carries on, at the instruction after the `ecalli`, or it stops: halt,
-panic, or out of gas.
+::: gray-paper B.1
+
+#### Appendix B.1 Host-Call Result Constants {#gp-B-1}
+
+<a id="gp-B-1-p1"></a>
+
+- **$\mathtt{NONE} = 2^{64} - 1$** The return value indicating an item does not exist.
+- **$\mathtt{WHAT} = 2^{64} - 2$** Name unknown.
+- **$\mathtt{OOB} = 2^{64} - 3$** The inner PVM memory index provided for reading/writing is not accessible.
+- **$\mathtt{WHO} = 2^{64} - 4$** Index unknown.
+- **$\mathtt{FULL} = 2^{64} - 5$** Storage full or resource already allocated.
+- **$\mathtt{CORE} = 2^{64} - 6$** Core index unknown.
+- **$\mathtt{CASH} = 2^{64} - 7$** Insufficient funds.
+- **$\mathtt{LOW} = 2^{64} - 8$** Gas limit too low.
+- **$\mathtt{HUH} = 2^{64} - 9$** The operation is invalid. For example, the item is already solicited, cannot be forgotten, or the service is insufficiently privileged.
+- **$\mathtt{OK} = 0$** The return value indicating general success.
+
+<a id="gp-B-1-p2"></a>Inner PVM invocations have their own set of result codes:
+
+<a id="gp-B-1-p3"></a>
+
+- **$\mathtt{HALT} = 0$** The <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr> completed and halted normally.
+- **$\mathtt{PANIC} = 1$** The invocation completed with a panic.
+- **$\mathtt{FAULT} = 2$** The invocation completed with a page fault.
+- **$\mathtt{HOST} = 3$** The invocation completed with a host-call fault.
+- **$\mathtt{OOG} = 4$** The invocation completed by running out of gas.
+
+<a id="gp-B-1-p4"></a>Note return codes for a host-call-request exit are any non-zero value less than $2^{64} - 13$.
+
+:::
+
+::: gray-paper B.5 1-5
+
+#### Appendix B.5 General Functions {#gp-B-5}
+
+<a id="gp-B-5-p1"></a>We come now to defining the host functions which are utilized by the PVM invocations. Generally, these map some PVM state, including invocation context, possibly together with some additional parameters, to a new PVM state.
+
+<a id="gp-B-5-p2"></a>The general functions are all broadly of the form $\left(\varrho' \in \mathbb{Z}_G, \varphi' \in \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mu' \in \mathbb{M}\right) = \Omega_\square(\varrho \in \mathbb{N}_G, \varphi \in \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mu \in \mathbb{M})$. Functions which have a result component which is equivalent to the corresponding argument may have said components elided in the description. Functions may also depend upon particular additional parameters.
+
+<a id="gp-B-5-p3"></a>Unlike the Accumulate functions in appendix [B.7](./09-asking-for-preimages.md#gp-B-7-p1), these do not mutate an accumulation context. Some, such as $\mathtt{write}$ mutate a service account and both accept and return some $\mathbf{s} \in \mathbb{A}$. Others are more general functions, such as $\mathtt{fetch}$ and do not assume any context but have a parameter list suffixed with an ellipsis to denote that the context parameter may be taken and is provided transparently into its result. This allows it to be easily utilized in multiple PVM invocations.
+
+<a id="gp-B-5-p4"></a>Elements of PVM state are each assumed to remain unchanged by the host-call unless explicitly specified.
+
+<a id="gp-B-5-p5"></a><a id="eq-B-15"></a><a id="eq-B-16"></a>
+
+$$
+\begin{align}
+\varrho' &\equiv \varrho - g\text{ unless $\varrho'$ is explicitly defined below} \tag{B.15} \\
+\left(\varepsilon', \varphi', \mu', \mathbf{s}'\right) &\equiv \begin{cases}
+\left(\infty, \varphi, \mu, \mathbf{s}\right) &\text{if } \varrho < g\\
+\left(\blacktriangleright, \varphi, \mu, \mathbf{s}\right) \text{ except as indicated below} &\text{otherwise}
+\end{cases} \tag{B.16}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-gascounter" class="gk-wrap">$\varrho$</span> | rho (curly) | the gas left |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-execst" class="gk-wrap">$\varepsilon$</span> | epsilon | how the machine goes on after a host call: carry on (▸), halt, panic or out of gas |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-memory" class="gk-wrap">$\mu$</span> | mu | the PVM's memory |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+
+</details>
+
+→ [(B.15), (B.16) in plain words](./gray-paper.md#ex-B-15)
+
+:::
+
+In plain words: **Ψ_H** (App. A.6) runs the machine, and on each *host call* h hands the
+machine to a host function. The host answers by changing the gas, the registers or the
+memory, and then either the machine carries on, at the instruction after the `ecalli`, or
+it stops: halt, panic, or out of gas.
 
 App. B sets the rules every host call follows:
 
-- **Each one costs gas**, its g, taken before anything else. If that's more than is left,
-  the machine is out of gas and nothing else happens.
-- **The answer mostly comes back in φ₇.** Some values right at the top of the 64-bit
-  range mean trouble (App. B.1): NONE is 2^64 − 1, "no such item", and WHAT is
-  2^64 − 2, "no such host call". OK is 0.
+- **Each one costs gas**, its g, taken before anything else (B.15). If that's more than is
+  left, the machine is out of gas and nothing else happens (B.16): no answer, no change.
+- **What a call doesn't say it changes stays as it was.** That's why each host call's row
+  in the paper lists only what changes.
+- **The answer mostly comes back in φ₇.** B.1's first list is the values right at the top
+  of the 64-bit range that mean trouble: NONE is 2^64 − 1, "no such item", and WHAT is
+  2^64 − 2, "no such host call", and seven more "no"s count down from there to HUH,
+  2^64 − 9. Later lessons meet them one at a time. OK is 0. The second list, HALT to OOG,
+  is how refine's machines-inside-a-machine report back, and a block importer never runs
+  those.
 - **There are 28 host calls**, numbered from `gas` (0) to `provide` (27). Accumulation's
   host function F (App. B.4) knows 20 of them (refine's own, 7 to 14, aren't among them),
   and answers anything else with WHAT, for 1,000 gas.
 
 The first and simplest is **`gas`** (App. B.5, Ω_G): φ₇ becomes the gas left, after paying
-48 to ask.
+48 to ask. Its row, and every other host call's, is in the paper's three big tables, each
+explained call by call in [16.A](./gray-paper.md#b-5-s-table-the-general-host-calls).
 
 Step a host call through, start to finish:
 

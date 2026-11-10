@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 560" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+<style>
+  text { fill: #3c3c43; text-anchor: start; }
+  .title { font-weight: bold; }
+  .small { fill: #67676c; font-size: 12px; }
+  .bytes { fill: #0f766e; }
+  .who { fill: #c2410c; font-size: 12px; }
+  .place { fill: none; stroke: #9a9aa0; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .thing { fill: #e8f0fe; stroke: #5b8def; stroke-width: 1.5; }
+  .code { fill: #e6f6ef; stroke: #3fa97a; stroke-width: 1.5; }
+  .chain { fill: #fdf3e1; stroke: #d19a2a; stroke-width: 1.5; }
+  .line { stroke: #9a9aa0; stroke-width: 1.5; fill: none; }
+  .tip { fill: #9a9aa0; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #dfdfd6; }
+    .small { fill: #a8a8a0; }
+    .bytes { fill: #4fd1c5; }
+    .who { fill: #ff9a5c; }
+    .place { stroke: #6b6b72; }
+    .thing { fill: #1e2a44; stroke: #7aa2f7; }
+    .code { fill: #1b3329; stroke: #4fc08d; }
+    .chain { fill: #3a2e14; stroke: #e0b04a; }
+    .line { stroke: #6b6b72; }
+    .tip { fill: #6b6b72; }
+  }
+</style>
+<rect class="place" x="12" y="8" width="256" height="544" rx="10"/>
+<text class="title" x="24" y="32">Off the chain</text>
+<text class="who" x="24" y="52">anyone: a builder, a wallet, a</text>
+<text class="who" x="24" y="67">rollup</text>
+<rect class="place" x="308" y="8" width="256" height="544" rx="10"/>
+<text class="title" x="320" y="32">In-core</text>
+<text class="who" x="320" y="52">the 3 guarantors of one core</text>
+<text class="who" x="320" y="67">(2 cores on tiny, 341 on full)</text>
+<rect class="place" x="604" y="8" width="256" height="544" rx="10"/>
+<text class="title" x="616" y="32">On the chain</text>
+<text class="who" x="616" y="52">every validator (6 on tiny,</text>
+<text class="who" x="616" y="67">1,023 on full): your client</text>
+<rect class="thing" x="20" y="96" width="256" height="115" rx="6"/>
+<text class="title" x="32" y="116">a work-package</text>
+<text class="small" x="32" y="133">an authorization token (a blob)</text>
+<text class="small" x="32" y="150">an authorizer: code hash, config</text>
+<text class="small" x="32" y="167">a context: which block it saw</text>
+<text class="small" x="32" y="184">1 to 16 work-items, each:</text>
+<text class="small" x="32" y="201">  service, payload, gas limits</text>
+<text class="small" x="20" y="246">lesson 3.1</text>
+<text class="small" x="20" y="286">Never runs on the chain:</text>
+<text class="small" x="20" y="303">a block carries reports about</text>
+<text class="small" x="20" y="320">packages, never a package.</text>
+<rect class="code" x="316" y="96" width="256" height="64" rx="6"/>
+<text class="title" x="328" y="116">Is-Authorized (PVM)</text>
+<text class="small" x="328" y="133">the authorizer's code checks</text>
+<text class="small" x="328" y="150">the token; out: a trace</text>
+<rect class="code" x="316" y="182" width="256" height="64" rx="6"/>
+<text class="title" x="328" y="202">Refine (PVM)</text>
+<text class="small" x="328" y="219">each item's service code runs</text>
+<text class="small" x="328" y="236">on its payload; out: a digest</text>
+<rect class="thing" x="316" y="268" width="256" height="98" rx="6"/>
+<text class="title" x="328" y="288">a work-report</text>
+<text class="small" x="328" y="305">the package's hash and size</text>
+<text class="small" x="328" y="322">its context, its core</text>
+<text class="small" x="328" y="339">authorizer hash, trace, gas</text>
+<text class="small" x="328" y="356">one digest per item</text>
+<rect class="thing" x="316" y="386" width="256" height="64" rx="6"/>
+<text class="title" x="328" y="406">a guarantee</text>
+<text class="small" x="328" y="423">the report, the slot,</text>
+<text class="small" x="328" y="440">2 or 3 signatures</text>
+<line class="line" x1="444" y1="160" x2="444" y2="174"/>
+<polygon class="tip" points="439,174 449,174 444,182"/>
+<line class="line" x1="444" y1="246" x2="444" y2="260"/>
+<polygon class="tip" points="439,260 449,260 444,268"/>
+<line class="line" x1="444" y1="366" x2="444" y2="378"/>
+<polygon class="tip" points="439,378 449,378 444,386"/>
+<text class="small" x="316" y="470">lessons 3.2, 3.3, 4.3; Part 12</text>
+<text class="small" x="316" y="510">Shards of the package go to</text>
+<text class="small" x="316" y="527">every validator (lesson 3.3).</text>
+<rect class="chain" x="612" y="96" width="256" height="64" rx="6"/>
+<text class="title" x="624" y="116">a block</text>
+<text class="small" x="624" y="133">guarantees, assurances,</text>
+<text class="small" x="624" y="150">preimages, tickets, disputes</text>
+<rect class="chain" x="612" y="182" width="256" height="81" rx="6"/>
+<text class="title" x="624" y="202">checks, Parts 10 to 13</text>
+<text class="small" x="624" y="219">authorizer in the core's pool?</text>
+<text class="small" x="624" y="236">guarantors assigned? signed?</text>
+<text class="small" x="624" y="253">&gt; 2/3 assured the data?</text>
+<rect class="code" x="612" y="286" width="256" height="81" rx="6"/>
+<text class="title" x="624" y="306">Accumulate (PVM), Parts 15-17</text>
+<text class="small" x="624" y="323">each service's accumulate</text>
+<text class="small" x="624" y="340">code runs on its digests, on</text>
+<text class="small" x="624" y="357">every validator; writes state</text>
+<rect class="chain" x="612" y="390" width="256" height="64" rx="6"/>
+<text class="title" x="624" y="410">the state σ′ and its root</text>
+<text class="small" x="624" y="427">accounts, pools, queues,</text>
+<text class="small" x="624" y="444">scorecards: Parts 18, 19</text>
+<line class="line" x1="740" y1="160" x2="740" y2="174"/>
+<polygon class="tip" points="735,174 745,174 740,182"/>
+<line class="line" x1="740" y1="263" x2="740" y2="278"/>
+<polygon class="tip" points="735,278 745,278 740,286"/>
+<line class="line" x1="740" y1="367" x2="740" y2="382"/>
+<polygon class="tip" points="735,382 745,382 740,390"/>
+<line class="line" x1="276" y1="136" x2="308" y2="136"/>
+<polygon class="tip" points="308,141 308,131 316,136"/>
+<line class="line" x1="572" y1="416" x2="610.9069008229037" y2="133.9249690339478"/>
+<polygon class="tip" points="615.8600064691211,134.60815601963296 605.9537951766863,133.24178204826265 612,126"/>
+<text class="small" x="612" y="486">Same block, same code, same</text>
+<text class="small" x="612" y="503">answer on every machine, or</text>
+<text class="small" x="612" y="520">the chain splits.</text>
+</svg>

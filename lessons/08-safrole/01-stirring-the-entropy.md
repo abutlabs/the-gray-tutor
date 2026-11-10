@@ -23,12 +23,41 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§6 (*Sealing and Entropy Accumulation*): every block stirs new randomness into η₀, the
-accumulator:
+::: gray-paper 6.4 6-7
 
-> η′₀ = H(η₀ ⌢ Y(H_V))
+#### §6.4 Sealing and Entropy Accumulation, continued
 
-H_V is the header's `entropy_source` ([lesson 4.6](../04-blocks/06-the-header.md)): a 96-byte Bandersnatch *VRF*
+<a id="gp-6-4-p6"></a>$\eta_0$ defines the state of the randomness accumulator to which the provably random output of the VRF, the signature over some <abbr class="gp-term" title="nobody, not even its maker, can steer the value">unbiasable</abbr> input, is combined each block. $\eta_1$, $\eta_2$ and $\eta_3$ meanwhile retain the state of this accumulator at the end of the three most recently ended epochs in order.
+
+<a id="gp-6-4-p7"></a><a id="eq-6-23"></a>
+
+$$
+\begin{align}
+\eta_0' &\equiv \mathcal{H}\left(\eta_0 \frown \mathcal{Y}\left(\mathbf{H}_{V}\right)\right) \tag{6.23}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-entropyaccumulator" class="gk-wrap">$\eta_0$</span> | eta zero | the entropy accumulator: 32 bytes that every block's VRF output is hashed into |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-banderout">$\mathcal{Y}\left(x\right)$</span> | Y of | the 32-byte random output a Bandersnatch signature or proof carries, used as entropy |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--vrfsig">$V$</span> | V | a header's VRF signature: 𝐇_V, 96 bytes of the author's fresh randomness; the vectors' entropy source |
+
+</details>
+
+→ [(6.23) in plain words](./gray-paper.md#ex-6-23)
+
+:::
+
+In plain words, §6.4 (*Sealing and Entropy Accumulation*): every block stirs new
+randomness into η₀, the accumulator. The new η₀ is the hash of the old one followed by
+Y(H_V). H_V is the header's `entropy_source` ([lesson 4.6](../04-blocks/06-the-header.md)): a 96-byte Bandersnatch *VRF*
 signature by the block's author. Y(H_V) is its *output*, 32 bytes of randomness with a
 special property. The author can't choose it: for a given key and input (here, a fixed
 label and the block's seal), a VRF's output comes out one way only. Yet everyone can check it was made honestly. So

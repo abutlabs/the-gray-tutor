@@ -69,7 +69,118 @@ leaf is the bundle shard's hash followed by a root of the segment shards.)
 
 ## What the Gray Paper says
 
-§11 (*Work Report*) says a report is:
+::: gray-paper 11.1 4-4
+
+#### §11.1 State, continued
+
+<a id="gp-11-1-p4"></a>A work-report guarantee, of the set $\mathbb{G}$, consists of a work-report together with signatures from guarantors attesting to its correctness. $\mathbb{G}$ is formally defined and guarantees discussed further in section [11.4](../12-guarantees/index.md#gp-11-4-p1). For now, we concern ourselves with the work-reports that guarantees attest to.
+
+:::
+
+::: gray-paper 11.1.1 1-2
+
+#### §11.1.1 Work Report {#gp-11-1-1}
+
+<a id="gp-11-1-1-p1"></a>A work-report, of the set $\mathbb{R}$, is defined as a tuple of the work-package specification, $\mathbf{s}$; the refinement context, $\mathbf{c}$; the core-index (i.e.  on which the work is done), $c$; as well as the authorizer hash $a$ and trace $\mathbf{t}$; a segment-root lookup dictionary $\mathbf{l}$; the gas consumed during the <abbr class="gp-term" title="the authorizer's code, run in the PVM by the guarantors to decide if a package may use the core">Is-Authorized</abbr> <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr>, $g$; and finally the work-digests $\mathbf{d}$ which comprise the results of the evaluation of each of the items in the package together with some associated data. Formally:
+
+<a id="gp-11-1-1-p2"></a><a id="eq-11-2"></a>
+
+$$
+\begin{equation}
+\mathbb{R} \equiv \!\left\lgroup
+\begin{aligned}
+&\mathbf{s}\in \mathbb{Y},\
+\mathbf{c}\in \mathbb{C},\
+c\in \mathbb{N}_{\mathsf{C}},\
+a\in \mathbb{H}_{},\
+\mathbf{t}\in \mathbb{B}_{},\\
+&\mathbf{l}\in \left\langle\!\left\vert \mathbb{H}_{}\to\mathbb{H}_{}\right\vert\!\right\rangle,\
+\mathbf{d}\in \left[\!\left[\mathbb{D}\right]\!\right]_{1:\mathsf{I}},\
+g\in \mathbb{N}_G
+\end{aligned}
+\right\rgroup\! \tag{11.2}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-workreport" class="gk-wrap">$\mathbb{R}$</span> | R | the set of work-reports: a core's signed receipt for one work-package |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-avspec" class="gk-wrap">$\mathbb{Y}$</span> | Y | the set of availability specifications: package hash, bundle length, erasure root, shard count, segments root, segment count |
+| <span id="gk-wr-context" class="gk-wrap">$\mathbf{c}$</span> | c | a report's refinement context: the blocks its package was built against, and its prerequisites |
+| <span id="gk-workcontext" class="gk-wrap">$\mathbb{C}$</span> | C | the set of refinement contexts: the recent blocks a package was built against, and the packages it needs first |
+| <span id="gk-wr-core">$c$</span> | c | the core a report's work was done on, 0 to C − 1 |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-wr-authorizer">$a$</span> | a | a report's authorizer hash: which gatekeeper let its package onto the core |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-wr-authtrace" class="gk-wrap">$\mathbf{t}$</span> | t | the authorizer's trace: the blob its code returned when it said yes (`auth_output`) |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-wr-srlookup" class="gk-wrap">$\mathbf{l}$</span> | l | the segment-root lookup: for each package whose exports it imports by package hash, that package's segments root |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-wr-digests" class="gk-wrap">$\mathbf{d}$</span> | d | the report's digests, one per work-item, 1 to 16 of them (`results`) |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Cmaxpackageitems" class="gk-wrap">$\mathsf{I}$</span> | I | the most work-items a package holds, so the most digests a report holds: 16 |
+| <span id="gk-workdigest" class="gk-wrap">$\mathbb{D}$</span> | D | the set of work-digests: one item's result card, with its service, hashes, gas limit, result and load |
+| <span id="gk-wr-authgasused">$g$</span> | g | the gas the authorizer's code used (`auth_gas_used`) |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+
+</details>
+
+→ [(11.2) in plain words](./gray-paper.md#ex-11-2)
+
+:::
+
+::: gray-paper 11.1.3
+
+#### §11.1.3 Availability {#gp-11-1-3}
+
+<a id="gp-11-1-3-p1"></a>We define the set of *availability specifications*, $\mathbb{Y}$, as the tuple of the work-package's hash $p$, an auditable work bundle length $l$ (see section [14.4.1](./gray-paper.md#gp-14-4-1-p1) for more clarity on what this is), together with an erasure-root $u$, the total number of <abbr class="gp-term" title="cut into one piece per validator, so that any third of the pieces rebuild the whole">erasure-coded</abbr> chunks $v$, a segment-root $e$ and segment-count $n$. Work-reports include this availability specification in order to ensure the original work-package is able to be correctly reconstructed and the purported ramifications audited. Formally:
+
+<a id="gp-11-1-3-p2"></a><a id="eq-11-5"></a>
+
+$$
+\begin{align}
+\mathbb{Y} &\equiv \!\left\lgroup
+p\in \mathbb{H}_{}\,,\;
+l\in \mathbb{N}_L\,,\;
+u\in \mathbb{H}_{}\,,\;
+v\in \mathbb{V}\,,\;
+e\in \mathbb{H}_{}\,,\;
+n\in \mathbb{N}
+\right\rgroup\! \tag{11.5}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-as-packagehash">$p$</span> | p | the work-package's hash |
+| <span id="gk-as-bundlelen">$l$</span> | l | the bundle's length in bytes: the package with everything needed to refine it again |
+| <span id="gk-bloblength" class="gk-wrap">$\mathbb{N}_L$</span> | N sub L | a length of bytes: a u32 (below 2³²) |
+| <span id="gk-as-erasureroot">$u$</span> | u | the erasure root: one Merkle root over every validator's shard of the bundle and the exports |
+| <span id="gk-as-erasureshards">$v$</span> | v | how many shards the data is cut into: one per validator, 1,023 on full, 6 on tiny |
+| <span id="gk-valcount" class="gk-wrap">$\mathbb{V}$</span> | V (the set) | the validator counts allowed: multiples of 3 from 6 to 3C, which is 1,023 on full and 6 on tiny |
+| <span id="gk-as-segroot">$e$</span> | e | the root of the segments a package exports |
+| <span id="gk-as-segcount">$n$</span> | n | how many segments the package exported |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+
+</details>
+
+→ [(11.5) in plain words](./gray-paper.md#ex-11-5)
+
+<a id="gp-11-1-3-p3"></a>The *erasure-root* ($u$) is the root of a binary Merkle tree whose leaves are the $v$ chunks produced by erasure-coding the <abbr class="gp-term" title="a package with everything needed to redo its work, as auditors fetch it">work-package bundle</abbr> and exported segments. As one chunk is distributed to each assurer, the number of chunks must equal the size of the assuring validator set. The erasure-root functions as a <abbr class="gp-term" title="a short hash that stands for some data, so the data can be checked against it later">commitment</abbr> to all data required for the auditing of the report and for use by later work-packages should they need to retrieve any data yielded. It is thus used by assurers to verify the correctness of data they have been sent by guarantors, and it is later verified as correct by auditors. It is discussed fully in section [14](./index.md#gp-14-1-p1).
+
+<a id="gp-11-1-3-p4"></a>The *segment-root* ($e$) is the root of a constant-depth, left-biased and zero-hash-padded binary Merkle tree committing to the hashes of each of the exported segments of each work-item. These are used by guarantors to verify the correctness of any reconstructed segments they are called upon to import for evaluation of some later work-package. It is also discussed in section [14](./index.md#gp-14-1-p1).
+
+:::
+
+In plain words, §11.1.1 (*Work Report*) says a report is:
 
 - the *availability specification*: how to find the package's data again later;
 - the refinement *context* ([lesson 2.6](../02-codec/06-the-first-test-vectors.md)) and the *core* that did the work;
@@ -79,7 +190,7 @@ leaf is the bundle shard's hash followed by a root of the segment shards.)
   package hash, the root of the segments they exported;
 - the work *digests*, one per item ([lesson 3.2](./02-work-digests.md)).
 
-And the availability specification (§11, *Availability*) is six things: the package's
+And the availability specification (§11.1.3, *Availability*) is six things: the package's
 hash, the length of its *bundle* (the package plus everything needed to re-run it), an
 **erasure root** with the number of **erasure shards**, and the root and count of the
 segments it exported.
@@ -87,6 +198,10 @@ segments it exported.
 `erasure_shards` is one per validator, so for the first time tiny and full vectors
 differ: 6 shards on tiny, 1,023 on full. The exports root is a second Merkle root,
 over the exported segments themselves: a package that imports one later checks it there.
+
+Where every field comes from is §14.4's function Ξ, which the guarantors run in-core and
+your client never does: authorize, refine each item, then build the spec from the bundle
+and the exports. [3.A](./gray-paper.md#gp-14-4) quotes it with the rest of §14, step by step.
 
 Two fields are compact naturals: `core_index`, and `auth_gas_used`. Remember [lesson 1.2](../01-bytes-and-numbers/02-numbers.md)?
 `auth_gas_used` is the field where lasair's signed-number bug lived.
@@ -246,7 +361,7 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
-What flows through this run — the file's bytes, the report they decode to, the trace printed:
+What flows through this run: the file's bytes, the report they decode to, the trace printed:
 
 ::: code-group
 

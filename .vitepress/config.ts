@@ -2,7 +2,7 @@
 // buttons and dark mode. `npm run site` serves it at http://localhost:5173; GitHub Pages
 // serves it at https://abutlabs.github.io/the-gray-tutor/ (SITE_BASE, set by the workflow).
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { defineConfig } from "vitepress";
 import type MarkdownIt from "markdown-it";
@@ -14,14 +14,23 @@ import { checkBlocks } from "./checks.ts";
 import { albert } from "./albert.ts";
 import { runViews } from "./run-views.ts";
 import { lineRanges, linesOf, stepView } from "./whole.ts";
-import { writeEpub } from "./epub.ts";
+import { EPUB_FILE, writeEpub } from "./epub.ts";
+import { execSync } from "node:child_process";
 import { HEAD as CONCEPTS_HEAD } from "./theme/concepts-link.ts";
-import { BESIDE, cited, label, SECTIONS, sorted } from "./gray-paper.ts";
+import { BESIDE, cited, grayPaperQuotes, label, SECTIONS, sorted } from "./gray-paper.ts";
 import { unitCodes } from "./units.ts";
 import { snippetNumbers, wholeFiles } from "../tools/snapshots.ts";
 import type { Snapshot } from "../tools/snapshots.ts";
 
 const parts = readParts();
+/** A part's appendix, its Gray Paper formulas in plain words (lessons/NN-part/gray-paper.md),
+ *  as the sidebar and the book list it: "13.A The formulas, in plain words". */
+const appendixOf = (p: (typeof parts)[number]) => {
+  const file = `${p.dir}/gray-paper.md`;
+  if (!existsSync(join("lessons", file))) return [];
+  const title = /^# (.+)$/m.exec(readFileSync(join("lessons", file), "utf8"))![1];
+  return [{ address: `${p.dir}/gray-paper`, title: `${p.number}.A ${title}` }];
+};
 // which Gray Paper sections each lesson cites, and each part (gray-paper.ts): for the line at
 // a lesson's top, the sidebar, and the Gray Paper map page
 const grayPaper = (() => {
@@ -47,6 +56,7 @@ const printPages: PrintPage[] = [
       address: l.file.replace(/\.md$/, ""),
       title: `${l.id} ${l.title.replace(/^[\d.]+\s+/, "")}`,
     })),
+    ...appendixOf(p),
   ]),
   { address: "scoreboard", title: "The scoreboard", part: true },
   { address: "demo", title: "Demo", part: true },
@@ -56,6 +66,9 @@ const printPages: PrintPage[] = [
   { address: "pvm-playground", title: "The PVM playground", part: true },
   { address: "cryptography", title: "Cryptography we use", part: true },
   { address: "jam-at-a-glance", title: "JAM at a glance", part: true },
+  { address: "what-runs-where", title: "What runs where", part: true },
+  { address: "reading-the-gray-paper", title: "Reading the Gray Paper", part: true },
+  { address: "gray-paper-story", title: "The Gray Paper's own story", part: true },
   { address: "jam-beside-aztec", title: "JAM beside Aztec", part: true },
   { address: "gray-paper", title: "The Gray Paper, part by part", part: true },
 ];
@@ -64,6 +77,13 @@ const printPages: PrintPage[] = [
 const whole = wholeFiles();
 // each file snippet's number in its lesson, for its anchor: #snippet-2 is the lesson's second
 const numbers = snippetNumbers();
+// the e-book this build makes, if it makes one (npm run epub; every deploy does): its file,
+// the day, and the commit, for the link on the start page (theme/EbookLink.vue)
+const ebook = process.env.EPUB ? {
+  file: EPUB_FILE,
+  built: new Date().toISOString().slice(0, 10),
+  commit: (process.env.GITHUB_SHA ?? execSync("git rev-parse HEAD", { encoding: "utf8" })).trim().slice(0, 7),
+} : undefined;
 // "/" locally; "/the-gray-tutor/" on GitHub Pages (SITE_BASE, set by the workflow)
 const base = process.env.SITE_BASE ?? "/";
 
@@ -83,11 +103,12 @@ export default defineConfig({
     // the professor in the browser tab; head links don't get the base added for them
     ["link", { rel: "icon", type: "image/svg+xml", href: `${base}logo.svg` }],
   ],
-  // $$ ... $$ is a Gray Paper formula, drawn as maths when the site is built (MathJax, to
+  // $$ ... $$ is a Gray Paper formula, drawn as math when the site is built (MathJax, to
   // SVG: no script in the reader's browser, and print.html gets it too)
   markdown: {
-    math: true,
-    config: (md) => { snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
+    // the Gray Paper's longest formulas (Ψ_A's type, B.4) need more room than MathJax's default
+    math: { tex: { maxBuffer: 50 * 1024 } },
+    config: (md) => { grayPaperQuotes(md); snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
     codeTransformers: [shellComments()],
   },
   // the dev server sends a moved address on too (the built site has a page there instead)
@@ -104,6 +125,7 @@ export default defineConfig({
   themeConfig: {
     // the Gray Paper sections, for GrayPaperRefs.vue and GrayPaperMap.vue
     grayPaper,
+    ebook,
     // the professor beside the title (lessons/public/logo.svg)
     logo: { src: "/logo.svg", alt: "" },
     // every word you type must match, so "ready queue" finds the ready queue first
@@ -125,10 +147,13 @@ export default defineConfig({
         text: `${p.title}${sectionsLine(p.dir)}`,
         link: `/${p.dir}/`,
         collapsed: false,
-        items: p.lessons.map((l) => ({
-          text: `${l.id} ${l.title.replace(/^[\d.]+\s+/, "")}`,
-          link: `/${l.file.replace(/\.md$/, "")}`,
-        })),
+        items: [
+          ...p.lessons.map((l) => ({
+            text: `${l.id} ${l.title.replace(/^[\d.]+\s+/, "")}`,
+            link: `/${l.file.replace(/\.md$/, "")}`,
+          })),
+          ...appendixOf(p).map((a) => ({ text: a.title, link: `/${a.address}` })),
+        ],
       })),
       { text: "The scoreboard", link: "/scoreboard" },
       { text: "Demo", link: "/demo" },
@@ -138,6 +163,9 @@ export default defineConfig({
       { text: "The PVM playground", link: "/pvm-playground" },
       { text: "Cryptography we use", link: "/cryptography" },
       { text: "JAM at a glance", link: "/jam-at-a-glance" },
+      { text: "What runs where", link: "/what-runs-where" },
+      { text: "Reading the Gray Paper", link: "/reading-the-gray-paper" },
+      { text: "The Gray Paper's own story", link: "/gray-paper-story" },
       { text: "JAM beside Aztec", link: "/jam-beside-aztec" },
       { text: "The Gray Paper, part by part", link: "/gray-paper" },
     ],

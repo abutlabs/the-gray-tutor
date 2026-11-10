@@ -50,7 +50,9 @@ A *preimage* is the data behind a hash. Services can ask for data by its hash, a
 anyone can then deliver it in a block: the requesting service's id (ℰ₄) and the data
 itself, as a blob.
 
-Tickets and preimages are each a sequence with its length in front.
+Tickets and preimages are each a sequence with its length in front. Appendix C's lines
+for the two are (C.17) and (C.18), quoted with the whole block's in
+[lesson 4.7](./07-the-block.md#eq-C-17).
 
 ## A shortcut for vector tests
 

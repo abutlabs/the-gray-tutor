@@ -16,17 +16,160 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§7 (*Recent History*). β is two things: β_H, the list of recent blocks, at most H = 8 of
-them, and β_B, the belt. Each new block does three things to them:
+::: gray-paper 7 2-5
 
-1. **Fills in a blank.** The newest remembered block's state root couldn't be known when
+#### §7 Recent History, continued
+
+<a id="gp-7-p2"></a><a id="eq-7-1"></a><a id="eq-7-2"></a><a id="eq-7-3"></a><a id="eq-7-4"></a>
+
+$$
+\begin{align}
+\beta &\equiv \left(\beta_H, \beta_B\right) \tag{7.1} \\
+\beta_H &\in \left[\!\left[\!\left\lgroup
+h\in \mathbb{H}_{},
+s\in \mathbb{H}_{},
+b\in \mathbb{H}_{},
+t\in \mathbb{N}_T,
+\mathbf{p}\in \left\langle\!\left\vert \mathbb{H}_{}\to\mathbb{H}_{}\right\vert\!\right\rangle
+\right\rgroup\!\right]\!\right]_{:\mathsf{H}} \tag{7.2} \\
+\beta_B &\in \left[\!\left[\mathbb{H}_{}\boldsymbol{?}\right]\!\right]_{} \tag{7.3} \\
+\theta &\in \left[\!\left[\left(\mathbb{N}_S, \mathbb{H}_{}\right)\right]\!\right]_{} \tag{7.4}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-recent" class="gk-wrap">$\beta$</span> | beta | recent blocks: the last few blocks' hashes and roots, and the belt of accumulation outputs |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-recenthistory" class="gk-wrap">$\beta_H$</span> | beta sub H | the last H = 8 blocks: each one's header hash, state root, belt peak and reported packages |
+| <span id="gk-accoutbelt" class="gk-wrap">$\beta_B$</span> | beta sub B | the accumulation output belt: one place per binary digit of the block count, each a peak or nothing |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Crecenthistorylen" class="gk-wrap">$\mathsf{H}$</span> | H | how many recent blocks the state remembers: 8 |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-rh-headerhash">$h$</span> | h | a recent block's header hash |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-rh-stateroot">$s$</span> | s | a recent block's state root: the state just after it; zeros until the next block fills it in |
+| <span id="gk-rh-accoutlogsuperpeak">$b$</span> | b | the belt's super-peak just after that block: the vectors' `beefy_root` |
+| <span id="gk-rh-timeslot">$t$</span> | t | a recent block's timeslot |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-rh-reportedpackagehashes" class="gk-wrap">$\mathbf{p}$</span> | bold p | the packages a block reported: each package's hash, mapped to the root of the segments it exports |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-lastaccout" class="gk-wrap">$\theta$</span> | theta | the last block's accumulation outputs: which service yielded which hash |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+
+</details>
+
+→ [(7.1), (7.2), (7.3), (7.4) in plain words](./gray-paper.md#ex-7-1)
+
+<a id="gp-7-p3"></a>For each recent block, we retain its header hash, its state root, its accumulation-result MMB and the corresponding work-package hashes of each item reported (which is no more than the total number of cores, $\mathsf{C} = 341$).
+
+<a id="gp-7-p4"></a>During the accumulation stage, a value with the partial transition of this state is provided which contains the correction for the newly-known state-root of the parent block:
+
+<a id="gp-7-p5"></a><a id="eq-7-5"></a>
+
+$$
+\begin{equation}
+\beta_H^\dagger \equiv \beta_H\quad\text{ except }\quad\beta_H^\dagger\left[\left\vert\beta_H\right\vert - 1\right]_{s} = \mathbf{H}_{R} \tag{7.5}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-recenthistorypostparentstaterootupdate" class="gk-wrap">$\beta_H^\dagger$</span> | beta sub H dagger | the recent blocks midway: with the parent's state root filled in, before this block's entry |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--priorstateroot">$R$</span> | R | a header's prior state root: 𝐇_R is the root of the state before this block, 32 bytes |
+
+</details>
+
+→ [(7.5) in plain words](./gray-paper.md#ex-7-5)
+
+:::
+
+::: gray-paper 7 8-10
+
+#### §7 Recent History, continued
+
+<a id="gp-7-p8"></a>The final state transition for $\beta_H$ appends a new item including the new block's header hash, a Merkle <abbr class="gp-term" title="a short hash that stands for some data, so the data can be checked against it later">commitment</abbr> to the block's <abbr class="gp-term" title="β_B, the belt: one running commitment to every block's accumulation outputs">Accumulation Output Log</abbr> and the set of work-reports made into it (for which we use the guarantees extrinsic, $\mathbf{E}_G$). Formally:
+
+<a id="gp-7-p9"></a><a id="eq-7-8"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\beta_H' &\equiv {\overleftarrow{\beta_H^\dagger \mathbin{+\!\!+} \left(
+h\mathrel{\unicode{x2AF6}}\mathcal{H}\left(\mathbf{H}\right),
+s\mathrel{\unicode{x2AF6}}\mathbb{H}_{0},
+b\mathrel{\unicode{x2AF6}}\mathcal{M}_R\left(\beta_B'\right),
+t\mathrel{\unicode{x2AF6}}\mathbf{H}_{T},
+\mathbf{p}
+\right)}}^{\mathsf{H}} \\
+\text{where } \mathbf{p} &= \left\{\,
+\left(
+((g_{\mathbf{r}})_{\mathbf{s}})_{p}
+\mapsto
+((g_{\mathbf{r}})_{\mathbf{s}})_{e}
+\right)
+\;\middle\vert\;
+g \in \mathbf{E}_G
+\,\right\}
+\end{aligned} \tag{7.8}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-overleftarrow">$\overleftarrow$</span> | the last n of | with a number above: keep only the rightmost (newest) n items; with none: the sequence reversed |
+| <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-zerohash" class="gk-wrap">$\mathbb{H}_{0}$</span> | H zero | 32 zero bytes: a placeholder where a hash isn't known yet |
+| <span id="gk-mmrsuperpeak">$\mathcal{M}_R\left(x\right)$</span> | M sub R of | the super-peak: one hash for a whole belt, its peaks folded together under the word `peak` |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-kv">$\left(x \mapsto y\right)$</span> | k maps to v | a dictionary entry: key k, value v |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-as-packagehash">$p$</span> | p | the work-package's hash |
+| <span id="gk-as-segroot">$e$</span> | e | the root of the segments a package exports |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+
+</details>
+
+→ [(7.8) in plain words](./gray-paper.md#ex-7-8)
+
+<a id="gp-7-p10"></a>The new state-trie root is the zero hash, $\mathbb{H}_{0}$, which is inaccurate but safe since $\beta'$ is not utilized except to define the next block's $\beta^\dagger$, which contains a corrected value for this, as per equation [7.5](#eq-7-5).
+
+:::
+
+(The belt's own append, in between, is [lesson 9.1](./01-the-mountain-belt.md#what-the-gray-paper-says)'s.)
+
+In plain words, §7 (*Recent History*) says β is two things: β_H, the list of recent
+blocks, at most H = 8 of them, and β_B, the belt. (θ, in the same type line, is the
+block's accumulation outputs, which the belt's new root is made from.) Each new block
+does three things to them:
+
+1. **Fills in a blank (7.5).** The newest remembered block's state root couldn't be known when
    it was added, because a block's state root comes *after* the block. Now it is known:
    it's this block's `parent_state_root` (H_R, [lesson 4.6](../04-blocks/06-the-header.md)). So it's written in.
-2. **Adds itself.** The block's accumulation outputs go onto the belt ([lesson 9.1](./01-the-mountain-belt.md)), and
+2. **Adds itself (7.8).** The block's accumulation outputs go onto the belt ([lesson 9.1](./01-the-mountain-belt.md)), and
    a new entry joins the list: its header hash, the belt's new super-peak, its slot, the
-   packages it reported, and a state root of 32 zeros. The Gray Paper calls that zero
+   packages its guarantees reported (each package's hash, with the root of the segments
+   it exports), and a state root of 32 zeros. The Gray Paper calls that zero
    root "inaccurate but safe": nothing reads it before step 1 fixes it, one block later.
-3. **Forgets.** Only the last eight entries are kept.
+3. **Forgets (7.8).** Only the last eight entries are kept: the arrow over the whole
+   entry list, with H on top, keeps the rightmost H.
 
 So β's two halves live in one state entry, C(3), with very different memories:
 

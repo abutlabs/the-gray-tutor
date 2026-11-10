@@ -28,6 +28,106 @@ written once, and every direction follows it.
 
 All five are in the [glossary](../glossary.md).
 
+## What the Gray Paper says
+
+Appendix C starts from the two simplest values there are, nothing and bytes:
+
+::: gray-paper C.1.1 1-4
+
+#### Appendix C.1.1 Trivial Encodings {#gp-C-1-1}
+
+<a id="gp-C-1-1-p1"></a>We define the <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> of $\emptyset$ as the empty sequence:
+
+<a id="gp-C-1-1-p2"></a><a id="eq-C-1"></a>
+
+$$
+\begin{equation}
+\mathcal{E}_{}\left(\emptyset\right) \equiv \left[\right] \tag{C.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+
+</details>
+
+→ [(C.1) in plain words](./gray-paper.md#ex-C-1)
+
+<a id="gp-C-1-1-p3"></a>We also define the serialization of an octet-sequence as itself:
+
+<a id="gp-C-1-1-p4"></a><a id="eq-C-2"></a>
+
+$$
+\begin{equation}
+\mathcal{E}_{}\left(x \in \mathbb{B}_{}\right) \equiv x \tag{C.2}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+
+</details>
+
+→ [(C.2) in plain words](./gray-paper.md#ex-C-2)
+
+:::
+
+And for bytes whose number isn't known in advance, it adds a length in front:
+
+::: gray-paper C.1.3 1-3
+
+#### Appendix C.1.3 Discriminator Encoding {#gp-C-1-3}
+
+<a id="gp-C-1-3-p1"></a>When we have sets of heterogeneous items such as a union of different kinds of tuples or sequences of different length, we require a <abbr class="gp-term" title="a number in front of a value that tells a reader how to read what follows: a length, or which kind">discriminator</abbr> to determine the nature of the encoded item for successful deserialization. Discriminators are encoded as a natural and are encoded immediately prior to the item.
+
+<a id="gp-C-1-3-p2"></a>We generally use a *length discriminator* when serializing sequence terms which have variable length (e.g.  general blobs $\mathbb{B}_{}$ or unbound numeric sequences $\left[\!\left[\mathbb{N}\right]\!\right]_{}$) (though this is omitted in the case of fixed-length terms such as hashes $\mathbb{H}_{}$).<sup>1</sup> In this case, we simply prefix the term its length prior to encoding. Thus, for some term $y \in \left(x \in \mathbb{B}_{}, \dots\right)$, we would generally define its serialized form to be $\mathcal{E}_{}\left(\left\vert x\right\vert\right)\frown\mathcal{E}_{}\left(x\right)\frown\dots$. To avoid repetition of the term in such cases, we define the notation $\left\updownarrow x\right.\!$ to mean that the term of value $x$ is variable in size and requires a length discriminator. Formally:
+
+<small class="gp-note"><sup>1</sup> Note that since specific values may belong to both sets which would need a discriminator and those that would not then we are sadly unable to introduce a function capable of serializing corresponding to the *term*'s limitation. A more sophisticated formalism than basic set-theory would be needed, capable of taking into account not simply the value but the term from which or to which it belongs in order to do this succinctly.</small>
+
+<a id="gp-C-1-3-p3"></a><a id="eq-C-7"></a>
+
+$$
+\begin{equation}
+\left\updownarrow x\right.\! \equiv \left(\left\vert x\right\vert, x\right)\text{ thus }\mathcal{E}_{}\left(\left\updownarrow x\right.\!\right) \equiv \mathcal{E}_{}\left(\left\vert x\right\vert\right)\frown\mathcal{E}_{}\left(x\right) \tag{C.7}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-var">[$\left\updownarrow x\right.\!$](../symbols.md#length-prefix)</span> | with its length | ↕x: x with its length in front, as a compact natural |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+
+</details>
+
+→ [(C.7) in plain words](./gray-paper.md#ex-C-7)
+
+:::
+
+In plain words:
+
+- **Nothing (∅) encodes as no bytes at all** (C.1), and **bytes encode as themselves**
+  (C.2): a hash's 32 bytes go out exactly as they are.
+- **A value whose size can vary gets its length in front**, as a compact natural from
+  [lesson 2.2](./02-compact-naturals.md). The paper calls that length a discriminator
+  and writes ↕x for "x, with its length in front" (C.7). A hash needs none: everyone
+  knows it's 32 bytes.
+
+That is the whole of this lesson's codecs: numbers as [2.1](./01-fixed-width-integers.md) and
+[2.2](./02-compact-naturals.md) write them, fixed bytes as themselves, and a blob as ↕.
+
 ## The interface
 
 **New file** `src/codec/codec.ts`
@@ -152,8 +252,8 @@ export const blob: Codec<Bytes> = {
 };
 ```
 
-The Gray Paper writes ↕x for "x with its length in front" (Appendix C, *Discriminator
-Encoding*). A hash needs no length, since everyone knows it's 32 bytes. A blob of any
+`blob` is (C.7)'s ↕x, "x with its length in front"; `fixedBytes` is (C.2), bytes as
+themselves. A hash needs no length, since everyone knows it's 32 bytes. A blob of any
 size has to announce itself.
 
 ## Tests

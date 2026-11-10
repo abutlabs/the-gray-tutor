@@ -22,9 +22,74 @@ Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§6. The state keeps γ_A, the *ticket accumulator*: the best tickets entered so far,
-at most E of them, sorted by id. A ticket's id is random (a VRF output), and lower is
-better.
+::: gray-paper 6.2 5-8
+
+#### §6.2 Safrole Basic State, continued
+
+<a id="gp-6-2-p5"></a>Finally, $\gamma_A$ is the ticket accumulator, a sequence of highest-scoring ticket identifiers to be used for the next epoch. $\gamma_S$ is the current epoch's <abbr class="gp-term" title="who may seal each slot of an epoch: E tickets, or E keys">slot-sealer sequence</abbr>, which is either a full complement of $\mathsf{E}$ tickets or, in the case of a fallback mode, a sequence of $\mathsf{E}$ Bandersnatch keys:
+
+<a id="gp-6-2-p6"></a><a id="eq-6-5"></a>
+
+$$
+\begin{align}
+\gamma_A \in \left[\!\left[\mathbb{T}\right]\!\right]_{:\mathsf{E}} \,,\quad
+\gamma_S \in \left[\!\left[\mathbb{T}\right]\!\right]_{\mathsf{E}} \cup \left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{\mathsf{E}} \tag{6.5}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-ticketaccumulator" class="gk-wrap">$\gamma_A$</span> | gamma A | the ticket lottery: the best tickets entered so far for the next epoch, at most E, lowest id first |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
+| <span id="gk-safroleticket" class="gk-wrap">$\mathbb{T}$</span> | T | a ticket: a 32-byte id, and which of its maker's tries it was (its attempt) |
+| <span id="gk-sealtickets" class="gk-wrap">$\gamma_S$</span> | gamma S | the slot sealers: one entry for each of the epoch's E slots, a winning ticket or, in the fallback, a Bandersnatch key |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+
+</details>
+
+→ [(6.5) in plain words](./gray-paper.md#ex-6-5)
+
+<a id="gp-6-2-p7"></a>Here, $\mathbb{T}$ is used to denote the set of *tickets*, a combination of a verifiably random <abbr class="gp-term" title="a ticket's 32-byte random id, the output of its ring proof; lower wins">ticket identifier</abbr> $y$ and the ticket's entry-index $e$:
+
+<a id="gp-6-2-p8"></a><a id="eq-6-6"></a>
+
+$$
+\begin{align}
+\mathbb{T} &\equiv \!\left\lgroup
+y\in \mathbb{H}_{},\,
+e\in \mathbb{N}
+\right\rgroup\! \tag{6.6}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-st-id">$y$</span> | y | a ticket's id: 32 random bytes, the output of its ring proof; a lower id wins |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-st-entryindex">$e$</span> | e | a ticket's entry index: which of its maker's attempts it is, counted from 0 |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+
+</details>
+
+→ [(6.6) in plain words](./gray-paper.md#ex-6-6)
+
+:::
+
+In plain words, §6.2. A ticket is two things: its id y, 32 random bytes (a VRF output),
+and its entry index e, which of its maker's attempts it was. The state keeps γ_A, the
+*ticket accumulator*: the best tickets entered so far, at most E of them, sorted by id.
+Lower is better. And γ_S, this epoch's sealers, always has exactly E entries: E tickets,
+or, in the fallback, E Bandersnatch keys.
 
 **Y** (not 8.1's Y(·), the VRF output: the Gray Paper uses two different letters) is the
 phase at which the lottery closes: slot 500 of a 600-slot epoch on full, 10
@@ -32,7 +97,102 @@ of 12 on tiny. Slots tick with the clock whether or not their block arrives: a s
 sealer stays silent is simply empty, so there may be no block *at* slot 10 to make the
 announcement. Both rules below therefore compare two consecutive *blocks*: the parent, at
 phase m of its epoch, and the block itself, at phase m′, however many empty slots lie
-between them. Then two things can happen:
+between them. The paper's two rules, the tickets mark and the sealers:
+
+::: gray-paper 6.6 4-5
+
+#### §6.6 The Markers, continued
+
+<a id="gp-6-6-p4"></a>The winning-tickets marker $\mathbf{H}_{W}$ is either empty or, if the block is the first after the end of the submission period for tickets and if the ticket accumulator is saturated, then the final sequence of ticket identifiers. Formally:
+
+<a id="gp-6-6-p5"></a><a id="eq-6-29"></a>
+
+$$
+\begin{align}
+\mathbf{H}_{W} &\equiv \begin{cases}
+Z(\gamma_A) &\text{if } e' = e \wedge m < \mathsf{Y} \le m' \wedge \left\vert\gamma_A\right\vert = \mathsf{E} \\
+\emptyset & \text{otherwise}
+\end{cases} \tag{6.29}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--winnersmark">$W$</span> | W | a header's winning-tickets mark: 𝐇_W, at most once an epoch, a ticket for every slot of the next (12 on tiny, 600 on full) |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-Cepochtailstart" class="gk-wrap">$\mathsf{Y}$</span> | Y | the slot of an epoch at which the ticket lottery closes: 500 on full, 10 on tiny |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+
+</details>
+
+→ [(6.29) in plain words](./gray-paper.md#ex-6-29)
+
+:::
+
+::: gray-paper 6.5 1-4
+
+#### §6.5 The Slot-Sealer Sequence {#gp-6-5}
+
+<a id="gp-6-5-p1"></a>The <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> slot-sealer sequence $\gamma_S'$ is one of three expressions depending on the circumstance of the block. If the block is not the first in an epoch, then it remains unchanged from the prior $\gamma_S$. If the block signals the next epoch (by epoch index) and the previous block's slot was within the closing period of the previous epoch, then it takes the value of the prior ticket accumulator $\gamma_A$. Otherwise, it takes the value of the fallback key sequence. Formally:
+
+<a id="gp-6-5-p2"></a><a id="eq-6-25"></a>
+
+$$
+\begin{align}
+\gamma_S' &\equiv \begin{cases}
+Z(\gamma_A) &\text{if } e' = e + 1 \wedge m \geq \mathsf{Y} \wedge \left\vert\gamma_A\right\vert = \mathsf{E}\!\!\\
+\gamma_S &\text{if } e' = e \\
+F(\eta'_2, \kappa') \!\!\!&\text{otherwise}
+\end{cases} \tag{6.25}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-geq">$\geq$</span> | is at least | greater than or equal to |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+
+</details>
+
+→ [(6.25) in plain words](./gray-paper.md#ex-6-25)
+
+<a id="gp-6-5-p3"></a>Here, we use $Z$ as the outside-in sequencer function, defined as follows:
+
+<a id="gp-6-5-p4"></a><a id="eq-6-26"></a>
+
+$$
+\begin{equation}
+Z\colon\left\{ \,\begin{aligned}
+\left[\!\left[\mathbb{T}\right]\!\right]_{\mathsf{E}} &\to \left[\!\left[\mathbb{T}\right]\!\right]_{\mathsf{E}}\\
+\mathbf{s} &\mapsto \left[\mathbf{s}_0, \mathbf{s}_{\left\vert\mathbf{s}\right\vert - 1}, \mathbf{s}_1, \mathbf{s}_{\left\vert\mathbf{s}\right\vert - 2}, \dots\right]\\
+\end{aligned} \right. \tag{6.26}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+
+</details>
+
+→ [(6.26) in plain words](./gray-paper.md#ex-6-26)
+
+:::
+
+In plain words, two things can happen:
 
 - **The tickets mark** (*The Markers*): the block that crosses phase Y, in the same epoch
   (m < Y ≤ m′), puts the winners in its header, if the lottery filled up, with all E

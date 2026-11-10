@@ -10,7 +10,9 @@ const raw = lessonText("17-accumulation/06-who-wins.md");
 const code = lessonCode("17.6");
 
 test("R is the lesson's: b if a = o, otherwise a", () => {
-  assert.match(raw, /R\(o, a, b\) = b if a = o, otherwise a/);
+  // the paper's (12.19), quoted, and the lesson's reading of it
+  assert.match(raw, /R\(o, a, b\) \\equiv \\begin\{cases\}\nb &\\text\{if \} a = o \\\\\na &\\text\{otherwise\}/);
+  assert.match(raw.replace(/\s+/g, " "), /if the manager left it as it was \(a = o\), the holder's choice b wins; otherwise the manager's a does/);
   assert.match(code, /assign: before\.assign\.map\(\(o, c\) => R\(o, manager\.assign\[c\], post\(o\)\.assign\[c\]\)\),/);
   assert.deepEqual([R(1, 5, 7), R(1, 1, 7)], [5, 7]);
 });

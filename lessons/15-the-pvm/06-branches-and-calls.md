@@ -7,12 +7,70 @@ fourteen branches and the two instructions for a call. One question runs through
 
 ## What the Gray Paper says
 
-Appendix A.5:
+Three of Appendix A.5's tables. A register, an immediate and an offset: the branches on a
+constant, and the call:
+
+::: gray-paper A.5.8 2-2
+
+#### Appendix A.5.8 Instructions with Arguments of One Register, One Immediate and One Offset, continued
+
+<a id="gp-A-5-8-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 80 | `load_imm_jump` | $\texttt{sjump}(\nu_Y)\ ,\qquad {\varphi}_A' = \nu_X$ |
+| 81 | `branch_eq_imm` | $\texttt{branch}(\nu_Y, {\varphi}_A = \nu_X)$ |
+| 82 | `branch_ne_imm` | $\texttt{branch}(\nu_Y, {\varphi}_A \ne \nu_X)$ |
+| 83 | `branch_lt_u_imm` | $\texttt{branch}(\nu_Y, {\varphi}_A < \nu_X)$ |
+| 84 | `branch_le_u_imm` | $\texttt{branch}(\nu_Y, {\varphi}_A \le \nu_X)$ |
+| 85 | `branch_ge_u_imm` | $\texttt{branch}(\nu_Y, {\varphi}_A \ge \nu_X)$ |
+| 86 | `branch_gt_u_imm` | $\texttt{branch}(\nu_Y, {\varphi}_A > \nu_X)$ |
+| 87 | `branch_lt_s_imm` | $\texttt{branch}(\nu_Y, \mathcal{Z}_{8}({\varphi}_A) < \mathcal{Z}_{8}(\nu_X))$ |
+| 88 | `branch_le_s_imm` | $\texttt{branch}(\nu_Y, \mathcal{Z}_{8}({\varphi}_A) \le \mathcal{Z}_{8}(\nu_X))$ |
+| 89 | `branch_ge_s_imm` | $\texttt{branch}(\nu_Y, \mathcal{Z}_{8}({\varphi}_A) \ge \mathcal{Z}_{8}(\nu_X))$ |
+| 90 | `branch_gt_s_imm` | $\texttt{branch}(\nu_Y, \mathcal{Z}_{8}({\varphi}_A) > \mathcal{Z}_{8}(\nu_X))$ |
+
+:::
+
+Two registers and an offset: the branches that compare two registers:
+
+::: gray-paper A.5.11 2-2
+
+#### Appendix A.5.11 Instructions with Arguments of Two Registers &amp; One Offset, continued
+
+<a id="gp-A-5-11-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 170 | `branch_eq` | $\texttt{branch}(\nu_X, {\varphi}_A = {\varphi}_B)$ |
+| 171 | `branch_ne` | $\texttt{branch}(\nu_X, {\varphi}_A \ne {\varphi}_B)$ |
+| 172 | `branch_lt_u` | $\texttt{branch}(\nu_X, {\varphi}_A < {\varphi}_B)$ |
+| 173 | `branch_lt_s` | $\texttt{branch}(\nu_X, \mathcal{Z}_{8}({\varphi}_A) < \mathcal{Z}_{8}({\varphi}_B))$ |
+| 174 | `branch_ge_u` | $\texttt{branch}(\nu_X, {\varphi}_A \ge {\varphi}_B)$ |
+| 175 | `branch_ge_s` | $\texttt{branch}(\nu_X, \mathcal{Z}_{8}({\varphi}_A) \ge \mathcal{Z}_{8}({\varphi}_B))$ |
+
+:::
+
+Two registers and two immediates: the call through a register:
+
+::: gray-paper A.5.12 2-2
+
+#### Appendix A.5.12 Instruction with Arguments of Two Registers and Two Immediates, continued
+
+<a id="gp-A-5-12-p2"></a>
+
+| $\zeta_\imath$ | **Name** | **Mutations** |
+| --- | --- | --- |
+| 180 | `load_imm_jump_ind` | $\texttt{djump}(({\varphi}_B + \nu_Y) \bmod 2^{32}) \ ,\qquad {\varphi}_A' = \nu_X$ |
+
+:::
+
+In plain words:
 
 - **Branches** compare φ_A with a register φ_B, or with an immediate ν_X, and jump if the
   comparison holds. It's [lesson 15.3](./03-the-machine.md)'s `branch`: the target and the next instruction must
   both start basic blocks. There are ten comparisons: `eq`, `ne`, and `lt`, `le`, `ge`,
-  `gt` in two flavours each. `_u` reads the 64 bits as an unsigned number, `_s` as a
+  `gt` in two flavors each. `_u` reads the 64 bits as an unsigned number, `_s` as a
   signed one (Z₈, [lesson 15.2](./02-instructions.md)). The immediate branches have all ten; with two registers
   there are six (no `le` or `gt`: swap the registers and use `ge` or `lt`).
 - **−1 against 1.** A register holds −1 as 64 set bits. Unsigned, that's 2^64 − 1, the

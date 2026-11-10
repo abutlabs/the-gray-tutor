@@ -22,9 +22,83 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§4.2, *State Transition Dependency Graph*. For every new piece of state, one line says what
-it's made from. Read `x ≺ (a, b, c)` as "x is made from a, b and c". Two of them, in plain
-English:
+§4.2.1, *State Transition Dependency Graph*. [Lesson 0.6](../00-start/06-how-a-block-is-imported.md#what-the-gray-paper-says)
+quoted its opening sentence, the reason for it; here is the list itself, and what the
+paper says of its daggers:
+
+::: gray-paper 4.2.1 2-
+
+#### §4.2.1 State Transition Dependency Graph, continued
+
+<a id="gp-4-2-1-p2"></a><a id="eq-4-5"></a><a id="eq-4-6"></a><a id="eq-4-7"></a><a id="eq-4-8"></a><a id="eq-4-9"></a><a id="eq-4-10"></a><a id="eq-4-11"></a><a id="eq-4-12"></a><a id="eq-4-13"></a><a id="eq-4-14"></a><a id="eq-4-15"></a><a id="eq-4-16"></a><a id="eq-4-17"></a><a id="eq-4-18"></a><a id="eq-4-19"></a><a id="eq-4-20"></a>
+
+$$
+\begin{align}
+\tau' &\prec \mathbf{H} \tag{4.5} \\
+\beta_H^\dagger &\prec \left(\mathbf{H}, \beta_H\right) \tag{4.6} \\
+\gamma' &\prec \left(\mathbf{H}, \tau, \mathbf{E}_T, \gamma, \iota, \eta', \kappa', \psi'\right) \tag{4.7} \\
+\eta' &\prec \left(\mathbf{H}, \tau, \eta\right) \tag{4.8} \\
+\kappa' &\prec \left(\mathbf{H}, \tau, \kappa, \gamma\right) \tag{4.9} \\
+\lambda' &\prec \left(\mathbf{H}, \tau, \lambda, \kappa\right) \tag{4.10} \\
+\psi' &\prec \left(\mathbf{E}_D, \psi\right) \tag{4.11} \\
+\rho^\dagger &\prec \left(\mathbf{E}_D, \rho\right) \tag{4.12} \\
+\rho^\ddagger &\prec \left(\mathbf{E}_A, \rho^\dagger\right) \tag{4.13} \\
+\rho' &\prec \left(\mathbf{E}_G, \rho^\ddagger, \kappa, \tau'\right) \tag{4.14} \\
+\mathbf{R}^* &\prec \left(\mathbf{E}_A, \rho^\dagger\right) \tag{4.15} \\
+\left(\omega', \xi', \delta^\ddagger, \chi', \iota', \phi', \theta', \mathbf{S}\right) &\prec \left(\mathbf{R}^*, \omega, \xi, \delta, \chi, \iota, \phi, \tau, \tau'\right) \tag{4.16} \\
+\beta_H' &\prec \left(\mathbf{H}, \mathbf{E}_G, \beta_H^\dagger, \theta'\right) \tag{4.17} \\
+\delta' &\prec \left(\mathbf{E}_P, \delta^\ddagger, \tau'\right) \tag{4.18} \\
+\alpha' &\prec \left(\mathbf{H}, \mathbf{E}_G, \phi', \alpha\right) \tag{4.19} \\
+\pi' &\prec \left(\mathbf{E}_G, \mathbf{E}_P, \mathbf{E}_A, \mathbf{E}_T, \tau, \kappa', \pi, \mathbf{H}, \mathbf{S}\right)\!\!\!\!\!\!\!\! \tag{4.20}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-prec">$\prec$</span> | is defined in terms of | y ≺ x: y can be computed from x alone |
+| <span id="gk-theheader" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header |
+| <span id="gk-recenthistorypostparentstaterootupdate" class="gk-wrap">$\beta_H^\dagger$</span> | beta sub H dagger | the recent blocks midway: with the parent's state root filled in, before this block's entry |
+| <span id="gk-recenthistory" class="gk-wrap">$\beta_H$</span> | beta sub H | the last H = 8 blocks: each one's header hash, state root, belt peak and reported packages |
+| <span id="gk-safrole" class="gk-wrap">$\gamma$</span> | gamma | Safrole's state: the ticket lottery for who seals the next epoch's blocks |
+| <span id="gk-xttickets" class="gk-wrap">$\mathbf{E}_T$</span> | E sub T | the tickets bag: entries to the block-sealing lottery |
+| <span id="gk-stagingset" class="gk-wrap">$\iota$</span> | iota | the next validators: keys queued to become active at the next epoch |
+| <span id="gk-entropy" class="gk-wrap">$\eta$</span> | eta | entropy: four 32-byte values of randomness, the newest mixing in every block |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-disputes" class="gk-wrap">$\psi$</span> | psi | past judgments: the reports found good, bad or wonky, and the validators who lied |
+| <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
+| <span id="gk-xtdisputes" class="gk-wrap">$\mathbf{E}_D$</span> | E sub D | the disputes bag: verdicts, culprits and faults |
+| <span id="gk-availassignmentspostjudgment" class="gk-wrap">$\rho^\dagger$</span> | rho dagger | the pending reports midway: after disputes took the judged-bad ones out |
+| <span id="gk-availassignments" class="gk-wrap">$\rho$</span> | rho | the pending reports: for each core, the report waiting to be made available, and when it came |
+| <span id="gk-availassignmentspostassurances" class="gk-wrap">$\rho^\ddagger$</span> | rho double dagger | the pending reports midway: after the available ones and the timed-out ones left |
+| <span id="gk-xtassurances" class="gk-wrap">$\mathbf{E}_A$</span> | E sub A | the assurances bag: validators saying they hold their pieces of reports |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-ready" class="gk-wrap">$\omega$</span> | omega | the ready queue: available reports waiting on others before they can accumulate |
+| <span id="gk-accumulated" class="gk-wrap">$\xi$</span> | xi | the accumulated history: the packages accumulated in each of the last E slots |
+| <span id="gk-accountspostxfer" class="gk-wrap">$\delta^\ddagger$</span> | delta double dagger | the service accounts midway: after accumulation |
+| <span id="gk-privileges" class="gk-wrap">$\chi$</span> | chi | the privileged services: who may manage, assign cores, set validators and accumulate for free |
+| <span id="gk-authqueue" class="gk-wrap">$\phi$</span> | phi | the authorizer queues: for each core, Q = 80 authorizer hashes waiting to join its pool |
+| <span id="gk-lastaccout" class="gk-wrap">$\theta$</span> | theta | the last block's accumulation outputs: which service yielded which hash |
+| <span id="gk-accumulationstatistics" class="gk-wrap">$\mathbf{S}$</span> | S | this block's accumulation tallies, per service: work-items accumulated, transfers, and gas used |
+| <span id="gk-accountspre" class="gk-wrap">$\delta$</span> | delta | the service accounts before the block |
+| <span id="gk-accountspostpreimage" class="gk-wrap">$\delta'$</span> | delta prime | the service accounts after the block, the preimages provided included |
+| <span id="gk-xtpreimages" class="gk-wrap">$\mathbf{E}_P$</span> | E sub P | the preimages bag: data a service asked for |
+| <span id="gk-authpool" class="gk-wrap">$\alpha$</span> | alpha | the authorizer pools: for each core, up to O = 8 authorizer hashes it accepts right now |
+| <span id="gk-activity" class="gk-wrap">$\pi$</span> | pi | the statistics: tallies per validator, per core and per service |
+
+</details>
+
+→ [(4.5), (4.6), (4.7), (4.8), (4.9), (4.10), (4.11), (4.12), (4.13), (4.14), (4.15), (4.16), (4.17), (4.18), (4.19), (4.20) in plain words](./gray-paper.md#ex-4-5)
+
+<a id="gp-4-2-1-p3"></a>The only synchronous entanglements are visible through the intermediate components superscripted with a dagger and defined in equations [4.6](#eq-4-6), [4.12](#eq-4-12), [4.13](#eq-4-13), [4.14](#eq-4-14), [4.16](#eq-4-16), [4.17](#eq-4-17) and [4.18](#eq-4-18). The latter two mark a merge and join in the dependency graph and, concretely, imply that the availability extrinsic may be fully processed and accumulation of work happen before the preimage lookup extrinsic is folded into state.
+
+:::
+
+In plain words: for every new piece of state, one line says what it's made from. Read
+`x ≺ (a, b, c)` as "x is made from a, b and c". Two of them, in plain English:
 
 - ρ‡ ≺ (E_A, ρ†): the cores after the assurances are made from the assurances, and the
   cores after the judgments.
@@ -35,9 +109,12 @@ A prime (′) is a value after the block, a dagger a value halfway through it. A
 without one is either part of the block (the header H and the extrinsic's parts E_T, E_D,
 E_P, E_A, E_G) or the state before it, which is there from the start.
 
-Why write it this way? The Gray Paper's own reason is to help clients do the work in
-parallel, *"we minimize the depth of the dependency graph"*: the fewer steps that wait for
-others, the more can run at once.
+Why write it this way? The paper's own reason, in 0.6's quote, is to help clients do the
+work in parallel by keeping the graph shallow: the fewer steps that wait for others, the
+more can run at once. Its last paragraph names the seven lines where one step hands a
+half-made value to the next, the daggers and three primes. The last two of them, (4.17)
+and (4.18), say accumulation is done before the preimages extrinsic touches the accounts,
+which is why δ′ is made from δ‡ and comes so late.
 
 Two things to watch for. The list is in the Gray Paper's order, not an order you can run:
 γ′ comes before η′, which it needs. And it's a summary: 𝐑*, the reports ready to

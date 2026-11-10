@@ -24,7 +24,8 @@ whose: a service id, or 2^64 − 1 for the service itself. The record goes out a
 | 4 each | r, the slot it was created; a, the slot it last accumulated; p, its parent |
 
 It costs 703, and then it works exactly like `fetch`, only one register along: φ₈ is the
-address, φ₉ the first byte wanted, φ₁₀ how many. No such service: NONE.
+address, φ₉ the first byte wanted, φ₁₀ how many. No such service: NONE. The paper's row,
+in B.5's table, is explained in [16.A](./gray-paper.md#info-6), on service 1729's record.
 
 NONE is 2^64 − 1 too, the same number that means "the service itself" going in. Which one
 it is depends only on the direction: in φ₇ on the way in, it asks about yourself; in φ₇ on

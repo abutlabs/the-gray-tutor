@@ -1,6 +1,8 @@
 # The website on GitHub Pages, https://abutlabs.github.io/the-gray-tutor/. Every push to
 # main checks the tools and the lessons' links (npm test, and the build fails on a dead
-# link), then publishes the site. The e-book has its own workflow, epub.yml.
+# link), then publishes the site, with the newest concepts e-book beside it
+# (the-gray-tutor-concepts.epub, linked from the start page). epub.yml still makes a
+# release of the book, by hand, for a copy that stays.
 name: pages
 
 on:
@@ -26,10 +28,12 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      # the e-book's diagrams are drawn with a system monospace font (epub.ts, png)
+      - run: sudo apt-get install -y --no-install-recommends fonts-dejavu-core
       - run: npm ci
       - run: npm run typecheck && npm test
-      - name: Build the site
-        run: npm run site:build
+      - name: Build the site and the e-book
+        run: npm run epub
         env:
           SITE_BASE: /the-gray-tutor/
       - uses: actions/configure-pages@v5

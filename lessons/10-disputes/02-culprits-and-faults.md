@@ -13,7 +13,47 @@ validator set. This lesson checks the evidence and keeps the record.
 
 ## What the Gray Paper says
 
-§10 again.
+::: gray-paper 10.3
+
+#### §10.3 Header {#gp-10-3}
+
+<a id="gp-10-3-p1"></a>The offenders markers must contain exactly the keys of all new offenders, respectively. Formally:
+
+<a id="gp-10-3-p2"></a><a id="eq-10-19"></a>
+
+$$
+\begin{align}
+\mathbf{H}_{O} &\equiv
+\left[f \;\middle\vert\; \left(f,\dots\right) \mathrel{\unicode{x2B40}} \mathbf{E}_C\right]
+\frown
+\left[f \;\middle\vert\; \left(f,\dots\right) \mathrel{\unicode{x2B40}} \mathbf{E}_F\right] \tag{10.19}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--offendersmark">$O$</span> | O | a header's offenders mark: 𝐇_O, the Ed25519 keys of the validators this block convicts |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk--offenderindex">$f$</span> | f | an offender's Ed25519 key: 32 bytes |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-xtculprits" class="gk-wrap">$\mathbf{E}_C$</span> | E sub C | the block's culprits: guarantors of a bad report, each with the guarantee they signed |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-xtfaults" class="gk-wrap">$\mathbf{E}_F$</span> | E sub F | the block's faults: judges who voted against a verdict, each with the vote they signed |
+
+</details>
+
+→ [(10.19) in plain words](./gray-paper.md#ex-10-19)
+
+:::
+
+In plain words, with the rest of §10.2 that this lesson uses (the paper's culprit and
+fault rules are (10.6) and (10.7), quoted whole in [lesson 10.5](./05-bad-culprits-and-faults.md#what-the-gray-paper-says),
+and ψ′_O is (10.18), in [lesson 10.1](./01-votes-and-verdicts.md#eq-10-18)):
 
 - A **culprit** (r, k, s) is valid if s is k's Ed25519 signature on `$jam_guarantee` ⌢ r,
   the very message a guarantor signs when vouching for report r. (The `$` is notation;

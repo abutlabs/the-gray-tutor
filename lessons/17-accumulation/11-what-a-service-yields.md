@@ -35,7 +35,47 @@ The yield is part of what a run leaves behind, so it collapses like the rest
    A halt's output is the φ₈ bytes at φ₇, the machine's way to return a value.
 3. **Any other halt:** the run's last yield, if any.
 
-Then the block (§12 and §7):
+Then the block. §12.2 names the two things a round hands back besides the state: the
+yields, 𝐁, and the gas used, 𝐔:
+
+::: gray-paper 12.2 10-11
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p10"></a>Finally, we define $B$ and $U$, the sets characterizing service-indexed commitments to accumulation output and service-indexed gas usage respectively:
+
+<a id="gp-12-2-p11"></a><a id="eq-12-16"></a>
+
+$$
+\begin{equation}
+B \equiv \left\{\mkern-5mu\left[\,\!\left\lgroup\mathbb{N}_S, \mathbb{H}_{}\right\rgroup\!\,\right]\mkern-5mu\right\} \qquad
+U \equiv \left[\!\left[\!\left\lgroup\mathbb{N}_S, \mathbb{N}_G\right\rgroup\!\right]\!\right]_{} \tag{12.16}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-local-fnservouts">$B$</span> | B | the yields: a set of pairs (service, 32-byte hash) |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-protoset">$\left\{\mkern-5mu\left[\,x\,\right]\mkern-5mu\right\}$</span> | the set of | a set written in order: no repeats, kept sorted |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-local-fngasused">$U$</span> | U | the gas used: a list of pairs (service, gas), one per run |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+
+</details>
+
+→ [(12.16) in plain words](./gray-paper.md#ex-12-16)
+
+:::
+
+In plain words, a 𝐁 is a set of pairs (service, 32-byte hash), so a pair can be in it only
+once and has no order; a 𝐔 is a list of pairs (service, gas), in order, one per run. With
+them, the block (§12 and §7) goes:
 
 1. **Each round** collects b, the pairs (service, its yield) of the runs that yielded.
 2. **The block** gathers every round's pairs into one set: a pair counts once.

@@ -1,28 +1,114 @@
 # The authorizer pools
 
 Who is allowed to use a core? Not just anyone with a work-package. Each piece of work
-must be *authorized*, by an *authorizer*: a small program, identified by a hash, that
-decides whether a package may run. Each core keeps a short list of authorizers it
-currently accepts, its *pool*, and a long line of them waiting their turn, its
-*queue*. Every block, the pool changes a little: one goes out, one comes in. This
-lesson keeps the pools moving, and it's all of [Part 13](./index.md).
+must be *authorized*, by an *authorizer*: a PVM program plus a blob of settings, named by
+one hash, that decides whether a package may run. [Part 13's page](./index.md) tells an
+authorizer's whole life, from the code someone writes to the hash a report carries; read
+it first if you haven't. The authorizer's code runs in-core, on the core's guarantors.
+The chain never runs it. What the chain does is keep, for each core, a short list of the
+authorizers it currently accepts, its *pool*, and a long line of them waiting their turn,
+its *queue*. Every block, the pool changes a little: one goes out, one comes in. This
+lesson keeps the pools moving, on every validator, and it's all of [Part 13](./index.md).
 
 ## New words
 
+- **Authorization token and trace.** The two blobs round an authorizer: the *token*
+  travels in the package, the argument that it may use the core (a signature, say); the
+  *trace* is what the authorizer's code produced when it said yes, kept in the report as
+  `auth_output`. The chain reads neither; only the authorizer's code does. *Example:*
+  token `0x0102030405`, trace `0x`.
 - **Authorizer queue.** ϕ[c]. For each core, 80 authorizer hashes waiting their turn; one
   joins the core's pool every block. *Example:* at slot 85, the queue's entry 5 (85 mod
   80) joins.
 
-It's in the [glossary](../glossary.md), with the authorizer ([lesson 3.1](../03-work-and-reports/01-a-work-package.md)) and its
+Both are in the [glossary](../glossary.md), with the authorizer ([lesson 3.1](../03-work-and-reports/01-a-work-package.md)) and its
 pool ([lesson 12.4](../12-guarantees/04-bad-guarantees.md)).
 
 ## What the Gray Paper says
 
-§8 (*Authorization*). For each core c:
+::: gray-paper 8.2
+
+#### §8.2 Pool and Queue {#gp-8-2}
+
+<a id="gp-8-2-p1"></a>We define the set of authorizers allowable for a particular core $c$ as the *authorizer pool* $\alpha[c]$. To maintain this value, a further portion of state is tracked for each core: the core's current *authorizer queue* $\phi[c]$, from which we draw values to fill the pool. Formally:
+
+<a id="gp-8-2-p2"></a><a id="eq-8-1"></a>
+
+$$
+\begin{equation}
+\alpha \in \left[\!\left[\left[\!\left[\mathbb{H}_{}\right]\!\right]_{:\mathsf{O}}\right]\!\right]_{\mathsf{C}}\ , \qquad
+\phi \in \left[\!\left[\left[\!\left[\mathbb{H}_{}\right]\!\right]_{\mathsf{Q}}\right]\!\right]_{\mathsf{C}} \tag{8.1}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-authpool" class="gk-wrap">$\alpha$</span> | alpha | the authorizer pools: for each core, up to O = 8 authorizer hashes it accepts right now |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+| <span id="gk-Cauthpoolsize" class="gk-wrap">$\mathsf{O}$</span> | O | the most authorizers a core's pool holds: 8 |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-authqueue" class="gk-wrap">$\phi$</span> | phi | the authorizer queues: for each core, Q = 80 authorizer hashes waiting to join its pool |
+| <span id="gk-Cauthqueuesize" class="gk-wrap">$\mathsf{Q}$</span> | Q | how many authorizers a core's queue holds: 80 |
+
+</details>
+
+→ [(8.1) in plain words](./gray-paper.md#ex-8-1)
+
+<a id="gp-8-2-p3"></a>Note: The portion of state $\phi$ may be altered only through an <abbr class="gp-term" title="a call from outside this part of the protocol: here, a host call made by a service's code during accumulation">exogenous call</abbr> made from the accumulate logic of an appropriately privileged service.
+
+<a id="gp-8-2-p4"></a>The state transition of a block involves placing a new authorization into the pool from the queue:
+
+<a id="gp-8-2-p5"></a><a id="eq-8-2"></a><a id="eq-8-3"></a>
+
+$$
+\begin{align}
+&\forall c \in \mathbb{N}_{\mathsf{C}} : \alpha'\left[c\right] \equiv {\overleftarrow{F(c) \mathbin{+\!\!+} {\phi'\left[c\right]\left[\mathbf{H}_{T}\right]}^\circlearrowleft}}^{\mathsf{O}} \tag{8.2} \\
+&F(c) \equiv \begin{cases} \alpha[c] \mathbin{\unicode{x27DC}} \left\{\,(g_{\mathbf{r}})_{a}\,\right\} &\text{if } \exists g \in \mathbf{E}_G : (g_{\mathbf{r}})_{c} = c \\ \alpha[c] & \text{otherwise} \end{cases} \tag{8.3}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk--core">$c$</span> | c | a core's index, 0 to C − 1 |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-overleftarrow">$\overleftarrow$</span> | the last n of | with a number above: keep only the rightmost (newest) n items; with none: the sequence reversed |
+| <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
+| <span id="gk-cyclic">${x}^\circlearrowleft$</span> | wrapped around | ↺: the index goes round, counting from 0 again past the end (mod the length) |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-seqminusl">$\mathbin{\unicode{x27DC}}$</span> | without its first | the sequence with the leftmost copy of the item taken out |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-wr-authorizer">$a$</span> | a | a report's authorizer hash: which gatekeeper let its package onto the core |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+
+</details>
+
+→ [(8.2), (8.3) in plain words](./gray-paper.md#ex-8-2)
+
+<a id="gp-8-2-p6"></a>Since $\alpha'$ is dependent on $\phi'$, practically speaking, this step must be computed after accumulation, the stage in which $\phi'$ is defined. Note that we utilize the guarantees extrinsic $\mathbf{E}_G$ to remove the oldest authorizer which has been used to justify a guaranteed work-package in the current block. This is further defined in equation [11.25](../12-guarantees/04-bad-guarantees.md#eq-11-25).
+
+:::
+
+In plain words, §8 (*Authorization*) says, for each core c:
 
 - **α[c], the pool**: at most O = 8 authorizer hashes.
 - **ϕ[c], the queue**: exactly Q = 80 of them. Only a privileged service can change the
   queue, during accumulation ([Part 17](../17-accumulation/index.md)).
+
+Both hold *names*, 32-byte hashes, never code: the code sits in some service's preimages,
+and only the guarantors ever run it. Everything in this lesson runs on the chain, on every
+validator.
 
 Each block, α′[c] is made in three steps:
 

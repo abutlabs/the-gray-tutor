@@ -173,7 +173,7 @@ where `client/` and `reference/` don't exist. After changing a lesson's PVM or h
 ## Formulas
 
 A Gray Paper rule is quoted whole, type line and all, in LaTeX between `$$` lines: the site
-draws it as maths when it's built (MathJax), and VS Code's preview draws it too. Spell the
+draws it as math when it's built (MathJax), and VS Code's preview draws it too. Spell the
 Gray Paper's macros out in plain LaTeX (`\mathcal{E}`, `\frown`, `\left\lfloor`), checked
 against the 0.8.0 tex. In a sentence, `$...$` only where Unicode can't say it
 ($\mathbb{N}_{2^{8l}}$); ℰ₄ and ⌢ stay plain text.
@@ -187,6 +187,49 @@ for** and **Built in**. Its heading names its id (`### ⌢: concatenate {#concat
 page's tables link to it (checked). *Why:* a reader who can't say a symbol can't search for
 it, and one who can't read it can't follow the rule.
 
+## The Gray Paper's own words
+
+The tutorial quotes the whole Gray Paper, word for word, each piece once, where it
+teaches that piece. *Why:* Aodh's M1 interview (2026-11-05) was held with the paper open,
+and a reader who has only met our words can't find their way in its. Never type a quote:
+place a block and let the paper's tex fill it.
+
+```text
+::: gray-paper 8.2          the whole of §8.2 (its own text, not its subsections')
+::: gray-paper 11.4 3-7     pieces 3 to 7 of §11.4 ("3-": 3 to the end; "3": piece 3)
+::: gray-paper-eq 8.2       the formula holding (8.2) again, in a Part's appendix
+:::
+```
+
+`npm run gray-paper` fills every block from `submodules/graypaper` (`tools/gray-paper-tex.ts`
+reads it, `tools/gray-paper-render.ts` writes it): the paper's paragraphs, its formulas with
+their own numbers, its references as links to wherever the tutorial quotes their target.
+`npm run gray-paper -- list 11.4` numbers a section's pieces, to choose a range; `-- unplaced`
+lists what no page quotes yet; `-- fill <page>` fills only that page.
+`tools/gray-paper-text.test.ts` is the law: every block is what the tex gives, every piece
+of the paper is quoted exactly once, the equation numbers are the 0.8.0 PDF's, every formula
+draws in MathJax, and every symbol of a quoted formula is explained.
+
+- **Where.** A piece goes where a lesson teaches it: a lesson's rule at the top of its
+  *What the Gray Paper says*, with the lesson's plain-words version under it; a section's
+  motivation in its Part's *The big picture*. What no Part builds goes to an appendix:
+  §3 to *Reading the Gray Paper*, §15 to §19 to *What runs where*, App. G and H to
+  *Cryptography we use*, App. I to the symbols page, the framing (§1, §2, §20 to §22) to
+  *The Gray Paper's own story*.
+- **Symbols.** Every formula gets a key of the symbols the page hasn't keyed yet, from
+  `tools/glosses/` (one file for each part of the paper: how to say it, and what it means
+  in a line). On the site the key is folded, and hovering or tapping a symbol in the formula
+  shows its line; in the e-book the key is open under the formula.
+- **Words.** A word of the paper's prose a newcomer can't know (*coretime*, *exogenous
+  call*) goes in `tools/glosses/terms.ts`: underlined where a page first quotes it, its
+  meaning on hover or tap, and a pop-up note on a Kindle.
+- **A Part's appendix**, `NN-part/gray-paper.md` (*13.A The formulas, in plain words*), takes
+  every formula the Part quotes, for a reader who doesn't read math: the formula again
+  (`gray-paper-eq`), then **Read it aloud**, **In plain words**, **On a real value** (a
+  vector's real values, worked one step at a time) and **In your client**, ending with
+  *Say it in one breath*. A quoted formula links to its explanation there.
+  [13.A](lessons/13-authorization/gray-paper.md) is the model.
+
 ## Where
 
 `lessons/NN-part-name/NN-lesson-name.md`. The numbers give the order and the lesson's id
@@ -197,6 +240,15 @@ A part's page also says where you'll be at its end (*By the end of this part...*
 builds on (**Builds on**: the earlier parts that added the names its code imports from
 `src/`, test helpers aside, besides Parts 0 to 2), and how to start there (**Starting here?**: `npm run catch-up --` the lesson before
 it). `npm test` checks the last two against the code, so they stay true.
+
+**In the Gray Paper, on every Part page from 3 on.** The last section before *Test
+yourself*: which sections of the 0.8.0 paper to open; a table of the paper's names beside
+ours and the vectors' field names; the Part's one defining equation quoted in plain LaTeX
+(the paper's macros spelled out, checked against the tex in `submodules/graypaper`); and
+"Read it aloud", the equation in English, symbol by symbol. *Why:* Aodh's M1 interview
+(2026-11-05) was held with the Gray Paper open, and the tutorial had taught him our names
+and never the paper's page. A reader must be able to open the paper at the right section
+and read its line without us.
 
 **Addresses stay.** The site is public, so a page's address keeps working once it's
 published, as the Rust Book keeps its old chapters' addresses. A new page: add its address
@@ -222,9 +274,10 @@ tests ask for the files remade.
    that builds it). A word used before it's defined is a bug. `npm test` checks the two
    lists agree: every new word has a glossary entry, and every glossary word is in some
    lesson's New words, at or before the lesson its entry links.
-1. **What the Gray Paper says**: the rule, quoted or paraphrased, with its section
+1. **What the Gray Paper says**: the paper's own words first, in a `::: gray-paper` block
+   (*The Gray Paper's own words*), then the rule in plain words, with its section
    (§11, *Refinement Context*; Appendix C). Check every quote against the 0.8.0 tex. A
-   formula is drawn as maths, with its key (see *Formulas*).
+   formula is drawn as math, with its key (see *Formulas*).
 2. **The code**: test-driven development where it helps (the test, then the code), each
    in a labelled snippet.
 3. **Run**: the tests pass, the types check.
@@ -246,6 +299,20 @@ tests ask for the files remade.
 6. **What you have**, the last section: what works now and which vectors pass (on the
    scoreboard, where a milestone ran it), then one sentence on why the next lesson comes
    next, then the link to it.
+
+**Made from, and where it runs.** Before a lesson's first field or formula, the reader
+knows two things about every object it touches: what it is made from, in plain words with
+a real value (an authorizer is a PVM program plus a configuration blob, named by one hash),
+and where it runs or lives (off the chain, by a builder; in-core, by a core's three
+guarantors; on the chain, by every validator, your client included). A part's page opens
+with that picture for the whole part, as *The big picture*, with a code-drawn diagram
+where the thing is a shape, a familiar comparison for a reader who has built web services
+(the appendix `lessons/what-runs-where.md` is the shared map), and the full lifecycle on
+one example before the pools, queues and tables that hold it. *Why:* Aodh's M1 interview
+(2026-11-05) failed on "what is an authorizer": Part 13 had said a hash and a pool, and
+never that an authorizer is code plus settings run by the guarantors, nor that the chain
+only ever checks the hash. Being able to say what a thing is and who runs it where is the
+Gray Paper knowledge an interview asks for; the bytes are the tutorial's second job.
 
 **Foundations before complexity.** A beginner should never meet the hard parts first.
 Inside a lesson: plain English and a concrete example first, the Gray Paper's notation

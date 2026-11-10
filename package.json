@@ -8,7 +8,7 @@
   },
   "scripts": {
     "site": "node tools/need-node.mjs && vitepress dev --open",
-    "site:build": "node tools/need-node.mjs && vitepress build",
+    "site:build": "node tools/need-node.mjs && NODE_OPTIONS=--max-old-space-size=8192 vitepress build",
     "vectors": "node tools/need-node.mjs && node tools/vectors.ts",
     "compare": "node tools/need-node.mjs && node tools/compare.ts",
     "catch-up": "node tools/need-node.mjs && node tools/compare.ts --write",
@@ -16,14 +16,15 @@
     "launcher": "node tools/need-node.mjs && node tools/launcher.ts",
     "screenshots": "node tools/need-node.mjs && node tools/screenshots.ts",
     "diagrams": "node tools/need-node.mjs && node tools/diagrams.ts",
-    "epub": "node tools/need-node.mjs && EPUB=1 vitepress build",
+    "epub": "node tools/need-node.mjs && EPUB=1 NODE_OPTIONS=--max-old-space-size=8192 vitepress build",
     "test": "node tools/need-node.mjs && node --test \"tools/*.test.ts\"",
     "typecheck": "tsc -p tools",
     "check": "node tools/need-node.mjs && npm run typecheck && npm test && npm run site:build",
     "scoreboard": "node client/bin/scoreboard.ts",
     "demo": "node tools/need-node.mjs && node tools/compare.ts --last --write --dir demo && npm install --prefix demo --no-audit --no-fund",
     "offline": "node tools/need-node.mjs && node tools/offline.ts",
-    "pvm-engine": "node tools/pvm-engine.ts"
+    "pvm-engine": "node tools/pvm-engine.ts",
+    "gray-paper": "node tools/need-node.mjs && node tools/gray-paper-text.ts"
   },
   "devDependencies": {
     "@noble/curves": "2.4.0",

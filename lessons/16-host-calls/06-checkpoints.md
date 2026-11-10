@@ -17,19 +17,290 @@ It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Ψ_A (App. B.4) runs a service with a *pair* of contexts, X and Y. Both start as the same
-state (I(…)², the Gray Paper writes: I's context, twice). Every host call changes X. Y is
-the fallback.
+::: gray-paper B.4
+
+#### Appendix B.4 Accumulate Invocation {#gp-B-4}
+
+<a id="gp-B-4-p1"></a>Since this is a transition which can directly affect a substantial amount of on-chain state, our <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr> context is accordingly complex. It is a tuple with elements for each of the aspects of state which can be altered through this invocation and beyond the account of the service itself includes the <abbr class="gp-term" title="a payment between services: the money leaves now, and the receiver's code runs on it in the next round">deferred transfer</abbr> list and several dictionaries for alterations to preimage lookup state, core assignments, validator key assignments, newly created accounts and alterations to account privilege levels.
+
+<a id="gp-B-4-p2"></a>Formally, we define our result context to be $\mathbb{L}$, and our invocation context to be a pair of these contexts, $\mathbb{L} \times \mathbb{L}$ (and thus for any value $\mathbf{x} \in \mathbb{L}$ there exists $\mathbf{x}^2 \in \mathbb{L} \times \mathbb{L}$), with one dimension being the <abbr class="gp-term" title="the copy of the context, 𝐱, that host calls change and a halt keeps">regular dimension</abbr> and generally named $\mathbf{x}$ and the other being the <abbr class="gp-term" title="the copy of the context, 𝐲, kept if the run panics or runs out of gas">exceptional dimension</abbr> and being named $\mathbf{y}$. The only function which actually alters this second dimension is $\mathtt{checkpoint}$, $\Omega_C$ and so it is rarely seen.
+
+<a id="gp-B-4-p3"></a><a id="eq-B-7"></a><a id="eq-B-8"></a>
+
+$$
+\begin{align}
+\mathbb{L} &\equiv \!\left\lgroup
+s\in \mathbb{N}_S,
+\mathbf{e}\in \mathbb{S},
+i\in \mathbb{N}_S,
+\mathbf{t}\in \left[\!\left[\mathbb{X}\right]\!\right]_{},
+y\in \mathbb{H}_{}\boldsymbol{?},
+\mathbf{p}\in \left\{\mkern-5mu\left[\,\!\left\lgroup\mathbb{N}_S, \mathbb{B}_{}\right\rgroup\!\,\right]\mkern-5mu\right\}
+\right\rgroup\! \tag{B.7} \\
+\forall \mathbf{x} \in \mathbb{L} :
+\mathbf{x}_{\mathbf{s}} &\equiv (\mathbf{x}_{\mathbf{e}})_{\mathbf{d}}\left[\mathbf{x}_{s}\right] \tag{B.8}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-implications" class="gk-wrap">$\mathbb{L}$</span> | L | an accumulation's context: the service running, the state it sees, the next free service id, its transfers, its yield and its provisions |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-im-id">$s$</span> | s | the id of the service accumulating |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-im-state" class="gk-wrap">$\mathbf{e}$</span> | e | the state the service sees and changes: the accounts, the staging keys, the authorizer queues and the privileges |
+| <span id="gk-partialstate" class="gk-wrap">$\mathbb{S}$</span> | S | a partial state: the parts of the state accumulation may change: accounts, next validators, authorizer queues and the privileges |
+| <span id="gk-im-nextfreeid">$i$</span> | i | the id the next service it creates will get |
+| <span id="gk-im-xfers" class="gk-wrap">$\mathbf{t}$</span> | t | the transfers the service has made so far, delivered when it is done |
+| <span id="gk-defxfers">$\left[\!\left[\mathbb{X}\right]\!\right]$</span> | a sequence of transfers | a list of deferred transfers, in order |
+| <span id="gk-im-yield">$y$</span> | y | the hash the service yields, if any: its answer for the outside world |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-im-provisions" class="gk-wrap">$\mathbf{p}$</span> | p | the preimages the service provides: pairs of a service id and the bytes |
+| <span id="gk-protoset">$\left\{\mkern-5mu\left[\,x\,\right]\mkern-5mu\right\}$</span> | the set of | a set written in order: no repeats, kept sorted |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-imX" class="gk-wrap">$\mathbf{x}$</span> | x | the regular context: what the host calls change as the service runs, kept if it halts |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-im-self" class="gk-wrap">$\mathbf{s}$</span> | s | the account of the service accumulating, as this context holds it |
+| <span id="gk-ps-accounts" class="gk-wrap">$\mathbf{d}$</span> | d | a partial state's service accounts, by service id |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+
+</details>
+
+→ [(B.7), (B.8) in plain words](./gray-paper.md#ex-B-7)
+
+<a id="gp-B-4-p4"></a>We define a convenience equivalence $\mathbf{x}_{\mathbf{s}}$ to easily denote the accumulating service account.
+
+<a id="gp-B-4-p5"></a>We track both regular and exceptional dimensions within our <abbr class="gp-term" title="the function that answers a run's host calls and changes its context">context mutator</abbr>, but collapse the result of the invocation to one or the other depending on whether the termination was regular or exceptional (i.e.  out-of-gas or panic).
+
+<a id="gp-B-4-p6"></a>We define $\Psi_A$, the Accumulation invocation function as:
+
+<a id="gp-B-4-p7"></a><a id="eq-B-9"></a><a id="eq-B-10"></a><a id="eq-B-11"></a><a id="eq-B-12"></a><a id="eq-B-13"></a>
+
+$$
+\begin{align}
+\Psi_A& \colon\left\{ \begin{aligned}
+\!\left\lgroup
+\mathbb{S}, \mathbb{N}_T, \mathbb{N}_S, \mathbb{N}_G, \left[\!\left[\mathbb{U} \cup \mathbb{X}\right]\!\right]_{}
+\right\rgroup\!
+&\to \mathbb{O}
+\\
+\left(\mathbf{e}, t, s, g, \mathbf{i}\right) &\mapsto \begin{cases}
+\left(
+\mathbf{e}\mathrel{\unicode{x2AF6}}\mathbf{s},
+\mathbf{t}\mathrel{\unicode{x2AF6}}\left[\right],
+y\mathrel{\unicode{x2AF6}}\emptyset,
+u\mathrel{\unicode{x2AF6}}0,
+\mathbf{p}\mathrel{\unicode{x2AF6}}\left[\right]
+\right)
+&\text{if } \mathfrak{j} = \emptyset \vee \left\vert\mathfrak{j}\right\vert > \mathsf{W}_C \\
+C(\Psi_M(\mathfrak{j}, 5, g, \mathcal{E}_{}\left(t, s, \left\vert\mathbf{i}\right\vert\right), F, I(\mathbf{s}, s)^2))
+&\text{otherwise} \\
+\begin{aligned}
+&\quad \text{where } \mathfrak{j} = \mathbf{e}_{\mathbf{d}}\left[s\right]_{\mathbf{c}}\\
+&\quad \text{and } \mathbf{s} = \mathbf{e} \text{ except } \mathbf{s}_{\mathbf{d}}\left[s\right]_{b} = \mathbf{e}_{\mathbf{d}}\left[s\right]_{b} + \sum_{r \in \mathbf{x}}r_{a}\\
+&\quad \text{and } \mathbf{x} = \left[i \;\middle\vert\;
+i \mathrel{\unicode{x2B40}} \mathbf{i} ,
+i \in \mathbb{X}
+\right]
+\end{aligned}\\
+\end{cases} \\
+\end{aligned} \right. \tag{B.9} \\
+I&\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{S}, \mathbb{N}_S\right\rgroup\! &\to \mathbb{L}\\
+\left(\mathbf{e}, s\right) &\mapsto \left(
+s,
+\mathbf{e},
+i,
+\mathbf{t}\mathrel{\unicode{x2AF6}}\left[\right],
+y\mathrel{\unicode{x2AF6}}\emptyset,
+\mathbf{p}\mathrel{\unicode{x2AF6}}\left[\right]
+\right)\\
+&\qquad \text{where } i = \text{check}((\mathcal{E}^{-1}_{4}\left(\mathcal{H}\left(\mathcal{E}_{}\left(s, \eta_0', \mathbf{H}_{T}\right)\right)\right) \bmod (2^{32}-\mathsf{S}-2^8)) + \mathsf{S}) \\
+\end{aligned} \right. \tag{B.10} \\
+F \in \Omega\left\langle\!\left\lgroup\mathbb{L}, \mathbb{L}\right\rgroup\!\right\rangle &\colon \left(n, \varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)\right) \mapsto \begin{cases}
+\Omega_G(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{gas} \\
+\Omega_{\unicode{x264A}}(\varrho, \varphi, \mu, \mathfrak{j}) &\text{if } n = \mathtt{grow\_heap} \\
+\Omega_Y(\varrho, \varphi, \mu, \emptyset, \eta_0', \emptyset, \emptyset, \emptyset, \emptyset, \mathbf{i}, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{fetch}\\
+G(\Omega_R(\varrho, \varphi, \mu, \mathbf{x}_{\mathbf{s}}, \mathbf{x}_{s}, (\mathbf{x}_{\mathbf{e}})_{\mathbf{d}}), \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{read} \\
+G(\Omega_W(\varrho, \varphi, \mu, \mathbf{x}_{\mathbf{s}}, \mathbf{x}_{s}), \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{write} \\
+G(\Omega_L(\varrho, \varphi, \mu, \mathbf{x}_{\mathbf{s}}, \mathbf{x}_{s}, (\mathbf{x}_{\mathbf{e}})_{\mathbf{d}}), \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{lookup} \\
+G(\Omega_I(\varrho, \varphi, \mu, \mathbf{x}_{s}, (\mathbf{x}_{\mathbf{e}})_{\mathbf{d}}), \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{info} \\
+\Omega_B(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{bless}\\
+\Omega_A(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{assign}\\
+\Omega_D(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{designate}\\
+\Omega_C(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{checkpoint} \\
+\Omega_N(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right), \mathbf{H}_{T}) &\text{if } n = \mathtt{new} \\
+\Omega_U(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{upgrade} \\
+\Omega_T(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{transfer} \\
+\Omega_J(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right), \mathbf{H}_{T}) &\text{if } n = \mathtt{eject} \\
+\Omega_Q(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{query} \\
+\Omega_S(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right), \mathbf{H}_{T}) &\text{if } n = \mathtt{solicit} \\
+\Omega_F(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right), \mathbf{H}_{T}) &\text{if } n = \mathtt{forget} \\
+\Omega_{\unicode{x2649}}(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{yield} \\
+\Omega_{\unicode{x2648}}(\varrho, \varphi, \mu, \left(\mathbf{x}, \mathbf{y}\right)) &\text{if } n = \mathtt{provide} \\
+\left(\infty, \varrho', \varphi', \mu, \left(\mathbf{x}, \mathbf{y}\right)\right) &\text{otherwise if } \varrho' < 0\\
+\left(\blacktriangleright, \varrho', \varphi', \mu, \left(\mathbf{x}, \mathbf{y}\right)\right) &\text{otherwise}\\
+\text{where } \varphi' = \varphi \text{ except } \varphi'_7 = \mathtt{WHAT} \\
+\text{and } \varrho' = \varrho - \mathsf{M}_{\emptyset}
+\end{cases} \tag{B.11} \\
+G&\colon\left\{ \begin{aligned}
+\!\left\lgroup\!\left\lgroup\left\{\,\blacktriangleright, \blacksquare, \unicode{x21AF}, \infty\,\right\}, \mathbb{N}_G, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}, \mathbb{A}\right\rgroup\!, \!\left\lgroup\mathbb{L}, \mathbb{L}\right\rgroup\!\right\rgroup\! &\to \!\left\lgroup\left\{\,\blacktriangleright, \blacksquare, \unicode{x21AF}, \infty\,\right\}, \mathbb{N}_G, \left[\!\left[\mathbb{N}_R\right]\!\right]_{13}, \mathbb{M}, \!\left\lgroup\mathbb{L}, \mathbb{L}\right\rgroup\!\right\rgroup\! \\
+\left(\left(\varepsilon, \varrho, \varphi, \mu, \mathbf{s}\right), \left(\mathbf{x}, \mathbf{y}\right)\right) &\mapsto \left(\varepsilon, \varrho, \varphi, \mu, \left(\mathbf{x}^*, \mathbf{y}\right)\right) \\
+&\qquad  \text{where } \mathbf{x}^* = \mathbf{x} \text{ except } \mathbf{x}^*_{\mathbf{s}} = \mathbf{s}
+\end{aligned} \right. \tag{B.12} \\
+C&\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{N}_G, \mathbb{B}_{} \cup \left\{\,\infty, \unicode{x21AF}\,\right\}, \!\left\lgroup\mathbb{L}, \mathbb{L}\right\rgroup\!\right\rgroup\! &\to \mathbb{O} \\
+\left(u, \mathbf{o}, \left(\mathbf{x}, \mathbf{y}\right)\right) &\mapsto \begin{cases}
+\left(
+\mathbf{e}\mathrel{\unicode{x2AF6}}\mathbf{y}_{\mathbf{e}},
+\mathbf{t}\mathrel{\unicode{x2AF6}}\mathbf{y}_{\mathbf{t}},
+y\mathrel{\unicode{x2AF6}}\mathbf{y}_{y},
+u,
+\mathbf{p}\mathrel{\unicode{x2AF6}}\mathbf{y}_{\mathbf{p}}
+\right) & \text{if } \mathbf{o} \in \left\{\,\infty, \unicode{x21AF}\,\right\} \\
+\left(
+\mathbf{e}\mathrel{\unicode{x2AF6}}\mathbf{x}_{\mathbf{e}},
+\mathbf{t}\mathrel{\unicode{x2AF6}}\mathbf{x}_{\mathbf{t}},
+y\mathrel{\unicode{x2AF6}}\mathbf{o},
+u,
+\mathbf{p}\mathrel{\unicode{x2AF6}}\left(\mathbf{x}, \mathbf{y}\right)_{\mathbf{p}}
+\right) & \text{otherwise if } \mathbf{o} \in \mathbb{H}_{} \\
+\left(
+\mathbf{e}\mathrel{\unicode{x2AF6}}\mathbf{x}_{\mathbf{e}},
+\mathbf{t}\mathrel{\unicode{x2AF6}}\mathbf{x}_{\mathbf{t}},
+y\mathrel{\unicode{x2AF6}}\mathbf{x}_{y},
+u,
+\mathbf{p}\mathrel{\unicode{x2AF6}}\mathbf{x}_{\mathbf{p}}
+\right) & \text{otherwise} \\
+\end{cases}
+\end{aligned} \right. \tag{B.13}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-Psi">$\Psi$</span> | psi (capital) | the PVM: a program, a gas limit, registers and memory in; how it stopped and what's left out |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-timeslot" class="gk-wrap">$\mathbb{N}_T$</span> | N sub T | a timeslot: a u32 counting 6-second slots |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-operandtuple" class="gk-wrap">$\mathbb{U}$</span> | U | an operand: what accumulate is told about one work-digest: package hash, exports root, authorizer, payload hash, gas, trace and result |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-defxfer" class="gk-wrap">$\mathbb{X}$</span> | X | a deferred transfer: (source, destination, amount, memo, gas), the money moved now, the receiver run in the next round |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-acconeout" class="gk-wrap">$\mathbb{O}$</span> | O | what one run gives back: its state 𝐞, transfers 𝐭, yield y, gas used u and provisions 𝐩 |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-ao-gasused">$u$</span> | u | the gas a run used |
+| <span id="gk-jam-blob" class="gk-wrap">$\mathfrak{j}$</span> | j (gothic) | a standard program: four sizes, the read-only and read-write data, then the PVM blob |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-Cmaxservicecodesize" class="gk-wrap">$\mathsf{W}_C$</span> | W sub C | the largest a service's code may be: 4,000,000 bytes |
+| <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
+| <span id="gk-sa-code" class="gk-wrap">$\mathbf{c}$</span> | c (bold) | an account's code: the PVM program, the second half of its code-hash preimage; ∅ if there is none |
+| <span id="gk-sa-balance">$b$</span> | b | an account's balance, in tokens: a u64 |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-dx-amount">$a$</span> | a | how much balance the transfer moves |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-decode">[$\mathcal{E}^{-1}\left(x\right)$](../symbols.md#decode)</span> | E inverse of | decoding: bytes back into the value they encode |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-entropyaccumulator" class="gk-wrap">$\eta_0$</span> | eta zero | the entropy accumulator: 32 bytes that every block's VRF output is hashed into |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-bmod">[$\bmod$](../symbols.md#mod)</span> | mod | the remainder after dividing: 14 mod 4 is 2 |
+| <span id="gk-Cminpublicindex" class="gk-wrap">$\mathsf{S}$</span> | S | the lowest id an ordinary new service can get: 2¹⁶ = 65,536; the ids below it only the registrar hands out |
+| <span id="gk-contextmutator">$\Omega\left\langle x\right\rangle$</span> | omega of X | a host's function: given a host call's number, the gas, registers, memory and the host's own context X, it says carry on or stop, with all of them updated |
+| <span id="gk-implicationspair">$\!\left\lgroup\mathbb{L}, \mathbb{L}\right\rgroup\!$</span> | a pair of contexts | two accumulation contexts side by side: the regular one and the exceptional one |
+| <span id="gk-gascounter" class="gk-wrap">$\varrho$</span> | rho (curly) | the gas left |
+| <span id="gk-registers" class="gk-wrap">$\varphi$</span> | phi (curly) | the PVM's 13 registers |
+| <span id="gk-memory" class="gk-wrap">$\mu$</span> | mu | the PVM's memory |
+| <span id="gk-imXY">$\left(\mathbf{x}, \mathbf{y}\right)$</span> | x and y | the pair of contexts every accumulate host call gets: x as the service changes it, y as at its last checkpoint |
+| <span id="gk-Omega">$\Omega$</span> | omega | a host call's function: Ω_G is gas, Ω_Y fetch, Ω_W write; one letter for each call |
+| <span id="gk-Gemini">$\unicode{x264A}$</span> | Gemini | the sign that names grow_heap: Ω_♊ makes a program's heap bigger, a page at a time |
+| <span id="gk-Taurus">$\unicode{x2649}$</span> | Taurus | the sign that names yield: Ω_♉ records the hash a service yields |
+| <span id="gk-Aries">$\unicode{x2648}$</span> | Aries | the sign that names provide: Ω_♈ hands a preimage to a service that asked for it |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-continue" class="gk-wrap">$\blacktriangleright$</span> | continue | ▸: the step went normally, and the next one may run |
+| <span id="gk-Cgasunknown" class="gk-wrap">$\mathsf{M}_{\emptyset}$</span> | M sub nothing | what a host call this host doesn't know costs: 1,000 gas, and the answer WHAT |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-halt" class="gk-wrap">$\blacksquare$</span> | halt | ∎: the program finished normally |
+| <span id="gk-panic">$\unicode{x21AF}$</span> | panic | ↯: the program trapped |
+| <span id="gk-regs">$\left[\!\left[\mathbb{N}_R\right]\!\right]_{13}$</span> | thirteen registers | a sequence of 13 register values, each a u64 |
+| <span id="gk-ram" class="gk-wrap">$\mathbb{M}$</span> | M | a PVM memory: its bytes, and which pages may be read or written |
+| <span id="gk-serviceaccount" class="gk-wrap">$\mathbb{A}$</span> | A | a service account: three dictionaries (storage, preimages, requests) and eight plain fields |
+| <span id="gk-execst" class="gk-wrap">$\varepsilon$</span> | epsilon | how the machine goes on after a host call: carry on (▸), halt, panic or out of gas |
+| <span id="gk-imY" class="gk-wrap">$\mathbf{y}$</span> | y | the exceptional context: the state at the last checkpoint, kept if the service panics or runs out of gas |
+
+</details>
+
+→ [(B.9), (B.10), (B.11), (B.12), (B.13) in plain words](./gray-paper.md#ex-B-9)
+
+<a id="gp-B-4-p8"></a>The mutator $F$ governs how this context will alter for any given parameterization, and the collapse function $C$ selects one of the two dimensions of context depending on whether the virtual machine's halt was regular or exceptional.
+
+<a id="gp-B-4-p9"></a>The initializer function $I$ maps some partial state along with a service account index to yield a mutator context such that no alterations to the given state are implied in either exit scenario. Note that the component $a$ utilizes the random accumulator $\eta_0'$ and the block's timeslot $\mathbf{H}_{T}$ to create a deterministic sequence of identifiers which are extremely likely to be unique.
+
+<a id="gp-B-4-p10"></a>Concretely, we create the identifier from the Blake2 hash of the identifier of the creating service, the current random accumulator $\eta_0'$ and the block's timeslot. Thus, within a service's accumulation it is almost certainly unique, but it is not necessarily unique across all services, nor at all times in the past. We utilize a *check* function to find the first such index in this sequence which does not already represent a service:
+
+<a id="gp-B-4-p11"></a><a id="eq-B-14"></a>
+
+$$
+\begin{equation}
+\text{check}(i \in \mathbb{N}_S) \equiv \begin{cases}
+i &\text{if } i \not\in \mathcal{K}\left(\mathbf{e}_{\mathbf{d}}\right) \\
+\text{check}((i - \mathsf{S} + 1) \bmod (2^{32}-2^8-\mathsf{S}) + \mathsf{S})&\text{otherwise}
+\end{cases} \tag{B.14}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+
+</details>
+
+→ [(B.14) in plain words](./gray-paper.md#ex-B-14)
+
+<a id="gp-B-4-p12"></a>NB In the highly unlikely event that a block executes to find that a single service index has inadvertently been attached to two different services, then the block is considered invalid. Since no service can predict the identifier sequence ahead of time, they cannot intentionally disadvantage the block author.
+
+<a id="gp-B-4-p13"></a>
+
+:::
+
+In plain words: Ψ_A (App. B.4) runs a service with a *pair* of contexts, X and Y (the
+paper's bold 𝐱 and 𝐲). Both start as the same state (I(…)², the Gray Paper writes: I's
+context, twice). Every host call changes X. Y is the fallback.
 
 - **`checkpoint`** (host call 18, App. B.7, Ω_C): Y′ = X, so everything done so far
-  survives whatever comes next. φ₇ = the gas left, after paying 103.
+  survives whatever comes next. φ₇ = the gas left, after paying 103. Its row is in B.7's
+  table, explained in [16.A](./gray-paper.md#checkpoint-18).
 - **C, the collapse** (App. B.4): when the machine stops, a halt keeps X; a panic or
   running out of gas keeps Y. So without a checkpoint, a failed accumulation changes
   nothing the service did itself (money transferred to it still arrives, as [Part
   17](../17-accumulation/index.md) shows).
-- **Ψ_A** puts it together: lay out the service's code with Y ([lesson 15.8](../15-the-pvm/08-a-real-program.md)), arguments
-  E(t, s, |i|), start at 5, answer host calls with F, then collapse. The gas used is u = g
-  minus what's left (never counting below zero).
+- **Ψ_A** puts it together: lay out the service's code ([lesson 15.8](../15-the-pvm/08-a-real-program.md)'s
+  Y, the layout, not the context), arguments E(t, s, |i|), start at 5, answer host calls
+  with F, then collapse. The gas used is u = g minus what's left (never counting below
+  zero).
+
+B.4 says more than this lesson builds. Money sent to the service is added to its balance
+before it runs ([17.4](../17-accumulation/04-rounds.md)). The context also carries the
+transfers it sends, its yield and its provisions, each built in [Part 17](../17-accumulation/index.md) where its host call
+is. And I picks the id the service's first new service would get, from a hash of its id,
+the entropy and the slot, skipping ids already taken (B.14): that's for `new`, in
+[17.8](../17-accumulation/08-creating-a-service.md). Every formula of B.4 is worked through
+on service 1729 in [16.A](./gray-paper.md#ex-B-9).
 
 Try it below. Service 0 is [lesson 16.4](./04-info.md)'s made-up record, with a balance of
 1,000. Tap host calls to build a run: the two writes of this lesson's tests, a checkpoint,

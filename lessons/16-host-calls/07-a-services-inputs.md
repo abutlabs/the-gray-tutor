@@ -352,8 +352,8 @@ service 1729: 1 input(s), 200000 gas, "halt"
 :::
 
 The digest's `service_id` picks who accumulates, its
-`accumulate_gas` is the 200,000 the first line shows, and its `result.ok` — the 4 bytes
-`0x033fde3d` refine produced — comes out the other side as the value 1729 writes under
+`accumulate_gas` is the 200,000 the first line shows, and its `result.ok`, the 4 bytes
+`0x033fde3d` refine produced, comes out the other side as the value 1729 writes under
 its "last" key, `0x6c617374`. The gas used, 29,643, must equal the vector's
 `accumulate_gas_used` statistic, and does.
 

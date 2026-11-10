@@ -23,8 +23,34 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§3 (*Notational Conventions*): JAM's everyday signatures are *Ed25519*, as RFC 8032
-defines them. A public key is 32 bytes, a signature is 64.
+§3.8 (*Cryptography*) names three kinds of signature:
+
+::: gray-paper 3.8.2
+
+#### §3.8.2 Signing Schemes {#gp-3-8-2}
+
+<a id="gp-3-8-2-p1"></a>$\bar{\mathbb{V}}_{k}\left\langle m \in \mathbb{B}_{}\right\rangle \subset \mathbb{B}_{64}$ is the set of valid Ed25519 signatures, defined by [Josefsson and Liusvaara 2017](https://www.rfc-editor.org/info/rfc8032), made through knowledge of a secret key whose public key counterpart is $k \in \mathbb{H}_{}$ and whose message is $m$. To aid readability, we denote the set of valid public keys $\bar{\mathbb{H}_{}}$.
+
+<a id="gp-3-8-2-p2"></a>We denote the set of valid Bandersnatch public keys as $\overset{\backsim}{\mathbb{H}_{}}$, defined in appendix [G](../08-safrole/06-the-vrf-output.md#gp-G-p1). $\overset{\backsim}{\mathbb{V}}_{k \in \overset{\backsim}{\mathbb{H}_{}}}^{m \in \mathbb{B}_{}}\left\langle x \in \mathbb{B}_{}\right\rangle \subset \mathbb{B}_{96}$ is the set of valid singly-contextualized VRF signatures utilizing the secret counterpart to the public key $k$, some context $x$ and message $m$.
+
+<a id="gp-3-8-2-p3"></a>$\overset{\circ}{\mathbb{V}}_{r \in \overset{\circ}{\mathbb{B}_{}}}^{m \in \mathbb{B}_{}}\left\langle x \in \mathbb{B}_{}\right\rangle \subset \mathbb{B}_{784}$, meanwhile, is the set of valid Bandersnatch RingVRF deterministic singly-contextualized proofs of knowledge of a secret within some sequence of public keys identified by a root in the set of valid *roots* $\overset{\circ}{\mathbb{B}_{}} \subset \mathbb{B}_{144}$. We denote $\mathcal{O}\left(\mathbf{s} \in \left[\!\left[\overset{\backsim}{\mathbb{H}_{}}\right]\!\right]_{}\right) \in \overset{\circ}{\mathbb{B}_{}}$ to be the root specific to the sequence of public key counterparts $\mathbf{s}$. A root implies a specific sequence of Bandersnatch key pairs, knowledge of one of the secrets would imply being capable of making a unique, valid—and anonymous—proof of knowledge of a unique secret within the sequence.
+
+<a id="gp-3-8-2-p4"></a>Both the Bandersnatch signature and RingVRF proof strictly imply that a member utilized their secret key in combination with both the context $x$ and the message $m$; the difference is that the member is identified in the former and is anonymous in the latter. Furthermore, both define a VRF *output*, a high entropy hash influenced by $x$ but not by $m$, formally denoted $\mathcal{Y}\left(\overset{\circ}{\mathbb{V}}_{r}^{m}\left\langle x\right\rangle\right) \in \mathbb{H}_{}$ and $\mathcal{Y}\left(\overset{\backsim}{\mathbb{V}}_{k}^{m}\left\langle x\right\rangle\right) \in \mathbb{H}_{}$.
+
+<a id="gp-3-8-2-p5"></a>We use $\overset{\mathrm{B\!L\!S}}{\mathbb{B}_{}} \subset \mathbb{B}_{144}$ to denote the set of public keys for the BLS signature scheme, described by Boneh et al. 2004, on curve BLS12-381 defined by [Hopwood et al. 2020](https://z.cash/technology/jubjub/). We correspondingly use the notation $\overset{\mathrm{B\!L\!S}}{\mathbb{V}}_{k}\left\langle m\right\rangle$ to denote the set of valid BLS signatures for public key $k \in \overset{\mathrm{B\!L\!S}}{\mathbb{B}_{}}$ and message $m \in \mathbb{B}_{}$.
+
+<a id="gp-3-8-2-p6"></a>We define the signature functions for creating valid signatures; $\bar{\mathcal{S}}_{k}\left(m\right) \in \bar{\mathbb{V}}_{k}\left\langle m\right\rangle$, $\overset{\mathrm{B\!L\!S}}{\mathcal{S}}_{k}\left(m\right) \in \overset{\mathrm{B\!L\!S}}{\mathbb{V}}_{k}\left\langle m\right\rangle$. We assert that the ability to compute a result for this function relies on knowledge of a secret key.
+
+:::
+
+In plain words: JAM's everyday signatures are *Ed25519*, as RFC 8032 defines them. A
+public key is 32 bytes, a signature is 64. 𝕍̄ₖ⟨m⟩ is "the signatures key k could make on
+m", so a line that says s ∈ 𝕍̄ₖ⟨m⟩ means "s is k's signature on m": exactly what this
+lesson checks. The other two are for later, or never. Bandersnatch (96-byte signatures,
+and 784-byte ring proofs that hide which key signed) seals blocks and runs the ticket
+lottery, checked with a library in [Part 8](../08-safrole/index.md). BLS (144-byte keys)
+is for signatures that combine into one, used beside block import, so your client never
+checks one. [Cryptography we use](../cryptography.md) has all of them.
 
 §11 (*Reporting and Assurance*): an assurance ([lesson 4.2](../04-blocks/02-tiny-and-full.md)) must be signed by the
 validator it names, with that validator's Ed25519 key, and the message signed is

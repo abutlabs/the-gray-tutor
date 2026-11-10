@@ -84,7 +84,7 @@ test("lesson 3.3 places the widget once, in the big picture, before the Gray Pap
   const at = REPORT.indexOf("<ShardJourney />");
   assert.ok(at > 0 && at === REPORT.lastIndexOf("<ShardJourney />"));
   assert.ok(at > REPORT.indexOf("## The big picture") && at < REPORT.indexOf("## What the Gray Paper says"));
-  assert.ok(REPORT.indexOf("<ShardJourney />") < REPORT.indexOf("<ShardRebuild />"), "the picture before the maths");
+  assert.ok(REPORT.indexOf("<ShardJourney />") < REPORT.indexOf("<ShardRebuild />"), "the picture before the math");
 });
 
 test("Shamir's numbers: y = 49 + 7x + 3x² shares 59 to 199; any 3 give 49 back, 2 fit every secret", () => {

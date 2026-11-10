@@ -31,6 +31,8 @@ Then:
 
 So `grow_heap` is the exception to [lesson 16.1](./01-calling-the-host.md)'s gas taken before anything else: its price
 depends on how many pages it's asked for, so it works out the pages first, then the price.
+The paper's row for it, in B.5's table, is quoted and worked through on service 1729 in
+[16.A](./gray-paper.md#grow-heap-1).
 
 Grow the test's tiny program's heap:
 

@@ -1,7 +1,7 @@
 // Lesson 3.3's curve, worked by hand: how three letters become y = a + bx + cx², how the
 // curve gives the other shards, and how any three shards give the curve back. Every sum is
 // exact (fractions, no rounding) and every step is shown with its numbers, so the reader
-// checks the maths instead of trusting it. The numbers are plain, not wrapped round JAM's
+// checks the math instead of trusting it. The numbers are plain, not wrapped round JAM's
 // clock (shards.ts does that for the plot); for letters whose shards stay below 257 the two
 // agree. tools/widget-curve-solve.test.ts checks every step against shards.ts and the lesson.
 

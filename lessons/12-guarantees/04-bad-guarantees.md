@@ -8,15 +8,153 @@ reports themselves.
 
 ## New words
 
-- **Authorizer pool.** The authorizers a core accepts right now ([lesson 13.1](../13-authorization/01-the-authorizer-pools.md)'s α).
-  *Example:* a report whose authorizer isn't in its core's pool is refused.
+- **Authorizer pool.** The names (32-byte hashes) of the authorizers a core accepts right
+  now, up to 8 of them ([lesson 13.1](../13-authorization/01-the-authorizer-pools.md)'s α). An authorizer is the gatekeeper the core's
+  guarantors ran before refining: a PVM program plus its settings, named by one hash;
+  [Part 13's page](../13-authorization/index.md) tells its story. *Example:* a report whose
+  authorizer isn't in its core's pool is refused.
 
 It's in the [glossary](../glossary.md), with *rotation* and *active core*, the words from
 [lesson 12.1](./01-who-guarantees-what.md) the rules below lean on.
 
 ## What the Gray Paper says
 
-§11, *Work Report Guarantees*. Thirteen rules, in three groups.
+::: gray-paper 11.4 3-6
+
+#### §11.4 Work Report Guarantees, continued
+
+<a id="gp-11-4-p3"></a>We continue by defining the guarantees extrinsic, $\mathbf{E}_G$, a series of guarantees. The core index of each guarantee in $\mathbf{E}_G$ must be unique and guarantees must be in ascending order of this. Formally:
+
+<a id="gp-11-4-p4"></a><a id="eq-11-25"></a><a id="eq-11-26"></a>
+
+$$
+\begin{align}
+\mathbf{E}_G &\in \left[\!\left[\mathbb{G}\right]\!\right]_{:\mathsf{C}} \tag{11.25} \\
+\mathbf{E}_G &= \left[\mathbf{g} \in \mathbf{E}_G\,\wr\!\wr\,(\mathbf{g}_{\mathbf{r}})_{c}\right] \tag{11.26}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
+| <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
+| <span id="gk-guarantee" class="gk-wrap">$\mathbb{G}$</span> | G | the set of guarantees: a work-report, the slot it was made at, and two or three guarantors' signatures |
+| <span id="gk-sqorderuniqby">$\left[y\,\wr\!\wr\,x\right]$</span> | sorted, no repeats, by | sorted by the key on the right, each key once |
+| <span id="gk-gX" class="gk-wrap">$\mathbf{g}$</span> | g | a guarantee |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-wr-core">$c$</span> | c | the core a report's work was done on, 0 to C − 1 |
+
+</details>
+
+→ [(11.25), (11.26) in plain words](./gray-paper.md#ex-11-25)
+
+<a id="gp-11-4-p5"></a>Credentials must be ordered by their validator index:
+
+<a id="gp-11-4-p6"></a><a id="eq-11-27"></a>
+
+$$
+\begin{align}
+\forall g &\in \mathbf{E}_G : g_{a} = \left[\left(v, s\right) \in g_{a}\,\wr\!\wr\,v\right] \tag{11.27}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-g-credential">$a$</span> | a | a guarantee's credential: two or three pairs of a validator index and its Ed25519 signature |
+
+</details>
+
+→ [(11.27) in plain words](./gray-paper.md#ex-11-27)
+
+:::
+
+[Lesson 12.2](./02-signed-and-counted.md) quoted the signature rule, (11.28), whose other
+lines say who may sign and when. Then:
+
+::: gray-paper 11.4 10-15
+
+#### §11.4 Work Report Guarantees, continued
+
+<a id="gp-11-4-p10"></a>We denote $\mathbf{I}$ to be the set of work-reports in the present extrinsic $\mathbf{E}$:
+
+<a id="gp-11-4-p11"></a><a id="eq-11-30"></a>
+
+$$
+\begin{align}
+\text{let }\mathbf{I} = \left\{\,  \mathbf{g}_{\mathbf{r}}  \;\middle\vert\;  \mathbf{g} \in \mathbf{E}_G  \,\right\} \tag{11.30}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-incomingreports" class="gk-wrap">$\mathbf{I}$</span> | I | the incoming reports: the work-reports this block's guarantees carry |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+
+</details>
+
+→ [(11.30) in plain words](./gray-paper.md#ex-11-30)
+
+<a id="gp-11-4-p12"></a>The total number of <abbr class="gp-term" title="cut into one piece per validator, so that any third of the pieces rebuild the whole">erasure-coded</abbr> chunks for each report must match the number of active validators:
+
+<a id="gp-11-4-p13"></a><a id="eq-11-31"></a>
+
+$$
+\begin{equation}
+\forall \mathbf{r} \in \mathbf{I} : (\mathbf{r}_{\mathbf{s}})_{v} = \left\vert\kappa'\right\vert \tag{11.31}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-as-erasureshards">$v$</span> | v | how many shards the data is cut into: one per validator, 1,023 on full, 6 on tiny |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+
+</details>
+
+→ [(11.31) in plain words](./gray-paper.md#ex-11-31)
+
+<a id="gp-11-4-p14"></a>No guarantees may be placed on cores which already have availability assignments. A guarantee is valid only if the report's authorizer hash is present in the authorizer pool of the core on which the work is reported. Formally:
+
+<a id="gp-11-4-p15"></a><a id="eq-11-32"></a>
+
+$$
+\begin{equation}
+\forall \mathbf{r} \in \mathbf{I} :
+\rho^\ddagger\left[\mathbf{r}_{c}\right] = \emptyset \wedge \mathbf{r}_{a} \in \alpha\left[\mathbf{r}_{c}\right] \tag{11.32}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-availassignmentspostassurances" class="gk-wrap">$\rho^\ddagger$</span> | rho double dagger | the pending reports midway: after the available ones and the timed-out ones left |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-authpool" class="gk-wrap">$\alpha$</span> | alpha | the authorizer pools: for each core, up to O = 8 authorizer hashes it accepts right now |
+
+</details>
+
+→ [(11.32) in plain words](./gray-paper.md#ex-11-32)
+
+:::
+
+In plain words, §11.4 (*Work Report Guarantees*) makes thirteen rules, in three groups.
 
 **The guarantee's shape:**
 
@@ -341,7 +479,7 @@ banned_validator_guarantee-1: banned_validator (the vector: banned_validator)
 
 :::
 
-One refusal is pure range — a core number tiny doesn't have. The other needs the
+One refusal is pure range: a core number tiny doesn't have. The other needs the
 state: the guarantee's shape is perfect, but one signer's key sits in ψ_O, and an
 offender's signature counts for nothing.
 

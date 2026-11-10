@@ -126,7 +126,7 @@ test("an inline SVG picture (Albert's poses) becomes a PNG: no SVG is left in a 
   assert.equal(b.images.size, 1);
 });
 
-test("the maths letters Kindle's fonts lack become plain letters with their style; everything else stays", () => {
+test("the math letters Kindle's fonts lack become plain letters with their style; everything else stays", () => {
   assert.equal(kindleLetters("𝐑*"), "<b>R</b>*");
   assert.equal(kindleLetters("𝒴(H_S)"), "<i>Y</i>(H_S)");
   assert.equal(kindleLetters("𝔹 and 𝕏"), "<b>B</b> and <b>X</b>");

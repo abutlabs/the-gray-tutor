@@ -11,14 +11,17 @@
 # other networks, in JAM beside Aztec
 abutlabs
 accone
+assurer
 async
 authorizer
+availabilities
 aztec
 bandersnatch
 barretenberg
 bigint
 bitfield
 bitmask
+bitstring
 bitwise
 breakpoint
 burdges
@@ -27,6 +30,7 @@ changelog
 checkable
 codec
 config
+coretime
 ctrl
 davide
 deblob
@@ -45,6 +49,7 @@ fread
 fuzzer
 galassi
 gk
+gothic
 grafana
 hosseini
 immediates
@@ -56,6 +61,7 @@ lookups
 merkle
 merklization
 multicore
+mutator
 noir
 notational
 npm
@@ -66,6 +72,7 @@ nvme
 observability
 ocaml
 oog
+parachain
 polkadot
 pre
 preimage
@@ -84,6 +91,7 @@ safrole
 shamir
 shorthands
 smod
+solana
 subtrie
 supermajority
 there'd

@@ -21,7 +21,23 @@ All three are in the [glossary](../glossary.md). (*Round* itself is from [lesson
 
 ## What the Gray Paper says
 
-§12, in plain steps:
+§12.2 opens with why accumulation runs in rounds at all:
+
+::: gray-paper 12.2 1-4
+
+#### §12.2 Execution {#gp-12-2}
+
+<a id="gp-12-2-p1"></a>We work with a limited amount of gas per block and therefore may not be able to process all items in $\mathbf{R}^*$ in a single block. There are two slightly antagonistic factors allowing us to optimize the amount of work-items, and thus work-reports, accumulated in a single block:
+
+<a id="gp-12-2-p2"></a>Firstly, while we have a well-known gas-limit for each work-item to be accumulated, accumulation may still result in a lower amount of gas used. Only after a work-item is accumulated can it be known if it uses less gas than the advertised limit. This implies a sequential execution pattern.
+
+<a id="gp-12-2-p3"></a>Secondly, since PVM setup cannot be expected to be zero-cost, we wish to amortize this cost over as many work-items as possible. This can be done by aggregating work-items associated with the same service into the same PVM <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr>. This implies a non-sequential execution pattern.
+
+<a id="gp-12-2-p4"></a>We resolve this by defining a function $\Delta_+$ which accumulates work-reports sequentially, and which itself utilizes a function $\Delta_*$ which accumulates work-reports in a non-sequential, service-aggregated manner. In all but the first invocation of $\Delta_+$, we also integrate the effects of any *deferred-transfers* implied by the previous round of accumulation, thus the accumulation function must accept both the information contained in work-digests and that of deferred-transfers.
+
+:::
+
+In plain words, §12.2's rounds are five steps:
 
 1. **Round 1 is the block you already have**: every report that can go, and the
    always-accumulate services. It may send transfers.
@@ -46,7 +62,144 @@ that's the order the next round hands them out in.
 <GiftRounds />
 
 In the Gray Paper the loop is *Δ+*, one round *Δ\**, and one service in a round *Δ₁*,
-whose inputs are *i^T ⌢ i^U*: transfers, then operands.
+whose inputs are *i^T ⌢ i^U*: transfers, then operands. Here is Δ₁, whose g and
+inputs your `serviceInputs` builds below:
+
+::: gray-paper 12.2 21-24
+
+#### §12.2 Execution, continued
+
+<a id="gp-12-2-p21"></a>The single-service accumulation function, $\Delta_1$, transforms an initial <abbr class="gp-term" title="the partial state a run of accumulate works on and hands back">state-context</abbr>, a sequence of deferred-transfers, a sequence of work-reports, a dictionary of services enjoying free accumulation (with the values indicating the amount of free gas) and a service index into an alterations state-context, a sequence of *transfers*, a possible accumulation-output, the actual PVM gas used and a set of preimage provisions. This function wrangles the work-digests of a particular service from a set of work-reports and invokes PVM execution with said data:
+
+<a id="gp-12-2-p22"></a><a id="eq-12-22"></a>
+
+$$
+\begin{equation}
+\mathbb{O} \equiv \!\left\lgroup
+\begin{alignedat}{3}
+\mathbf{e}&\in \mathbb{S},\;
+&\mathbf{t}&\in \left[\!\left[\mathbb{X}\right]\!\right]_{},\;
+y\in \mathbb{H}_{}\boldsymbol{?},\;\\
+u&\in \mathbb{N}_G,\;
+&\mathbf{p}&\in \left\{\mkern-5mu\left[\,\!\left\lgroup\mathbb{N}_S, \mathbb{B}_{}\right\rgroup\!\,\right]\mkern-5mu\right\}
+\end{alignedat}
+\right\rgroup\! \tag{12.22}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-acconeout" class="gk-wrap">$\mathbb{O}$</span> | O | what one run gives back: its state 𝐞, transfers 𝐭, yield y, gas used u and provisions 𝐩 |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-ao-poststate" class="gk-wrap">$\mathbf{e}$</span> | e | the state a run left behind |
+| <span id="gk-partialstate" class="gk-wrap">$\mathbb{S}$</span> | S | a partial state: the parts of the state accumulation may change: accounts, next validators, authorizer queues and the privileges |
+| <span id="gk-ao-defxfers" class="gk-wrap">$\mathbf{t}$</span> | t | the transfers a run sent |
+| <span id="gk-defxfers">$\left[\!\left[\mathbb{X}\right]\!\right]$</span> | a sequence of transfers | a list of deferred transfers, in order |
+| <span id="gk-ao-yield">$y$</span> | y | a run's yield: a 32-byte hash for the outside world, or nothing |
+| <span id="gk-optional">$x\boldsymbol{?}$</span> | or nothing | a value of this type, or ∅ (null) |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-ao-gasused">$u$</span> | u | the gas a run used |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-ao-provisions" class="gk-wrap">$\mathbf{p}$</span> | p | the preimages a run provided: pairs (service, blob) |
+| <span id="gk-protoset">$\left\{\mkern-5mu\left[\,x\,\right]\mkern-5mu\right\}$</span> | the set of | a set written in order: no repeats, kept sorted |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+
+</details>
+
+→ [(12.22) in plain words](./gray-paper.md#ex-12-22)
+
+<a id="gp-12-2-p23"></a><a id="eq-12-23"></a>
+
+$$
+\begin{align}
+&\Delta_1 \colon \left\{ \;\begin{aligned}
+&\begin{aligned}
+\!\left\lgroup\begin{aligned}
+&\mathbb{S}, \left[\!\left[\mathbb{X}\right]\!\right]_{}, \left[\!\left[\mathbb{R}\right]\!\right]_{},\\
+&\left\langle\!\left\vert \mathbb{N}_S\to\mathbb{N}_G\right\vert\!\right\rangle, \mathbb{N}_S
+\end{aligned}\right\rgroup\!
+&\to \mathbb{O} \\
+\left(\mathbf{e}, \mathbf{t}, \mathbf{r}, \mathbf{f}, s\right) &\mapsto \Psi_A(\mathbf{e}, \tau', s, g, \mathbf{i}^T \!\!\frown \mathbf{i}^U)
+\end{aligned} \\
+&\text{where:} \\
+&\ \begin{aligned}
+g &= \mathcal{U}\left(\mathbf{f}_{s}, 0\right)
++ \!\!\!\!\sum_{t \in \mathbf{t}, t_{d} = s}\!\!\!\!(t_{g})
++ \!\!\!\!\!\!\!\!\sum_{r \in \mathbf{r}, d \in r_{\mathbf{d}}, d_{s} = s}\!\!\!\!\!\!\!\!(d_{g}) \\
+\mathbf{i}^T &= \left[
+t
+\;\middle\vert\;
+t \mathrel{\unicode{x2B40}} \mathbf{t}, t_{d} = s
+\right]\\
+\mathbf{i}^U &= \left[
+\left(\begin{alignedat}{3}
+\mathbf{l}\mathrel{\unicode{x2AF6}} d_{\mathbf{l}},\,
+g\mathrel{\unicode{x2AF6}} d_{g},\,
+y\mathrel{\unicode{x2AF6}} d_{y},\,
+&\mathbf{t}\;&\mathrel{\unicode{x2AF6}} r_{\mathbf{t}}&,\\
+e\mathrel{\unicode{x2AF6}}(r_{\mathbf{s}})_{e},\,
+p\mathrel{\unicode{x2AF6}}(r_{\mathbf{s}})_{p},\,
+&a\;&\mathrel{\unicode{x2AF6}} r_{a}&
+\end{alignedat}\right)
+\;\middle\vert\;
+\begin{alignedat}{2}
+r& \mathrel{\unicode{x2B40}} \mathbf{r},&\\
+d& \mathrel{\unicode{x2B40}} r_{\mathbf{d}},&\ d_{s} = s
+\end{alignedat}
+\right]
+\end{aligned}
+\end{aligned} \right.\!\!\!\! \tag{12.23}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-accone" class="gk-wrap">$\Delta_1$</span> | Delta one | one service's accumulation: adds up its gas, lines up its inputs, transfers first, and runs its code with Ψ_A |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-workreports">$\left[\!\left[\mathbb{R}\right]\!\right]$</span> | a sequence of work-reports | a list of work-reports, in order |
+| <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-Psi">$\Psi$</span> | psi (capital) | the PVM: a program, a gas limit, registers and memory in; how it stopped and what's left out |
+| <span id="gk-thetime" class="gk-wrap">$\tau$</span> | tau | the time: the latest block's timeslot |
+| <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
+| <span id="gk-subifnone">$\mathcal{U}\left(x\right)$</span> | U of | the first of its arguments that isn't nothing (∅), or ∅ if all are |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-dx-dest">$d$</span> | d | a transfer's receiver: the service it goes to |
+| <span id="gk-dx-gas">$g$</span> | g | the gas the sender pays for the receiver's run on this transfer |
+| <span id="gk-wr-digests" class="gk-wrap">$\mathbf{d}$</span> | d | the report's digests, one per work-item, 1 to 16 of them (`results`) |
+| <span id="gk-wd-serviceindex">$s$</span> | s | the service the item was for, whose accumulate gets the result |
+| <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-ot-result" class="gk-wrap">$\mathbf{l}$</span> | l | what refine produced for the work-item: a blob, or an error |
+| <span id="gk-ot-segroot">$e$</span> | e | the operand's exports root: the root of the segments its package exported |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-ot-packagehash">$p$</span> | p | the operand's work-package hash |
+| <span id="gk-ot-authorizer">$a$</span> | a | the authorizer hash of the report the digest came from |
+
+</details>
+
+→ [(12.23) in plain words](./gray-paper.md#ex-12-23)
+
+<a id="gp-12-2-p24"></a>This draws upon $g$, the gas limit implied by the selected deferred-transfers, work-reports and gas-privileges.
+
+:::
+
+In plain words: one service's run gets its free gas, plus the gas of every transfer sent
+to it, plus the gas limit of every digest for it, all added up as g; its inputs are the
+transfers to it, in order, then its operands, in order; and Ψ_A runs its code on them. What
+comes back, an 𝕆, is the state it left (𝐞), the transfers it sent (𝐭), its yield (y), the
+gas it used (u) and the preimages it provided (𝐩).
 
 > [!NOTE]
 > **The simple road.** Δ+ also keeps a gas budget for the whole block, max(G_T, G_A · C +

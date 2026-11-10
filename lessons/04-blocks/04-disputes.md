@@ -4,7 +4,9 @@ Every system that trusts people needs a way to say "that was wrong". In JAM, if 
 guaranteed work-report turns out to be bad, the validators hold a trial in the blocks:
 they vote, a verdict is recorded, whoever vouched for the bad report is named a
 *culprit*, and validators who voted the wrong way are recorded as *faults*. It's the
-extrinsic's last part.
+extrinsic's last part. The voting happens off the chain, by validators who re-ran the
+work; the block carries the signed record, and [Part 10](../10-disputes/index.md) is the
+clerk who checks it. Today your client only reads the record.
 
 Here is the tiny vector's trial record. Open a verdict to its votes, and a vote to the
 byte that says yes or no:
@@ -35,7 +37,8 @@ All three are in the [glossary](../glossary.md).
   voted, their key, their signature.
 
 Appendix C encodes all three as lists with their lengths in front, the verdicts as
-(target, ℰ₄ of the age, the votes with their length in front).
+(target, ℰ₄ of the age, the votes with their length in front): its (C.21), quoted with
+the whole block's in [lesson 4.7](./07-the-block.md#eq-C-21).
 
 How many votes? ⌊2V/3⌋ + 1: **5 on tiny, 683 on full**. The vectors have exactly that
 many. Slide V between the two sizes and watch the count, and the bytes it takes in

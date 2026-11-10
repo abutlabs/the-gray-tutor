@@ -29,7 +29,159 @@ All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§11 (*Work Digest*) defines a digest as ten things:
+::: gray-paper 11.1.4 1-8
+
+#### §11.1.4 Work Digest {#gp-11-1-4}
+
+<a id="gp-11-1-4-p1"></a>We finally come to define a *work-digest*, $\mathbb{D}$, which is the data conduit by which services' states may be altered through the computation done within a work-package.
+
+<a id="gp-11-1-4-p2"></a><a id="eq-11-6"></a>
+
+$$
+\begin{equation}
+\mathbb{D} \equiv \!\left\lgroup
+\begin{alignedat}{9}
+s&\in \mathbb{N}_S\,,\;
+&c&\in \mathbb{H}_{}\,,\;
+&y&\in \mathbb{H}_{}\,,\;
+&g&\in \mathbb{N}_G\,,\;
+&\mathbf{l}&\in \mathbb{B}_{} \cup \mathbb{E}\,,\;\\
+u&\in \mathbb{N}_G\,,\;
+&i&\in \mathbb{N}\,,\;
+&x&\in \mathbb{N}\,,\;
+&z&\in \mathbb{N}\,,\;
+&e&\in \mathbb{N}
+\end{alignedat}
+\right\rgroup\! \tag{11.6}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-workdigest" class="gk-wrap">$\mathbb{D}$</span> | D | the set of work-digests: one item's result card, with its service, hashes, gas limit, result and load |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-tuple">$\!\left\lgroup x\right\rgroup\!$</span> | the tuple of | a record: named fields, each with its type, like an object in JSON |
+| <span id="gk-isa">[$x\in y$](../symbols.md#in)</span> | in | belongs to: the field's type |
+| <span id="gk-wd-serviceindex">$s$</span> | s | the service the item was for, whose accumulate gets the result |
+| <span id="gk-serviceid" class="gk-wrap">$\mathbb{N}_S$</span> | N sub S | a service id: a whole number below 2³², 4 bytes |
+| <span id="gk-wd-codehash">$c$</span> | c | the service's code hash as the guarantors saw it; it must match the chain's |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-wd-payloadhash">$y$</span> | y | the hash of the item's payload |
+| <span id="gk-wd-gaslimit">$g$</span> | g | the gas the item's accumulation may use (`accumulate_gas`) |
+| <span id="gk-gas" class="gk-wrap">$\mathbb{N}_G$</span> | N sub G | an amount of gas: a u64 |
+| <span id="gk-wd-result" class="gk-wrap">$\mathbf{l}$</span> | l | the result: the bytes refine returned, or one of six errors |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-workerror" class="gk-wrap">$\mathbb{E}$</span> | E | the set of work errors: out of gas, panic, bad exports, oversize, BAD (no code) and BIG (code too big) |
+| <span id="gk-wd-gasused">$u$</span> | u | the gas refining the item used |
+| <span id="gk-wd-importcount">$i$</span> | i | how many segments the item imported |
+| <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
+| <span id="gk-wd-xtcount">$x$</span> | x | how many extrinsic blobs the item used |
+| <span id="gk-wd-xtsize">$z$</span> | z | those extrinsics' total size, in bytes |
+| <span id="gk-wd-exportcount">$e$</span> | e | how many segments the item exported |
+
+</details>
+
+→ [(11.6) in plain words](./gray-paper.md#ex-11-6)
+
+<a id="gp-11-1-4-p3"></a>Work-digests are a tuple comprising several items. Firstly $s$, the index of the service whose state is to be altered and thus whose refine code was already executed. We include the hash of the code of the service at the time of being reported $c$, which must be accurately predicted within the work-report according to equation [11.45](../12-guarantees/05-bad-reports.md#eq-11-45).
+
+<a id="gp-11-1-4-p4"></a>Next, the hash of the payload ($y$) within the work item which was executed in the refine stage to give this result. This has no immediate relevance, but is something provided to the accumulation logic of the service. We follow with the gas limit $g$ for executing this item's accumulate.
+
+<a id="gp-11-1-4-p5"></a>There is the work *result*, the output blob or error of the execution of the code, $\mathbf{l}$, which may be either an <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequence in case it was successful, or a member of the set $\mathbb{E}$, if not. This latter set is defined as the set of possible errors, formally:
+
+<a id="gp-11-1-4-p6"></a><a id="eq-11-7"></a>
+
+$$
+\begin{equation}
+\mathbb{E} \in \left\{\, \infty, \unicode{x21AF}, \circledcirc, \circleddash, \texttt{BAD}, \texttt{BIG} \,\right\} \tag{11.7}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-oog" class="gk-wrap">$\infty$</span> | out of gas | ∞: the program ran out of gas |
+| <span id="gk-panic">$\unicode{x21AF}$</span> | panic | ↯: the program trapped |
+| <span id="gk-badexports" class="gk-wrap">$\circledcirc$</span> | bad exports | the error: the item exported a different number of segments than it said it would |
+| <span id="gk-oversize" class="gk-wrap">$\circleddash$</span> | oversize | the error: this output would make the report's outputs bigger than W_R |
+| <span id="gk-token">$\texttt{x}$</span> | the string | a name in typewriter type: an instruction's or helper's name, or fixed bytes written as text: the ASCII bytes of its words; the dollar sign in front only marks them as text and is not one of the bytes |
+
+</details>
+
+→ [(11.7) in plain words](./gray-paper.md#ex-11-7)
+
+<a id="gp-11-1-4-p7"></a>The first two are special values concerning execution of the virtual machine, $\infty$ denoting an out-of-gas error and $\unicode{x21AF}$ denoting an unexpected program termination. Of the remaining four, the first indicates that the number of exports made was invalidly reported, the second that the size of the digest (refinement output) would cross the acceptable limit, the third indicates that the service's code was not available for lookup in state at the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state of the <abbr class="gp-term" title="the block whose state an in-core run's lookups saw; it must be final and recent">lookup-anchor</abbr> block. The fourth indicates that the code was available but was beyond the maximum size allowed $\mathsf{W}_C$.
+
+<a id="gp-11-1-4-p8"></a>Finally, we have five fields describing the level of activity which this workload imposed on the core in bringing the result to bear. We include $u$ the actual amount of gas used during refinement; $i$ and $e$ the number of segments imported from, and exported into, the D$^3$L respectively; and $x$ and $z$ the number of, and total size in <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> of, the extrinsics used in computing the workload. See section [14](./index.md#gp-14-1-p1) for more information on the meaning of these values.
+
+:::
+
+A guarantor makes each digest from its item, the item's result and the gas refining it
+used, with §14.3's function C:
+
+::: gray-paper 14.3 14-15
+
+#### §14.3 Packages and Items, continued
+
+<a id="gp-14-3-p14"></a>Given the result $\mathbf{l}$ and gas used $u$ of some work-item, we define the item-to-digest function $C$ as:
+
+<a id="gp-14-3-p15"></a><a id="eq-14-10"></a>
+
+$$
+\begin{equation}
+C\colon\left\{ \begin{aligned}
+\!\left\lgroup\mathbb{W}, \mathbb{B}_{} \cup \mathbb{E}, \mathbb{N}_G\right\rgroup\! &\to \mathbb{D}\\
+\left(\left(\begin{aligned}
+&s, c, \mathbf{y},\\
+&a, e, \mathbf{i}, \mathbf{x}
+\end{aligned}
+\right), \mathbf{l}, u\right) &\mapsto \left(\begin{aligned}
+&s,\,
+c,\,
+y\mathrel{\unicode{x2AF6}}\mathcal{H}\left(\mathbf{y}\right),\,
+g\mathrel{\unicode{x2AF6}}a,\,
+\mathbf{l},\,
+u,\\
+&i\mathrel{\unicode{x2AF6}}\left\vert\mathbf{i}\right\vert,\,
+e,\,
+x\mathrel{\unicode{x2AF6}}\left\vert\mathbf{x}\right\vert,\,
+z\mathrel{\unicode{x2AF6}}\!\!\!\!\sum_{\left(h, z\right) \in \mathbf{x}}\!\!\!\!z
+\end{aligned}\right)\!\!\!\!
+\end{aligned} \right. \tag{14.10}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-itemtodigest">$C$</span> | C | item to digest: makes a work-digest from a work-item, its result and the gas it used |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-workitem" class="gk-wrap">$\mathbb{W}$</span> | W | the set of work-items: one job for one service, with its payload, gas limits, imports, extrinsics and export count |
+| <span id="gk-to">[$\to$](../symbols.md#to)</span> | to | what goes in, to what comes out: A → B takes an A and gives a B |
+| <span id="gk--payload" class="gk-wrap">$\mathbf{y}$</span> | y | a payload: the input to refine |
+| <span id="gk-wi-accgaslimit">$a$</span> | a | the gas accumulate may use on this item's result |
+| <span id="gk-wi-importsegments" class="gk-wrap">$\mathbf{i}$</span> | i | the segments the item imports: each a segments root (or a package hash) and an index |
+| <span id="gk-wi-extrinsics" class="gk-wrap">$\mathbf{x}$</span> | x | the item's extrinsics: each a blob's hash and length |
+| <span id="gk-mapsto">$\mapsto$</span> | maps to | what a function gives back for an input: x ↦ y says x becomes y |
+| <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+
+</details>
+
+→ [(14.10) in plain words](./gray-paper.md#ex-14-10)
+
+:::
+
+In plain words, §11.1.4 (*Work Digest*) defines a digest as ten things:
 
 - the **service** it is for, that service's **code hash**, and the hash of the item's
   **payload**;
@@ -38,6 +190,11 @@ All four are in the [glossary](../glossary.md).
   out of gas, panic, bad exports, oversize, bad code (BAD) and code too big (BIG);
 - the **load**: gas used, segments imported, extrinsics read and their total size, and
   segments exported.
+
+C (14.10) shows where each comes from: the service, code hash and accumulate gas are
+copied from the item, the payload is hashed, the counts are the lengths of the item's
+import and extrinsic lists, and the extrinsics' size is the sum of their lengths. Only the
+result and the gas used come from running the code.
 
 Appendix C encodes the result with its own function, O: a successful result is the tag 0
 and then the output as a blob; a failure is just its tag, 1 to 6. The five load numbers
@@ -290,7 +447,7 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
-What flows through this run — the file's 82 bytes, the digest they decode to, the trace printed:
+What flows through this run: the file's 82 bytes, the digest they decode to, the trace printed:
 
 ::: code-group
 

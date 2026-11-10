@@ -20,8 +20,364 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-§11, *Contextual Validity of Reports*, and the limits of §11's *Work Report*. Ten rules
-making fourteen checks, in two groups.
+A report's own limits come first, from §11.1.1 and §11.1.4, where the report and its
+digests are defined ([lessons 3.3](../03-work-and-reports/03-a-work-report.md) and
+[3.2](../03-work-and-reports/02-work-digests.md)), and from the end of §11.4:
+
+::: gray-paper 11.1.1 3-4
+
+#### §11.1.1 Work Report, continued
+
+<a id="gp-11-1-1-p3"></a>We limit the sum of the number of items in the segment-root lookup dictionary and the number of prerequisites to $\mathsf{J} = 8$:
+
+<a id="gp-11-1-1-p4"></a><a id="eq-11-3"></a>
+
+$$
+\begin{equation}
+\forall \mathbf{r} \in \mathbb{R} : \left\vert\mathbf{r}_{\mathbf{l}}\right\vert + \left\vert(\mathbf{r}_{\mathbf{c}})_{\mathbf{p}}\right\vert \le \mathsf{J} \tag{11.3}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-wrX" class="gk-wrap">$\mathbf{r}$</span> | r | a work-report |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-workreport" class="gk-wrap">$\mathbb{R}$</span> | R | the set of work-reports: a core's signed receipt for one work-package |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-wr-srlookup" class="gk-wrap">$\mathbf{l}$</span> | l | the segment-root lookup: for each package whose exports it imports by package hash, that package's segments root |
+| <span id="gk-wr-context" class="gk-wrap">$\mathbf{c}$</span> | c | a report's refinement context: the blocks its package was built against, and its prerequisites |
+| <span id="gk-wc-prerequisites" class="gk-wrap">$\mathbf{p}$</span> | p | a context's prerequisites: hashes of packages that must be accumulated first |
+| <span id="gk-le">$\le$</span> | at most | less than or equal to |
+| <span id="gk-Cmaxreportdeps" class="gk-wrap">$\mathsf{J}$</span> | J | the most dependencies a report may have, prerequisites and segment-root lookups together: 8 |
+
+</details>
+
+→ [(11.3) in plain words](./gray-paper.md#ex-11-3)
+
+:::
+
+::: gray-paper 11.1.4 9-10
+
+#### §11.1.4 Work Digest, continued
+
+<a id="gp-11-1-4-p9"></a>In order to ensure fair use of a block's extrinsic space, work-reports are limited in the maximum total size of the successful refinement output blobs together with the authorizer trace, effectively limiting their overall size:
+
+<a id="gp-11-1-4-p10"></a><a id="eq-11-8"></a><a id="eq-11-9"></a><a id="eq-11-10"></a>
+
+$$
+\begin{align}
+\forall \mathbf{r} \in \mathbb{R} &:
+\left\vert\mathbf{r}_{\mathbf{t}}\right\vert + \sum\limits_{i=0}^{i<\left\vert\mathbf{r}_{\mathbf{d}}\right\vert} L(\mathbf{r}_{\mathbf{d}}\left[i\right]_{\mathbf{l}}) \le \mathsf{W}_R \tag{11.8} \\
+L(\mathbf{l} \in \mathbb{B}_{} \cup \mathbb{E}) &\equiv \begin{cases}
+\left\vert\mathbf{l}\right\vert &\text{if } \mathbf{l} \in \mathbb{B}_{} \\
+0 &\text{otherwise}
+\end{cases} \tag{11.9} \\
+\mathsf{W}_R &\equiv 48\cdot2^{10} \tag{11.10}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-wr-authtrace" class="gk-wrap">$\mathbf{t}$</span> | t | the authorizer's trace: the blob its code returned when it said yes (`auth_output`) |
+| <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
+| <span id="gk-wr-digests" class="gk-wrap">$\mathbf{d}$</span> | d | the report's digests, one per work-item, 1 to 16 of them (`results`) |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-Cmaxreportvarsize" class="gk-wrap">$\mathsf{W}_R$</span> | W sub R | the most bytes a report's outputs may take, the trace and every result together: 48 × 1,024 = 49,152 |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-cup">$\cup$</span> | union | everything in either side |
+| <span id="gk-workerror" class="gk-wrap">$\mathbb{E}$</span> | E | the set of work errors: out of gas, panic, bad exports, oversize, BAD (no code) and BIG (code too big) |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-cdot">$\cdot$</span> | times | multiply |
+
+</details>
+
+→ [(11.8), (11.9), (11.10) in plain words](./gray-paper.md#ex-11-8)
+
+:::
+
+::: gray-paper 11.4 16-17
+
+#### §11.4 Work Report Guarantees, continued
+
+<a id="gp-11-4-p16"></a>We require that the gas allotted for accumulation of each work-digest in each work-report respects its service's minimum gas requirements. We also require that all work-reports' total allotted accumulation gas is no greater than the overall gas limit $\mathsf{G}_A$:
+
+<a id="gp-11-4-p17"></a><a id="eq-11-33"></a>
+
+$$
+\begin{equation}
+\forall \mathbf{r} \in \mathbf{I}:
+\sum_{\mathbf{d} \in \mathbf{r}_{\mathbf{d}}}\!(\mathbf{d}_{g}) \le \mathsf{G}_A \ \wedge \
+\forall \mathbf{d} \in \mathbf{r}_{\mathbf{d}}: \mathbf{d}_{g} \ge \delta\left[\mathbf{d}_{s}\right]_{g} \tag{11.33}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-incomingreports" class="gk-wrap">$\mathbf{I}$</span> | I | the incoming reports: the work-reports this block's guarantees carry |
+| <span id="gk-wd-gaslimit">$g$</span> | g | the gas the item's accumulation may use (`accumulate_gas`) |
+| <span id="gk-Creportaccgas" class="gk-wrap">$\mathsf{G}_A$</span> | G sub A | the most gas a report's accumulation may be given: 10,000,000 |
+| <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
+| <span id="gk-ge">$\ge$</span> | is at least | greater than or equal to |
+| <span id="gk-accounts" class="gk-wrap">$\delta$</span> | delta | the service accounts: every service's code hash, balance, storage and preimages |
+| <span id="gk-wd-serviceindex">$s$</span> | s | the service the item was for, whose accumulate gets the result |
+
+</details>
+
+→ [(11.33) in plain words](./gray-paper.md#ex-11-33)
+
+:::
+
+Then the report against the chain:
+
+::: gray-paper 11.4.1
+
+#### §11.4.1 Contextual Validity of Reports {#gp-11-4-1}
+
+<a id="gp-11-4-1-p1"></a>For convenience, we define two equivalences $\mathbf{x}$ and $\mathbf{p}$ to be, respectively, the set of all contexts and work-package hashes within the extrinsic:
+
+<a id="gp-11-4-1-p2"></a><a id="eq-11-34"></a>
+
+$$
+\begin{equation}
+\text{let } \mathbf{x} \equiv \left\{\,  \mathbf{r}_{\mathbf{c}}  \;\middle\vert\;  \mathbf{r} \in \mathbf{I}  \,\right\}\ ,\quad
+\mathbf{p} \equiv \left\{\,  (\mathbf{r}_{\mathbf{s}})_{p}  \;\middle\vert\;  \mathbf{r} \in \mathbf{I}  \,\right\} \tag{11.34}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-local-incomingcontexts" class="gk-wrap">$\mathbf{x}$</span> | x | the contexts of this block's incoming reports |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
+| <span id="gk-as-packagehash">$p$</span> | p | the work-package's hash |
+
+</details>
+
+→ [(11.34) in plain words](./gray-paper.md#ex-11-34)
+
+<a id="gp-11-4-1-p3"></a>There must be no duplicate work-package hashes (i.e.  two work-reports of the same package). Therefore, we require the <abbr class="gp-term" title="how many items a set has">cardinality</abbr> of $\mathbf{p}$ to be the length of the work-report sequence $\mathbf{I}$:
+
+<a id="gp-11-4-1-p4"></a><a id="eq-11-35"></a>
+
+$$
+\begin{equation}
+\left\vert\mathbf{p}\right\vert = \left\vert\mathbf{I}\right\vert \tag{11.35}
+\end{equation}
+$$
+
+→ [(11.35) in plain words](./gray-paper.md#ex-11-35)
+
+<a id="gp-11-4-1-p5"></a>We require that the anchor block be within the last $\mathsf{H}$ blocks and that its details be correct by ensuring that it appears within our most recent blocks $\beta_H^\dagger$:
+
+<a id="gp-11-4-1-p6"></a><a id="eq-11-36"></a>
+
+$$
+\begin{align}
+\forall x \in \mathbf{x} : \exists y \in \beta_H^\dagger : x_{a} = y_{h} \wedge x_{s} = y_{s} \wedge x_{b} = y_{b} \wedge x_{n} = y_{t} \!\!\!\!\!\! \tag{11.36}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-exists">[$\exists$](../symbols.md#exists)</span> | there exists | there is at least one value such that what follows holds |
+| <span id="gk-recenthistorypostparentstaterootupdate" class="gk-wrap">$\beta_H^\dagger$</span> | beta sub H dagger | the recent blocks midway: with the parent's state root filled in, before this block's entry |
+| <span id="gk-wc-anchorhash">$a$</span> | a | the anchor's header hash: a recent block the package was built against |
+| <span id="gk-rh-headerhash">$h$</span> | h | a recent block's header hash |
+| <span id="gk-wc-anchoraccoutlog">$b$</span> | b | the anchor block's accumulation-output super-peak, the belt's root (`beefy_root`) |
+| <span id="gk-wc-anchortime">$n$</span> | n | the anchor block's timeslot |
+| <span id="gk-rh-timeslot">$t$</span> | t | a recent block's timeslot |
+
+</details>
+
+→ [(11.36) in plain words](./gray-paper.md#ex-11-36)
+
+<a id="gp-11-4-1-p7"></a>We require that each <abbr class="gp-term" title="the block whose state an in-core run's lookups saw; it must be final and recent">lookup-anchor</abbr> block be within the last $\mathsf{L}$ timeslots:
+
+<a id="gp-11-4-1-p8"></a><a id="eq-11-37"></a>
+
+$$
+\begin{align}
+\forall x \in \mathbf{x} :\ x_{t} \ge \mathbf{H}_{T} - \mathsf{L} \tag{11.37}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-Cmaxlookupanchorage" class="gk-wrap">$\mathsf{L}$</span> | L | the oldest a lookup anchor may be: 14,400 slots, 24 hours |
+
+</details>
+
+→ [(11.37) in plain words](./gray-paper.md#ex-11-37)
+
+<a id="gp-11-4-1-p9"></a>We also require that we have a record of it; this is one of the few conditions which cannot be checked purely with on-chain state and must be checked by virtue of retaining the series of the last $\mathsf{L}$ headers as the ancestor set $\mathbf{A}$. Since it is determined through the header chain, it is still deterministic and calculable. Formally:
+
+<a id="gp-11-4-1-p10"></a><a id="eq-11-38"></a>
+
+$$
+\begin{equation}
+\forall x \in \mathbf{x} : \exists h, h' \in \mathbf{A} : \bigwedge \left\{ \begin{aligned}
+h_{T} &= x_{t} \\
+\mathcal{H}\left(h\right) &= x_{l} \\
+h'_{P} &= \mathcal{H}\left(h\right) \\
+h'_{R} &= x_{r}
+\end{aligned} \right. \tag{11.38}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-ancestors" class="gk-wrap">$\mathbf{A}$</span> | A | the ancestors: this header, its parent, its parent's parent, and so on back to genesis |
+| <span id="gk-bigwedge">$\bigwedge$</span> | all of | every one of the conditions under it is true |
+| <span id="gk-abracegroup">$\left\{ \begin{aligned}x\end{aligned} \right.$</span> | as follows | a brace grouping lines that hold together: for a function, its type on top, then what each input becomes |
+| <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |
+| <span id="gk-wc-lookupanchorhash">$l$</span> | l | the lookup anchor's header hash: the block whose state code is fetched from |
+| <span id="gk--parent">$P$</span> | P | a header's parent hash: 𝐇_P is the hash of the header before it, 32 bytes |
+| <span id="gk--priorstateroot">$R$</span> | R | a header's prior state root: 𝐇_R is the root of the state before this block, 32 bytes |
+| <span id="gk-wc-lookupanchorpoststate">$r$</span> | r | the lookup anchor's state root |
+
+</details>
+
+→ [(11.38) in plain words](./gray-paper.md#ex-11-38)
+
+<a id="gp-11-4-1-p11"></a>We require that the work-package of the report not be the work-package of some other report made in the past. We ensure that the work-package not appear anywhere within our pipeline. Formally:
+
+<a id="gp-11-4-1-p12"></a><a id="eq-11-39"></a><a id="eq-11-40"></a><a id="eq-11-41"></a>
+
+$$
+\begin{align}
+&\text{let } \mathbf{q} = \left\{\,
+(\mathbf{r}_{\mathbf{s}})_{p}
+\;\middle\vert\;
+\left(\mathbf{r}, \mathbf{d}\right) \in \overparen{\omega}
+\,\right\} \tag{11.39} \\
+&\text{let } \mathbf{a} = \left\{\,
+(((\mathbf{a}_{\mathbf{g}})_{\mathbf{r}})_{\mathbf{s}})_{p}
+\;\middle\vert\;
+\mathbf{a} \in \rho, \mathbf{a} \ne \emptyset
+\,\right\} \tag{11.40} \\
+&\forall p \in \mathbf{p},
+p \not\in \bigcup_{x \in \beta_H}\mathcal{K}\left(x_{\mathbf{p}}\right)
+\cup
+\bigcup_{x \in \xi}x
+\cup \mathbf{q}
+\cup \mathbf{a} \tag{11.41}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-concatall">$\overparen{x}$</span> | all joined | every sequence in it, joined end to end into one |
+| <span id="gk-ready" class="gk-wrap">$\omega$</span> | omega | the ready queue: available reports waiting on others before they can accumulate |
+| <span id="gk-aaX" class="gk-wrap">$\mathbf{a}$</span> | a | one core's entry in ρ: a pending report and its slot |
+| <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
+| <span id="gk-availassignments" class="gk-wrap">$\rho$</span> | rho | the pending reports: for each core, the report waiting to be made available, and when it came |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-bigcup">$\bigcup$</span> | the union over | everything in any of the sets it ranges over, together |
+| <span id="gk-recenthistory" class="gk-wrap">$\beta_H$</span> | beta sub H | the last H = 8 blocks: each one's header hash, state root, belt peak and reported packages |
+| <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
+| <span id="gk-accumulated" class="gk-wrap">$\xi$</span> | xi | the accumulated history: the packages accumulated in each of the last E slots |
+
+</details>
+
+→ [(11.39), (11.40), (11.41) in plain words](./gray-paper.md#ex-11-39)
+
+<a id="gp-11-4-1-p13"></a>We require that the prerequisite work-packages, if present, and any work-packages mentioned in the segment-root lookup, be either in the extrinsic or in our recent history.
+
+<a id="gp-11-4-1-p14"></a><a id="eq-11-42"></a>
+
+$$
+\begin{align}
+&\begin{aligned}
+&\forall \mathbf{r} \in \mathbf{I},
+\forall p \in (\mathbf{r}_{\mathbf{c}})_{\mathbf{p}} \cup
+\mathcal{K}\left(\mathbf{r}_{\mathbf{l}}\right) :\\
+&\quad p \in \mathbf{p} \cup \left\{\,
+x \;\middle\vert\; x \in \mathcal{K}\left(b_{\mathbf{p}}\right),\, b \in \beta_H\,\right\}
+\end{aligned} \tag{11.42}
+\end{align}
+$$
+
+→ [(11.42) in plain words](./gray-paper.md#ex-11-42)
+
+<a id="gp-11-4-1-p15"></a>We require that any segment roots mentioned in the segment-root lookup be verified as correct based on our recent work-package history and the present block:
+
+<a id="gp-11-4-1-p16"></a><a id="eq-11-43"></a><a id="eq-11-44"></a>
+
+$$
+\begin{align}
+&\text{let } \mathbf{p} = \left\{\,
+\left(
+((g_{\mathbf{r}})_{\mathbf{s}})_{p}
+\mapsto
+((g_{\mathbf{r}})_{\mathbf{s}})_{e}
+\right)
+\;\middle\vert\;
+g \in \mathbf{E}_G
+\,\right\} \tag{11.43} \\
+&\forall \mathbf{r} \in \mathbf{I}: \mathbf{r}_{\mathbf{l}} \subseteq \mathbf{p} \cup \bigcup_{b \in \beta_H} b_{\mathbf{p}} \tag{11.44}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-kv">$\left(x \mapsto y\right)$</span> | k maps to v | a dictionary entry: key k, value v |
+| <span id="gk-as-segroot">$e$</span> | e | the root of the segments a package exports |
+| <span id="gk-xtguarantees" class="gk-wrap">$\mathbf{E}_G$</span> | E sub G | the guarantees bag: work-reports with their guarantors' signatures, one per core at most |
+| <span id="gk-subseteq">$\subseteq$</span> | is a subset of | everything in the left is in the right |
+
+</details>
+
+→ [(11.43), (11.44) in plain words](./gray-paper.md#ex-11-43)
+
+<a id="gp-11-4-1-p17"></a>(Note that these checks leave open the possibility of accepting work-reports in apparent dependency loops. We do not consider this a problem: the pre-accumulation stage effectively guarantees that accumulation never happens in these cases and the reports are simply ignored.)
+
+<a id="gp-11-4-1-p18"></a>Finally, we require that all work-digests within the extrinsic predicted the correct code hash for their corresponding service:
+
+<a id="gp-11-4-1-p19"></a><a id="eq-11-45"></a>
+
+$$
+\begin{align}
+\forall \mathbf{r} \in \mathbf{I}, \forall \mathbf{d} \in \mathbf{r}_{\mathbf{d}} : \mathbf{d}_{c} = \delta\left[\mathbf{d}_{s}\right]_{c} \tag{11.45}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-wd-codehash">$c$</span> | c | the service's code hash as the guarantors saw it; it must match the chain's |
+
+</details>
+
+→ [(11.45) in plain words](./gray-paper.md#ex-11-45)
+
+:::
+
+In plain words, the limits above and §11.4.1 (*Contextual Validity of Reports*) make ten
+rules and fourteen checks, in two groups.
 
 **The report on its own:**
 

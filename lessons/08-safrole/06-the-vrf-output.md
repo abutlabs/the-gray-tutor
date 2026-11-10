@@ -22,8 +22,50 @@ All three are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
-Appendix G defines 𝒴(s) = output(s)₍..32₎: the first 32 bytes of a VRF signature's
-output. What "output" is, the Gray Paper leaves to the Bandersnatch VRF specification it
+::: gray-paper G 1-3
+
+#### Appendix G Bandersnatch VRF {#gp-G}
+
+<a id="gp-G-p1"></a>The Bandersnatch curve is defined by [Masson et al. 2021](https://eprint.iacr.org/2021/1152).
+
+<a id="gp-G-p2"></a>The singly-contextualized Bandersnatch <abbr class="gp-term" title="a signature built from one random curve point and one number">Schnorr-like</abbr> signatures $\overset{\backsim}{\mathbb{V}}_{k}^{m}\left\langle c\right\rangle$ are defined as a formulation under the *IETF* VRF template specified by [Hosseini and Galassi 2024](https://github.com/davxy/bandersnatch-vrfs-spec/blob/main/specification.pdf) (as IETF VRF) and further detailed by [Goldberg et al. 2023](https://www.rfc-editor.org/info/rfc9381).
+
+<a id="gp-G-p3"></a><a id="eq-G-1"></a><a id="eq-G-2"></a>
+
+$$
+\begin{align}
+\overset{\backsim}{\mathbb{V}}_{k \in \overset{\backsim}{\mathbb{H}_{}}}^{m \in \mathbb{B}_{}}\left\langle c \in \mathbb{B}_{}\right\rangle \subset \mathbb{B}_{96} &\equiv \left\{\,x \;\middle\vert\; x \in \mathbb{B}_{96}, \text{verify}(k, c, m, x) = \top \,\right\} \tag{G.1} \\
+\mathcal{Y}\left(s \in \overset{\backsim}{\mathbb{V}}_{k}^{m}\left\langle c\right\rangle\right) \in \mathbb{H}_{} &\equiv \text{output}(x \mid x \in \overset{\backsim}{\mathbb{V}}_{k}^{m}\left\langle c\right\rangle)_{ \dots 32} \tag{G.2}
+\end{align}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-bssignature">$\overset{\backsim}{\mathbb{V}}_{x}^{z}\left\langle y\right\rangle$</span> | V tilde sub k, context c, of m | the valid Bandersnatch signatures by key k on message m in context c: 96 bytes |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-bskey" class="gk-wrap">$\overset{\backsim}{\mathbb{H}}$</span> | H tilde | a Bandersnatch public key: 32 bytes |
+| <span id="gk-blob">[$\mathbb{B}$](../symbols.md#blobs)</span> | B, or B sub n | bytes: any run of them; 𝔹ₙ exactly n of them |
+| <span id="gk-subset">$\subset$</span> | is a proper subset of | everything in the left is in the right, and the right has more |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
+| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-top">$\top$</span> | top | true |
+| <span id="gk-banderout">$\mathcal{Y}\left(x\right)$</span> | Y of | the 32-byte random output a Bandersnatch signature or proof carries, used as entropy |
+| <span id="gk-hash">$\mathbb{H}$</span> | H | a 32-byte value, usually a hash |
+| <span id="gk-mid">$\mid$</span> | such that | in a sequence built from a rule: the items on the left, for every choice on the right |
+| <span id="gk-interval">$_{x \dots y}$</span> | from x to y | the items from index x up to, not including, y |
+
+</details>
+
+→ [(G.1), (G.2) in plain words](./gray-paper.md#ex-G-1)
+
+:::
+
+In plain words, (G.1) says a Bandersnatch signature is any 96 bytes that check out for
+a key, a context and a message, and (G.2) defines 𝒴(s) as the first 32 bytes of the
+signature's output. What "output" is, the Gray Paper leaves to the Bandersnatch VRF specification it
 cites, which the VRF library ark-vrf implements as the suite `Bandersnatch_SHA-512_ELL2`.
 There, the output is a hash of the output point, as RFC 9381, the standard for VRFs, says:
 

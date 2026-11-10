@@ -2,12 +2,68 @@
 
 A core holds one report at a time, so a report that never becomes available would block
 its core forever. JAM won't allow that. This lesson writes the rule for when a core lets
-go: the report made it, the report took too long, or the ground shifted under it.
+go: the report made it, the report took too long, or the ground shifted under it. It runs
+on the chain, on every validator, right after [lesson 11.1](./01-available.md)'s count.
 
 ## What the Gray Paper says
 
-§11 again: ρ‡, the cores after the assurances. A core's pending report p is dropped
-when any of these holds:
+::: gray-paper 11.2.2 3-5
+
+#### §11.2.2 Available Reports, continued
+
+<a id="gp-11-2-2-p3"></a>This value is utilized in the definition of both $\delta'$ and $\rho^\ddagger$ which we will define presently as equivalent to $\rho^\dagger$ except for the removal of items which are either now available or have timed out:
+
+<a id="gp-11-2-2-p4"></a><a id="eq-11-18"></a>
+
+$$
+\begin{equation}
+\begin{aligned}
+\forall c \in \mathbb{N}_{\mathsf{C}}: \rho^\ddagger\left[c\right] \equiv {} &\begin{cases}
+\emptyset &\text{if } p = \emptyset \vee (p_{\mathbf{g}})_{\mathbf{r}} \in \mathbf{R} \vee {} \\
+&\phantom{\text{if }} \mathbf{H}_{T} \ge p_{t} + \mathsf{U} \vee \left\vert\kappa\right\vert \ne \left\vert\kappa'\right\vert \\
+p &\text{otherwise}
+\end{cases} \\
+& \text{where } p = \rho^\dagger\left[c\right]
+\end{aligned} \tag{11.18}
+\end{equation}
+$$
+
+<details class="gp-key"><summary>Its symbols, in plain words</summary>
+
+| Symbol | Say it | Means |
+| --- | --- | --- |
+| <span id="gk-forall">$\forall$</span> | for all | for every value: ∀c ∈ ℕ_C means for each core c |
+| <span id="gk-cX">$c$</span> | c | a core's index, 0 to C − 1 |
+| <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
+| <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
+| <span id="gk-availassignmentspostassurances" class="gk-wrap">$\rho^\ddagger$</span> | rho double dagger | the pending reports midway: after the available ones and the timed-out ones left |
+| <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
+| <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
+| <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
+| <span id="gk-vee">$\vee$</span> | or | at least one side is true |
+| <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
+| <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
+| <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
+| <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
+| <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
+| <span id="gk-ge">$\ge$</span> | is at least | greater than or equal to |
+| <span id="gk-aa-timestamp">$t$</span> | t | the slot a pending report arrived on its core |
+| <span id="gk-Cassurancetimeoutperiod" class="gk-wrap">$\mathsf{U}$</span> | U | how long a report may wait on its core for its data: 5 slots |
+| <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
+| <span id="gk-activeset" class="gk-wrap">$\kappa$</span> | kappa | the current validators: the keys of the V validators active this epoch |
+| <span id="gk-ne">$\ne$</span> | is not | not equal |
+| <span id="gk-availassignmentspostjudgment" class="gk-wrap">$\rho^\dagger$</span> | rho dagger | the pending reports midway: after disputes took the judged-bad ones out |
+
+</details>
+
+→ [(11.18) in plain words](./gray-paper.md#ex-11-18)
+
+<a id="gp-11-2-2-p5"></a>Note that all items are cleared when the size of the active validator key set $\kappa$ changes. Items cleared in this way can be viewed as having timed out early.
+
+:::
+
+In plain words, §11.2.2 defines ρ‡, the cores after the assurances. A core's pending
+report p is dropped when any of these holds:
 
 1. **p became available** ([lesson 11.1](./01-available.md)): its job on the core is done. It moves on to be
    accumulated ([Part 17](../17-accumulation/index.md)).
@@ -297,7 +353,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** The block arrives at slot 12 carrying *no* assurances at
-all, and both cores hold a pending report — one old, one fresh:
+all, and both cores hold a pending report: one old, one fresh:
 
 ::: code-group
 
