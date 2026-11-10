@@ -88,14 +88,23 @@ export function zip(entries: ZipEntry[]): Buffer {
 const MONO = process.platform === "darwin" ? "Menlo" : "DejaVu Sans Mono";
 const SANS = process.platform === "darwin" ? "Helvetica" : "DejaVu Sans";
 
-/** An SVG as a PNG on white, `zoom` times its own size. */
+const drawn = new Map<string, Buffer>();
+
+/** An SVG as a PNG on white, `zoom` times its own size. The same SVG twice is drawn once (a
+ *  symbol in many keys), and one with no text in it, as most of MathJax's formulas are, all
+ *  paths, is drawn without loading the system's fonts, which costs more than the drawing. */
 export function png(svg: string, zoom: number): Buffer {
+  const key = `${zoom}:${createHash("sha256").update(svg).digest("hex")}`;
+  const done = drawn.get(key);
+  if (done) return done;
   const resvg = new Resvg(svg, {
     background: "white",
     fitTo: { mode: "zoom", value: zoom },
-    font: { loadSystemFonts: true, defaultFontFamily: SANS, monospaceFamily: MONO, sansSerifFamily: SANS },
+    font: { loadSystemFonts: /<text[\s>]/.test(svg), defaultFontFamily: SANS, monospaceFamily: MONO, sansSerifFamily: SANS },
   });
-  return resvg.render().asPng();
+  const out = resvg.render().asPng();
+  drawn.set(key, out);
+  return out;
 }
 
 // MathJax sizes its SVGs in ex; an ex is about half an em, 8 px at the site's 16 px
