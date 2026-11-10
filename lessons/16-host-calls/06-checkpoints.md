@@ -210,7 +210,7 @@ $$
 | <span id="gk-sa-balance">$b$</span> | b | an account's balance, in tokens: a u64 |
 | <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
 | <span id="gk-dx-amount">$a$</span> | a | how much balance the transfer moves |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
 | <span id="gk-decode">[$\mathcal{E}^{-1}\left(x\right)$](../symbols.md#decode)</span> | E inverse of | decoding: bytes back into the value they encode |
 | <span id="gk-blake">$\mathcal{H}\left(x\right)$</span> | H of | the Blake2b hash of what's in the brackets: 32 bytes |

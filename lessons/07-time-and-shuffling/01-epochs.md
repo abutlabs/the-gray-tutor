@@ -65,7 +65,7 @@ $$
 | Symbol | Say it | Means |
 | --- | --- | --- |
 | <span id="gk-remainder">$\,\mathsf{R}\,$</span> | R | the remainder of a division |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 | <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
 
 </details>

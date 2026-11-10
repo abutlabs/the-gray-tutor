@@ -109,8 +109,9 @@ const SKIP_DEFINITION = new Set(["left", "right", "tightlist", "superimpose"]);
 export const OVERRIDES: Record<string, Macro> = Object.fromEntries(([
   ["sequence", 2, "", "\\left[\\!\\left[#2\\right]\\!\\right]_{#1}"],
   ["doubleplus", 0, undefined, "\\mathbin{+\\!\\!+}"],
-  ["seqminusl", 0, undefined, "\\mathbin{\\unicode{x27DC}}"],
-  ["seqminusr", 0, undefined, "\\mathbin{\\unicode{x22B8}}"],
+  // ⟜ and ⊸ drawn from MathJax's own shapes, so the e-book's pictures of them need no font
+  ["seqminusl", 0, undefined, "\\mathbin{\\circ\\!\\!\\!-\\!\\!-}"],
+  ["seqminusr", 0, undefined, "\\mathbin{\\multimap}"],
   ["disjoint", 0, undefined, "\\mathrel{\\unicode{x2AEF}}"],
   ["anglebar", 1, undefined, "\\left\\langle\\!\\left\\vert #1\\right\\vert\\!\\right\\rangle"],
   ["orderby", 2, undefined, "#2\\,\\wr\\,#1"],

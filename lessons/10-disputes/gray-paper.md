@@ -283,7 +283,7 @@ $$
 | <span id="gk-verdicts" class="gk-wrap">$\mathbf{v}$</span> | bold v | this block's verdicts boiled down: each report's hash with ⊤ good, ⊥ bad or ∅ wonky |
 | <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
 | <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
 | <span id="gk-onethird">${}^{1}\!/_{3}$</span> | one third | one third: ⌊⅓ · 6⌋ is 2 votes on tiny, 341 on full |
 | <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |

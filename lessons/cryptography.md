@@ -142,7 +142,7 @@ $$
 | <span id="gk-equiv">[$\equiv$](./symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
 | <span id="gk-max">$\max$</span> | max of | the largest of the values in the brackets |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-Nmax">[$\mathbb{N}_{x}$](./symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
 | <span id="gk-nicefrac">${}^{x}\!/_{y}$</span> | over | a fraction: the top divided by the bottom |
 | <span id="gk-Csegmentsize" class="gk-wrap">$\mathsf{W}_G$</span> | W sub G | a segment's size: 4,104 bytes |
@@ -386,7 +386,7 @@ $$
 | Symbol | Say it | Means |
 | --- | --- | --- |
 | <span id="gk-finitefield" class="gk-wrap">$\mathbb{F}$</span> | F | a finite field: a fixed set of values that add, subtract, multiply and divide without leaving it; 𝔽 with 2¹⁶ has one value per two-byte word |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 
 </details>
 
@@ -441,7 +441,7 @@ $$
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
-| <span id="gk-tilde">$\tilde$</span> | tilde | x̃: x as a value of the erasure code's field, in the basis its table lists |
+| <span id="gk-tilde">$\tilde{x}$</span> | tilde | x̃: x as a value of the erasure code's field, in the basis its table lists |
 | <span id="gk-sum">$\sum$</span> | the sum of | add up what follows, once for each value the subscript ranges over |
 
 </details>
@@ -488,7 +488,7 @@ $$
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
-| <span id="gk-widetilde">$\widetilde$</span> | tilde | x̃: x as a value of the erasure code's field, in the basis its table lists |
+| <span id="gk-widetilde">$\widetilde{x}$</span> | tilde | x̃: x as a value of the erasure code's field, in the basis its table lists |
 
 </details>
 

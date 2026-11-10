@@ -64,7 +64,7 @@ $$
 | <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
 | <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
 | <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 | <span id="gk-Cepochlen" class="gk-wrap">$\mathsf{E}$</span> | E | an epoch's length in slots: 600 on full, 12 on tiny |
 | <span id="gk-len">$\left\vert x\right\vert$</span> | the size of | \|x\|: how many items x has, or how many bytes |
 | <span id="gk-pendingset" class="gk-wrap">$\gamma_P$</span> | gamma P | the pending validators: the key sets that become active at the next epoch |
@@ -98,7 +98,7 @@ $$
 | Symbol | Say it | Means |
 | --- | --- | --- |
 | <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-is">$x\mathrel{\unicode{x2AF6}} y$</span> | is a | names a field and gives its type, in a tuple |
 | <span id="gk-st-id">$y$</span> | y | a ticket's id: 32 random bytes, the output of its ring proof; a lower id wins |
 | <span id="gk-banderout">$\mathcal{Y}\left(x\right)$</span> | Y of | the 32-byte random output a Bandersnatch signature or proof carries, used as entropy |
@@ -148,7 +148,7 @@ $$
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
-| <span id="gk-overrightarrow">$\overrightarrow$</span> | the first n of | with a number above: keep only the leftmost n items |
+| <span id="gk-overrightarrow">$\overrightarrow{x}$</span> | the first n of | with a number above: keep only the leftmost n items |
 | <span id="gk-sqorderby">$\left[y\,\wr\,x\right]$</span> | sorted by | the sequence's items, sorted by the key on the right |
 | <span id="gk-cup">$\cup$</span> | union | everything in either side |
 | <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |

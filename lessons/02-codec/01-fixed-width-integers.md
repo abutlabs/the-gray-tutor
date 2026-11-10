@@ -77,7 +77,7 @@ $$
 | <span id="gk-concat" class="gk-wrap">[$\frown$](../symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
 | <span id="gk-encode">[$\mathcal{E}\left(x\right)$](../symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
 | <span id="gk-floor">[$\left\lfloor x\right\rfloor$](../symbols.md#floor)</span> | floor of | rounded down to a whole number |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 
 </details>
 

@@ -304,7 +304,7 @@ $$
 | <span id="gk-N" class="gk-wrap">[$\mathbb{N}$](../symbols.md#naturals)</span> | N | the whole numbers: 0, 1, 2 and up; a subscript is a bound, ℕ₈ is 0 to 7 |
 | <span id="gk-sequence">[$\left[\!\left[x\right]\!\right]$](../symbols.md#sequence)</span> | a sequence of | ⟦T⟧ is an array of T; a subscript is its length, :n at most n, n: at least n |
 | <span id="gk-segment" class="gk-wrap">$\mathbb{J}$</span> | J | the set of segments: blobs of exactly W_G = 4,104 bytes, the unit of import and export |
-| <span id="gk-overline">$\overline$</span> | bar | over a letter: one entry for each work-item of the package, ī is every item's imported segments |
+| <span id="gk-overline">$\overline{x}$</span> | bar | over a letter: one entry for each work-item of the package, ī is every item's imported segments |
 | <span id="gk-segoff" class="gk-wrap">$\varsigma$</span> | final sigma | how many segments the package's earlier work-items export: the index this item's first export gets |
 | <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
 | <span id="gk-wi-serviceindex">$s$</span> | s | the service the item is for |
@@ -326,7 +326,7 @@ $$
 | <span id="gk-wp-workitems" class="gk-wrap">$\mathbf{w}$</span> | w | the package's work-items: 1 to 16 |
 | <span id="gk-dictionary">$\left\langle\!\left\vert x\to y\right\vert\!\right\rangle$</span> | a dictionary from K to V | a map: keys of type K, each with one value of type V |
 | <span id="gk-zerohash" class="gk-wrap">$\mathbb{H}_{0}$</span> | H zero | 32 zero bytes: a placeholder where a hash isn't known yet |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
 | <span id="gk-wi-extrinsics" class="gk-wrap">$\mathbf{x}$</span> | x | the item's extrinsics: each a blob's hash and length |
 
@@ -779,7 +779,7 @@ $$
 | <span id="gk-fnmemgas" class="gk-wrap">$\mathcal{G}$</span> | script G | gas for a size: 𝒢(L, ℓ) is ℓ bytes at L gas per 1,024 bytes, rounded up |
 | <span id="gk-ell">$\ell$</span> | ell | a length defined nearby: in §14 the segments exported before an item; in Appendix A, the bytes after an opcode |
 | <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 | <span id="gk-cdot">$\cdot$</span> | times | multiply |
 
 </details>

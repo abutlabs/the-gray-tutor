@@ -285,7 +285,7 @@ $$
 | Symbol | Say it | Means |
 | --- | --- | --- |
 | <span id="gk-basicblocks" class="gk-wrap">$\varpi$</span> | pi (curly) | where basic blocks start: at 0, and just after every terminator |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-Nmax">[$\mathbb{N}_{x}$](../symbols.md#naturals)</span> | N sub n | the whole numbers below n: ℕ_C is a core index, 0 to C − 1 |
 | <span id="gk-wedge">$\wedge$</span> | and | both sides are true |
 | <span id="gk-cap">$\cap$</span> | intersection | only what's in both sides |
@@ -1713,7 +1713,7 @@ $$
 | --- | --- | --- |
 | <span id="gk-Cpvminitzonesize" class="gk-wrap">$\mathsf{Z}_Z$</span> | Z sub Z | a zone: 2^16 bytes, 64 KiB; memory's sections start on zones, with an empty one between |
 | <span id="gk-rnp">$P(x)$</span> | P of | x rounded up to whole pages of 4,096 bytes |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 | <span id="gk-rnq">$Z(x)$</span> | Z of | x rounded up to whole zones of 65,536 bytes |
 | <span id="gk-leq">$\leq$</span> | at most | less than or equal to |
 

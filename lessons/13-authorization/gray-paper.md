@@ -73,7 +73,7 @@ that read both from the state, are [13.1's first step](./01-the-authorizer-pools
 $$
 \begin{align}
 &\forall c \in \mathbb{N}_{\mathsf{C}} : \alpha'\left[c\right] \equiv {\overleftarrow{F(c) \mathbin{+\!\!+} {\phi'\left[c\right]\left[\mathbf{H}_{T}\right]}^\circlearrowleft}}^{\mathsf{O}} \tag{8.2} \\
-&F(c) \equiv \begin{cases} \alpha[c] \mathbin{\unicode{x27DC}} \left\{\,(g_{\mathbf{r}})_{a}\,\right\} &\text{if } \exists g \in \mathbf{E}_G : (g_{\mathbf{r}})_{c} = c \\ \alpha[c] & \text{otherwise} \end{cases} \tag{8.3}
+&F(c) \equiv \begin{cases} \alpha[c] \mathbin{\circ\!\!\!-\!\!-} \left\{\,(g_{\mathbf{r}})_{a}\,\right\} &\text{if } \exists g \in \mathbf{E}_G : (g_{\mathbf{r}})_{c} = c \\ \alpha[c] & \text{otherwise} \end{cases} \tag{8.3}
 \end{align}
 $$
 
@@ -86,12 +86,12 @@ $$
 | <span id="gk-coreindex" class="gk-wrap">$\mathbb{N}_{\mathsf{C}}$</span> | N sub C | the core indices: 0 to C − 1 |
 | <span id="gk-subb">[$\left[x\right]$](../symbols.md#sequence)</span> | at | x[i]: the item at index i, or the value at key i |
 | <span id="gk-equiv">[$\equiv$](../symbols.md#defined-as)</span> | is defined as | the left side is, by definition, the right: a definition, not a test |
-| <span id="gk-overleftarrow">$\overleftarrow$</span> | the last n of | with a number above: keep only the rightmost (newest) n items; with none: the sequence reversed |
+| <span id="gk-overleftarrow">$\overleftarrow{x}$</span> | the last n of | with a number above: keep only the rightmost (newest) n items; with none: the sequence reversed |
 | <span id="gk-append">[$\mathbin{+\!\!+}$](../symbols.md#concat)</span> | append | add one item at the end of the sequence |
 | <span id="gk-cyclic">${x}^\circlearrowleft$</span> | wrapped around | ↺: the index goes round, counting from 0 again past the end (mod the length) |
 | <span id="gk-H" class="gk-wrap">$\mathbf{H}$</span> | H | this block's header; 𝐇_T is its timeslot, 𝐇_P its parent's hash |
 | <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
-| <span id="gk-seqminusl">$\mathbin{\unicode{x27DC}}$</span> | without its first | the sequence with the leftmost copy of the item taken out |
+| <span id="gk-seqminusl">$\mathbin{\circ\!\!\!-\!\!-}$</span> | without its first | the sequence with the leftmost copy of the item taken out |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
 | <span id="gk-g-workreport" class="gk-wrap">$\mathbf{r}$</span> | r | a guarantee's work-report: 𝐠_𝐫 is the report it vouches for |
 | <span id="gk-wr-authorizer">$a$</span> | a | a report's authorizer hash: which gatekeeper let its package onto the core |

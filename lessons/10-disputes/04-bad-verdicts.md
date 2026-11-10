@@ -44,7 +44,7 @@ $$
 | <span id="gk-xtfaults" class="gk-wrap">$\mathbf{E}_F$</span> | E sub F | the block's faults: judges who voted against a verdict, each with the vote they signed |
 | <span id="gk-xf-validity">$v$</span> | v | the fault's vote: ⊤ valid or ⊥ invalid |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-disjoint">$\mathrel{\unicode{x2AEF}}$</span> | share nothing with | the two sides have no item in common |
 | <span id="gk-goodset" class="gk-wrap">$\psi_G$</span> | psi sub G | the good set: hashes of every report a verdict found valid |
 | <span id="gk-cup">$\cup$</span> | union | everything in either side |

@@ -678,7 +678,7 @@ $$
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-le">$\le$</span> | at most | less than or equal to |
 | <span id="gk-Cmaxreportdeps" class="gk-wrap">$\mathsf{J}$</span> | J | the most dependencies a report may have, prerequisites and segment-root lookups together: 8 |
 

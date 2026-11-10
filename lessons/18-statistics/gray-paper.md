@@ -463,7 +463,7 @@ $$
 | <span id="gk-local-servicesprovided" class="gk-wrap">$\mathbf{s}^P$</span> | s sup P | the services a preimage was provided for in this block |
 | <span id="gk-keys">$\mathcal{K}\left(x\right)$</span> | K of | a dictionary's keys |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 
 </details>
 

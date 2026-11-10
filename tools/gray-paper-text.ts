@@ -122,8 +122,20 @@ export function symbolsOf(tex: string, paper: Paper): string[] {
   return names;
 }
 
+/** Symbols that can't be drawn alone as they are written: a command's arguments, or the
+ *  bar of a set built by a rule, which needs its braces around it. */
+const ALONE: Record<string, string> = {
+  build: "\\left\\{ x \\;\\middle\\vert\\; y \\right\\}",
+  frac: "\\frac{x}{y}", tilde: "\\tilde{x}", widetilde: "\\widetilde{x}", bar: "\\bar{x}",
+  check: "\\check{x}", overline: "\\overline{x}", overleftarrow: "\\overleftarrow{x}",
+  overrightarrow: "\\overrightarrow{x}", overset: "\\overset{y}{x}", overbrace: "\\overbrace{x}",
+  overparen: "\\overparen{x}", sqrt: "\\sqrt{x}", hat: "\\hat{x}", dot: "\\dot{x}", vec: "\\vec{x}",
+  middle: "\\vert", left: "", right: "", not: "\\not=", boldsymbol: "\\boldsymbol{x}",
+};
+
 /** A symbol as its key shows it: the macro drawn alone, its arguments as x, y, z. */
 export function symbolTex(name: string, paper: Paper): string {
+  if (name in ALONE) return ALONE[name];
   const m = paper.macros.get(name);
   if (!m) return `\\${name}`;
   // an optional argument left out, as the paper mostly writes it: \hash is ℍ, not ℍ_n

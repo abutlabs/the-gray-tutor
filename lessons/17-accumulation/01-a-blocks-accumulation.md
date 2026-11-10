@@ -146,7 +146,7 @@ $$
 | <span id="gk-ps-alwaysaccers" class="gk-wrap">$\mathbf{z}$</span> | z | the always-accumulate services with their free gas, χ_Z |
 | <span id="gk-concatall">$\overparen{x}$</span> | all joined | every sequence in it, joined end to end into one |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-wd-serviceindex">$s$</span> | s | the service the item was for, whose accumulate gets the result |
 | <span id="gk-in">[$\in$](../symbols.md#in)</span> | in | belongs to: x ∈ ℕ says x is a whole number; in a type line, the value's type |
 | <span id="gk-cup">$\cup$</span> | union | everything in either side |

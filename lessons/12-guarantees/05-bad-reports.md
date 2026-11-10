@@ -157,7 +157,7 @@ $$
 | --- | --- | --- |
 | <span id="gk-local-incomingcontexts" class="gk-wrap">$\mathbf{x}$</span> | x | the contexts of this block's incoming reports |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-wr-avspec" class="gk-wrap">$\mathbf{s}$</span> | bold s | a report's availability spec: the package's hash, its bundle's length, and the roots of its pieces and of the segments it exports |
 | <span id="gk-as-packagehash">$p$</span> | p | the work-package's hash |
 

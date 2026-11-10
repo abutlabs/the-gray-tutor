@@ -28,8 +28,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      # the e-book's diagrams are drawn with a system monospace font (epub.ts, png)
-      - run: sudo apt-get install -y --no-install-recommends fonts-dejavu-core
+      # the e-book's diagrams are drawn with a system monospace font, and the Gray Paper's rarest
+      # signs (↯, Ⅎ, ♈) with Symbola: MathJax's own fonts lack them (epub.ts, png)
+      - run: sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-symbola
       - run: npm ci
       - run: npm run typecheck && npm test
       - name: Build the site and the e-book

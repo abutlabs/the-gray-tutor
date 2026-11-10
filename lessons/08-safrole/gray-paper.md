@@ -204,7 +204,7 @@ $$
 | <span id="gk-previousset" class="gk-wrap">$\lambda$</span> | lambda | the last epoch's validators: kept to check what they signed before the change |
 | <span id="gk-valcount" class="gk-wrap">$\mathbb{V}$</span> | V (the set) | the validator counts allowed: multiples of 3 from 6 to 3C, which is 1,023 on full and 6 on tiny |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-Nclamp">$\mathbb{N}_{x \dots y}$</span> | N from x to y | the whole numbers from x up to, not including, y |
 | <span id="gk-Ccorecount" class="gk-wrap">$\mathsf{C}$</span> | C | the number of cores: 341 on full, 2 on tiny |
 
@@ -807,7 +807,7 @@ $$
 | <span id="gk-xt-proof">$p$</span> | p | an entered ticket's ring proof: 784 bytes proving a pending validator made it, without saying which |
 | <span id="gk-bsringproof">$\overset{\circ}{\mathbb{V}}_{x}^{z}\left\langle y\right\rangle$</span> | V ring sub r, context c, of m | a ring proof: signed by some key in the ring with root r, without saying which: 784 bytes |
 | <span id="gk-ceil">$\left\lceil x\right\rceil$</span> | ceiling of | rounded up to a whole number |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 | <span id="gk-Cmaxblocktickets" class="gk-wrap">$\mathsf{K}$</span> | K | the most tickets one block may carry: 16 on full, 3 on tiny |
 
 </details>
@@ -941,7 +941,7 @@ $$
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
-| <span id="gk-overrightarrow">$\overrightarrow$</span> | the first n of | with a number above: keep only the leftmost n items |
+| <span id="gk-overrightarrow">$\overrightarrow{x}$</span> | the first n of | with a number above: keep only the leftmost n items |
 | <span id="gk-sqorderby">$\left[y\,\wr\,x\right]$</span> | sorted by | the sequence's items, sorted by the key on the right |
 
 </details>

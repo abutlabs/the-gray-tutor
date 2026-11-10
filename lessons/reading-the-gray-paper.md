@@ -322,7 +322,7 @@ $$
 | <span id="gk-concat" class="gk-wrap">[$\frown$](./symbols.md#concat)</span> | concatenate | join: the left sequence followed by the right |
 | <span id="gk-encode">[$\mathcal{E}\left(x\right)$](./symbols.md#encode)</span> | E of | the encoding of what's in the brackets: its bytes, by Appendix C's rules |
 | <span id="gk-floor">[$\left\lfloor x\right\rfloor$](./symbols.md#floor)</span> | floor of | rounded down to a whole number |
-| <span id="gk-frac">$\frac$</span> | over | a fraction: the top divided by the bottom |
+| <span id="gk-frac">$\frac{x}{y}$</span> | over | a fraction: the top divided by the bottom |
 
 </details>
 
@@ -405,7 +405,7 @@ $$
 | Symbol | Say it | Means |
 | --- | --- | --- |
 | <span id="gk-justbecameavailable" class="gk-wrap">$\mathbf{R}$</span> | R | the reports this block made available: ready to accumulate |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-availassignmentspostjudgment" class="gk-wrap">$\rho^\dagger$</span> | rho dagger | the pending reports midway: after disputes took the judged-bad ones out |
 | <span id="gk-aa-guarantee" class="gk-wrap">$\mathbf{g}$</span> | bold g | the guarantee a core's pending report came with: the report and its guarantors' signatures |
 | <span id="gk-orderedin">$\mathrel{\unicode{x2B40}}$</span> | in order, from | each item of the sequence, in its order |
@@ -773,7 +773,7 @@ is, this is the line to point at, and then §14.3.
 $$
 \begin{align}
 &\forall c \in \mathbb{N}_{\mathsf{C}} : \alpha'\left[c\right] \equiv {\overleftarrow{F(c) \mathbin{+\!\!+} {\phi'\left[c\right]\left[\mathbf{H}_{T}\right]}^\circlearrowleft}}^{\mathsf{O}} \tag{8.2} \\
-&F(c) \equiv \begin{cases} \alpha[c] \mathbin{\unicode{x27DC}} \left\{\,(g_{\mathbf{r}})_{a}\,\right\} &\text{if } \exists g \in \mathbf{E}_G : (g_{\mathbf{r}})_{c} = c \\ \alpha[c] & \text{otherwise} \end{cases} \tag{8.3}
+&F(c) \equiv \begin{cases} \alpha[c] \mathbin{\circ\!\!\!-\!\!-} \left\{\,(g_{\mathbf{r}})_{a}\,\right\} &\text{if } \exists g \in \mathbf{E}_G : (g_{\mathbf{r}})_{c} = c \\ \alpha[c] & \text{otherwise} \end{cases} \tag{8.3}
 \end{align}
 $$
 
@@ -781,11 +781,11 @@ $$
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
-| <span id="gk-overleftarrow">$\overleftarrow$</span> | the last n of | with a number above: keep only the rightmost (newest) n items; with none: the sequence reversed |
+| <span id="gk-overleftarrow">$\overleftarrow{x}$</span> | the last n of | with a number above: keep only the rightmost (newest) n items; with none: the sequence reversed |
 | <span id="gk-append">[$\mathbin{+\!\!+}$](./symbols.md#concat)</span> | append | add one item at the end of the sequence |
 | <span id="gk-cyclic">${x}^\circlearrowleft$</span> | wrapped around | ↺: the index goes round, counting from 0 again past the end (mod the length) |
 | <span id="gk--timeslot">$T$</span> | T | a header's timeslot: 𝐇_T is the slot this block was made for |
-| <span id="gk-seqminusl">$\mathbin{\unicode{x27DC}}$</span> | without its first | the sequence with the leftmost copy of the item taken out |
+| <span id="gk-seqminusl">$\mathbin{\circ\!\!\!-\!\!-}$</span> | without its first | the sequence with the leftmost copy of the item taken out |
 | <span id="gk-set">$\left\{\,x\,\right\}$</span> | the set of | a set: values with no order and no repeats |
 
 </details>
@@ -810,7 +810,7 @@ defines these editing signs:
 
 <a id="gp-3-7-2-p2"></a>We define ${}^\text{T}\mathbf{x}$ as the transposition of the sequence-of-sequences $\mathbf{x}$, fully defined in equation [H.4](./cryptography.md#eq-H-4). We may also apply this to sequences-of-tuples to yield a tuple of sequences.
 
-<a id="gp-3-7-2-p3"></a>We denote sequence subtraction with a slight modification of the set subtraction operator; specifically, some sequence $\mathbf{s}$ excepting the left-most element equal to $v$ would be denoted $\mathbf{s}\mathbin{\unicode{x27DC}}\left\{\,v\,\right\}$.
+<a id="gp-3-7-2-p3"></a>We denote sequence subtraction with a slight modification of the set subtraction operator; specifically, some sequence $\mathbf{s}$ excepting the left-most element equal to $v$ would be denoted $\mathbf{s}\mathbin{\circ\!\!\!-\!\!-}\left\{\,v\,\right\}$.
 
 :::
 

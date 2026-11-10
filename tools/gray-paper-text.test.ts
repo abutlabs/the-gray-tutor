@@ -9,7 +9,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { readPaper, expandMath, paperMacros } from "./gray-paper-tex.ts";
 import { renderBlock } from "./gray-paper-render.ts";
-import { blocksOf, fill, GP, placements, quotesIn, symbolsOf, texts } from "./gray-paper-text.ts";
+import { blocksOf, fill, GP, placements, quotesIn, symbolsOf, symbolTex, texts } from "./gray-paper-text.ts";
 import { GLOSSES, TERMS } from "./gray-paper-glosses.ts";
 import { markSymbols } from "../.vitepress/gray-paper.ts";
 import { proseWords, speller } from "./spelling.ts";
@@ -69,6 +69,11 @@ test("every formula of the paper draws in MathJax, no command unknown", { skip }
         try { doc.convert(markSymbols(m[1], symbols), { display: true }); } catch (e) { problems.push(`${file}: ${(e as Error).message}`); }
       }
     }
+  }
+  // every symbol as its key draws it, alone
+  for (const name of Object.keys(GLOSSES)) {
+    if (GLOSSES[name] === "skip") continue;
+    try { doc.convert(symbolTex(name, paper!), { display: false }); } catch (e) { problems.push(`key ${name}: ${(e as Error).message}`); }
   }
   for (const b of paper!.sections.flatMap((s) => s.blocks)) {
     const md = renderBlock(b, paper!, () => undefined).markdown;

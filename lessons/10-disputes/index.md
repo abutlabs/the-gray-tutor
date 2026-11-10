@@ -188,7 +188,7 @@ $$
 | <span id="gk-bot">$\bot$</span> | bottom | false, the no of a yes-or-no value |
 | <span id="gk-none" class="gk-wrap">$\emptyset$</span> | nothing | ∅: no value at all, like null |
 | <span id="gk-sq">[$\left[x\right]$](../symbols.md#sequence)</span> | the sequence | a sequence written out item by item; [ ] is the empty one |
-| <span id="gk-build">$x \;\middle\vert\; y$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
+| <span id="gk-build">$\left\{ x \;\middle\vert\; y \right\}$</span> | for each, such that | built by a rule: the left-hand value, for every case the right-hand side allows (a set, or a sequence in order) |
 | <span id="gk-xv-reporthash">$r$</span> | r | the hash of the work-report on trial |
 | <span id="gk-xv-epochindex">$a$</span> | a | a verdict's epoch: this epoch's index or the one before, saying whose validators judged |
 | <span id="gk-xv-judgments" class="gk-wrap">$\mathbf{j}$</span> | bold j | a verdict's judgments: the judges' signed votes, two thirds of the judges plus one |
