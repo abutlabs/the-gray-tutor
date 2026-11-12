@@ -52,8 +52,8 @@ $$
 iota, kappa, lambda, rho, tau, phi, chi, psi, pi, omega and xi."
 
 **In plain words.** The state is seventeen named parts, each a Greek letter, and nothing
-else: everything the chain remembers between blocks is in one of them. The order here is
-only a list. Appendix D numbers them differently, C(1) for α up to C(16) for θ, and δ, the
+else. Everything the chain remembers between blocks is in one of them. The order here is
+only a list. Appendix D numbers them differently, C(1) for α up to C(16) for θ. δ, the
 services, gets a key of its own for each service.
 
 **On a real value.** The tiny genesis state:
@@ -96,9 +96,9 @@ $$
 
 **Read it aloud.** "H sub R is in H; H sub R is defined as M sigma of sigma."
 
-**In plain words.** A header's `parent_state_root` is the Merkle root of the state, the
-state as it was *before* this block, after its parent. One 32-byte value stands for every
-byte of the state: two nodes with the same root have the same state.
+**In plain words.** A header's `parent_state_root` is the Merkle root of the state as it
+was *before* this block, after its parent. One 32-byte value stands for every byte of the
+state: two nodes with the same root have the same state.
 
 **On a real value.** Block 1 of the `fallback` trace:
 
@@ -154,16 +154,18 @@ zeros. i and s map to i, n zero, 0, n one, 0, n two, 0, n three, 0, then zeros, 
 sub 4 of s. s and h map to n zero, a zero, n one, a one, n two, a two, n three, a three,
 then a four up to a twenty-six, where n is E sub 4 of s and a is the hash of h."
 
-**In plain words.** Every key in the state is 31 bytes, made one of three ways, picked by
-what you hand C. A number alone is a component's key: the number, then 30 zeros. A number
-and a service is a service's account: 255, then the service's four bytes with a zero after
-each. A service and some bytes is something the service keeps: the service's four bytes
-take turns with the first four bytes of the hash of h, and 23 more bytes of that hash
-follow. Hashing h makes the key 31 bytes, however long h was.
+**In plain words.** Every key in the state is 31 bytes, made one of three ways. What you
+hand C picks the way. A number alone makes a component's key: the number, then 30 zeros.
+A number and a service make a service's account key: 255, then the service's four bytes
+with a zero after each. A service and some bytes make the key of something the service
+keeps: the service's four bytes take turns with the first four bytes of the hash of h,
+and 23 more bytes of that hash follow. Hashing h makes the key 31 bytes, however long h
+was.
 
 **On a real value.** Three keys, one per case. The first and last are the genesis
-state's; service `0x04030201` is made up, as in [6.2](./02-state-keys.md)'s widget,
-because the genesis state's only service is 0, all zero bytes:
+state's. The middle one's service, `0x04030201`, is made up, as in
+[6.2](./02-state-keys.md)'s widget, because the genesis state's only service is 0, all
+zero bytes:
 
 ```text
 C(11)                  0b 00 00 … 00                τ's key: 11 is 0x0b, then 30 zeros
@@ -348,12 +350,13 @@ per component, then, for every service s and its account a, "C of 255 and s maps
 encoding of 0, a's code hash, E sub 8 of its balance and four more numbers, E sub 4 of
 four more", and its storage, its preimages and its requests under C of s and their keys.
 
-**In plain words.** A table: on the left a key from (D.1), on the right the bytes stored
-under it, an encoding by Appendix C's rules. Sixteen lines are the components, one entry
-each. The last four lines make many entries, one per service, and one per item a service
-keeps: a storage value, a preimage, or a request for one (the times it was requested and
-provided, each in 4 bytes). The paper's note under it is the rule of thumb for reading
-any line: a number in the state is fixed-width, unless it is a length or a discriminator.
+**In plain words.** A table. On the left, a key from (D.1). On the right, the bytes
+stored under it, an encoding by Appendix C's rules. Sixteen lines are the components, one
+entry each. The last four lines make many entries: one per service, and one per item a
+service keeps. An item is a storage value, a preimage, or a request for one (the times it
+was requested and provided, each in 4 bytes). The paper's note under the table is the
+rule of thumb for reading any line: a number in the state is fixed-width, unless it is a
+length or a discriminator.
 
 **On a real value.** Three lines, from the state before block 3 of the `fallback` trace:
 
@@ -364,8 +367,8 @@ C(8)  ↦ ℰ(↕κ)         06 ff 71 c6 c0 …       ↕: 6 validators, then 6 
                                              1 + 2,016 = 2,017 bytes
 ```
 
-And two lines that show how empty things look: C(5), ψ, is four empty sets, each with a
-length of 0, `00 00 00 00`; C(16), θ, is an empty list, `00`.
+Two more lines show how empty things look. C(5), ψ, is four empty sets, each with a
+length of 0: `00 00 00 00`. C(16), θ, is an empty list: `00`.
 
 **In your client.** `readTime`, `readEntropy` and `readValidators` in `src/state.ts`
 ([6.3](./03-reading-the-state.md#the-code)); the other lines are read where their Parts
@@ -416,10 +419,11 @@ then the bits of the hash of v."
 
 **In plain words.** Every node of the trie is exactly 64 bytes, and its first bit says
 which kind. A **branch** (D.3) is a 0, then its two children's hashes, the left one with its
-first bit dropped to make room. A **leaf** (D.4) is a 1, then a second bit: 0 if the value
-fits in 32 bytes, with its length in the first byte's last six bits, the 31-byte key, and
-the value padded with zeros; 1 if it doesn't, with six zero bits, the key, and the value's
-hash instead. Here "bits" are read highest first, the opposite of a bitfield's
+first bit dropped to make room. A **leaf** (D.4) is a 1, then a second bit. That bit is 0
+if the value fits in 32 bytes: then come its length, in the first byte's last six bits,
+the 31-byte key, and the value padded with zeros. It is 1 if the value doesn't fit: then
+come six zero bits, the key, and the value's hash. Here "bits" are read highest first,
+the opposite of a bitfield's
 ([4.A](../04-blocks/gray-paper.md#c-9-bits-eight-to-a-byte)).
 
 **On a real value.** τ's entry before block 3, a value of 4 bytes, makes this leaf:
@@ -441,9 +445,9 @@ aa b5 94 3c …            ℋ(value), the hash of its 89 bytes: 32 bytes
                          64 bytes; its hash 0xf801d491…
 ```
 
-And the top of the genesis trie is a branch. Every component's key starts with a 0 bit
-and the account's with a 1 (255 is `0b1111_1111`), so the left side holds 20 entries and
-the right side the account's leaf alone:
+The top of the genesis trie is a branch. Every component's key starts with a 0 bit, and
+the account's with a 1 (255 is `0b1111_1111`). So the left side holds 20 entries, and the
+right side the account's leaf alone:
 
 ```text
 0                        a branch
@@ -453,8 +457,8 @@ f8 01 d4 91 … 6c 7a      the right side's hash: the account's leaf, all 32 byt
                          64 bytes; its hash is the root, 0xd6e78dc0…
 ```
 
-Had the left hash started `0xcb` (`0b1100_1011`), the branch would start `0x4b`: the
-dropped bit is simply lost, and that's safe because the branch's own 0 takes its place.
+Had the left hash started `0xcb` (`0b1100_1011`), the branch would start `0x4b`. The
+dropped bit is simply lost. That is safe, because the branch's own 0 takes its place.
 
 **In your client.** `leaf` and `branch` in `src/trie.ts` ([6.1](./01-the-state-trie.md#the-code)).
 
@@ -501,11 +505,11 @@ of M of l and M of r, where every entry of d whose first bit is 0 goes into l, a
 one whose first bit is 1 into r, each with that bit taken off."
 
 **In plain words.** (D.5) files every entry by its key's bits. (D.6) is the root of a set of
-entries, one recursive rule with three cases: nothing at all is 32 zero bytes; one entry is
-the hash of its leaf (D.4), wherever it sits; more than one, and they split on their next
-bit, each half gets its own root the same way, and the two roots make a branch (D.3), whose
-hash is the answer. A key's bits are its route down the trie, and an entry becomes a leaf as
-soon as no other key shares its route.
+entries: one recursive rule with three cases. No entries: 32 zero bytes. One entry: the
+hash of its leaf (D.4), wherever it sits. More than one: they split on their next bit, each
+half gets its own root the same way, and the two roots make a branch (D.3), whose hash is
+the answer. A key's bits are its route down the trie, and an entry becomes a leaf as soon
+as no other key shares its route.
 
 **On a real value.** The genesis state's 21 entries, from the top:
 
@@ -525,14 +529,19 @@ as [6.1](./01-the-state-trie.md#what-the-gray-paper-says) counts.
 ## The rest of Appendix E.1: the paper's other Merkle trees
 
 Appendix D's trie is not the paper's only Merkle tree. Appendix E.1 defines two more, over a
-plain list of items rather than a dictionary of keys, with a node function N they share.
-None is built in this part: the well-balanced tree, M_B, is built with Keccak in
-[17.11](../17-accumulation/11-what-a-service-yields.md#the-code), for a block's
-accumulation outputs; the constant-depth tree, M, makes a work-package's segment root,
-which the guarantors compute in-core and the chain only ever carries as a hash
-([3.3](../03-work-and-reports/03-a-work-report.md)). They are quoted here, beside the trie
-they are cousins of, and explained on a small made-up list: the three one-byte items
-`61`, `62` and `63` (the letters a, b and c), hashed with Blake2b, every hash real.
+plain list of items rather than a dictionary of keys. They share a node function, N.
+Neither is built in this part:
+
+- The well-balanced tree, M_B, is built with Keccak in
+  [17.11](../17-accumulation/11-what-a-service-yields.md#the-code), for a block's
+  accumulation outputs.
+- The constant-depth tree, M, makes a work-package's segment root. The guarantors compute
+  it in-core, and the chain only ever carries it as a hash
+  ([3.3](../03-work-and-reports/03-a-work-report.md)).
+
+They are quoted here, beside the trie they are cousins of, and explained on a small
+made-up list: the three one-byte items `61`, `62` and `63` (the letters a, b and c),
+hashed with Blake2b, every hash real.
 
 ::: gray-paper E.1 1-4
 
@@ -581,8 +590,8 @@ then N of v from the half on."
 **In plain words.** A list's tree, built top down. No items is 32 zero bytes. One item is
 that item itself, not hashed. More: split the list in two, the left half the bigger when
 it is odd, find each half's node the same way, and hash the word `node` with the two. The
-word `node` in front keeps a node's hash from ever being mistaken for an item's hash, the
-paper's next paragraph says; a different word goes in front of items (E.7's `leaf`).
+paper's next paragraph says why the word is there: it keeps a node's hash from ever being
+mistaken for an item's hash. A different word goes in front of items (E.7's `leaf`).
 
 **On a real value.** N of [a, b, c]:
 
@@ -769,11 +778,11 @@ and the size of v, minus x, or none. L sub x maps v, i and H to the sequence of 
 bytes of leaf then l, for each l in order in v, from 2 to the x times i, up to 2 to the x
 times i plus 2 to the x, or the end of v."
 
-**In plain words.** The constant-depth root first makes the list a power of two long, every
-item hashed (C, in (E.7) below), then takes N of that, so every item sits at the same depth.
-Its proofs come by pages of 2^x items: L_x gives the page's hashed leaves, J_x the nodes
-beside the path from the root down to the page. Together they prove a whole page at once,
-which is how a work-package's exported segments are proven.
+**In plain words.** The constant-depth root first hashes every item and makes the list a
+power of two long (C, in (E.7) below). Then it takes N of that, so every item sits at the
+same depth. Its proofs come by pages of 2^x items: L_x gives the page's hashed leaves, J_x
+the nodes beside the path from the root down to the page. Together they prove a whole page
+at once. That is how a work-package's exported segments are proven.
 
 **On a real value.**
 
@@ -837,11 +846,11 @@ depth the same for every item.
 ## Say it in one breath
 
 The state is seventeen parts (4.4), and every header carries the root of the state before it
-(5.9). To make that root, C gives every entry a 31-byte key (D.1) and T says what bytes sit
-under each (D.2); the entries are filed in a binary trie by their keys' bits, every node 64
-bytes, a branch two hashes (D.3), a leaf a key and its value or its value's hash (D.4); and
-the root is nothing for nothing, a leaf's hash for one entry, or a branch's hash over the
-two halves' roots (D.5, D.6). Appendix E's trees do the same for a plain list: N joins
+(5.9). To make that root, C gives every entry a 31-byte key (D.1), and T says what bytes sit
+under each (D.2). The entries are filed in a binary trie by their keys' bits. Every node is
+64 bytes: a branch is two hashes (D.3), a leaf a key and its value or its value's hash
+(D.4). The root is zeros for no entries, a leaf's hash for one entry, or a branch's hash
+over the two halves' roots (D.5, D.6). Appendix E's trees do the same for a plain list: N joins
 halves under the word `node` (E.1), T proves one item (E.2), M_B is the well-balanced root
 (E.3), and M the constant-depth one, every item hashed under `leaf` and padded to a power of
 two (E.4 to E.7).

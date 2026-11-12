@@ -1,19 +1,22 @@
 # Part 6 · State and Merklization
 
-Blocks change the state, so before your client can change anything it has to know what
-the state *is*: every validator's keys, every service, every byte of storage, all of it
-committed to by one 32-byte root in every header. This part computes that root, then
-learns to read the state it stands for.
+**In one sentence:** this Part computes the 32-byte root that stands for the whole state,
+then reads the state that root stands for.
 
 By the end of this part your client computes the state's root and reads any component
 of the state by its key, with the codecs it already has.
 
 ## The big picture
 
+Blocks change the state. So before your client can change anything, it has to know what
+the state *is*: every validator's keys, every service, every byte of storage.
+
 The state is the chain's whole memory, and every validator keeps its own full copy.
 Nothing in-core holds state: a core's guarantors read it as a recent block saw it and
-write nothing. The root in each header is how every validator checks that its copy is
-everyone's. Appendix D opens with why one root is worth having:
+write nothing.
+
+One 32-byte root in every header commits to all of it. That root is how every validator
+checks that its copy is everyone's. Appendix D opens with why one root is worth having:
 
 ::: gray-paper D
 
@@ -23,12 +26,13 @@ everyone's. Appendix D opens with why one root is worth having:
 
 :::
 
-In plain words: with the root alone, anyone can be shown that one value really is in the
-state, with a few hashes as proof and no copy of the rest. The two stages are this Part's
-first two lessons, backwards: [6.1](./01-the-state-trie.md) builds the Merklization,
-[6.2](./02-state-keys.md) the serialization's keys. Appendix D
-cuts the state into sixteen numbered components, each a Greek letter, plus one record per
-service:
+With the root alone, anyone can be shown that one value really is in the state, with a
+few hashes as proof and no copy of the rest. The two stages are this Part's first two
+lessons, backwards: [6.1](./01-the-state-trie.md) builds the Merklization,
+[6.2](./02-state-keys.md) the serialization's keys.
+
+Appendix D cuts the state into sixteen numbered components, each a Greek letter, plus one
+record per service:
 
 | Key | Symbol | What it is | Built in |
 | --- | --- | --- | --- |
@@ -48,10 +52,12 @@ service:
 | C(16) | θ | the last block's accumulation outputs | [17.11](../17-accumulation/11-what-a-service-yields.md) |
 | C(255, s) | δ | service s's account, with its storage, preimages and requests under keys of its own | [Part 14](../14-services/index.md), [19.3](../19-block-import/03-accounts-from-the-state.md) |
 
-This part reads the simplest three, τ, η and κ, and builds the trie that hashes all of
+This Part reads the simplest three, τ, η and κ, and builds the trie that hashes all of
 them into one root. [19.2](../19-block-import/02-the-whole-state.md) reads the whole
-table. If you build web services: the state is the database, the components are its
-tables, and the root is a checksum of all of it that every replica must agree on.
+table.
+
+If you build web services: the state is the database, the components are its tables, and
+the root is a checksum of all of it that every replica must agree on.
 
 **Builds on** [Part 4 · Blocks](../04-blocks/index.md) and [Part 5 · Hashing and
 signatures](../05-hashing-and-signatures/index.md), and on the foundations every part
@@ -167,14 +173,16 @@ $$
 
 :::
 
-Read it aloud: "the state is alpha, beta, theta, gamma, delta, eta, iota, kappa, lambda,
+Read (4.4) aloud: "the state is alpha, beta, theta, gamma, delta, eta, iota, kappa, lambda,
 rho, tau, phi, chi, psi, pi, omega, xi." The paper lists them in this order, not by key
-number: the table above has them by key, C(1) to C(16), which is how the state is
-stored. The second line: "the state root is M of the set that maps the bits of each key
-to the pair of the key and its value, for every key and value in the serialized state."
-M is the trie of [6.1](./01-the-state-trie.md), which hashes a leaf with ℋ and a branch
-from its two halves. The seventeenth letter, δ, is the services, stored not as one
-component but as one record per service under C(255, s).
+number. The table above has them by key, C(1) to C(16), which is how the state is
+stored. The seventeenth letter, δ, is the services: not one component, but one record per
+service under C(255, s).
+
+Then (D.5): "the state root is M of the set that maps the bits of each key to the pair of
+the key and its value, for every key and value in the serialized state." M is the trie of
+[6.1](./01-the-state-trie.md), which hashes a leaf with ℋ and a branch from its two
+halves.
 
 **Test yourself:** [E · Serialization and Merklization (Appendices C and D)](https://abutlabs.github.io/jam-learning/lasair/exam.html?chapter=e-codec-merklization),
 self-test cards on JAM learning.
