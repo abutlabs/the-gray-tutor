@@ -1,31 +1,34 @@
 # Work digests
 
-A core has crunched a work item. What does it send back? Not the whole computation: a
-*work digest*, a small summary card: whose job it was, how it went, and how hard the core
-worked. Every validator reads these cards, so they are kept small.
+**In one sentence:** a work digest is the small card a core sends back for one job: whose
+job it was, how it went, and how hard the core worked.
 
 Here are both tiny vectors, one job that succeeded and one that panicked. Tap any part for
-what it's for, its value and where its bytes are; the strip underneath is the card as the
-bytes hold it. The one genuinely new idea is in *How it went*: a value that is *either*
-one thing *or* another.
+what it's for, its value and where its bytes are.
+
+<a id="try-it"></a>
 
 <WorkDigest />
 
-## New words
+## The idea
 
-- **Work digest.** One work item's result card: which service, how it went, how hard the
-  core worked. The vectors still call it a *work result*. *Example:* `work_result_1`, a
-  digest whose item panicked.
-- **Union type.** A TypeScript type that is one shape *or* another. *Example:*
-  `{ ok: Bytes } | { error: WorkError }`.
-- **Tag.** A number in front of an encoded value that says which case follows.
-  *Example:* tag 0 is "here comes the output", tag 2 is "it panicked".
-- **Refine and accumulate.** A work-item's two stages. *Refine* runs the service's code on
-  a core, off the chain, and gets a result; *accumulate*, later and on the chain, folds
-  that result into the service's state ([Part 16](../16-host-calls/index.md)). *Example:* refine sums some
-  numbers, and accumulate adds the sum to a total the service keeps.
+A core has run a job. What should the chain hear about it? Not the computation: that
+stayed on the core. Every validator has to read whatever comes back, so it must be small.
 
-All four are in the [glossary](../glossary.md).
+It is a card, the [*work digest*](../glossary.md#work-digest), with three things on it.
+
+- **Whose job.** The service, its code, and a hash of the job's input.
+- **How it went.** Either the output, or the reason it failed. Never both.
+- **How hard the core worked.** Gas used, and how much data went in and out.
+
+A job has two stages. [*Refine*](../glossary.md#refine) runs the service's code on a core, off the
+chain, and produces the output. [*Accumulate*](../glossary.md#accumulate) comes later, on the chain,
+and folds that output into the service's state. The digest is the note passed from the
+first stage to the second.
+
+"Either the output or an error" is the one new idea here. In the bytes, a number in front,
+a [*tag*](../glossary.md#tag), says which case follows. In TypeScript it is a
+[*union type*](../glossary.md#union-type). This lesson builds both.
 
 ## What the Gray Paper says
 
@@ -181,7 +184,7 @@ $$
 
 :::
 
-In plain words, §11.1.4 (*Work Digest*) defines a digest as ten things:
+§11.1.4 (*Work Digest*) defines a digest as ten things:
 
 - the **service** it is for, that service's **code hash**, and the hash of the item's
   **payload**;
@@ -191,30 +194,27 @@ In plain words, §11.1.4 (*Work Digest*) defines a digest as ten things:
 - the **load**: gas used, segments imported, extrinsics read and their total size, and
   segments exported.
 
-C (14.10) shows where each comes from: the service, code hash and accumulate gas are
-copied from the item, the payload is hashed, the counts are the lengths of the item's
-import and extrinsic lists, and the extrinsics' size is the sum of their lengths. Only the
-result and the gas used come from running the code.
+C (14.10) shows where each comes from. The service, code hash and accumulate gas are
+copied from the item. The payload is hashed. The counts are the lengths of the item's
+import and extrinsic lists. Only the result and the gas used come from running the code.
 
 Appendix C encodes the result with its own function, O: a successful result is the tag 0
-and then the output as a blob; a failure is just its tag, 1 to 6. The five load numbers
-are compact naturals. (The Gray Paper's own comment on why: "space is at a premium here".)
+and then the output as a blob; a failure is just its tag, 1 to 6. The five load numbers are compact
+naturals. (The Gray Paper's own comment on why: "space is at a premium here".)
 
-One naming wrinkle: the test vectors call digests `work_result`, the name the Gray Paper
-used before it renamed them.
+The test vectors call digests `work_result`, the name the Gray Paper used before it
+renamed them.
 
-Pick a case and watch the tag in front: an error is one byte and nothing more; a success
-is the tag 0, the output's length, then the output. Grow the output past 127 bytes and
-its length takes two. Then push the five load numbers up until their bytes grow.
+Pick a case and watch the tag in front. An error is one byte and nothing more. A success
+is the tag 0, the output's length, then the output.
 
 <ResultTag />
 
 ## Either this or that
 
-TypeScript has the perfect tool for "either output or an error": a union of two object
-shapes. A result is `{ ok: Bytes }` or `{ error: WorkError }`, and `"ok" in result` tells
-you which one you're holding. After that check TypeScript *knows*, so `result.ok` only
-compiles where it's safe.
+In TypeScript, "either output or an error" is a union of two object shapes. A result is
+`{ ok: Bytes }` or `{ error: WorkError }`, and `"ok" in result` tells you which one you
+hold. After that check `result.ok` only compiles where it's safe.
 
 ## The tests
 
@@ -506,9 +506,8 @@ npm run decode-work-result
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=decode-1791727155961
 ```
 
-There it is, the whole sad story of `work_result_1` in one byte: `result 0x02`, a panic.
-Then five compact zeros for the load, one byte each. Small numbers, small bytes: [lesson
-2.2](../02-codec/02-compact-naturals.md) paying off.
+The whole story of `work_result_1` is one byte: `result 0x02`, a panic. Then five compact
+zeros for the load, one byte each, as [lesson 2.2](../02-codec/02-compact-naturals.md) wrote them.
 
 <details>
 <summary>lasair: a variant and a <code>match</code>, in <code>lib/serialization.ml</code></summary>
@@ -550,58 +549,63 @@ one where yours count along the `ERRORS` list.
 ## Check your understanding
 
 ::: check
-**`work_result_0`'s result is `00 03 aa bb cc`. What is the `00`?**
+**What is a work digest, and who makes it?**
 
-- [ ] The output's length
-  > No: the length is the next byte, `03`, for the three bytes `aa bb cc`.
-- [x] The tag: 0 means success, and the output follows as a blob
-  > Yes: the decoder reads the tag first, sees 0, then reads a blob: its length `03`,
-  > then `aa bb cc`.
-- [ ] A zero byte of padding before the output
-  > No: there's no padding in a result. Every byte says something, and this one says
-  > which case follows.
+- [x] The summary of one refined work-item, made by the core's guarantors
+  > Yes: the service, how it went, and the load. The guarantors build it from the item
+  > and from running it.
+- [ ] The hash of a work-package, made by its builder
+  > No: a digest is about one item, not the package, and the builder can't make it: it
+  > records what running the item did.
+- [ ] A service's state after accumulation, made by every validator
+  > No: that comes later. The digest is what refine hands to accumulate.
 
-**A panic is just `02`. Why does nothing follow it?**
+**Which parts of a digest come from running the code, and which are copied from the item?**
 
-- [ ] A panic's output is empty, so its length is left out
-  > No: an empty output that succeeded is `00 00`, tag 0 then length 0. A panic has no
-  > output at all, not even an empty one.
-- [ ] The output is written somewhere else in the digest
-  > No: in `work_result_1` the byte after `02` is already `gas_used`, the first load
-  > number.
-- [x] A failure has no output, so its tag says everything
-  > Yes: tags 1 to 6 are the six errors and nothing more. After `02` the decoder moves on
-  > to the load.
+- [ ] All of it comes from running the code
+  > No: most of it is known before anything runs. The service, the code hash and the
+  > accumulate gas are the item's own.
+- [x] Only the result and the gas used come from running it; the rest is copied, hashed or counted from the item
+  > Yes: that is (14.10). The payload is hashed, the counts are the lengths of the item's
+  > lists.
+- [ ] Only the service is copied; the rest is computed
+  > No: the code hash and the accumulate gas are copied too.
 
-**Before the fix, the decoder turned tag 2 into "bad exports". Why?**
+**Refine failed. What does the digest carry in place of the output?**
 
-- [x] Tags count errors from 1, but list positions count from 0
-  > Yes: `ERRORS[2]` is the third name, `bad_exports`. Tag 2 is the second error,
-  > `ERRORS[2 - 1]`, the panic.
-- [ ] The vector's byte was `03`, the tag for bad exports
-  > No: the byte was `02`, and the encode test showed a panic writes `02`. The bytes were
-  > right; the reading was wrong.
-- [ ] The Gray Paper lists bad exports second
-  > No: O gives out of gas 1, panic 2, bad exports 3. The list in the code is in that
-  > order too.
+- [ ] An empty output
+  > No: an empty output is a success with nothing in it. A failure is a different case.
+- [x] Which of six errors it was, and nothing else
+  > Yes: out of gas, panic, bad exports, oversize, bad code, or code too big. The result is
+  > either an output or one of these, never both.
+- [ ] The error and whatever output there was so far
+  > No: a failed refine has no output to pass on.
 
-**Why are the five load numbers compact naturals, not fixed widths?**
+**Why is a digest kept so small, with its numbers in the compact form?**
 
-- [ ] They can never be bigger than 127
-  > No: gas used can be huge. A compact natural takes up to 9 bytes for that; small
-  > numbers just cost less.
-- [ ] They can be negative, and a compact natural can hold a sign
-  > No: a compact natural is a natural, a whole number from 0 up. Gas used and counts are
-  > never negative.
-- [x] Every validator reads these cards, and small numbers then take one byte
-  > Yes: "space is at a premium here". `work_result_1`'s five zeros take one byte each,
-  > 5 in all; gas used alone, as a u64, would be 8 bytes of zeros.
+- [ ] So a core can refine it faster
+  > No: the digest is written after refining. Its size doesn't change the work.
+- [x] It goes on the chain inside a report, where every validator reads and keeps it
+  > Yes: the work stays on one core, the digest goes to everyone. The Gray Paper says
+  > space is at a premium here.
+- [ ] The codec can't write big numbers
+  > No: it can. Compact is a choice: small numbers take one byte.
+
+**What happens to a digest's output after refine?**
+
+- [ ] Nothing: refine is the end of the job
+  > No: refine only computes. A service's state changes in the second stage.
+- [ ] The guarantors write it into the service's state themselves
+  > No: guarantors work in-core and can't touch the state. Only the chain can.
+- [x] Accumulate, on the chain, folds it into the service's state
+  > Yes: refine runs on a core and returns a result; accumulate runs on every validator
+  > and applies it ([Part 16](../16-host-calls/index.md)).
 :::
 
 ## What you have
 
-The card a core sends back for every work item, with your client's first value that can
-be one thing *or* another. [Lesson 3.3](./03-a-work-report.md) wraps the cards in the
+The card a core sends back for every work item, and your client's first value that is one
+thing *or* another. [Lesson 3.3](./03-a-work-report.md) wraps the cards in the
 work-report that guarantors sign.
 
 Next: [3.3 A work-report](./03-a-work-report.md)

@@ -69,8 +69,8 @@ test("the card holds each top-level part once, every chip says what it is, and e
   }
 });
 
-test("lesson 3.2 opens with the widget, before New words", () => {
+test("lesson 3.2 opens with the widget, before The idea", () => {
   const at = text.indexOf("<WorkDigest />");
   assert.ok(at > 0 && at === text.lastIndexOf("<WorkDigest />"), "placed once");
-  assert.ok(at < text.indexOf("## New words"));
+  assert.ok(at < text.indexOf("## The idea"));
 });

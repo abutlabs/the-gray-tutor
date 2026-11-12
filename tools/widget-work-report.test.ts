@@ -87,8 +87,8 @@ test("the receipt holds each top-level part once, every chip says what it is, an
   assert.equal(p.bytesOf(p.partAt("segment_root_lookup")), "byte 313, 1 of them, the count first");
 });
 
-test("lesson 3.3 opens with the widget, before New words", () => {
+test("lesson 3.3 opens with the widget, before The idea", () => {
   const at = text.indexOf("<WorkReport />");
   assert.ok(at > 0 && at === text.lastIndexOf("<WorkReport />"), "placed once");
-  assert.ok(at < text.indexOf("## New words"));
+  assert.ok(at < text.indexOf("## The idea"));
 });

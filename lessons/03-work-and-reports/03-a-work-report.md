@@ -1,35 +1,34 @@
 # A work-report
 
-The package went in (3.1); each item came back as a digest (3.2). The *work-report* wraps
-them up: a core's receipt for one whole work-package, which validators sign, check and
-finally fold into the chain. Everything from [Part 3](./index.md) meets here.
+**In one sentence:** a work-report is a core's receipt for one work-package: what each job
+returned, and where to fetch everything needed to check it.
 
 Here is the vectors' report. Tap any part for what it's for, its value and where its bytes
 are. Switch from tiny to full and only one part changes.
 
+<a id="try-it"></a>
+
 <WorkReport />
 
-## New words
+## The idea
 
-- **Work-report.** A core's receipt for one whole work-package: its digests, and enough
-  detail to check and fetch everything. *Example:* the `work_report` vector.
-- **Availability specification.** How to find a package's data again: its hash, its
-  bundle's length, the erasure root and shard count, and its exported segments' root and
-  count. *Example:* a report's `package_spec`.
-- **Erasure coding.** Chopping data into one piece per validator so cleverly that a third
-  of the pieces, plus one, can rebuild it all. *Example:* 1,023 shards on full, any 342 of
-  which will do; on tiny, 6, any 3.
-- **Bundle.** A work-package with everything needed to refine it again: its extrinsics,
-  and the segments it imports, with their proofs. *Example:* its length is in a report's
-  `package_spec`.
-- **Erasure root.** One hash that vouches for every validator's shard: the top of a tree
-  of hashes (a Merkle tree) over them, so one shard can be checked without the rest.
-  *Example:* the full report's `0x7af11fda…`.
-- **Shamir's secret sharing.** Erasure coding's twin for secrets: a secret cut into shares
-  so that enough of them reveal it and fewer reveal nothing. *Example:* a wallet's seed
-  backed up as any 3 of 6 cards.
+A core did some work, and the chain wasn't watching. Why should anyone believe the result?
 
-All six are in the [glossary](../glossary.md).
+Because the claim comes with the means to check it. The [*work-report*](../glossary.md#work-report)
+is the claim: this is the package ([lesson 3.1](./01-a-work-package.md)), this is what
+each job returned ([lesson 3.2](./02-work-digests.md)), this is who allowed it. Validators
+sign it, check it, and finally fold it into the chain.
+
+The means to check it is the data behind the report, the [*bundle*](../glossary.md#bundle): the
+package and all it needs to be run again. Nobody should have to store every core's
+bundles. So each bundle is cut into one piece per validator, in such a way that a third of
+the pieces, plus one, rebuild all of it. That is [*erasure coding*](../glossary.md#erasure-coding):
+1,023 shards on full, any 342 of which will do; on tiny, 6, any 3.
+One hash, the [*erasure root*](../glossary.md#erasure-root), vouches for every piece.
+
+The report carries both promises in its
+[*availability specification*](../glossary.md#availability-specification). Your client only decodes
+the report, but its fields make no sense until you know what they promise.
 
 ## The big picture
 
@@ -41,7 +40,8 @@ validators:
 1. **Cut.** The validators working the core (its *guarantors*) cut the bundle into one
    shard per validator: 6 on tiny, 1,023 on full.
 2. **Commit.** They hash each shard and build a Merkle tree of the hashes: each box is the
-   hash of the two below it. The top one, the erasure root, goes in the report.
+   hash of the two below it. The top one, the erasure root, goes in the report: the full
+   report's is `0x7af11fda…`.
 3. **Send.** Each validator gets its shard, plus the hashes beside its path up the tree.
    It hashes its way up; if it reaches the erasure root, the shard is genuine.
 4. **Say so.** Each validator then signs an *assurance*, "I hold my shard". Once more than
@@ -180,7 +180,7 @@ $$
 
 :::
 
-In plain words, §11.1.1 (*Work Report*) says a report is:
+§11.1.1 (*Work Report*) says a report is:
 
 - the *availability specification*: how to find the package's data again later;
 - the refinement *context* ([lesson 2.6](../02-codec/06-the-first-test-vectors.md)) and the *core* that did the work;
@@ -195,8 +195,8 @@ hash, the length of its *bundle* (the package plus everything needed to re-run i
 **erasure root** with the number of **erasure shards**, and the root and count of the
 segments it exported.
 
-`erasure_shards` is one per validator, so for the first time tiny and full vectors
-differ: 6 shards on tiny, 1,023 on full. The exports root is a second Merkle root,
+There is one shard per validator, so for the first time tiny and full vectors differ: 6
+shards on tiny, 1,023 on full (`erasure_shards` is `ff 03` on full and `06 00` on tiny). The exports root is a second Merkle root,
 over the exported segments themselves: a package that imports one later checks it there.
 
 Where every field comes from is §14.4's function Ξ, which the guarantors run in-core and
@@ -245,7 +245,7 @@ runs it again.
 
 ### Shamir's secret sharing: the same curve, the other way round
 
-You may know Shamir's secret sharing: it's how some hardware wallets back up a seed
+You may know [*Shamir's secret sharing*](../glossary.md#shamir-s-secret-sharing): it's how some hardware wallets back up a seed
 phrase as any 3 of 6 cards (Trezor calls it *Shamir Backup*). Same trick: a curve through
 points, and any 3 points pin it down. But it wants the opposite thing.
 
@@ -462,15 +462,16 @@ you get right by reading it.
 ## Check your understanding
 
 ::: check
-**`erasure_shards` is `ff 03` on full and `06 00` on tiny. Why do they differ?**
+**What does a work-report claim, and how can anyone check the claim?**
 
-- [ ] The full report's bundle is bigger, so it is cut into more pieces
-  > No: both reports say the bundle is 42 bytes, `2a 00 00 00`. The number of shards
-  > doesn't depend on the data's size.
-- [x] There is one shard per validator: 1,023 on full, 6 on tiny
-  > Yes: `0x03ff` is 1,023 and `0x0006` is 6. Every validator holds one piece.
-- [ ] Full writes its numbers in a different order
-  > No: both are a u16, little end first. `ff 03` is `0x03ff`, 1,023.
+- [ ] That a block is valid; by importing the block
+  > No: a report is about one work-package on one core, not about a block.
+- [x] That a core ran a package and got these results; by fetching the bundle and running it again
+  > Yes: the report names the package, carries a digest per item, and says how to get the
+  > data back. An auditor rebuilds the bundle and refines it again.
+- [ ] That the guarantors are honest; by checking their signatures
+  > No: a signature says who made the claim, not that it is true. Running the work again
+  > does that.
 
 **On tiny, 4 of the 6 validators go offline. Can the bundle be rebuilt from the other 2 shards?**
 
@@ -506,15 +507,16 @@ you get right by reading it.
   > Yes: each validator keeps one piece, and any 342 of the 1,023 rebuild the bundle. So
   > 681 can be gone and the data is still there.
 
-**Write `core_index` as one plain byte instead of a compact natural, and every vector here still passes. Why?**
+**The erasure root is a Merkle root. Is erasure coding a Merkle tree, then?**
 
-- [x] Below 128 a compact natural is one byte, the number itself, and the vectors use core 3
-  > Yes: core 3 is `03` either way. Only a core of 128 or more, on full, tells them
-  > apart: core 340 is `81 54` as a compact natural.
-- [ ] A compact natural and a plain byte are the same thing
-  > No: they match only below 128. 128 as a compact natural is two bytes, `80 80`.
-- [ ] The vectors don't check `core_index`
-  > No: they check every byte. `03` simply comes out the same both ways.
+- [ ] Yes: the tree is what lets the data be rebuilt
+  > No: a tree of hashes can't bring back lost data. It can only check data you have.
+- [x] No: erasure coding makes the pieces, and the Merkle tree lets anyone check one piece against the report
+  > Yes: two tools, stacked. One makes the data survive, the other makes each piece
+  > checkable without the rest.
+- [ ] No: the erasure root is a hash of the whole bundle
+  > No: it is the root of a tree over every validator's shard, so a single shard can be
+  > checked alone.
 :::
 
 ## What you have

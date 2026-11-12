@@ -77,7 +77,7 @@ test("a part with a length or count in front says so", () => {
 test("lesson 3.1 opens with the widget, and its words match the vector", () => {
   const at = text.indexOf("<WorkPackage />");
   assert.ok(at > 0 && at === text.lastIndexOf("<WorkPackage />"), "placed once");
-  assert.ok(at < text.indexOf("## New words"), "at the top, before New words");
+  assert.ok(at < text.indexOf("## The idea"), "at the top, before The idea");
   assert.equal(partAt("items").children.length, 2);
   assert.match(text.replace(/\s+/g, " "), /two jobs inside/);
 });

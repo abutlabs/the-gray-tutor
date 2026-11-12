@@ -76,7 +76,7 @@ test("the scenes come out as the lesson tells it: two liars can't stop a rebuild
 
 test("the erasure root's example is the report's own, in the lesson and the glossary", () => {
   assert.match(REPORT, /package_spec\.erasure_root\s+0x7af11fda/);
-  assert.match(REPORT, /\*Example:\* the full report's `0x7af11fda…`/);
+  assert.match(REPORT, /the full\s+report's is `0x7af11fda…`/);
   assert.match(GLOSSARY, /\*\*Erasure root\.\*\*[\s\S]*?`0x7af11fda…`/);
 });
 

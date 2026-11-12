@@ -1,38 +1,33 @@
 # A work-package
 
-In [Part 2](../02-codec/index.md) you encoded a single work item. Nobody sends a work item on its own, though.
-Items travel in a *work-package*: a parcel of up to sixteen jobs, for one of JAM's cores
-(the package doesn't say which; its report will), with a permission slip stapled to the front.
-A builder makes it off the chain and hands it to a core's guarantors, who run it in-core.
-Your client decodes it, and that's all a block importer ever does with a package; [the
-part's page](./index.md) draws the whole journey.
+**In one sentence:** a work-package is a parcel of up to sixteen jobs for one core, with a
+permission slip on the front that says why the core should take it.
 
-Here is a real one, the tiny test vector's: the slip on the front, a postmark saying how
-the chain looked when it was made, and two jobs inside. Tap any part to see what it's for,
-its value and where its bytes are. The strip under the parcel is the same package as the
-bytes hold it, and the order isn't the parcel's.
+Here is a real one, the tiny test vector's, with two jobs inside. Tap any part to see what
+it's for, its value and where its bytes are.
+
+<a id="try-it"></a>
 
 <WorkPackage />
 
-## New words
+## The idea
 
-- **Work-item and work-package.** A work-item is one job for one service: its input (the
-  *payload*) and its gas limits. A work-package is up to 16 of them for one core, packed
-  together with what's needed to let them in. *Example:* a package of one item, for
-  service 42.
-- **Authorizer.** A gatekeeper for a core: a PVM program plus a blob of settings, named by
-  one hash. It decides whether a package may use the core at all; [Part
-  13](../13-authorization/index.md) is about it. *Example:* a package names its authorizer
-  by a code hash and a configuration blob, and says which service holds the code.
-- **Refinement context.** The chain as a package saw it when it was built: a recent block
-  to anchor on, and anything that must be accumulated first. *Example:* [lesson 2.6](../02-codec/06-the-first-test-vectors.md)'s
-  `refine_context` vector.
-- **In-core and on-chain.** The two places JAM does its work. In-core work runs on one of
-  the cores, by its guarantors, before any block: authorizing a package and refining its
-  items. On-chain work is what every client does as it imports a block, yours included.
-  *Example:* refining runs in-core; checking a report's signatures runs on-chain.
+JAM's cores do work for anyone, and a core's time is scarce. So nobody hands a core a
+loose job. Jobs arrive in a parcel, and the parcel has to answer three questions.
 
-All four are in the [glossary](../glossary.md).
+- **What is the work?** One to sixteen jobs, each for one service. A job is a
+  [*work-item*](../glossary.md#work-item), and the parcel is a
+  [*work-package*](../glossary.md#work-package).
+- **Who says the core should do it?** A small program, the
+  [*authorizer*](../glossary.md#authorizer), decides. The package names it and hands it a token.
+- **How did the chain look when this was made?** A postmark: a recent block, and any
+  packages that must come first. That is the [*refinement context*](../glossary.md#refinement-context).
+
+A builder makes the package off the chain and hands it to a core's guarantors. They run
+the authorizer and the jobs [*in-core*](../glossary.md#in-core): on the network, before any block.
+Your client works [*on-chain*](../glossary.md#on-chain): it imports blocks, and a block never makes it
+run a package. So today a package is a shape to decode, and almost every piece of it is
+already in your client. [The part's page](./index.md) draws the whole journey.
 
 ## What the Gray Paper says
 
@@ -214,31 +209,28 @@ $$
 
 :::
 
-In plain words, §14.3 (*Packages and Items*) defines a work-package as six things:
+§14.3 (*Packages and Items*) defines a work-package as six things:
 
 - **items**: the work items, 1 to 16 of them (the Gray Paper calls the limit I = 16);
-- **context**: the refinement context from [lesson 2.6](../02-codec/06-the-first-test-vectors.md), the chain as the package saw it: two
+- **context**: the refinement context from [lesson 2.6](../02-codec/06-the-first-test-vectors.md): two
   recent blocks, the anchor (its hash, slot, state root and belt root) and the lookup
   anchor (hash, slot, state root), and the hashes of any packages that must come first;
-- and the permission slip, in four parts. Each core only accepts packages that a small
-  program called an *authorizer* approves. The package says where that program lives
-  (`auth_code_host`, a service, and `auth_code_hash`, which code in it), hands it a token
-  (`authorization`) and its settings (`authorizer_config`).
+- **the permission slip**, in four parts: where the authorizer's code lives
+  (`auth_code_host`, a service, and `auth_code_hash`, which code in it), the token handed
+  to it (`authorization`) and its settings (`authorizer_config`).
 
 The authorizer's name, a, is the hash of the code hash followed by the configuration
 (14.11): the same code with other settings is another authorizer. Its code must be found
 in the code host's preimages as they stood at the context's lookup anchor, so every
 guarantor, and later every auditor, fetches the same program.
 
-Running an authorizer is a guarantor's job. Guarantors are validators, two or three of them
-on each core at a time, that take a package in, run its authorizer and its items, and sign
-for the result ([Part 12](../12-guarantees/index.md) checks their signatures). All of that
-happens *in-core*, on the network, before a package reaches any block. Your client's work is
-*on-chain*: it imports blocks, and block import never runs an authorizer. Today the package
-is a shape to encode, and almost every piece of it is already in your client.
+Guarantors are validators, two or three on each core at a time. They take a package in,
+run its authorizer and its items, and sign for the result
+([Part 12](../12-guarantees/index.md) checks their signatures). Block import never runs an
+authorizer.
 
-Appendix C encodes it in this order: ℰ₄ of the code host, the code hash, the context,
-then the token, the config and the items, each with its length in front.
+Appendix C encodes the package in this order: ℰ₄ of the code host, the code hash, the
+context, then the token, the config and the items, each with its length in front.
 
 ## The test
 
@@ -272,9 +264,8 @@ export const WorkPackage = record({
 export type WorkPackage = Value<typeof WorkPackage>;
 ```
 
-Look at what *isn't* there: no new codec. `context` is the whole `RefineContext` record,
-`items` is a `seq` of whole `WorkItem` records, and the codec machinery from [Part 2](../02-codec/index.md) just
-nests them. Records inside records inside a list: it's bricks all the way down.
+No new codec. `context` is the whole `RefineContext` record, `items` is a `seq` of whole
+`WorkItem` records, and [Part 2](../02-codec/index.md)'s machinery nests them.
 
 **Run**
 
@@ -347,9 +338,8 @@ const computed = {
 
 :::
 
-The first four bytes are the first field, little end first; each blob and sequence
-carries its length in front, which is why `authorization` reads `05` then five bytes.
-The value is `WorkPackage`'s; the printed lines are the trace the reader kept of it.
+The first four bytes are the first field, little end first. Each blob and sequence carries
+its length in front, which is why `authorization` reads `05` then five bytes.
 
 **Run**
 
@@ -381,9 +371,8 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 The trace paths show the nesting: `context.anchor_slot`, `items.1.import_segments.0.index`.
-And the very first field, `auth_code_host`, reads `0x78563412`: that's 305,419,896, better
-known as `0x12345678`, written little end first. The vector's authors have a sense of
-humour.
+The first field, `auth_code_host`, reads `0x78563412`: that's 305,419,896, better known as
+`0x12345678`, written little end first.
 
 <details>
 <summary>lasair: two orders for one package</summary>
@@ -425,53 +414,58 @@ reader at once, in the encoding's order.
 ## Check your understanding
 
 ::: check
-**In the package's bytes, `auth_code_hash` is 4 to 36 and `context.anchor` is 36 to 68. What's between them?**
+**What is a work-package, and who makes it?**
 
-- [ ] A length, saying how many bytes the context takes
-  > No: a record never gets a length in front. Its fields are always the same, so the
-  > decoder knows what comes.
-- [ ] A marker byte saying "a context starts here"
-  > No: nothing in the bytes says what they are. The decoder knows a context comes third
-  > because the field list says so.
-- [x] Nothing: the context's own bytes start right where the hash stops
-  > Yes: a record inside a record is just its fields' bytes, in place. 36 is both where
-  > `auth_code_hash` stops and where `context.anchor` starts.
+- [x] Up to sixteen jobs for one core, with an authorization and a context, made off the chain by a builder
+  > Yes: the chain never makes one. A builder does, and hands it to a core's guarantors.
+- [ ] A block's worth of transactions, made by the block's author
+  > No: a package never goes into a block. Only a report about it does, later.
+- [ ] One job for one service, made by that service
+  > No: that is a work-item. A package carries one to sixteen of them, and a service
+  > doesn't make packages: whoever wants the work done does.
 
-**Who runs a package's authorizer?**
+**Who runs a package's authorizer, and where?**
 
-- [x] A guarantor, before the package reaches any block
-  > Yes: and block import never runs one. To your client, a package is a shape to
-  > encode.
-- [ ] Every validator, when it imports the block holding the package
-  > No: block import never runs an authorizer. That's why the client you build here never
-  > will either.
-- [ ] Your client, as the first step of reading a package
-  > No: decoding a package only reads its fields. The authorizer's code isn't even in the
-  > package, only its hash, `auth_code_hash`.
+- [ ] Every validator, when it imports the block
+  > No: block import never runs an authorizer. The chain only checks that the report
+  > names an authorizer the core accepts.
+- [x] The core's guarantors, in-core, before the package's report reaches any block
+  > Yes: two or three validators assigned to that core run it, then the items, and sign
+  > for the result.
+- [ ] The builder, before sending the package
+  > No: a builder could say anything. The guarantors run it, because they are the ones
+  > who sign.
 
-**§14 defines the package with the token first. The bytes start `78 56 34 12`. Which order do the bytes follow?**
+**The same authorizer code with different settings: is it the same authorizer?**
 
-- [ ] The definition's: the token first
-  > No: then the bytes would start with the token's length. `78 56 34 12` is a u32,
-  > 305,419,896, the code host.
-- [x] Appendix C's: `auth_code_host` first, the token fourth
-  > Yes: the encoding has its own order, and the record follows it. The token,
-  > `authorization`, comes after the code host, the code hash and the context.
-- [ ] Either: a decoder accepts both orders
-  > No: nothing in the bytes says which field is which, so there is only one order that
-  > works, Appendix C's. [Lesson 2.6](../02-codec/06-the-first-test-vectors.md)'s
-  > moved field showed what the wrong one does.
+- [ ] Yes: an authorizer is its code
+  > No: its name is the hash of the code hash followed by the configuration. Change the
+  > settings and the name changes.
+- [x] No: an authorizer is the code and its configuration together, named by one hash
+  > Yes: that is (14.11). A core's list of accepted authorizers holds those hashes, so one
+  > program can serve many rules.
+- [ ] It depends on which service holds the code
+  > No: the code host says where to find the code. It isn't part of the authorizer's name.
 
-**A package carries 1 to 16 items. How does the decoder know how many this one has?**
+**Why does a package carry a refinement context?**
 
-- [ ] It reads items until the bytes run out
-  > No: it never has to guess where the list ends. The count is written down.
-- [x] `items` has its length in front: `02`, two items
-  > Yes: `items` is a `seq`, so the count comes first, at byte 222. Then two whole
-  > work items follow.
-- [ ] Every package has 16 slots, and the empty ones are zeros
-  > No: 16 is only the most a package may carry. A package writes the items it has, no
-  > more.
+- [ ] So the guarantors know which core to use
+  > No: a package doesn't name a core. Its report will.
+- [ ] To pay for the work
+  > No: nothing in the context is about payment. It is about time and order.
+- [x] To pin it to the chain as its builder saw it: a recent block to anchor on, and the packages that must come first
+  > Yes: everyone who runs the package later looks things up at the same point, and so
+  > gets the same answer.
+
+**Your client imports blocks. What does it ever do with a work-package?**
+
+- [ ] Runs its items and checks the outputs
+  > No: that is refinement, done in-core by the guarantors, and again by auditors.
+- [x] Nothing but decode one: block import handles reports about packages, never packages
+  > Yes: the package is a shape your client can read. Everything on-chain is about the
+  > report that comes back.
+- [ ] Stores it in the state for later
+  > No: the state holds no packages. A report names its package by a hash.
 :::
 
 ## What you have
