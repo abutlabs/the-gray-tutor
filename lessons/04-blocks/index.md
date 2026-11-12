@@ -1,31 +1,16 @@
 # Part 4 · Blocks
 
-A JAM block is a header plus an *extrinsic*: everything the block brings in from the
-outside world. This part encodes all of it, piece by piece, until your client can read a
-whole block, checked against the official vectors.
+**In one sentence:** this Part builds the codec for a whole JAM block, the header and the
+five lists of things a block brings in from outside, and checks it against the official
+vectors.
 
 By the end of this part your client reads any JAM block, at either size, and can show you
 every byte of it. Checking one is [Part 5](../05-hashing-and-signatures/index.md)'s job.
 
-**Builds on** [Part 3 · Work and reports](../03-work-and-reports/index.md), and on the
-foundations every part uses, [Parts 0 to 2](../index.md#lessons).
+## The big picture
 
-## How much a block carries
-
-Every block has all five bags, always in the same order, but each holds only what that
-block needs, and often nothing:
-
-| Bag | A block holds | In the traces |
-| --- | --- | --- |
-| tickets | 0 to 3 on tiny, 0 to 16 on full; none once the lottery closes, at slot 10 of 12 (500 of 600) | 0 to 2 |
-| preimages | any number, each one data a service asked for | 0 to 10 |
-| guarantees | 0 to 2 on tiny, 0 to 341 on full: one per core | 0 to 2 |
-| assurances | 0 to 6 on tiny, 0 to 1,023 on full: one per validator | 0 to 6 |
-| disputes | 0 to 16 each of verdicts, culprits and faults (§10) | none |
-
-The traces are 1,000 real tiny blocks. All 100 of the fallback trace's carry nothing: an
-empty extrinsic is 7 bytes of `00`, a count of 0 for each of its seven lists (disputes
-holds three).
+A block is what the chain adds in one slot. It is a header, the cover page, and an
+*extrinsic*: five bags of things from the outside world.
 
 Everything in a block was made before the block, by someone else. Your client only reads
 and checks. Who made each bag, and where:
@@ -41,16 +26,37 @@ and checks. Who made each bag, and where:
 The header is the slot's author's, who also puts the five bags together. [What runs
 where](../what-runs-where.md) draws the whole journey.
 
+This Part encodes all of it, piece by piece: the bags, then the header, then the block.
+
+**Builds on** [Part 3 · Work and reports](../03-work-and-reports/index.md), and on the
+foundations every part uses, [Parts 0 to 2](../index.md#lessons).
+
+## How much a block carries
+
+Every block has all five bags, always in the same order. Each holds only what that block
+needs, and often nothing:
+
+| Bag | A block holds | In the traces |
+| --- | --- | --- |
+| tickets | 0 to 3 on tiny, 0 to 16 on full; none once the lottery closes, at slot 10 of 12 (500 of 600) | 0 to 2 |
+| preimages | any number, each one data a service asked for | 0 to 10 |
+| guarantees | 0 to 2 on tiny, 0 to 341 on full: one per core | 0 to 2 |
+| assurances | 0 to 6 on tiny, 0 to 1,023 on full: one per validator | 0 to 6 |
+| disputes | 0 to 16 each of verdicts, culprits and faults (§10) | none |
+
+The traces are 1,000 real tiny blocks. All 100 of the fallback trace's carry nothing: an
+empty extrinsic is 7 bytes of `00`, a count of 0 for each of its seven lists (disputes
+holds three).
+
 ## At a glance
 
-Here is a whole block, the tiny test vector's: a header, the cover page, and the
-extrinsic, five bags of things from outside the chain. It's a codec vector, so it fills
-every bag to show them all; a real block rarely does. Tap any part, down to its bytes.
+Here is a whole block, the tiny test vector's: the header, then the extrinsic's five
+bags. It's a codec vector, so it fills every bag to show them all; a real block rarely
+does. Tap any part, down to its bytes.
 
 <BlockParcel />
 
-And the order this part builds those pieces in, lesson by lesson: the bags, then the
-header, then the block, then reading any block at either size. Boxes are what your
+And the order this part builds those pieces in, lesson by lesson. Boxes are what your
 client holds, rounded cards the steps between them.
 
 <PartFlow :part="4" />
@@ -139,13 +145,14 @@ $$
 Read it aloud: "a block is a header and an extrinsic; the extrinsic is the tickets, the
 disputes, the preimages, the assurances and the guarantees. The header is the tuple of H
 sub P, H sub R, H sub X, H sub T, H sub E, H sub W, H sub O, H sub I, H sub V and H sub
-S." Note the paper's order of
-the bags here is not the encoding's: Appendix C writes tickets, preimages, guarantees,
-assurances, disputes, which is what [4.7](./07-the-block.md) decodes. The same goes for
-the header: the paper lists the seal last and the author index before the two signatures,
-and Appendix C writes the author index, the entropy source, the offenders, then the seal.
-When an interviewer points at (5.1), say the fields; when they point at a byte dump, say
-Appendix C.
+S."
+
+The paper's order of the bags here is not the encoding's: Appendix C writes tickets,
+preimages, guarantees, assurances, disputes, which is what [4.7](./07-the-block.md)
+decodes. The same goes for the header: the paper lists the seal last and the author index
+before the two signatures, and Appendix C writes the author index, the entropy source,
+the offenders, then the seal. When an interviewer points at (5.1), say the fields; when
+they point at a byte dump, say Appendix C.
 
 **Test yourself:** [Ch. 5 The Header](https://abutlabs.github.io/jam-learning/lasair/exam.html?chapter=ch05-header),
 self-test cards on JAM learning.

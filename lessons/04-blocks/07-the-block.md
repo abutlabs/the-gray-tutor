@@ -1,15 +1,36 @@
 # The block
 
-Drumroll. You have a header (4.6) and all five parts of an extrinsic (4.1 to 4.4). A
-block is the two together. This lesson is short on purpose: after everything you've
-built, the whole block is two little records, and then your client reads real JAM blocks.
+**In one sentence:** a block is a header and then an extrinsic, back to back: everything
+the chain adds in one slot.
 
-## New words
+Here is a whole block as a strip, each part as wide as its bytes. Tap a part for where it
+sits and what the trace names there. Then switch to full and watch the header and the
+disputes swallow the rest.
 
-- **Block.** A header plus an extrinsic: everything the chain adds in one slot.
-  *Example:* `block.bin` in the codec vectors.
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md).
+<BlockStrip />
+
+## The idea
+
+You have a header ([lesson 4.6](./06-the-header.md)) and all five parts of an extrinsic
+([lessons 4.1](./01-tickets-and-preimages.md) to [4.4](./04-disputes.md)). What is left
+to make a [*block*](../glossary.md#block)?
+
+Almost nothing. A block is the cover page and then the five lists, one after another.
+Think of pages stapled together with no dividers between them. There is no table of
+contents and no length in front of any part.
+
+So how does a reader know where the header stops and the tickets start? Each part ends
+where its own rule says it ends. A list says how many items it has, or the network's size
+says it. The decoder never has to look ahead.
+
+One thing carries over from the parts. Two of them change shape with the size of the
+network: the assurances' bitfield and the header's tickets mark. So the block's codec
+takes the configuration too.
+
+This lesson is short on purpose: two little records, and then your client reads real JAM
+blocks, at both sizes, and passes every codec vector.
 
 ## What the Gray Paper says
 
@@ -303,17 +324,24 @@ $$
 
 :::
 
-In plain words, (C.16) is this lesson: the header, then the five parts in Appendix C's
-own order, tickets, preimages, guarantees, assurances, disputes
+(C.16) is this lesson: the header, then the five parts in Appendix C's own order, tickets,
+preimages, guarantees, assurances, disputes
 ([lesson 4.1](./01-tickets-and-preimages.md) had the table). Nothing in between, no
-lengths around the parts beyond their own. The lines under it are the lessons you've
-done: (C.17) and (C.18) are [4.1](./01-tickets-and-preimages.md)'s two bags, (C.19) and
-(C.30) [4.3](./03-guarantees.md)'s guarantees, (C.20) [4.2](./02-tiny-and-full.md)'s
-assurances, (C.21) [4.4](./04-disputes.md)'s disputes, and (C.22) to (C.25)
-[4.6](./06-the-header.md)'s header. The rest, (C.26) to (C.37), are the work-package,
-the work-report and their parts, from [Part 3](../03-work-and-reports/index.md), and a
-few structures later Parts meet. [4.A](./gray-paper.md#c-16-to-c-37-the-block-line-by-line)
-reads every line.
+lengths around the parts beyond their own.
+
+The lines under it are the lessons you've done:
+
+| Lines | What they encode | Lesson |
+| --- | --- | --- |
+| (C.17), (C.18) | tickets and preimages | [4.1](./01-tickets-and-preimages.md) |
+| (C.19), (C.30) | guarantees | [4.3](./03-guarantees.md) |
+| (C.20) | assurances | [4.2](./02-tiny-and-full.md) |
+| (C.21) | disputes | [4.4](./04-disputes.md) |
+| (C.22) to (C.25) | the header | [4.6](./06-the-header.md) |
+
+The rest, (C.26) to (C.37), are the work-package, the work-report and their parts, from
+[Part 3](../03-work-and-reports/index.md), and a few structures later Parts meet.
+[4.A](./gray-paper.md#c-16-to-c-37-the-block-line-by-line) reads every line.
 
 ## The tests
 
@@ -354,7 +382,8 @@ export type Block = Value<ReturnType<typeof Block>>;
 ```
 
 That's the whole thing. Both are functions of the config because two of their bricks
-are: the assurances' bitfield (4.2) and the header's tickets mark (4.6).
+are: the assurances' bitfield ([lesson 4.2](./02-tiny-and-full.md)) and the header's
+tickets mark ([lesson 4.6](./06-the-header.md)).
 
 **Run**
 
@@ -378,7 +407,7 @@ reported 52 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 ```
 
 `block (tiny)` and `block (full)`: your client decodes complete JAM blocks, byte for
-byte, at both sizes. Take a moment. That's every structure a block can carry.
+byte, at both sizes. That's every structure a block can carry.
 
 ## Watch a whole block
 
@@ -405,7 +434,7 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
-What flows through this run — the whole block's bytes, the block they decode to, the trace printed:
+What flows through this run:
 
 ::: code-group
 
@@ -444,8 +473,9 @@ const computed = {
 
 :::
 
-The header comes first, shaped as in 4.6 but with an epoch mark where 4.6's had tickets,
-then the extrinsic's five lists in order, the disputes last; the trace ends exactly at byte 5,150, the file's length.
+The header comes first, shaped as in [lesson 4.6](./06-the-header.md) but with an epoch
+mark where that one had tickets, then the extrinsic's five lists in order, the disputes
+last. The trace ends exactly at byte 5,150, the file's length.
 
 **Run**
 
@@ -468,11 +498,8 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 mark and two juries of 683. It scrolls by in a blink, and the whole trace lands in
 Grafana's *Decode trace* panel, where you can search it.
 
-Here is the same block as a strip, each part as wide as its bytes. Tap a part for where
-it sits and what the trace names there, then switch to full and watch the header and
-the disputes swallow the rest.
-
-<BlockStrip />
+The strip [at the top](#try-it) is this same block: tap a part there and it names the
+trace lines you just printed.
 
 ![Decode trace panel](./images/07-decode-trace.png)
 
@@ -553,7 +580,7 @@ codec                    30 of 30  ✔
 
 :::
 
-Run whole, a vector like this one decodes to a header and an extrinsic, then encodes back to its exact bytes. Every one of the 30 does that now, hence the family row.
+Run whole, a vector like this one decodes to a header and an extrinsic, then encodes back to its exact bytes. Every one of the 30 does that now, so the family's row is complete.
 
 **Run**
 
@@ -625,6 +652,17 @@ Yours sits on `record`, `seq` and friends: the same block, a lot less code to ge
   > Yes: tickets, preimages, guarantees, assurances, disputes, straight after the
   > header's seal.
 
+**Nothing marks where the header ends and the tickets begin. How does a decoder find the place?**
+
+- [x] Every field ends where its own rule says, so the header's end is wherever its last field stops
+  > Yes: a fixed-size field has its size, a list has its count or the configuration's, an
+  > option has its byte in front. Read them in order and you arrive.
+- [ ] It searches for the tickets' first byte
+  > No: no byte value is kept for marking places. Any byte can turn up inside a hash or a
+  > signature.
+- [ ] The header is the same number of bytes in every block
+  > No: an epoch mark or a tickets mark makes one header far longer than another.
+
 **Why are `Block` and `Extrinsic` functions of the config?**
 
 - [ ] Because a full block is much bigger than a tiny one
@@ -641,12 +679,12 @@ Yours sits on `record`, `seq` and friends: the same block, a lot less code to ge
 
 - [ ] Read a full-size block
   > No: it does, 161,177 bytes of the full `block.bin`, byte for byte.
-- [ ] Turn a block back into bytes
-  > No: every vector checks the round trip, decoding and encoding back to exactly the
-  > same bytes.
 - [x] Check that a block is genuine: its parent hash, its extrinsic hash and its signatures
   > Yes: it reads all of those as plain bytes but checks none of them. That's
   > [Part 5](../05-hashing-and-signatures/index.md)'s job.
+- [ ] Turn a block back into bytes
+  > No: every vector checks the round trip, decoding and encoding back to exactly the
+  > same bytes.
 :::
 
 ## What you have

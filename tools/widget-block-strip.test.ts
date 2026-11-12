@@ -56,8 +56,10 @@ test("the layouts are what the lessons' decoder prints, where a client and the v
   }
 });
 
-test("lesson 4.7 places the widget once, in Watch a whole block", () => {
+test("lesson 4.7 places the widget once, at the top, and Watch a whole block sends the reader back to it", () => {
   const at = raw.indexOf("<BlockStrip />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<BlockStrip />"), "placed once");
-  assert.ok(at > raw.indexOf("## Watch a whole block") && at < raw.indexOf("## The scoreboard"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"), "at the top, before The idea");
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("## Watch a whole block") && back < raw.indexOf("## The scoreboard"), "Watch a whole block sends the reader back to it");
 });
