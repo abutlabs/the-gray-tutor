@@ -69,18 +69,27 @@ glossary against it). Leave the glossary entry itself alone unless it is wrong.
    blocked, so `gh issue list` fails). List the open issues of milestone 1, lowest number
    first, among #95 to #115. Skip one labelled `in-progress` unless its `updated_at` is
    more than 3 hours old. Take the first, add the label `in-progress`, and comment
-   "Run started: <which lessons>".
-3. In that issue, take the first **three** unticked lessons (one, if it is over 2,500
-   words). The Part's own page (`index.md`) and its appendix (`gray-paper.md`) count as
-   lessons, done last: the page gets one sentence and a tighter big picture; the appendix
-   loses "in plain words" in our own prose and gets shorter sentences, quotes untouched.
+   "Run started: <which lessons>". Several runs are at work at once, each on its own
+   Part, so always `git fetch` and rebase before a push, and touch only your Part's files
+   and the tests that read them.
+3. Work through that issue's unticked lessons in order, in batches of **three** (one, if
+   a lesson is over 2,500 words): rewrite a batch, do steps 4 to 8 for it, then take the
+   next batch. Go on until the issue is closed or you have done four batches, whichever
+   comes first; never start a second issue in the same run. The Part's own page
+   (`index.md`) and its appendix (`gray-paper.md`) count as lessons, done last: the page
+   gets one sentence and a tighter big picture; the appendix loses "in plain words" in
+   our own prose and gets shorter sentences, quotes untouched.
 4. Rewrite each. Then `bash refactor/check.sh`: fix until it says "no new failures".
 5. Commit as abutlabs, with no co-author or session trailer:
    `git -c user.name=abutlabs -c user.email=abutlabs@gmx.com commit -m "<what changed, one sentence>"`,
    then `git fetch origin main && git rebase origin/main && git push origin HEAD:main`.
 6. Wait for the `pages` workflow on your commit
-   (`gh run list --limit 1 --json status,conclusion,headSha`). If it fails, read
-   `gh run view <id> --log-failed`, fix forward, push again. Do not leave main red.
+   (`gh run list --limit 5 --json status,conclusion,headSha`). Other runs push too, a
+   few minutes apart: if a newer commit's workflow replaced yours, wait for that one, and
+   its success covers your commit. If a workflow fails, read
+   `gh run view <id> --log-failed`: if the failure is in files you changed, fix forward
+   and push again; if it is another run's, leave it to that run unless main is still red
+   20 minutes later, then fix it. Do not leave main red.
 7. Open one of the pages on https://abutlabs.github.io/the-gray-tutor/ and confirm the new
    text is there.
 8. Update the issue: tick the lessons you did (PATCH the body), comment with the commit
