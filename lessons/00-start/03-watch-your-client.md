@@ -1,5 +1,10 @@
 # Watch your client
 
+**In one sentence:** your client tells the observability stack what it does, so every run,
+and every test, shows up on a dashboard.
+
+## The idea
+
 A test tells you whether your code is right. It doesn't tell you what your code *did*.
 lasair, a complete JAM client, passed its tests for months before it grew a way to show
 what was going on inside, and then wondered how it had ever lived without one. (The
@@ -7,23 +12,19 @@ observability course opens with that story:
 [Why a JAM network needs observability](https://abutlabs.github.io/jam-learning/observability/lesson.html?lesson=00-welcome/01-why-observe).)
 
 Your client starts the other way round. Before it knows a single JAM rule, it learns to
-talk to the stack you started in [lesson 0.2](./02-set-up-the-project.md). By the end of this lesson it has said hello,
-and every test run from then on reports itself.
+talk. [*Observability*](../glossary.md#observability) is being able to see what a program
+does, from the outside, while it runs.
 
-## New words
+The trick is a notebook. Each [*run*](../glossary.md#run), one `npm test` or one program,
+opens one. Into it go [*events*](../glossary.md#event): one line each, saying that
+something happened. And numbers: something measured, such as how many tests passed. At the
+end, the run mails the notebook to the stack you started in
+[lesson 0.2](./02-set-up-the-project.md), labelled with the run's id.
+[*Grafana*](../glossary.md#grafana) is where it shows up: pick a run, and see only what it
+did.
 
-- **Observability.** Being able to see what a program does, from the outside, while it
-  runs. *Example:* a dashboard showing every test of your last `npm test`.
-- **Event.** One line saying that something happened, with its details. *Example:*
-  `{"step": "hello"}`.
-- **Run.** One `npm test`, or one run of a program, with everything it reported labelled
-  by one id. *Example:* in Grafana, pick a run to see only what it did.
-- **Reporter.** A plug-in for Node's test runner that receives every test's result. Yours
-  sends them to the stack. *Example:* `test/grafana.ts`, later in this lesson.
-- **Grafana.** The dashboards where your client's runs show up. *Example:* the page a
-  `reported to Grafana` link opens.
-- **Script.** A command with a name, kept in `package.json`, that `npm run` runs.
-  *Example:* `npm run hello` runs `node bin/hello.ts`.
+This lesson builds the notebook, says hello with it, then plugs it into `npm test`, so
+that every test run from then on reports itself.
 
 ## Two kinds of signal
 
@@ -32,9 +33,8 @@ and every test run from then on reports itself.
 | *Events*: one line of JSON per thing that happened | What happened, in what order? | Loki |
 | *Numbers*: one value per name, per run | How many tests passed? What slot is it? | Pushgateway, then Prometheus |
 
-A *run* (one `npm test`, or one program) collects its events and numbers and sends
-them in one go, at the end, all labelled with the run's id. In Grafana you can pick a
-run and see only what it did.
+A run collects its events and numbers and sends them in one go, at the end, all labelled
+with the run's id.
 
 Both stores speak plain HTTP, so `fetch`, built into Node, is all the client needs.
 
@@ -105,8 +105,8 @@ function line(step: string, fields: Record<string, unknown>): string {
 
 The tour:
 
-- A `Run` is a little notebook. `event` writes down something that happened, `number`
-  writes down something measured, and `report` mails the notebook to the stack.
+- A `Run` is the notebook. `event` writes down something that happened, `number` writes
+  down something measured, and `report` mails the notebook to the stack.
 - `Run` is defined right here, in this file: TypeScript doesn't come with one. `new
   Run("hello")` makes a fresh notebook. The word in brackets is the run's *kind*: Grafana
   files the run under it, and its id starts with it, as `hello-1791724085683` does below.
@@ -115,8 +115,8 @@ The tour:
   multiply by a million, then add the event's number, so two events in the same
   millisecond still come out in order.
 - The Pushgateway keeps one group per `client` and `kind`, and each `PUT` replaces it.
-  So it always holds the *latest* run's numbers, which is exactly what the dashboard's
-  "last run" panels show.
+  So it always holds the *latest* run's numbers, which is what the dashboard's "last run"
+  panels show.
 - `CLIENT` is `you`. The tutorial's own checks run with `OBS_CLIENT=tutorial-check`, so
   their runs never mix with yours.
 - Stack down? `report` says so in one line and returns `null`. Your client carries on.
@@ -166,12 +166,12 @@ const report = {
 
 :::
 
-The terminal itself only prints the report's link: what really comes out lands in
+The terminal itself only prints the report's link. What really comes out lands in
 Grafana, and the line above is how *Everything your client reported* will show it.
 
-`node bin/hello.ts` would run it. Give it a *script* instead, a name in `package.json`
-that npm runs for you, the way `npm run typecheck` runs `tsc -p .`. `npm pkg set` writes
-the line into `package.json`, and `npm run hello` runs it:
+`node bin/hello.ts` would run it. Give it a [*script*](../glossary.md#script) instead: a
+name in `package.json` that npm runs for you, the way `npm run typecheck` runs `tsc -p .`.
+`npm pkg set` writes the line into `package.json`, and `npm run hello` runs it:
 
 **Run**
 
@@ -201,9 +201,9 @@ them.
 
 ## Every test run, reported
 
-Node's test runner lets you plug in a *reporter*: a function that gets every test's
-result as it happens. This one turns the results into a run (an event per test, the
-totals as numbers) and reports it.
+Node's test runner lets you plug in a [*reporter*](../glossary.md#reporter): a function
+that gets every test's result as it happens. This one turns the results into a run (an
+event per test, the totals as numbers) and reports it.
 
 **New file** `test/grafana.ts`
 
@@ -288,16 +288,20 @@ reported 0 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=y
 ...
 ```
 
-Your first look at the test runner's summary, so line by line: `tests` is how many ran,
-`pass` and `fail` how they went, `suites` counts groups of tests (you won't need any),
-`cancelled`, `skipped` and `todo` count tests that didn't run to the end, and
-`duration_ms` is how long it all took. The last line is your reporter's, with a link to
-this very run. (Above the summary, cut here, npm first echoes the command it runs.) Then
-`typecheck` prints its own name and nothing more: from `tsc`, no news is good news.
+Your first look at the test runner's summary, so line by line:
+
+- `tests` is how many ran, `pass` and `fail` how they went.
+- `suites` counts groups of tests (you won't need any).
+- `cancelled`, `skipped` and `todo` count tests that didn't run to the end.
+- `duration_ms` is how long it all took.
+
+The last line is your reporter's, with a link to this very run. (Above the summary, cut
+here, npm first echoes the command it runs.) Then `typecheck` prints its own name and
+nothing more: from `tsc`, no news is good news.
 
 Zero tests, zero failures: a perfect record, technically. On the dashboard, *Tests passed*
-now says 0. [The next lesson](./04-the-jam-clock.md) writes your first real test, and you'll watch that number
-climb for the rest of the tutorial.
+now says 0. [The next lesson](./04-the-jam-clock.md) writes your first real test, and
+you'll watch that number climb for the rest of the tutorial.
 
 <details>
 <summary>lasair: the same idea, for its gate</summary>
@@ -321,6 +325,16 @@ def push(cli, job, run_id, net, snapshot):
 ## Check your understanding
 
 ::: check
+**Your tests pass. Why does your client report what it does as well?**
+
+- [ ] Because a passing test can't be trusted
+  > No: a test tells you whether your code is right. That is its job, and it does it.
+- [x] A test says whether the code is right, not what the code did
+  > Yes: observability is seeing what a program does, from the outside, while it runs.
+  > That's why the client reports.
+- [ ] So that Grafana can run the tests again
+  > No: Grafana only shows what Loki and the Pushgateway were sent. It runs nothing.
+
 **You want to know what your client did, and in what order. Which signal answers that?**
 
 - [x] Events: one line of JSON per thing that happened, kept in Loki
@@ -330,8 +344,7 @@ def push(cli, job, run_id, net, snapshot):
   > No: a number answers "how many?" or "what slot?", like `tests_passed`. It says
   > nothing about what happened first.
 - [ ] The test output: it lists every step
-  > No: a test says whether your code is right, not what it did on the way. That's why
-  > the client reports.
+  > No: a test says whether your code is right, not what it did on the way.
 
 **When does a run send what it has collected?**
 
@@ -344,13 +357,13 @@ def push(cli, job, run_id, net, snapshot):
   > Yes: the events go to Loki and the numbers to the Pushgateway in one go. The id lets
   > Grafana show one run on its own.
 
-**The stack is down, and you run `npm run hello`. What happens?**
+**The stack is down, and you run `npm run hello`. What happens, and why is it built that way?**
 
-- [ ] The program crashes with a connection error
+- [ ] The program crashes with a connection error, so that you notice
   > No: `report` catches the error, prints one line, and returns `null`.
-- [x] It prints `not reported: is the observability stack up?` and carries on
-  > Yes: reporting is extra, so a missing stack never stops your client. Your code is
-  > fine; it just had no one to tell.
+- [x] It prints `not reported: is the observability stack up?` and carries on: reporting is extra
+  > Yes: a missing stack never stops your client. Your code is fine; it just had no one
+  > to tell.
 - [ ] The hello is kept, and sent the next time the stack is up
   > No: nothing keeps it. The run lives only in the program's memory, and is gone when
   > the program exits.

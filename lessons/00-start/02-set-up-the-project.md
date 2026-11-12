@@ -1,32 +1,31 @@
 # Set up the project
 
-Four things to set up, then you never think about them again: Node, the tutorial's own
-tools, the observability stack, and an empty client. About ten minutes of your time,
-plus the downloads (the test vectors are about 1.4 GB). You need git,
-VS Code (or any editor) and Docker Desktop.
+**In one sentence:** four things to set up once, then never think about again: Node, the
+tutorial's own tools, the observability stack, and an empty client.
 
-## New words
+## The idea
 
-- **TypeScript.** JavaScript with types: you write down what kind of value each thing is,
-  and a checker, `tsc`, catches mix-ups before you run anything. *Example:* `const slot:
-  number = 42`.
-- **Node.** The program that runs JavaScript (and, in recent versions, TypeScript) outside a
-  browser. *Example:* `node --version` says which one you have.
-- **nvm.** A tool that installs Node versions and switches between them. *Example:*
-  `nvm use` switches to the version the project asks for.
-- **npm.** Node's package manager: it downloads libraries and runs a project's scripts.
-  *Example:* `npm install` fetches everything a project needs.
-- **tsc.** The TypeScript compiler. Here it only checks your types, and writes nothing.
-  *Example:* `npm run typecheck` runs it.
-- **Docker.** Runs ready-made programs in *containers*, so a whole set of tools starts
-  with one command. *Example:* `./obs up` starts the observability stack in Docker.
-- **Module.** A file that shares code with other files through `import` and `export`.
-  *Example:* [lesson 0.4](./04-the-jam-clock.md)'s `src/time.ts` exports `slotAt`, and its test imports it.
+What does a client need before its first line of code?
+
+Something to run it. Your client is written in [*TypeScript*](../glossary.md#typescript),
+JavaScript with types, and [*Node*](../glossary.md#node) runs it. Node 26 runs TypeScript
+files directly, with no build step, so the code you type is the code that runs.
+
+Something to check it against: the official test vectors, about 1.4 GB of them.
+
+Something to watch it with: the observability stack, a set of ready-made programs that
+[*Docker*](../glossary.md#docker) starts with one command.
+
+And somewhere to live: `client/`, an empty folder that is yours alone.
+
+That is this lesson. About ten minutes of your time, plus the downloads. You need git, VS
+Code (or any editor) and Docker Desktop.
 
 ## Node 26
 
-The repo's `.nvmrc` says `26`. With [nvm](https://github.com/nvm-sh/nvm), at the repo
-root, install it once:
+The repo's `.nvmrc` says `26`. [*nvm*](../glossary.md#nvm) installs Node versions and
+switches between them. With [nvm](https://github.com/nvm-sh/nvm), at the repo root,
+install it once:
 
 ```sh
 nvm install
@@ -41,18 +40,19 @@ node --version
 
 It should say `v26.` and something.
 
-Why Node 26? Like other recent versions, it runs TypeScript files directly: it strips off
-the type annotations and runs what's left. No build step, so the code you type is the
-code that runs. (The types still get checked, by the TypeScript compiler `tsc`, whenever
-you ask.) Node 26 also has the newest JavaScript built-ins, like turning bytes into hex,
-which you'll meet in [lesson 1.1](../01-bytes-and-numbers/01-bytes-and-hex.md), and it's
-the version every lesson is checked with.
+Why Node 26? Like other recent versions, it strips the type annotations off a TypeScript
+file and runs what's left. The types still get checked, by the TypeScript compiler
+[*tsc*](../glossary.md#tsc), whenever you ask. Node 26 also has the newest JavaScript
+built-ins, like turning bytes into hex, which you'll meet in
+[lesson 1.1](../01-bytes-and-numbers/01-bytes-and-hex.md). And it's the version every
+lesson is checked with.
 
 ## The tutorial's tools
 
-Still at the repo root, once: `npm install` fetches the website and the lesson tools,
-and `npm run vectors` downloads the official test vectors (about 1.4 GB, into
-`vectors/`).
+[*npm*](../glossary.md#npm) is Node's package manager: it downloads libraries and runs a
+project's scripts. Still at the repo root, once: `npm install` fetches the website and the
+lesson tools, and `npm run vectors` downloads the official test vectors (about 1.4 GB,
+into `vectors/`).
 
 ```sh
 npm install
@@ -61,9 +61,9 @@ npm run vectors
 
 ## The observability stack
 
-From [the next lesson](./03-watch-your-client.md) on, your client tells this stack everything it does. Grafana to
-look at, Prometheus for numbers, Loki for events: the same stack lasair reports into.
-It runs in Docker, so start Docker Desktop first.
+From [the next lesson](./03-watch-your-client.md) on, your client tells this stack
+everything it does. Grafana to look at, Prometheus for numbers, Loki for events. It runs
+in Docker, so start Docker Desktop first.
 
 The stack is its own repo, [abutlabs/observability](https://github.com/abutlabs/observability).
 Clone it next door, so the two folders sit side by side, and start it. `cd ..` takes
@@ -119,8 +119,8 @@ cd client
 }
 ```
 
-- `"type": "module"` makes every file a module, so files share code with `import` and
-  `export`.
+- `"type": "module"` makes every file a [*module*](../glossary.md#module), so files share
+  code with `import` and `export`.
 - `npm test` runs Node's built-in test runner on every `.test.ts` file in `test/`.
   (Spell the pattern out: without it, Node runs *every* file in a `test/` folder, helpers
   and all.)
@@ -148,12 +148,12 @@ cd client
 }
 ```
 
-Two settings to know: `strict` turns on every check (no forgotten `null` cases, no untyped
-parameters), and `noEmit` means `tsc` only checks, because Node runs the `.ts` files
-itself. The rest make sure Node and `tsc` agree on what your files mean: imports name the
-real file (`./bytes.ts`), type-only imports say `import type`, and no TypeScript feature
-needs translating (so no `enum`), because Node can only strip types away, not rewrite
-code.
+Two settings to know. `strict` turns on every check: no forgotten `null` cases, no untyped
+parameters. `noEmit` means `tsc` only checks, because Node runs the `.ts` files itself.
+
+The rest make sure Node and `tsc` agree on what your files mean. Imports name the real
+file (`./bytes.ts`). Type-only imports say `import type`. And no TypeScript feature needs
+translating (so no `enum`), because Node can only strip types away, not rewrite code.
 
 Your code will live in three folders: `src/` for the client, `test/` for its tests, and
 `bin/` for little programs you run.
@@ -200,12 +200,17 @@ all:
 npm run offline
 ```
 
-It installs the tutorial's packages, puts every package the lessons will add to your
-client into npm's cache (without touching `client/`), fetches the test vectors, and runs
-`./obs up` so that Docker keeps the stack's images. Then it checks that npm can install
-your client's packages without the network. Run it again after every `git pull`, while
-you're online: a new lesson can bring a new package. The appendix
-[Working offline](../offline.md) explains each step.
+It does four things:
+
+- installs the tutorial's packages;
+- puts every package the lessons will add to your client into npm's cache, without
+  touching `client/`;
+- fetches the test vectors;
+- runs `./obs up`, so that Docker keeps the stack's images.
+
+Then it checks that npm can install your client's packages without the network. Run it
+again after every `git pull`, while you're online: a new lesson can bring a new package.
+The appendix [Working offline](../offline.md) explains each step.
 
 On the plane, where a lesson says `npm install`, type `npm install --offline`: npm takes
 everything from its cache. The lessons, in VS Code or on the website (`npm run site`),
@@ -242,24 +247,24 @@ need no network at all.
 - [ ] So that your code can never be kept in git
   > No: `git init` inside `client/` makes it a repository of your own, with your own
   > history.
-- [ ] Because the tutorial ships a finished client there
-  > No: `client/` starts empty, and you write every line in it.
 - [x] So `git pull` brings new lessons without touching your code
   > Yes: your code stays out of the tutorial's history, and the tutorial's updates stay
   > out of your code.
+- [ ] Because the tutorial ships a finished client there
+  > No: `client/` starts empty, and you write every line in it.
 
 **You'll work on a plane. What must you fetch while you're still online?**
 
 - [ ] Nothing: the lessons need no network
   > No: the lessons don't, but the code does. The vectors, the Docker images and the
   > packages have to be on your machine first.
+- [ ] Only the test vectors, since they're the big download
+  > No: size isn't the problem. A small package missing from npm's cache stops a lesson
+  > just as surely as missing vectors.
 - [x] The vectors, the stack's Docker images, and every package, yours and the tutorial's
   > Yes: `npm run offline` fetches all of them, and checks that npm's cache holds your
   > client's packages. On the plane, `npm install --offline` takes packages from that
   > cache.
-- [ ] Only the test vectors, since they're the big download
-  > No: size isn't the problem. A small package missing from npm's cache stops a lesson
-  > just as surely as missing vectors.
 :::
 
 ## What you have

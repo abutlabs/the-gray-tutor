@@ -1,43 +1,41 @@
 # What you will build
 
-Welcome! By the end of this tutorial you will have written a JAM client: a TypeScript
-program that takes a JAM block, checks it against every rule in the Gray Paper, and works
-out what the chain looks like afterwards. Byte for byte the same answer every other JAM
-client gets. If you'd like the whole system on one page before any of its parts, [What runs
-where](../what-runs-where.md) is the map; this lesson gives you the words for it.
+**In one sentence:** you will write a JAM client, a program that takes a block, checks it
+against every rule of the Gray Paper, and works out what the chain looks like afterwards,
+byte for byte as every other JAM client does.
 
-## New words
+Want the whole system on one page first? [What runs where](../what-runs-where.md) is the
+map. This lesson gives you the words for it.
 
-- **JAM.** A blockchain protocol that blends ideas from Polkadot and Ethereum: anyone can
-  put a program (a *service*) on it, and the work for those programs runs in parallel on
-  many *cores*. The name comes from "join-accumulate", part of its model of computing.
-  *Example:* in [Part 15](../15-the-pvm/index.md) you'll run a real JAM service's code.
-  [Lesson 11.2](../11-assurances/02-timeouts.md) lets you walk one piece of work across a core, block by block.
-- **Gray Paper (GP).** JAM's specification: the document that defines every rule, mostly
-  in equations. It is still being improved, and new versions change rules; this tutorial
-  follows version 0.8.0. *Example:* "§4" means its section 4.
-- **Client.** A program that follows a protocol's rules. A JAM client reads blocks and
-  works out the chain's state, the same way every other JAM client does. *Example:*
-  lasair is a JAM client, and so will yours be.
-- **Block.** A batch of new information added to the chain, at most one every six
-  seconds. *Example:* the test vectors include runs of 100 real blocks.
-- **State.** Everything the chain remembers between blocks: who the validators are, every
-  service's data, the time, and more. *Example:* "it's slot 43" is part of the state.
-- **State transition.** The rule that takes the state before a block, and the block, to
-  the state after it: the Gray Paper's Υ. *Example:* the state at slot 43, and the block
-  for slot 44, give the state at slot 44.
-- **Test vector.** An official example: an input, with the exact output a correct client
-  must produce from it. *Example:* a block, and the state it must lead to.
+## The idea
 
-Every word like these is also in the [glossary](../glossary.md). Each lesson starts with
-the ones it brings in.
+How can programs written by different teams, in different languages, agree on what a chain
+holds? They all follow one rule book. [*JAM*](../glossary.md#jam) is a blockchain
+protocol, and the [*Gray Paper*](../glossary.md#gray-paper) is its specification: every
+rule, mostly in equations.
 
-## The whole thing in one line
+The chain remembers a [*state*](../glossary.md#state): who the validators are, every
+service's data, the time. "It's slot 43" is part of the state. A
+[*block*](../glossary.md#block) is a batch of new information, at most one every six
+seconds. Each block changes the state, by fixed rules. Taken together, those rules are the
+[*state transition*](../glossary.md#state-transition): the state at slot 43, and the block
+for slot 44, give the state at slot 44.
 
-In plain words: the chain remembers a *state*. Each *block* changes that state, following
-fixed rules. A client is a program that applies those rules, and every client that applies
-them correctly gets exactly the same new state. The Gray Paper says all of that in one
-equation, the first of §4, *Overview*:
+A [*client*](../glossary.md#client) is a program that applies those rules. They leave no
+choices to make, so every correct client gets exactly the same new state.
+
+How do you know yours is correct? The official
+[*test vectors*](../glossary.md#test-vector): an input, with the exact output a correct
+client must produce from it.
+
+This lesson is the map: the one equation the tutorial builds, the road to it, and how a
+lesson works.
+
+## What the Gray Paper says
+
+The Gray Paper is still being improved, and new versions change rules. This tutorial
+follows version 0.8.0. "§4" means its section 4, and §4, *Overview*, opens with the whole
+thing in one equation:
 
 ::: gray-paper 4
 
@@ -74,19 +72,18 @@ $$
 
 :::
 
-Read the equation, (4.1), as "sigma prime is defined as upsilon of sigma and B":
+Read (4.1) as "sigma prime is defined as upsilon of sigma and B":
 
 - **σ** (sigma) is the chain's state before a block: seventeen parts, sixteen fixed ones
   from validator keys to the last few blocks, plus the service accounts.
 - **B** is the block.
 - **σ′** (sigma prime) is the state after it.
-- **Υ** (upsilon) is the *state-transition function*, the machine that turns one into
-  the other.
+- **Υ** (upsilon) is the state transition, the machine that turns one into the other.
 
-That's it. A blockchain, says the Gray Paper, is a starting state, the genesis state,
-plus Υ, and almost every other page of the paper describes one piece of Υ. It also assumes
-two things it doesn't define: every node has a clock it agrees on
-([lesson 0.4](./04-the-jam-clock.md)), and nodes can share data with each other.
+So a blockchain, says the Gray Paper, is a starting state (the genesis state) plus Υ.
+Almost every other page of the paper describes one piece of Υ. The paper also assumes two
+things it doesn't define: a clock every node agrees on
+([lesson 0.4](./04-the-jam-clock.md)), and a way for nodes to share data.
 
 A program that computes Υ is a **block importer**. Hand it a state and a block, and it
 answers either "valid, and here is the new state" or "invalid, go away". It is the first
@@ -122,17 +119,23 @@ above each snippet says what to do with it:
   test first and watch it go red, because a test that has never failed has never proved
   anything.
 
-After each **Run** block comes the output you should see, in a block of its own
-(*Output* on the website; an `npm install` has none, since it only prints downloads): put
-it next to your terminal. A line `...` marks where lines are cut, and `…` a part that
-changes from run to run; times, durations and run ids will differ too, and so may a line
-number in an error, by one or two, if your imports sit differently. Paths are inside
-`client/`. A code block with no label above it is for reading, unless the words around it
-say to type it and where, as the setup commands in [lesson 0.2](./02-set-up-the-project.md) do. On the
-website, a label is a link back to this list, and an **Add to** or **Replace in** block shows
-the whole file after that step: the lines the step adds or changes are highlighted, the rest
-dimmed, and a long stretch you haven't touched folds to a line such as *⋯ 42 unchanged
-lines*, which a tap opens. The eye in its corner shows just the step's lines, and back.
+After each **Run** block comes the output you should see, in a block of its own (*Output*
+on the website; an `npm install` has none, since it only prints downloads). Put it next to
+your terminal. A line `...` marks where lines are cut, and `…` a part that changes from
+run to run. Times, durations and run ids will differ too. So may a line number in an
+error, by one or two, if your imports sit differently. Paths are inside `client/`.
+
+A code block with no label above it is for reading, unless the words around it say to type
+it and where, as the setup commands in [lesson 0.2](./02-set-up-the-project.md) do.
+
+On the website, a label is a link back to this list. An **Add to** or **Replace in** block
+shows the whole file after that step: the lines the step adds or changes are highlighted,
+the rest dimmed. A long stretch you haven't touched folds to a line such as *⋯ 42
+unchanged lines*, which a tap opens. The eye in its corner shows just the step's lines,
+and back.
+
+A word in italics that is a link, like *state* above, opens its entry in the
+[glossary](../glossary.md).
 
 ### Meet Albert {#albert}
 
@@ -142,20 +145,21 @@ Meet Albert. You'll probably see him around class.
 
 ## You will see everything
 
-From [lesson 0.3](./03-watch-your-client.md) on, your client tells an observability stack (Grafana stack)
-everything it does: each test run, each program, and later
-each step of importing a block. Building documentation and observability from the initial steps.
+From [lesson 0.3](./03-watch-your-client.md) on, your client tells an observability stack
+(the Grafana stack) everything it does: each test run, each program, and later each step
+of importing a block.
 
 ## The referee
 
-The official *test vectors* (the `davxy/jam-test-vectors` repository, which every JAM
-team tests against) are inputs paired with the exact outputs a correct client produces.
-They are the referee: when your code and a vector disagree, the vector wins. (Unless the
-vectors' own changelog says otherwise. Even referees publish corrections.)
+The official test vectors live in the `davxy/jam-test-vectors` repository, and every JAM
+team tests against them. They are the referee: when your code and a vector disagree, the
+vector wins. (Unless the vectors' own changelog says otherwise. Even referees publish
+corrections.)
 
-From [lesson 2.6](../02-codec/06-the-first-test-vectors.md) on, your client keeps score: a program of yours runs every official
-vector and counts how many it passes, all of each vector, not just a piece of it. The
-[scoreboard](../scoreboard.md) page lists the lessons where a family of vectors crosses the line.
+From [lesson 2.6](../02-codec/06-the-first-test-vectors.md) on, your client keeps score: a
+program of yours runs every official vector and counts how many it passes, all of each
+vector, not just a piece of it. The [scoreboard](../scoreboard.md) page lists the lessons
+where a family of vectors crosses the line.
 
 ## Stuck?
 
@@ -176,29 +180,41 @@ line saying so. What's left is what your client does differently.
 ## Check your understanding
 
 ::: check
-**In σ′ ≡ Υ(σ, B), what does your client work out?**
+**What, by the Gray Paper, defines a blockchain?**
 
-- [ ] B, the next block, from the state σ
-  > No: the block comes in from outside. A block importer is handed σ and B, and works out
-  > what follows from them.
-- [x] σ′, the state after the block, from the state before it and the block
-  > Yes: that is Υ. Hand it the state at slot 43 and the block for slot 44, and out comes
-  > the state at slot 44.
-- [ ] Whether B is valid, and nothing more
+- [ ] The list of every block so far
+  > No: blocks are what gets applied. The definition is a starting state, plus the rule
+  > that applies a block to a state.
+- [ ] The network of nodes that share blocks
+  > No: the paper assumes nodes can share data, and have a clock they agree on. It defines
+  > neither.
+- [x] A starting state, and a function that takes a state and a block to the next state
+  > Yes: the genesis state plus Υ. Almost every other page of the paper describes one
+  > piece of Υ.
+
+**What is a block importer, and what does it answer?**
+
+- [ ] A program that makes the next block from the state
+  > No: the block comes in from outside. An importer is handed a state and a block, and
+  > works out what follows from them.
+- [x] A program that computes Υ: it answers "valid, and here is the new state", or "invalid"
+  > Yes: hand it the state at slot 43 and the block for slot 44, and out comes the state
+  > at slot 44. It is the first milestone, M1.
+- [ ] A program that says whether a block is valid, and nothing more
   > No: checking the rules is half the job. When the block is valid, the importer also
   > answers with the new state, σ′.
 
 **Two clients import the same block onto the same state, and both follow the rules correctly. What do they get?**
 
-- [ ] Two states that mean the same thing, though the details may differ
-  > No: the rules are exact, so there is no room for "close enough". Every correct client
-  > gets the same answer, byte for byte.
 - [x] Exactly the same new state
   > Yes: that's what makes them clients of the same chain. Applying Υ correctly leaves no
   > choices to make.
+- [ ] Two states that mean the same thing, though the details may differ
+  > No: the rules are exact, so there is no room for "close enough". Every correct client
+  > gets the same answer, byte for byte.
 - [ ] It depends on the language each client is written in
-  > No: lasair is OCaml and yours is TypeScript, and they must still agree. The rules say
-  > what the answer is, not how a program gets there.
+  > No: a client in OCaml and yours in TypeScript must still agree. The rules say what the
+  > answer is, not how a program gets there.
 
 **Your client and an official test vector disagree. Which is right?**
 
@@ -213,11 +229,11 @@ line saying so. What's left is what your client does differently.
 
 **Why do the lessons often watch a test fail before writing the code?**
 
-- [x] A test that has never failed has never proved anything
-  > Yes: watching it go red shows it really checks the rule. Then the code turns it green.
 - [ ] Because the lesson's code isn't finished yet
   > No: the red is planned. Each run that should fail says how it should fail, and every
   > lesson is followed from an empty folder before you see it.
+- [x] A test that has never failed has never proved anything
+  > Yes: watching it go red shows it really checks the rule. Then the code turns it green.
 - [ ] To show what an error looks like, and move on
   > No: the failure is part of the proof, not a demo. A test that passes from the start
   > might be passing because it checks nothing.
