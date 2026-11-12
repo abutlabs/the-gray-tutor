@@ -1,35 +1,24 @@
 # The Gray Tutor
 
-We will build a TypeScript JAM client per the [Gray Paper](https://graypaper.com/) specifications, _from scratch_.
-Every line is yours except the cryptography: a few hashes, signatures and VRFs come from
+**In one sentence:** you build a JAM client in TypeScript, _from scratch_, one guided
+step at a time, until it passes the official test vectors _byte for byte_.
+
+The rules come from the [Gray Paper](https://graypaper.com/), JAM's specification. Every
+line is yours except the cryptography: a few hashes, signatures and VRFs come from
 open-source libraries, listed in the [cryptography appendix](./cryptography.md).
 
-The Gray Tutor is a JAM blockchain client built for learning and observability. At its core, AI offers _less truth, more trust_. That is why the solutions we build with AI need to keep the human in the loop. The Gray Tutor exists to show that this is possible, and that AI-assisted development can be more transparent than development before AI. Our goal is to make JAM approachable for new protocol developers, one guided step at a time.
+The Gray Tutor is a JAM blockchain client built for learning and observability. At its core, AI offers _less truth, more trust_. That is why the solutions we build with AI need to keep the human in the loop. The Gray Tutor exists to show that this is possible, and that AI-assisted development can be more transparent than development before AI. Our goal is to make JAM approachable for new protocol developers.
 
-By the end of this tutorial, your JAM client will be able to pass the official test vectors, _byte for byte_.
+Six pages stand beside the lessons:
 
-Stuck on a word? Every JAM word, Gray Paper symbol and programming term is in the
-[glossary](./glossary.md).
-
-Which part of the Gray Paper is a lesson about? Its first line says, and
-[the Gray Paper, part by part](./gray-paper.md) maps every section to its lessons.
-
-Curious what a JAM network actually does, before you write any code?
-[JAM at a glance](./jam-at-a-glance.md) plays a real one in slow motion. It's optional: the
-lessons explain every piece as you need it.
-
-Used to passing JSON between services, but new to bytes, cores and validators? [What runs
-where](./what-runs-where.md) is the map: the three places JAM does its work, what each
-object is made from, and which code runs on every validator and which on three. Keep it
-open beside any part. And when it's time to read the paper itself, [Reading the Gray
-Paper](./reading-the-gray-paper.md) shows how its pages are laid out and reads thirteen of
-its lines aloud, one symbol at a time.
-
-Wondering how JAM compares with a network built another way?
-[JAM beside Aztec](./jam-beside-aztec.md) sets it against Ethereum's privacy rollup: why
-one validator is cheap and the other isn't, and whether JAM could run Aztec's private
-transfers as a service. We built one to find out: what it does, measured, and what isn't
-solved. Optional too.
+| When you | Open |
+| --- | --- |
+| are stuck on a word or a symbol | the [glossary](./glossary.md): every JAM word, Gray Paper symbol and programming term |
+| ask which part of the Gray Paper a lesson is about | the lesson's first line, or [the Gray Paper, part by part](./gray-paper.md) |
+| want to see what a JAM network does, before any code | [JAM at a glance](./jam-at-a-glance.md): a real one in slow motion. Optional |
+| know JSON and services, but not bytes, cores and validators | [What runs where](./what-runs-where.md): the three places JAM does its work, what each object is made from, and who runs which code |
+| are ready to read the paper itself | [Reading the Gray Paper](./reading-the-gray-paper.md): how its pages are laid out, and thirteen of its lines read aloud |
+| wonder how JAM compares with a network built another way | [JAM beside Aztec](./jam-beside-aztec.md): Ethereum's privacy rollup, and the private transfers we built as a JAM service to find out. Optional |
 
 ## At a glance
 
@@ -48,7 +37,7 @@ $$
 | [≡](./symbols.md#defined-as) | is defined as | the left side is, by definition, the right |
 
 Take a state and a block, apply the rules, get the next state. That's the whole of a
-blockchain, and your client is Υ: by the end, hand it a state and a block and it answers
+blockchain, and your client is Υ. By the end, hand it a state and a block and it answers
 with σ′, byte for byte the same as every other JAM client. Here it is on real blocks:
 
 <StfStep />
@@ -57,26 +46,27 @@ with σ′, byte for byte the same as every other JAM client. Here it is on real
 
 <EbookLink />
 
-Each lesson builds on the ones before, and your client grows with
-them. Each part's page says what your client can do at its end, and links self-test
-for that part of the Gray Paper on our [JAM learning Site](https://abutlabs.github.io/jam-learning/lasair/exam.html).
+Each lesson builds on the ones before, and your client grows with them. Each part's page
+says what your client can do at its end, and links to a self-test for that part of the
+Gray Paper on our [JAM learning site](https://abutlabs.github.io/jam-learning/lasair/exam.html).
 
-Every lesson opens on its ideas: the examples to try, the pictures, and the Gray Paper's
-own words, with the code folded to its labels. Tap a label to open that one snippet. To
-build the client, turn on **Code** in the top bar (on a phone, in the ☰ menu): every
+Every lesson opens on its ideas: an example to try, the pictures, and the Gray Paper's
+own words. The code is folded to its labels. Tap a label to open that one snippet.
+
+To build the client, turn on **Code** in the top bar (on a phone, in the ☰ menu). Every
 snippet opens, and stays open on your next visit. The list beside the switch says which
 client's code shows: today, the TypeScript one these lessons build.
 
-There's no wrong way to read it, though. To start further in, or to catch up after a
-break, run `npm run catch-up -- 14.2` at the repo root: it makes your client the client
-after [lesson 14.2](./14-services/02-the-service-account.md), your own files saved to
-`.backup/` first. Then `npm install` in `client/`, and begin [Part 15](./15-the-pvm/index.md), the PVM, right
-there. `npm run compare -- 14.2` shows how
-yours differs instead.
+To start further in, or to catch up after a break, run `npm run catch-up -- 14.2` at the
+repo root. It makes your client the client after
+[lesson 14.2](./14-services/02-the-service-account.md), with your own files saved to
+`.backup/` first. Then run `npm install` in `client/`, and begin
+[Part 15](./15-the-pvm/index.md), the PVM, right there. `npm run compare -- 14.2` shows
+how yours differs instead.
 
 ## Built with Reference to Lasair
 
-This tutorial is built with reference to [Lasair](https://github.com/abutlabs/lasair) and how we have passed the M1 fuzzer. Lasair is an oCaml (currently private) JAM client which aims to run as validators on the future network at M4 Full-Speed. The tutorial uses Typescript to drive understanding. Abutlabs hopes that this content opens the door to other developers to becoming involved with the JAM protocol and build on it.
+This tutorial is built with reference to [Lasair](https://github.com/abutlabs/lasair) and how we have passed the M1 fuzzer. Lasair is an OCaml (currently private) JAM client which aims to run as validators on the future network at M4 Full-Speed. The tutorial uses TypeScript to drive understanding. Abutlabs hopes that this content opens the door to other developers to becoming involved with the JAM protocol and build on it.
 
 | | lasair | The Gray Tutor |
 | --- | --- | --- |
@@ -260,8 +250,12 @@ This tutorial is built with reference to [Lasair](https://github.com/abutlabs/la
 
 ## After M1
 
-Every part is written: the road ends at a block importer, JAM's first milestone. A
-client that runs a real network goes further: the edge cases in
-[HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md), each with the
-case that needs it; speed, which M3 and M4 measure; and making blocks rather than only
-importing them, with networking, which M2 asks for. Those are for another tutorial.
+Every part is written. The road ends at a block importer, JAM's first milestone. A
+client that runs a real network goes further:
+
+- the edge cases in [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md),
+  each with the case that needs it;
+- speed, which M3 and M4 measure;
+- making blocks rather than only importing them, with networking, which M2 asks for.
+
+Those are for another tutorial.

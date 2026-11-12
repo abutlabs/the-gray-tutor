@@ -1,8 +1,10 @@
 # Working offline
 
-Everything in the tutorial runs on your own machine, so you can work on a flight, as long
-as you download what it needs while you're still online. One command, in the tutorial's
-folder, does all of it:
+**In one sentence:** one command downloads everything the tutorial needs, so you can work
+with no network.
+
+Everything in the tutorial runs on your own machine, so you can work on a flight. Download
+what it needs while you're still online. One command, in the tutorial's folder, does it:
 
 ```sh
 npm run offline
@@ -34,8 +36,8 @@ Ready for the plane?
    [5.1](./05-hashing-and-signatures/01-hashes.md),
    [5.3](./05-hashing-and-signatures/03-signatures.md) and
    [8.8](./08-safrole/08-the-ring-root.md). It reads the list from the lessons
-   themselves, so it's never out of date. They go into npm's cache, by installing them
-   into a scratch folder that is deleted afterwards, so `client/` isn't touched and can
+   themselves, so it's never out of date. They go into npm's cache: it installs them
+   into a scratch folder, then deletes the folder. So `client/` isn't touched and can
    be at any lesson. Then it installs them a second time with `--offline`, which proves
    the cache really holds all of them.
 3. **The test vectors**, with `npm run vectors`.

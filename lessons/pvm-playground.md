@@ -4,10 +4,12 @@ aside: false
 
 # The PVM playground
 
-The PVM is the small computer every JAM service runs on. This page is that computer,
-working, in your browser: it's the same TypeScript you write in [Part 15](./15-the-pvm/index.md)
-and [Part 16](./16-host-calls/index.md), not a drawing of it. Every number below comes from
-the machine as it runs.
+**In one sentence:** the PVM, the small computer every JAM service runs on, working in
+your browser.
+
+It isn't a drawing of the machine. It's the same TypeScript you write in
+[Part 15](./15-the-pvm/index.md) and [Part 16](./16-host-calls/index.md), and every number
+below comes from the machine as it runs.
 
 Pick a program, press **Step**, and watch four things: the code, the 13 registers, the gas
 and the memory. The programs come in two sets, and you can edit any of them:
@@ -48,10 +50,18 @@ A run ends in one of these ways:
 And there's one way to pause: `ecalli` asks the host to do something, and the host answers
 in r7. A service can't reach anything outside the machine any other way.
 
-The programs that work, in order: the registers; immediates and sign extension; a loop;
-reading and writing memory; the jump table; host calls; what a block really costs; a small
-program that adds up numbers in memory; any one of the PVM's instructions, on your own
-numbers; and a real service's accumulate, from ı = 5 to a clean halt.
+The programs that work, in order:
+
+1. the registers;
+2. immediates and sign extension;
+3. a loop;
+4. reading and writing memory;
+5. the jump table;
+6. host calls;
+7. what a block really costs;
+8. a small program that adds up numbers in memory;
+9. any one of the PVM's instructions, on your own numbers;
+10. a real service's accumulate, from ı = 5 to a clean halt.
 
 The programs that break: writing to a read-only page; memory that isn't there; a null
 pointer; running out of gas; a jump to nowhere; and a branch into a block's middle.

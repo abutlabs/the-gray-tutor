@@ -63,12 +63,12 @@ test("JAM at a glance shows tiny alone, the start page only links it, and lesson
   const page = lessonText("jam-at-a-glance.md");
   assert.equal(page.split('<JamNetwork only="tiny" />').length, 2);
   const plain = page.replace(/\s+/g, " ");
-  assert.match(plain, /Here it is in miniature: \*tiny\*, the small configuration your client tests on, with 6 validators and 2 cores, whose guarantors switch every 4 slots \(24 seconds\)\./);
+  assert.match(plain, /Here it is in miniature\. \*Tiny\* is the small configuration your client tests on: 6 validators and 2 cores, whose guarantors switch every 4 slots \(24 seconds\)\./);
   assert.equal(NETWORKS.tiny.R * 6, 24, "4 slots of 6 seconds");
   assert.doesNotMatch(page, /1,023|341/, "no full-size numbers before 4.2");
   assert.match(page, /The real network works the same way, only bigger: \[lesson 4\.2\]\(\.\/04-blocks\/02-tiny-and-full\.md\) shows it\./);
   const start = lessonText("index.md");
   assert.doesNotMatch(start, /<JamNetwork|<SlotPlayer/, "the start page scares no one: the network widgets live on their own page");
-  assert.match(start.replace(/\s+/g, " "), /\[JAM at a glance\]\(\.\/jam-at-a-glance\.md\) plays a real one in slow motion\. It's optional/);
+  assert.match(start.replace(/\s+/g, " "), /\[JAM at a glance\]\(\.\/jam-at-a-glance\.md\): a real one in slow motion\. Optional/);
   assert.equal(lessonText("04-blocks/02-tiny-and-full.md").split("<JamNetwork />").length, 2);
 });

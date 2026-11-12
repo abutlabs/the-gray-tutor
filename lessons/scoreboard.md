@@ -1,5 +1,8 @@
 # The scoreboard
 
+**In one sentence:** the scoreboard runs every official test vector through your client
+and counts the ones it gets wholly right.
+
 Every JAM team checks its client against the same official test vectors, 1,428 of them in
 `vectors/`. From [lesson 2.6](./02-codec/06-the-first-test-vectors.md#the-scoreboard) on, your client keeps a tally of them too:
 
@@ -7,12 +10,13 @@ Every JAM team checks its client against the same official test vectors, 1,428 o
 npm run scoreboard
 ```
 
-It runs every vector **whole**: your client's answer must be all of the vector's answer,
+It runs every vector **whole**. Your client's answer must be all of the vector's answer:
 the state after the block and what the rule says back, or the same refusal for the same
-reason. A test that checks one piece of a vector is how the lessons build; on the board, a
-vector counts only once nothing in it differs. The vectors come in families, a folder
-each, and a family your client can't run yet is *not run yet*. A vector that fails says
-why: the first part of it that differs.
+reason. The lessons build with tests that check one piece of a vector. On the board, a
+vector counts only once nothing in it differs.
+
+The vectors come in families, a folder each. A family your client can't run yet is *not
+run yet*. A vector that fails says why: the first part of it that differs.
 
 Grafana keeps the board as well, on the *8 · Official vectors* dashboard: the latest board,
 the climb from run to run, and every vector the board ran, passed or failed, and why.
@@ -48,7 +52,7 @@ The finished board passes 1,406 of 1,428. The 22 left, and why:
 
 - **Ten preimages vectors**, five at each size: blocks that carry a preimage nobody is
   waiting for (`preimage_unneeded`), or preimages out of order (`preimages_not_sorted_unique`).
-  The Gray Paper says to refuse them; [lesson 14.1](./14-services/01-providing-preimages.md) takes the simple road and accepts them,
+  The Gray Paper says to refuse them. [Lesson 14.1](./14-services/01-providing-preimages.md) takes the simple road and accepts them,
   and the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) adds the refusals.
 - **Twelve erasure-coding vectors**: the code validators use to split a work-package's data
   among themselves (Gray Paper Appendix H). A block importer never needs it, so the tutorial
