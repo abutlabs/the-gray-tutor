@@ -1,6 +1,6 @@
 // Lesson 2.3's reader-walk widget (.vitepress/theme/reader-walk.ts): its bytes are the
-// lesson's test's, its reads give the test's values, and its wrong-order read is the check
-// question's 491,538 at offset 3.
+// lesson's test's, its reads give the test's values, and its wrong-order read is the
+// lesson's 491,538 at offset 3.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -28,7 +28,7 @@ test("read in the writer's order, the three values come back, each in step", () 
   assert.equal(IN_ORDER.reduce((n, r) => n + r.length, 0), BYTES.length, "every byte used once");
 });
 
-test("a natural read first takes c7 12 80 as 491,538 and leaves #at at 3: the check question", () => {
+test("a natural read first takes c7 12 80 as 491,538 and leaves #at at 3: the lesson's sentence", () => {
   const wrong = readAt("natural()", 0)!;
   assert.deepEqual([wrong.value, wrong.length], ["491538n", 3]);
   assert.ok(!inStep(wrong));
@@ -46,9 +46,11 @@ test("a read that would run past the end is refused, so every op is tried from e
   assert.equal(readAt("fixed(2)", 8), null);
 });
 
-test("lesson 2.3 places the widget once, under The Reader, before its Run", () => {
+test("lesson 2.3 places the widget once, at the top to try, before The idea; The Reader sends back to it", () => {
   const raw = lessonText(LESSON);
   const at = raw.indexOf("<ReaderWalk />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ReaderWalk />"), "placed once");
-  assert.ok(at > raw.indexOf("## The Reader") && at < raw.indexOf("**Run**", raw.indexOf("## The Reader")));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("## The Reader") && back < raw.indexOf("**Run**", raw.indexOf("## The Reader")));
 });

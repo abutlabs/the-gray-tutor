@@ -1,23 +1,33 @@
 # Writer and Reader
 
+**In one sentence:** a Writer collects the pieces of an encoding in the order you write
+them, and a Reader walks back through the bytes in the same order, keeping its own place.
+
+Walk it. Read the eight bytes back in the order they were written and three values
+return. Then reset and read them in another order.
+
+<a id="try-it"></a>
+
+<ReaderWalk />
+
+## The idea
+
 A block header has ten fields. A work-report has eight, some of them lists of other
-structures. Gluing byte arrays by hand and counting offsets would bury every structure in
-bookkeeping. Two little helpers make it disappear:
+structures. How do you put that many values into one row of bytes, and get them out
+again, without counting positions by hand?
 
-- a **Writer**, which collects the pieces of an encoding as you write them;
-- a **Reader**, which walks through bytes front to back, keeping its own place.
+Writing is the easy half. Encode each value, keep the pieces in order, and glue them end
+to end when you are done. Nothing goes between them. That is the Writer.
 
-## New words
+Reading is where the counting was. The Reader keeps a finger on the bytes, like a finger
+under a line of text. Each read starts at the finger and moves it past what it read. You
+ask for the next value, never for a position.
 
-- **Class and method.** A blueprint for objects that keep their own data and come with their own
-  functions, called *methods*. *Example:* `new Writer()` makes a writer, and `w.natural(5n)`
-  calls one of its methods.
-- **Private field.** A field whose name starts with `#`: only the class's own methods can
-  touch it. *Example:* the Reader's `#at`.
-- **Offset.** A position in a row of bytes, counted from 0. *Example:* in `c7 12 80 80`
-  (4,807 in two bytes, then 128 in two), the 128 starts at offset 2.
+One thing the Reader cannot do is check you. Nothing in a byte says what it is. Ask for
+the values in the order they were written and they come back. Ask in another order and
+you get wrong numbers, with no error.
 
-All three are in the [glossary](../glossary.md).
+This lesson builds both helpers. Every structure after it is made of them.
 
 ## What the Gray Paper says
 
@@ -63,9 +73,9 @@ $$
 
 :::
 
-In plain words: a tuple, a structure of a few parts, is its parts' encodings glued end to
-end, with nothing between them. (C.4) only saves brackets: ℰ(a, b) means the same as
-ℰ((a, b)). A Writer does exactly that gluing, and a Reader undoes it, in the same order.
+A tuple, a structure of a few parts, is its parts' encodings glued end to end, with
+nothing between them. (C.4) only saves brackets: ℰ(a, b) means the same as ℰ((a, b)). A
+Writer does that gluing, and a Reader undoes it, in the same order.
 
 ## The test
 
@@ -111,6 +121,9 @@ The first is [lesson 2.1](./01-fixed-width-integers.md)'s ℰ₂, the second [le
 
 ## The Writer
 
+A Writer is a [*class*](../glossary.md#class): a blueprint for objects that keep their own
+data. Its functions are its [*methods*](../glossary.md#method).
+
 **New file** `src/codec/writer.ts`
 
 ```ts
@@ -145,12 +158,12 @@ export class Writer {
 }
 ```
 
-A Writer is a list of pieces, and `finish` glues them with [lesson 2.2](./02-compact-naturals.md)'s ⌢. Names
-starting with `#` are private: only the class's own methods can touch them, and
-JavaScript enforces it.
+A Writer is a list of pieces, and `finish` glues them with [lesson 2.2](./02-compact-naturals.md)'s ⌢. A name
+starting with `#` is a [*private field*](../glossary.md#private-field): only the class's
+own methods can touch it, and JavaScript enforces it.
 
-So where does `w.fixed(4807n, 2)` go? Nothing comes back from it: the two bytes go onto
-the end of the Writer's own list. The test's three calls, then `finish`:
+Nothing comes back from `w.fixed(4807n, 2)`: the two bytes go onto the end of the
+Writer's own list. The test's three calls, then `finish`:
 
 ```text
 w.fixed(4807n, 2)                 #parts: [c7 12]
@@ -198,7 +211,8 @@ export class Reader {
 }
 ```
 
-The whole trick is `#at`:
+The whole trick is `#at`, the Reader's [*offset*](../glossary.md#offset): its position in
+the row of bytes, counted from 0.
 
 ```ts
   #at = 0; // where the next read starts
@@ -210,11 +224,9 @@ Every read starts at `#at` and moves it along, so nobody calling the Reader ever
 byte again. (`slice` hands back a copy, so what you read can't change under your feet if
 someone reuses the input.)
 
-Walk it. Read the eight bytes back in the Writer's order and the three values return.
-Then reset and read a natural first: nothing in a byte says what it is, so the Reader
-takes three bytes as 491,538, and every read after starts in the wrong place.
-
-<ReaderWalk />
+Try it on the eight bytes [at the top](#try-it). In the Writer's order, the three values
+return. Read a natural first and the Reader takes three bytes, `c7 12 80`, as 491,538.
+The next read would then start at offset 3, halfway through the 128.
 
 **Run**
 
@@ -254,51 +266,50 @@ inside itself, so no caller can forget to add a size.
 ## Check your understanding
 
 ::: check
-**You call `w.fixed(4807n, 2)`. Where does it go?**
+**What does a Writer hold between your first call and `finish`?**
 
-- [ ] The Writer keeps the number 4,807 and encodes it when you call `finish`
-  > No: the Writer never holds numbers. `fixed` encodes 4,807 straight away, with ℰ₂,
-  > and keeps only the bytes it made.
-- [x] It becomes the two bytes `c7 12`, added as the next piece on the Writer's list
-  > Yes: the Writer is a list of pieces, each a few bytes. `c7 12` waits there, after
-  > anything written before it, until `finish` glues every piece into one byte string.
-- [ ] Its bytes are handed straight back to you, to glue on yourself
-  > No: `fixed` gives nothing back. Keeping the pieces, in order, is the Writer's whole
-  > job, so you never glue by hand.
+- [ ] The values you gave it, to encode all at once at the end
+  > No: the Writer never holds values. Each call encodes straight away and keeps only the
+  > bytes it made.
+- [x] A list of pieces, each already bytes, in the order you wrote them
+  > Yes: each call adds its bytes to the end of the list, and `finish` glues every piece
+  > into one byte string.
+- [ ] Nothing: each call hands its bytes back to you to glue on yourself
+  > No: the calls give nothing back. Keeping the pieces, in order, is the Writer's whole
+  > job.
 
-**The Reader has just read 4,807 from `c7 12 80 80 de ad be ef`. Where does its next read start?**
+**Why does a Reader keep its own position, when a caller could pass one in?**
 
-- [ ] At offset 0: you tell the Reader where each value starts
-  > No: you never pass a position. The Reader keeps its own, `#at`, and moves it after
-  > every read.
-- [ ] At offset 1: the Reader moves one place for each value it reads
-  > No: it moves by the bytes it used. 4,807 as ℰ₂ took two bytes, so `#at` moved by 2.
-- [x] At offset 2, the first `80`
-  > Yes: `c7 12` sat at offsets 0 and 1, so the next value, 128 as `80 80`, starts at 2.
+- [x] So no caller can forget to move it: every read moves it by the bytes it used
+  > Yes: the position lives in one private place, and only the Reader's own methods touch
+  > it. Nobody calling the Reader counts a byte.
+- [ ] A position can't be passed to a function
+  > No: it can, and `decodeNatural` takes one. The caller then has to add each size by
+  > hand, every time.
+- [ ] So it can jump back and read a value twice
+  > No: the Reader only walks forward, front to back.
 
-**What if the Reader read a compact natural first, instead of the ℰ₂?**
+**The pieces are glued with nothing between them. How does the Reader know where each one ends?**
 
-- [ ] It would notice `c7` isn't a compact natural and stop with an error
-  > No: nothing in a byte says what it is ([lesson 2.2](./02-compact-naturals.md)).
-  > Any byte can start a compact natural, so the Reader just reads one.
-- [x] It would read a wrong number, and every value after it would start in the wrong place
-  > Yes: `c7` is `0b11000111`, two leading ones, so it would take three bytes, `c7 12 80`,
-  > as 491,538. The next read would then start at offset 3, halfway through the 128.
-- [ ] It would still find 4,807, just a little more slowly
-  > No: the same bytes read by a different rule give a different number. Only reading in
-  > the order they were written gives back 4,807, 128 and the four bytes.
-
-**`finish` gives back `c7 12 80 80 de ad be ef`, the three pieces with nothing between them. How does the Reader know where each one ends?**
-
-- [x] Each value's rule says its size: ℰ₂ is always 2 bytes, a compact natural's first byte says how many follow, and the test asks for 4
-  > Yes: the sizes come from the rules, not from the bytes, so nothing needs to sit
-  > between the pieces. 2 + 2 + 4 = 8 bytes.
-- [ ] `finish` drops the gaps it kept between the pieces
-  > No: there were never any gaps. The pieces are `c7 12`, `80 80` and `de ad be ef`,
-  > and `finish` puts them end to end.
+- [ ] `finish` leaves a marker after each piece
+  > No: there are no markers and no gaps. The pieces sit end to end.
 - [ ] The Reader looks for the next value that makes sense
   > No: the Reader never guesses. It reads exactly the bytes each rule asks for, in the
   > order it is asked.
+- [x] Each value's rule says its size: a fixed width is always its width, and a compact natural's first byte says how many follow
+  > Yes: the sizes come from the rules, not from separators, so nothing needs to sit
+  > between the pieces.
+
+**What happens if the Reader is asked for the values in a different order from the one they were written in?**
+
+- [ ] It notices the bytes don't fit and stops with an error
+  > No: nothing in a byte says what it is ([lesson 2.2](./02-compact-naturals.md)). Any
+  > byte can start a compact natural, so the Reader reads one.
+- [x] It returns a wrong value, and every read after it starts in the wrong place
+  > Yes: the same bytes read by a different rule give a different number and use a
+  > different count of bytes. Only the writer's order gives the values back.
+- [ ] It still finds the right values, a little more slowly
+  > No: the Reader does not search. It reads what it is asked for, where it stands.
 :::
 
 ## What you have

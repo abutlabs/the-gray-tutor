@@ -1,40 +1,36 @@
 # Fixed-width integers
 
-Time to turn numbers into bytes. JAM, like most of computing, writes them a little
-backwards: the small end first.
+**In one sentence:** a fixed-width integer is a number written in a set count of bytes,
+the same count however small the number is, with its smallest byte first.
 
-This is a different job from [lesson 1.1](../01-bytes-and-numbers/01-bytes-and-hex.md)'s.
-Hex only writes bytes you already have as text. Here you start with a number and work
-out its bytes. Hex still appears, but only to show the bytes you made:
+Type a number and pick how many bytes it gets. Each step writes the lowest byte and
+passes the rest on. The two rows are the same bytes: as the number reads, and as JAM
+writes them.
 
-```text
-4,807  ──encode (this lesson)──▶  bytes 199, 18  ──toHex (lesson 1.1)──▶  "0xc712"
-```
+<a id="try-it"></a>
 
-## New words
+<FixedWidth />
 
-- **Encode, decode.** Encoding turns a value into bytes; decoding turns the bytes back
-  into the value. *Example:* 4,807 encodes as the two bytes `c7 12`.
-- **Little-endian.** Least significant byte first: the small end of the number leads.
-  *Example:* 4,807 is `0x12c7`, and it's written `c7 12`.
-- **Fixed-width integer.** A number always written in the same number of bytes, however
-  small it is. *Example:* a u32 is always four bytes, so 1 is `01 00 00 00`.
-- **Recursive.** Defined in terms of a smaller case of itself, down to a case simple
-  enough to answer straight away. *Example:* ℰ₂ is defined using ℰ₁, ℰ₁ using ℰ₀, and ℰ₀
-  is just no bytes.
+## The idea
 
-All four are in the [glossary](../glossary.md).
+A timeslot is a number. A block header is bytes. How does the number get in?
 
-## Small end first
+One byte only reaches 255. A bigger number spreads over several bytes, like digits: each
+byte counts 256 times the one after it. Take 4,807. It is 18 × 256 + 199, so it takes two
+bytes, 18 and 199.
 
-One byte only reaches 255, so a bigger number spreads over several, like digits: each
-byte counts 256 times the one after it. Take any number too big for one byte, say 4,807:
-4,807 = 18 × 256 + 199. 18 is `0x12` and 199 is
-`0xc7`, so 4,807 is `0x12c7`: the bytes `12` and `c7`. JAM writes them the other way
-round, `c7 12`: the low byte first. Like writing a date as day-month-year.
+That leaves two things to settle.
 
-And the width never changes. A timeslot is a u32, so it takes four bytes in every block
-header, even when it's 1: `01 00 00 00`.
+Which byte goes first? JAM writes the low one first: 199, then 18. That order is
+[*little-endian*](../glossary.md#little-endian): the small end of the number leads, like
+writing a date as day-month-year.
+
+And how many bytes? In a [*fixed-width integer*](../glossary.md#fixed-width-integer), the
+count never changes. A timeslot takes four bytes in every block header, even when it is 1.
+
+Turning a value into bytes is [*encoding*](../glossary.md#encode) it. Turning the bytes
+back is [*decoding*](../glossary.md#decode). This lesson builds both for whole numbers:
+any number, in exactly as many bytes as you ask for, low byte first, and back.
 
 ## What the Gray Paper says
 
@@ -109,15 +105,17 @@ $$
 
 :::
 
-In plain words, (C.12)'s first line is a promise: give ℰₗ a number that fits in l bytes,
-and you get back exactly l bytes. The second says how, like a recipe: write down the
-lowest byte, chop it off, and repeat with one byte fewer, until no bytes are left. ℰ₄ is
-a u32, ℰ₈ a u64. (C.13) to (C.15) only stretch the same ℰₗ over several numbers at once:
-ℰ₄(a, b) is ℰ₄(a) then ℰ₄(b), four bytes each, side by side.
+(C.12)'s first line is a promise: give ℰₗ a number that fits in l bytes, and you get back
+exactly l bytes. The second line is the recipe: write the lowest byte, chop it off, and
+repeat with one byte fewer, until no bytes are left. ℰ₄ is a u32, ℰ₈ a u64. A timeslot is
+a u32, so slot 1 is `01 00 00 00`.
 
-ℰₗ is defined using $\mathcal{E}_{l-1}$, a smaller case of itself: it's *recursive*. Work
-it through for 4,807 in two bytes, and each step hands one byte fewer to the next, until
-l reaches 0 and the recipe stops:
+(C.13) to (C.15) stretch the same ℰₗ over several numbers at once: ℰ₄(a, b) is ℰ₄(a) then
+ℰ₄(b), four bytes each, side by side.
+
+ℰₗ is defined using $\mathcal{E}_{l-1}$, a smaller case of itself: it is
+[*recursive*](../glossary.md#recursive). Work it through for 4,807 in two bytes. Each step
+hands one byte fewer to the next, until l reaches 0 and the recipe stops:
 
 $$
 \begin{aligned}
@@ -137,18 +135,23 @@ $$
 | [$\lfloor\,\rfloor$](../symbols.md#floor) | floor | round down: ⌊x / 256⌋ is x without its lowest byte |
 | [$[\,]$](../symbols.md#sequence) | the empty sequence | no bytes at all |
 
-199 is `c7` and 18 is `12`: `c7 12`.
-
-Run the recipe on any number. Type x and pick l: each step writes x mod 256 and passes
-⌊x / 256⌋ on. The two rows are the same bytes, as the number reads (biggest first) and as
-JAM writes them (smallest first):
-
-<FixedWidth />
+199 is `0xc7` and 18 is `0x12`. As a number reads, 4,807 is `0x12c7`, and it's written `c7 12`:
+the low byte first. Run the recipe on any number [at the top](#try-it): each step writes
+x mod 256 and passes ⌊x / 256⌋ on.
 
 ## The code
 
-One function for every width, working on `bigint` so that ℰ₈ is exact ([lesson 1.2](../01-bytes-and-numbers/02-numbers.md)'s
-rule). [Lesson 2.4](./04-codecs.md) converts to `number` for the smaller widths.
+This is a different job from [lesson 1.1](../01-bytes-and-numbers/01-bytes-and-hex.md)'s.
+Hex writes bytes you already have as text. Here you start with a number and work out its
+bytes. Hex still appears, but only to show the bytes you made:
+
+```text
+4,807  ──encode (this lesson)──▶  bytes 199, 18  ──toHex (lesson 1.1)──▶  "0xc712"
+```
+
+One function does every width. It works on `bigint`, so that ℰ₈ is exact
+([lesson 1.2](../01-bytes-and-numbers/02-numbers.md)'s rule).
+[Lesson 2.4](./04-codecs.md) converts to `number` for the smaller widths.
 
 **New file** `test/numbers.test.ts`
 
@@ -225,9 +228,8 @@ test at test/numbers.test.ts:7:1
 ...
 ```
 
-Comparing two byte arrays, `assert.deepEqual` shows a diff: lines with `+` are what your
-code gave (*actual*), lines with `-` what the test expected. Your stub wrote 0 and 0; the
-test wanted 199 and 18, which are `c7` and `12`: 4807, least significant byte first.
+Lines with `+` are what your code gave (*actual*), lines with `-` what the test expected.
+Your stub wrote 0 and 0. The test wanted 199 and 18: 4807, least significant byte first.
 
 **Replace in** `src/codec/numbers.ts`
 
@@ -257,7 +259,7 @@ at the last, most significant byte and shift each one in.
 
 The promise is yours to keep. Give `encodeFixed` a number too big for its bytes and
 nothing complains: `encodeFixed(70000n, 2)` keeps the two lowest bytes, `70 11`, which
-read back as 4,464. The rest of 70,000 is simply gone.
+read back as 4,464. The rest of 70,000 is gone.
 
 **Run**
 
@@ -280,7 +282,7 @@ reported 9 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=y
 ...
 ```
 
-Your client can now write numbers the way JAM does. Nine tests and counting.
+Your client can now write numbers the way JAM does.
 
 <details>
 <summary>lasair: <code>encode_fixed_int</code></summary>
@@ -309,54 +311,54 @@ is `>>>` on a `number`, the shift that treats the value as unsigned. (A `bigint`
 ## Check your understanding
 
 ::: check
-**Why does 4,807 take two bytes?**
+**What makes an integer "fixed-width"?**
 
-- [ ] It has four digits, and a byte holds two
-  > No: bytes count in 256s, not in decimal digits. 255 has three digits and fits in one
-  > byte; 256 has three too, and needs two.
-- [x] One byte only reaches 255, and 4,807 = 18 × 256 + 199
-  > Yes: like digits, each byte counts 256 times the one after it. 4,807 is 18 times 256,
-  > plus 199 left over: two bytes, 18 and 199.
-- [ ] Every number in JAM takes two bytes
-  > No: the width depends on the type. A timeslot is a u32, and takes four bytes even
-  > when it's 1.
+- [ ] It is always written in two bytes
+  > No: the width depends on the type. A timeslot is a u32 and takes four bytes; a u64
+  > takes eight.
+- [x] It always takes the same number of bytes, however small the number is
+  > Yes: a u32 takes four bytes even for 1, `01 00 00 00`. The type sets the width, never
+  > the value.
+- [ ] It takes as few bytes as the number needs
+  > No: that's the other way to write a number, the one
+  > [lesson 2.2](./02-compact-naturals.md) builds. A fixed width never shrinks.
 
-**How does ℰ₂ write 4,807?**
+**A client writes 4,807 in two bytes as `12 c7`. What did it get wrong?**
 
-- [ ] `12 c7`
-  > No: that's the number as you'd read it, biggest byte first, `0x12c7`. JAM writes the
-  > low byte first.
-- [ ] `c7 12 00 00`
-  > No: that's ℰ₄, four bytes. ℰ₂ is exactly two.
-- [x] `c7 12`
-  > Yes: 199 is `c7` and 18 is `12`, and the low byte, 199, comes first.
+- [ ] Nothing: 4,807 is `0x12c7`
+  > No: `0x12c7` is the number as you'd read it, biggest byte first. JAM writes the bytes
+  > the other way round.
+- [ ] The width: 4,807 needs four bytes
+  > No: one byte only reaches 255, and 4,807 = 18 × 256 + 199, so two bytes hold it.
+- [x] The order: JAM is little-endian, so the low byte comes first
+  > Yes: 199 is `c7` and 18 is `12`, and the low byte leads: `c7 12`.
 
-**ℰ₂(4807) first writes 4807 mod 256, which is 199. What does it hand on to ℰ₁?**
+**The Gray Paper defines ℰₗ using ℰ of l − 1. What does each step do?**
 
-- [x] 18: ⌊4807 / 256⌋, 4,807 with its lowest byte chopped off
-  > Yes: ℰ₁(18) writes `12`, then ℰ₀ ends it with no bytes. Each step hands on one byte
-  > fewer.
-- [ ] 4,608: 4,807 minus the 199 just written
-  > No: taking away 199 leaves 4,608, which is 18 × 256, still counted in 256s. Dividing
-  > by 256 is what turns it into 18, the next byte.
-- [ ] 199 again, for the second byte
-  > No: 199 is already written. Each step hands on what's left of the number, one byte
-  > smaller.
+- [ ] It writes the highest byte, then hands on the rest
+  > No: it writes x mod 256, the lowest byte. That is why the small end comes out first.
+- [ ] It writes the lowest byte, then hands on the number minus that byte
+  > No: taking 199 from 4,807 leaves 4,608, which is 18 × 256, still counted in 256s.
+  > Dividing by 256 is what turns it into 18, the next byte.
+- [x] It writes the lowest byte, then hands on the number divided by 256, rounded down
+  > Yes: x mod 256, then ⌊x / 256⌋. The recipe stops when no bytes are left: ℰ₀ is no
+  > bytes at all.
 
-**A timeslot is a u32. How is slot 1 written in a block header?**
+**You call `encodeFixed` with a number too big for the width you gave. What happens?**
 
-- [ ] `01`
-  > No: a fixed width never shrinks. A u32 takes four bytes, even for 1.
-- [x] `01 00 00 00`
-  > Yes: ℰ₄(1). The low byte, 1, comes first, then three zero bytes.
-- [ ] `00 00 00 01`
-  > No: that's biggest byte first. JAM writes the small end first.
+- [x] Nothing complains: the low bytes are kept and the rest of the number is lost
+  > Yes: `encodeFixed(70000n, 2)` writes two bytes that read back as 4,464. The promise
+  > that the number fits is the caller's to keep.
+- [ ] It throws an error
+  > No: nothing checks. The loop writes l bytes and stops, whatever is left over.
+- [ ] It writes as many bytes as the number needs
+  > No: a fixed width never grows either. You get exactly l bytes.
 :::
 
 ## What you have
 
 ℰ_l both ways: any whole number in exactly l bytes, least significant first, and back,
-exact up to 64 bits. A fixed width spends all l bytes even on a tiny number, though.
+exact up to 64 bits. But a fixed width spends all l bytes even on a tiny number.
 [Lesson 2.2](./02-compact-naturals.md) adds JAM's other way to write a number: one byte
 when it's small, more only when it must.
 
