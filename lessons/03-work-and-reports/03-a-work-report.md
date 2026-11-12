@@ -195,8 +195,8 @@ hash, the length of its *bundle* (the package plus everything needed to re-run i
 **erasure root** with the number of **erasure shards**, and the root and count of the
 segments it exported.
 
-There is one shard per validator, so for the first time tiny and full vectors differ: 6
-shards on tiny, 1,023 on full (`erasure_shards` is `ff 03` on full and `06 00` on tiny). The exports root is a second Merkle root,
+There is one shard per validator, so for the first time tiny and full vectors differ:
+6 shards on tiny, 1,023 on full (`erasure_shards` is `ff 03` on full and `06 00` on tiny). The exports root is a second Merkle root,
 over the exported segments themselves: a package that imports one later checks it there.
 
 Where every field comes from is §14.4's function Ξ, which the guarantors run in-core and
