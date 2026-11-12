@@ -43,8 +43,10 @@ test("the guarantees and the result are the vector's, where vectors/ is download
   assert.deepEqual(placeReports(2).map((c) => c && [c.pkg, c.since]), v.post_state.avail_assignments.map((a: { guarantee: { report: { package_spec: { hash: string } } }; registered_slot: number } | null) => a && [a.guarantee.report.package_spec.hash, a.registered_slot]));
 });
 
-test("lesson 12.3 places the widget once, after the reported packages are defined", () => {
+test("lesson 12.3 places the widget once, at the top, and sends the reader back to it once the reported packages are defined", () => {
   const at = raw.indexOf("<OntoCores />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<OntoCores />"));
-  assert.ok(at > raw.indexOf("Here the vectors insist on it.)") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("Here the vectors insist on it.)"));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

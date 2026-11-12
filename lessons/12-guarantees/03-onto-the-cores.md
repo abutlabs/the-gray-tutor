@@ -1,10 +1,35 @@
 # Onto the cores
 
-The guarantors are the right ones ([lesson 12.1](./01-who-guarantees-what.md)), their signatures are real ([lesson
-12.2](./02-signed-and-counted.md)). Time to seat the report: each guaranteed report takes its core and starts waiting
-for its data to become available, which is where [Part 11](../11-assurances/index.md) picks it up next block.
-And the block makes a note of the packages it reported, for the recent history ([Part
-9](../09-recent-history/index.md)) to remember.
+**In one sentence:** a guaranteed report takes the core it names, if that core is free,
+and waits there for its data, while the block notes which packages it reported.
+
+A real block's two guarantees, and two empty cores. Place them one at a time, and watch
+the cores and the reported list fill.
+
+<a id="try-it"></a>
+
+<OntoCores />
+
+## The idea
+
+The guarantors are the right ones ([lesson 12.1](./01-who-guarantees-what.md)). Their
+signatures are real ([lesson 12.2](./02-signed-and-counted.md)). Where does the report
+go now?
+
+Onto its core. Each guaranteed report takes the core it names, and starts waiting there
+for its data to become available. That is where [Part 11](../11-assurances/index.md)
+picks it up, next block.
+
+A core is like a parking space: it holds one report at a time. So a core can take a new
+report only if it's free, after the disputes and the assurances have done their
+clearing. The report is stamped with the block's slot, and the timeout clock of
+[lesson 11.2](../11-assurances/02-timeouts.md) runs from there.
+
+The block also makes a note of the packages it reported, for the recent history
+([Part 9](../09-recent-history/index.md)) to remember. The note is kept in the order of
+the packages' hashes, not the order the guarantees came in.
+
+This lesson seats the reports and writes the note.
 
 ## What the Gray Paper says
 
@@ -55,8 +80,9 @@ $$
 
 :::
 
-In plain words, §11.5 (*Transitioning for Reports*) defines ρ′, the cores after the guarantees: each guarantee's report goes on the core it
-names, as a pending report: the whole guarantee, registered at τ′, this block's slot. A
+§11.5 (*Transitioning for Reports*) defines ρ′, the cores after the guarantees. Each
+guarantee's report goes on the core it names, as a pending report: the whole guarantee,
+registered at τ′, this block's slot. A
 core can only take a report if it's free, after the disputes ([lesson 10.3](../10-disputes/03-clearing-the-cores.md)) and the
 assurances ([lesson 11.2](../11-assurances/02-timeouts.md)) have done their clearing. Every other core keeps what it had.
 
@@ -66,9 +92,8 @@ the root of the segments it exports. [Lesson 9.2](../09-recent-history/02-recent
 hash, not in the order the guarantees came. ([Lesson 9.2](../09-recent-history/02-recent-blocks.md) left sorting to the [hardening
 pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md). Here the vectors insist on it.)
 
-Step a real block's two guarantees onto the cores:
-
-<OntoCores />
+Step the two guarantees onto the cores [at the top](#try-it): the cores fill in core
+order, the reported list in hash order.
 
 ## The tests
 
@@ -133,8 +158,8 @@ test("the reported packages: each one's hash and exports root, sorted by hash", 
 });
 ```
 
-The vectors write the reported packages as `work_package_hash` and `segment_tree_root`;
-the history vectors called the same two things `hash` and `exports_root`. Your client
+The vectors write the reported packages as `work_package_hash` and `segment_tree_root`.
+The history vectors called the same two things `hash` and `exports_root`. Your client
 picks one pair of names, and the test translates.
 
 ## The code
@@ -193,9 +218,9 @@ reported 200 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ```
 
 44 reports seated, and every reported list in order. Take the `.sort(…)` away and run
-the tests again: `high_work_report_gas-1` fails (the tiny one stops the test first; the full
-one would too). Its guarantees list
-package `0x63c0…` before `0x3165…`, and the dictionary wants them the other way round.
+the tests again: `high_work_report_gas-1` fails (the tiny one stops the test first; the
+full one would too). Its guarantees list package `0x63c0…` before `0x3165…`, and the
+dictionary wants them the other way round.
 
 ## Watch it
 
@@ -276,8 +301,8 @@ reported: package 0x316504b8…, exports root 0x5c9dca80…
 :::
 
 Each guarantee lands on the core its report names, stamped with the block's `slot` for
-[lesson 11.2](../11-assurances/02-timeouts.md)'s timeout clock. Notice the two orders: `avail_assignments` fills in core
-order, the reported list sorts by package hash, which is why `0x316504b8…` leads it
+[lesson 11.2](../11-assurances/02-timeouts.md)'s timeout clock. Notice the two orders. `avail_assignments` fills in core
+order. The reported list sorts by package hash, which is why `0x316504b8…` leads it
 while core 0 holds `0x63c03371…`.
 
 **Run**
@@ -297,10 +322,9 @@ reported: package 0x63c03371…, exports root 0x5c9dca80…
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=placed-1791734334389
 ```
 
-Core 0 gets `0x63c0…` and core 1 gets `0x3165…`, but the reported list starts with
-`0x3165…`: cores in core order, packages in hash order. Try `with_avail_assignments-1`,
-where one core is already taken and the new report takes a free one. The *Placed* panel,
-on **4 · Checks**, shows both lists.
+Cores in core order, packages in hash order. Now try `with_avail_assignments-1`, where
+one core is already taken and the new report takes a free one. The *Placed* panel, on
+**4 · Checks**, shows both lists.
 
 ![Placed panel](./images/03-placed.png)
 
@@ -327,33 +351,25 @@ noticed: the adapter only counts the reported packages.
 ## Check your understanding
 
 ::: check
-**In a block at slot 14, a guarantee made at slot 10 puts its report on core 0. What does core 0 hold now?**
+**A guarantee made a few slots ago puts its report on a core in this block. What does the core hold now?**
 
-- [x] The whole guarantee, registered at slot 14
+- [ ] The report, registered at the slot the guarantee was made
+  > No: the registered slot is the block's, not the guarantee's own.
+- [x] The whole guarantee, registered at this block's slot
   > Yes: a pending report is the guarantee and τ′, this block's slot.
-- [ ] The report, registered at slot 10, when the guarantee was made
-  > No: the registered slot is the block's, 14, not the guarantee's own slot.
 - [ ] Only the report's hash
   > No: the core holds the whole guarantee, report and signatures.
 
-**That report never gets assured. At which slot does it time out?**
+**Why is the report stamped with the block's slot?**
 
-- [ ] 15: the next block's assurances are its only chance
-  > No: it may wait several blocks for its assurances.
-- [x] 19
-  > Yes: 19 ≥ 14 + 5, U = 5 slots after it was registered ([lesson 11.2](../11-assurances/02-timeouts.md)).
-- [ ] 20
-  > No: off by one. At 19, the slot is already at least 14 + 5.
-
-**In `high_work_report_gas-1`, core 0 gets package `0x63c0…` and core 1 gets `0x3165…`. In what order are the reported packages listed?**
-
-- [ ] `0x63c0…`, then `0x3165…`, in core order
-  > No: the reported packages are a dictionary, and a dictionary is sorted by key.
-- [x] `0x3165…`, then `0x63c0…`, sorted by package hash
-  > Yes: the key is the package hash. Cores go in core order, packages in hash order.
-- [ ] Sorted by exports root
-  > No: the exports root is the value, not the key. Here both are `0x5c9dca80…`
-  > anyway.
+- [ ] The guarantee's own slot isn't in the block
+  > No: a guarantee carries the slot it was made at. That slot picks the rotation its
+  > signers answer to ([lesson 12.1](./01-who-guarantees-what.md)).
+- [ ] The two are always the same slot
+  > No: a guarantee can be made in the rotation before its block's, and still count.
+- [x] The timeout clock runs from when the report took its core
+  > Yes: [lesson 11.2](../11-assurances/02-timeouts.md) lets a core go a fixed number of slots after its report was
+  > registered, and registered means placed.
 
 **Core 0's report becomes available in this block. Can a guarantee in the same block put a new report on core 0?**
 
@@ -364,6 +380,16 @@ noticed: the adapter only counts the reported packages.
   > core free.
 - [ ] Yes, and it would even if the old report were still waiting
   > No: a core takes a report only when it's free. A waiting report keeps it.
+
+**Why are the reported packages listed by package hash, and not in the order the guarantees came?**
+
+- [ ] The two orders are always the same
+  > No: in `high_work_report_gas-1` the guarantees list `0x63c0…` before `0x3165…`, and
+  > the reported list wants them the other way round.
+- [ ] They are sorted by exports root
+  > No: the exports root is the value, not the key.
+- [x] They are a dictionary, and a dictionary is kept sorted by key
+  > Yes: the key is the package hash. Cores go in core order, packages in hash order.
 :::
 
 ## What you have

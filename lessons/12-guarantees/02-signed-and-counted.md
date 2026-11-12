@@ -1,19 +1,39 @@
 # Signed and counted
 
+**In one sentence:** a guarantee counts only if every signature on it is real, made with
+the key of the validator it names, and the block writes down who signed, each validator
+once.
+
+Two real guarantees, every signature checked. Make a signer an offender, and watch what
+happens to its signature.
+
+<a id="try-it"></a>
+
+<SignedCounted />
+
+## The idea
+
 A guarantee is a promise with signatures on it: "we ran this work, and this is the
-report". The three guarantors made it in-core; checking it is the chain's job, on every
-validator, and that is this lesson: every signature is real, made with the key of the
-validator it names, in the assignment the guarantee answers to. (Whether that validator
-was assigned to the report's core is a check of its own, in [lesson
-12.4](./04-bad-guarantees.md).) Then it writes down who signed: the *reporters*, which the statistics
-([Part 18](../18-statistics/index.md)) will credit for the work.
+report". The three guarantors made it in-core. Why should the chain believe the
+signatures?
 
-## New words
+It doesn't. It checks them, on every validator. Each signature must be real: made with
+the key of the validator it names, in the assignment the guarantee answers to. A bank
+does the same with a cheque: it compares the signature with the one it has on file. The
+chain's file is the assignment's keys, and an offender's key has been wiped from it. So
+nothing an offender signs can pass.
 
-- **Reporters.** 𝐆. Every validator who signed a guarantee in a block, each counted once.
-  *Example:* guarantees signed by 0 and 1, and by 2 and 3: four reporters.
+The signature has a second job. It is on the same message a culprit's evidence carries
+([lesson 10.2](../10-disputes/02-culprits-and-faults.md)). Sign a guarantee, and you have signed what convicts you if the
+report turns out bad.
 
-It's in the [glossary](../glossary.md).
+Then the block writes down who signed: the [*reporters*](../glossary.md#reporters), each
+validator once. The statistics ([Part 18](../18-statistics/index.md)) will credit them
+for the work.
+
+Whether a signer was assigned to the report's core is a check of its own, in
+[lesson 12.4](./04-bad-guarantees.md). This lesson checks the signatures and counts the
+reporters.
 
 ## What the Gray Paper says
 
@@ -89,10 +109,10 @@ $$
 
 :::
 
-That one rule, (11.28), holds several checks; [lesson 12.4](./04-bad-guarantees.md) takes the
-ones about who and when. In plain words, the part this lesson takes from §11.4 (*Work
-Report Guarantees*): for each signature (v, s) on a guarantee, with (𝐜, 𝐤) the assignment
-the guarantee answers to ([lesson 12.1](./01-who-guarantees-what.md)):
+That one rule, (11.28), holds several checks. [Lesson 12.4](./04-bad-guarantees.md) takes
+the ones about who and when. This lesson takes the signatures, from §11.4 (*Work Report
+Guarantees*). For each signature (v, s) on a guarantee, with (𝐜, 𝐤) the assignment the
+guarantee answers to ([lesson 12.1](./01-who-guarantees-what.md)):
 
 - s must be the Ed25519 signature of k[v], validator v's key, on `$jam_guarantee` ⌢ H(the
   report). That's the same message a culprit's evidence carries ([lesson 10.2](../10-disputes/02-culprits-and-faults.md)): a
@@ -104,9 +124,8 @@ the guarantee answers to ([lesson 12.1](./01-who-guarantees-what.md)):
 **𝐆, the reporters**, is the set of Ed25519 keys of everyone who signed any guarantee
 in the block. A *set*: each key once, however many guarantees it signed.
 
-Two real guarantees, every signature checked:
-
-<SignedCounted />
+Try both on [the two guarantees at the top](#try-it). Make a signer an offender, and its
+signature fails. Count 𝐆: six signatures, three keys.
 
 ## Sharing a message
 
@@ -153,13 +172,13 @@ npm test
 reported 196 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=test-1791734301991
 ```
 
-Green, [Part 10](../10-disputes/index.md)'s offender tests among them: the message has a new home, and nothing else
-changed.
+Green, [Part 10](../10-disputes/index.md)'s offender tests among them. The message has a new home, and nothing
+else changed.
 
 ## The tests
 
-[Lesson 12.1](./01-who-guarantees-what.md)'s `signerCores` worked out each guarantee's assignment inline; the new tests
-need that too. So `assigned` does it once, and `signerCores` is rebuilt on top:
+[Lesson 12.1](./01-who-guarantees-what.md)'s `signerCores` worked out each guarantee's assignment inline. The new
+tests need it too. So `assigned` does it once, and `signerCores` is rebuilt on top:
 
 **Replace in** `test/guarantors.test.ts`
 
@@ -386,9 +405,9 @@ core 1: signed by 0xad93247b…, 0x8b8c5d43…, 0xab0084d0…; all real: true
 
 :::
 
-Both guarantees carry `validator_index` 1, 4 and 5, but each is resolved against the
-hand of *its own* `slot`, and the two hands seat those numbers on different cores, so
-both check out. Six signatures become three reporters: 𝐆 counts people, not autographs.
+Both guarantees carry `validator_index` 1, 4 and 5. Each is resolved against the hand of
+*its own* `slot`, and the two hands seat those numbers on different cores, so both check
+out. Six signatures become three reporters: 𝐆 counts people, not autographs.
 
 **Run**
 
@@ -409,8 +428,9 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 The same three guarantors signed for core 0 *and* core 1: one guarantee from this
-rotation, one from the last, when they sat on the other core. Six signatures, three
-reporters. Then try `bad_signature-1.json` (`all real: false`) and
+rotation, one from the last, when they sat on the other core.
+
+Then try `bad_signature-1.json` (`all real: false`) and
 `banned_validator_guarantee-1.json`, where one signer's key prints as `0x00000000…`:
 an offender, zeroed by Φ, and the guarantee sinks with it.
 The *Reporters* panel shows every check.
@@ -440,7 +460,7 @@ whole set.
 ## Check your understanding
 
 ::: check
-**A guarantee's signature is on `jam_guarantee` ⌢ H(report), the same message a culprit carries. Why?**
+**A guarantee's signature is on the same message a culprit's evidence carries. Why?**
 
 - [ ] Coincidence: two messages that happen to look alike
   > No: it's the same message on purpose, with the same `jam_guarantee` prefix.
@@ -451,25 +471,48 @@ whole set.
   > No: nobody re-signs anything. The culprit's evidence is the guarantee's own
   > signature, from before.
 
-**In `different_core_same_guarantors-1`, the same three validators sign guarantees for core 0 and core 1. How many reporters does 𝐆 hold?**
+**Who checks a guarantee's signatures, and where?**
 
-- [ ] 6, one per signature
-  > No: 𝐆 is a set. Each key goes in once, however many guarantees it signed.
-- [ ] 2, one per guarantee
-  > No: 𝐆 counts validators, not guarantees.
-- [x] 3
-  > Yes: six signatures, three keys. One guarantee is from this rotation, one from the
-  > last, when they sat on the other core.
+- [ ] The three guarantors, in-core, each checking the other two
+  > No: in-core is where the guarantee is made. Checking it is the chain's job.
+- [ ] The block's author alone: once a guarantee is in a block, it is trusted
+  > No: no guarantee is taken at its word. Every validator checks every signature
+  > itself.
+- [x] Every validator, on the chain, against the keys of the assignment the guarantee answers to
+  > Yes: validator v's signature must check out with k[v], the key that assignment
+  > holds for v.
 
-**In `banned_validator_guarantee-1`, an offender signs a guarantee with its real key. Why can't the signature check out?**
+**An offender signs a guarantee with its real key. Why can't the signature check out?**
 
 - [x] Φ has zeroed the offender's key in the assignment, so there's no key to check it against
-  > Yes: its key prints as `0x00000000…`. Banned means banned, and the guarantee sinks.
+  > Yes: in `banned_validator_guarantee-1` its key prints as `0x00000000…`. Banned means
+  > banned, and the guarantee sinks.
 - [ ] An offender's signatures are removed from the block
   > No: the signature is still in the block. It's the key it would check against that's
   > gone.
 - [ ] It does check out, but the report is refused for being bad
   > No: this report was never judged. The signature fails because the key is all zeros.
+
+**The reporters are a set of keys, not a list of signatures. What does that change?**
+
+- [ ] Nothing: a validator signs at most one guarantee in a block
+  > No: in `different_core_same_guarantors-1` the same three validators sign for core 0
+  > and for core 1.
+- [ ] It counts one reporter for each guarantee
+  > No: 𝐆 counts validators, not guarantees.
+- [x] A validator who signed several guarantees in the block is counted once
+  > Yes: each key goes in once, however many guarantees it signed. Six signatures there,
+  > three reporters.
+
+**What are the reporters for?**
+
+- [ ] They are the ones convicted if a report turns out bad
+  > No: a bad report's signers are convicted by their own signatures
+  > ([lesson 10.2](../10-disputes/02-culprits-and-faults.md)). 𝐆 convicts nobody.
+- [x] The statistics credit them for the work
+  > Yes: 𝐆 is who signed a guarantee in this block, and [Part 18](../18-statistics/index.md) counts it.
+- [ ] They guarantee the next rotation's reports
+  > No: the shuffle deals the guarantors ([lesson 12.1](./01-who-guarantees-what.md)). 𝐆 moves nobody.
 :::
 
 ## What you have

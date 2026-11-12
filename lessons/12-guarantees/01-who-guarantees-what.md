@@ -1,24 +1,33 @@
 # Who guarantees what
 
-Work arrives at JAM as work-packages, and every package needs *guarantors*: validators
-who run it, sign the resulting report, and put their stake behind it. But which
-validators get which core? If you could pick, you'd pick your friends. So JAM deals them
-out: three validators per core, shuffled with randomness nobody could steer ([lesson
-7.2](../07-time-and-shuffling/02-the-shuffle.md)), and reshuffled along every few slots so nobody stays on one core for long. This
-lesson deals the hand. The dealing is on the chain: every validator works out the same
-hand from the same entropy, which is how the chain can later tell whether the right three
-signed a report ([the part's page](./index.md) draws the whole exchange).
+**In one sentence:** every core gets three validators to vouch for its work, dealt out by
+a shuffle nobody can steer, and moved on to the next core every few slots.
 
-## New words
+Six validators, two cores, and a real block at slot 14. Slide the slot through the epoch,
+and watch everyone move on one core every 4 slots.
 
-- **Guarantor.** A validator who runs a work-package and signs the report, vouching for
-  it with its stake. *Example:* three guarantors per core.
-- **Rotation.** Every R slots, the guarantors move on to the next core: 4 slots on tiny,
-  10 on full. *Example:* on tiny, slots 12 to 15 are one rotation.
-- **Active core.** One of the cores the current validators can staff, three guarantors
-  apiece: the first |κ′|/3 of them. *Example:* 6 validators keep 2 cores active.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<GuarantorSeats />
+
+## The idea
+
+Work arrives at JAM as work-packages. Every package needs
+[*guarantors*](../glossary.md#guarantor): validators who run it, sign the resulting
+report, and put their stake behind it. Which validators get which core?
+
+If you could pick, you'd pick your friends. So nobody picks. JAM deals the cores out like
+cards: three validators per core, shuffled with randomness nobody could steer
+([lesson 7.2](../07-time-and-shuffling/02-the-shuffle.md)).
+
+Then it keeps them moving. Every few slots a new [*rotation*](../glossary.md#rotation)
+begins, and everyone moves on to the next core. Nobody stays on one core for long.
+
+The dealing is on the chain. Every validator works out the same hand from the same
+entropy. That is how the chain can later tell whether the right three signed a report
+([the part's page](./index.md) draws the whole exchange).
+
+This lesson deals the hand: this rotation's, and the one before it.
 
 ## What the Gray Paper says
 
@@ -127,33 +136,34 @@ $$
 
 :::
 
-In plain words, §11.3 (*Guarantor Assignments*) says: with v validators, only the first v/3 cores are
-*active cores*: three *guarantors* each. P(v, e, t), the core of each validator at slot t:
+§11.3 (*Guarantor Assignments*): with v validators, only the first v/3 cores are
+[*active cores*](../glossary.md#active-core), three guarantors each: 6 validators keep 2
+cores active. P(v, e, t) is the core of each validator at slot t, in three steps:
 
-1. Start with the seats: validator i gets core ⌊i/3⌋, so `0 0 0 1 1 1 2 2 2 …`.
+1. **Seats.** Validator i gets core ⌊i/3⌋, so `0 0 0 1 1 1 2 2 2 …`.
 2. **Shuffle** them ([lesson 7.2](../07-time-and-shuffling/02-the-shuffle.md)) with entropy e.
-3. **Rotate**: every R slots, a new *rotation*: everyone moves on one core, wrapping
+3. **Rotate.** Every R slots (4 on tiny, 10 on full) everyone moves on one core, wrapping
    round the active cores. At slot t, that's ⌊(t mod E)/R⌋ moves since the epoch began.
 
-**M**, this rotation's assignment, is P(|κ′|, η′₂, τ′) with the keys of κ′, offenders
-zeroed by [lesson 8.2](../08-safrole/02-rotating-the-validators.md)'s Φ. η′₂, not η′₁, says the Gray Paper: randomness from two epochs
-back, which no fork at the end of the last epoch can disagree about.
+**M** is this rotation's assignment: P(|κ′|, η′₂, τ′), with the keys of κ′, offenders
+zeroed by [lesson 8.2](../08-safrole/02-rotating-the-validators.md)'s Φ. Why η′₂, not
+η′₁? It is randomness from two epochs back, which no fork at the end of the last epoch
+can disagree about.
 
-**M\***, the *last* rotation's, is P at τ′ − R. If τ′ − R falls in the same epoch, it
-uses κ′ and η′₂ again; if it's in the previous epoch, λ′ and η′₃, that epoch's own
-validators and randomness.
+**M\*** is the *last* rotation's: P at τ′ − R. If τ′ − R falls in the same epoch, it
+uses κ′ and η′₂ again. If it falls in the previous epoch, it uses λ′ and η′₃, that
+epoch's own validators and randomness.
 
 **Which applies?** A guarantee carries the slot it was made at. If that slot is in the
-same rotation as the block (⌊τ′/R⌋ = ⌊t/R⌋), its signers must be assigned by M,
-otherwise by M\*. A guarantee made just before a rotation still counts in the next: the work takes time to
-refine and get into a block, and a rotation in between shouldn't throw it away.
+same rotation as the block (⌊τ′/R⌋ = ⌊t/R⌋), its signers must be assigned by M.
+Otherwise, by M\*. So a guarantee made just before a rotation still counts in the next:
+the work takes time to refine and get into a block, and a rotation in between shouldn't
+throw it away.
 
-Try it below, on tiny, with the validators and entropy of the reports vector
-`report_prev_rotation-1`, whose block is at slot 14. Slide the slot through the epoch:
-every 4 slots, everyone moves on one core. Watch the shuffle pick each seat, compare M
-with M\*, and tap a guarantor to make it an offender.
-
-<GuarantorSeats />
+Try it on [the seats at the top](#try-it). They are tiny's, with the validators and
+entropy of the reports vector `report_prev_rotation-1`, whose block is at slot 14. Watch
+the shuffle pick each seat, compare M with M\*, and tap a guarantor to make it an
+offender.
 
 ## The size grows, once more
 
@@ -274,9 +284,9 @@ test("a guarantor from another core is caught", () => {
 });
 ```
 
-The first test checks P's two promises without any vectors: three guarantors for each
-core, and one rotation later, everyone one core along. The second checks every signer of
-every accepted guarantee, 130 of them, against M or M\*.
+The first test checks P's two promises with no vectors: three guarantors for each core,
+and one rotation later, everyone one core along. The second checks every signer of every
+accepted guarantee, 130 of them, against M or M\*.
 
 ## The code
 
@@ -346,9 +356,9 @@ export function assignmentFor(
   return shuffled.map((core) => (core + turns) % activeCores); // R: everyone moves on
 ```
 
-The rotation is `% activeCores`, not `% C`: on a network with fewer validators than usual, guarantors
-only ever rotate among the cores that have any. `guarantorAssignments` builds both M and
-M\* at once, and `assignmentFor` picks the one a guarantee answers to.
+The rotation is `% activeCores`, not `% C`: on a network with fewer validators than
+usual, guarantors only rotate among the cores that have any. `guarantorAssignments`
+builds M and M\* at once. `assignmentFor` picks the one a guarantee answers to.
 
 **Run**
 
@@ -471,9 +481,9 @@ guarantee for core 0, made at slot 10 (the last rotation):
 
 :::
 
-The guarantee's own `slot` decides which hand it answers to: made at 10, it's checked
+The guarantee's own `slot` decides which hand it answers to. Made at 10, it's checked
 against the *last* rotation's seats, where 1, 2 and 5 were core 0's trio, even though
-this rotation has dealt validator 2 to core 1. The `entropy` list is η; the last
+this rotation has dealt validator 2 to core 1. The `entropy` list is η: the last
 rotation's hand is shuffled from its fourth entry.
 
 **Run**
@@ -495,11 +505,13 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 
 The block is at slot 14, but the guarantee was made at slot 10, in the last rotation.
 Slot 10 was in the *previous epoch*, so the last rotation's hand was dealt from λ′ with
-η′₃, and its numbers count in λ′, this rotation's in κ′. The validator that signed as λ′'s
-2 (key `0x4418…`) is κ′'s 0 now, on core 1, yet its signature for core 0 still counts,
-because back then core 0 was its job. Now try `wrong_assignment-1.json`: κ′'s validator 2
-signs for core 0 *this* rotation, where it belongs to core 1, and it's caught. The
-*Guarantors* panel, on the **4 · Checks** dashboard, shows each guarantee's check.
+η′₃. Its numbers count in λ′, this rotation's in κ′. The validator that signed as λ′'s
+2 (key `0x4418…`) is κ′'s 0 now, on core 1. Its signature for core 0 still counts: back
+then, core 0 was its job.
+
+Now try `wrong_assignment-1.json`. κ′'s validator 2 signs for core 0 *this* rotation,
+where it belongs to core 1, and it's caught. The *Guarantors* panel, on the
+**4 · Checks** dashboard, shows each guarantee's check.
 
 ![Guarantors panel](./images/01-guarantors.png)
 
@@ -542,38 +554,50 @@ guarantees and a client that makes them had better deal the same hand.
 - [ ] So each validator guarantees every core within one slot
   > No: a validator has one core at a time, for a whole rotation of R slots.
 
-**On tiny (R = 4, E = 12), a block is at slot 14. How many times has everyone moved on one core since the epoch began?**
+**Who works out which validators guarantee which core, and where?**
 
-- [ ] 3, since ⌊14/4⌋ = 3
-  > No: that's the rotation counted from slot 0, as `bin/guarantors.ts` prints it. The
-  > moves restart every epoch.
-- [x] 0: slot 14 is slot 2 of its epoch, and ⌊2/4⌋ = 0
-  > Yes: P rotates by ⌊(t mod E)/R⌋. Slot 14 is still in its epoch's first rotation.
-- [ ] 2, since slot 14 is 2 slots into its epoch
-  > No: 2 counts slots, not rotations. A move comes every 4 slots.
+- [ ] The guarantors, in-core: they tell the chain which core they took
+  > No: nobody is taken at their word. The chain deals the hand itself, and checks a
+  > guarantee's signers against it.
+- [ ] The block's author, who names three validators for each core
+  > No: nobody picks. If you could pick, you'd pick your friends.
+- [x] Every validator, on the chain, from the same entropy
+  > Yes: each works out the same hand, so the chain can later tell whether the right
+  > three signed a report.
 
-**In `report_prev_rotation-1`, the block is at slot 14 and the guarantee was made at slot 10. Which assignment checks its signers?**
+**The shuffle uses η′₂, randomness from two epochs back, not the newer η′₁. Why?**
 
-- [ ] M, this rotation's: what counts is the block
-  > No: ⌊14/4⌋ = 3 and ⌊10/4⌋ = 2, two different rotations. The guarantee answers
-  > to M\*.
-- [ ] M\*, dealt from κ′ with η′₂
-  > No: that's for a last rotation in this epoch. 14 − 4 = 10 is in epoch 0, the
-  > previous one.
-- [x] M\*, dealt from λ′ with η′₃
-  > Yes: slot 10 was in the previous epoch, so its own validators and randomness. Its
-  > signers 1, 2 and 5 were all on core 0 then.
+- [ ] The newer one isn't in the state yet
+  > No: both are in the state. The trouble with the newer one is the end of the last
+  > epoch, where forks may still disagree.
+- [x] No fork at the end of the last epoch can disagree about it
+  > Yes: validators unsure how the last epoch ended still deal the same hand, so the
+  > doubt can't grow into two established forks.
+- [ ] Older randomness is harder to steer
+  > No: the Gray Paper's reason is agreement, not strength. Every fork holds the same
+  > η′₂.
 
 **Why does a guarantee from the last rotation still count?**
 
-- [x] Its signers are checked against the core they held when they signed
-  > Yes: doing the work and reaching a block takes time. A guarantee made just before
-  > a rotation still counts in the next.
 - [ ] Guarantors keep their old core for an extra rotation
   > No: everyone moves on every R slots. M\* seats nobody; it only checks guarantees
   > made in the last rotation.
+- [x] Its signers are checked against the core they held when they signed
+  > Yes: doing the work and reaching a block takes time. A guarantee made just before
+  > a rotation still counts in the next.
 - [ ] Any guarantee from this epoch counts
   > No: only this rotation or the one before. M\* covers just the rotation before.
+
+**A guarantee was made in the rotation before its block's, and that rotation was in the previous epoch. Which hand are its signers checked against?**
+
+- [x] The last rotation's, dealt from the previous epoch's validators with that epoch's randomness
+  > Yes: M\* at τ′ − R. That slot is in the previous epoch, so it uses λ′ and η′₃.
+- [ ] The last rotation's, dealt from the current validators
+  > No: that's for a last rotation in this epoch. Across an epoch's edge the validators
+  > and the randomness are the previous epoch's own.
+- [ ] This rotation's: what counts is the block's slot
+  > No: a guarantee answers to the rotation it was made in. The block's slot only says
+  > which rotation is "this" one.
 :::
 
 ## What you have

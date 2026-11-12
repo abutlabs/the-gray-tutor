@@ -49,8 +49,10 @@ test("the guarantees and keys are the vector's, and 𝐆 its reporters, where ve
   assert.deepEqual(reporters(checked(new Set()).flatMap((g) => g.signatures.map((s) => s.key))), v.output.ok.reporters);
 });
 
-test("lesson 12.2 places the widget once, after 𝐆 is defined", () => {
+test("lesson 12.2 places the widget once, at the top, and sends the reader back to it once 𝐆 is defined", () => {
   const at = raw.indexOf("<SignedCounted />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<SignedCounted />"));
-  assert.ok(at > raw.indexOf("each key once, however many guarantees it signed.") && at < raw.indexOf("## Sharing a message"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("each key once, however many guarantees it signed."));
+  assert.ok(back > 0 && back < raw.indexOf("## Sharing a message"));
 });

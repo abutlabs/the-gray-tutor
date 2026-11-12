@@ -213,7 +213,7 @@ test("Part 12's rotation and rules are its lessons'", () => {
   for (const [name, r] of Object.entries(ROTATION_PERIOD)) {
     assert.match(lessonCode("12.1"), new RegExp(`export const ${name.toUpperCase()}: Config = \\{[\\s\\S]*?rotation_period: ${r},`), `${name}: R = ${r}`);
   }
-  assert.ok(textOf("12.1").includes("*Example:* 6 validators keep 2 cores active."));
+  assert.ok(textOf("12.1").includes("6 validators keep 2 cores active."));
   assert.ok(textOf("12.4").includes("thirteen rules"));
   assert.ok(textOf("12.5").includes("fourteen checks") && textOf("12.5").includes("All 62 refusals in the reports vectors"));
 });
