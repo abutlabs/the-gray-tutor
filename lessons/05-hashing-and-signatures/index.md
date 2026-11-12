@@ -1,17 +1,29 @@
 # Part 5 · Hashing and signatures
 
-Your client can read a block. Now it learns to *check* one: that it really follows the
-block before it, that its extrinsic is what its header promised, and that the
-signatures in it were made by the validators they claim. Cryptography, from libraries
-that do it well, put to work on real JAM blocks.
+**In one sentence:** your client can read a block, and this part teaches it to check one:
+that it follows the block before it, carries what its header promised, and was signed by
+the validators it names.
+
+The cryptography comes from libraries that do it well, put to work on real JAM blocks.
 
 By the end of this part your client checks a block's links (hashes), its extrinsic hash,
 and who signed what (Ed25519).
 
+## The big picture
+
+A block makes three promises, and each gets a check:
+
+- **It follows the block before it.** Its header holds the hash of that block's header
+  ([5.1](./01-hashes.md)).
+- **Its extrinsic is the one its header promised.** The header holds a hash of the
+  contents too ([5.2](./02-the-extrinsic-hash.md)).
+- **Its signatures were made by the validators they claim.** Each is checked with that
+  validator's public key ([5.3](./03-signatures.md)).
+
 All of it runs on the chain: every validator checks every block the same way. The
-signatures themselves were made elsewhere, by the block's author, by guarantors in-core,
-by validators assuring their shards, and your client only ever checks them. It holds no
-key of its own.
+signatures themselves were made elsewhere: by the block's author, by guarantors in-core,
+by validators assuring their shards. Your client only ever checks them. It holds no key
+of its own.
 
 **Builds on** [Part 4 · Blocks](../04-blocks/index.md), and on the foundations every part
 uses, [Parts 0 to 2](../index.md#lessons).
@@ -127,9 +139,9 @@ $$
 :::
 
 Read it aloud: "the parent hash is the hash of the encoding of the parent header, P of H.
-The extrinsic hash is the hash of the encoding of the sequence of hashes of a," where a
-is the sequence (5.5) to (5.7) spell out: each bag encoded, with the guarantees and
-preimages hashed item by item first so that one of them can be proven on its own. ℰ is
-the codec of Appendix C and ℋ# means "hash each item of the sequence". A signature line
+The extrinsic hash is the hash of the encoding of the sequence of hashes of a." Here a is
+the sequence (5.5) to (5.7) spell out: each bag encoded, with the guarantees and
+preimages hashed item by item first, so that one of them can be proven on its own. ℰ is
+the codec of Appendix C. ℋ# means "hash each item of the sequence". A signature line
 such as "s ∈ 𝕍̄_k⟨X_A ⌢ ℋ(…)⟩" reads "s is an Ed25519 signature by key k over the
 context X_A followed by that hash."

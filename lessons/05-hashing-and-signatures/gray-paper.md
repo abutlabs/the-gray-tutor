@@ -40,10 +40,10 @@ $$
 **Read it aloud.** "H sub P is in H; H sub P is defined as the hash of the encoding of P of
 H," P of H being the parent of this header.
 
-**In plain words.** A header's `parent` field is the Blake2b hash of the whole of the
-parent block's header, encoded by Appendix C. Its seal is included: the hash covers every
-byte of the header before. So a block can't be moved, and an old header can't be changed
-by one bit, without every later block's `parent` going wrong. That is the chain.
+**In plain words.** A header's `parent` field is the Blake2b hash of the parent block's
+whole header, encoded by Appendix C. The seal is included: the hash covers every byte. So
+a block can't be moved, and an old header can't change by one bit, without every later
+block's `parent` going wrong. That is the chain.
 
 **On a real value.** Blocks 1 and 2 of the `fallback` trace:
 
@@ -86,11 +86,11 @@ $$
 the parent of i."
 
 **In plain words.** A, the ancestors, is the set of headers you reach from this one by
-following `parent` back: this header itself, its parent, its parent's parent, and so on to
-genesis. The definition is recursive: a header is an ancestor if it is this one, or the
-parent of an ancestor. The paper's next sentence limits the work: a node keeps only the
-ancestors of the last L = 14,400 slots, 24 hours, because a work-package's lookup anchor
-may be no older than that ([lesson 12.5](../12-guarantees/05-bad-reports.md) checks it).
+following `parent` back: this header, its parent, its parent's parent, and so on to
+genesis. The definition is recursive. A header is an ancestor if it is this one, or the
+parent of an ancestor. The paper's next sentence limits the work. A node keeps only the
+ancestors of the last L = 14,400 slots, 24 hours: a work-package's lookup anchor may be
+no older than that ([lesson 12.5](../12-guarantees/05-bad-reports.md) checks it).
 
 **On a real value.** Block 3 of the `fallback` trace, and back:
 
@@ -102,7 +102,7 @@ block 1's parent         0x245becfe…: the genesis header, in A as the parent o
 A                        {block 3, block 2, block 1, genesis}: four headers
 ```
 
-**In your client.** Your client keeps no set of ancestors: it checks each block's
+**In your client.** Your client keeps no set of ancestors. It checks each block's
 `parent` against the block before it ([5.1](./01-hashes.md#watch-the-chain)), and keeps
 the last 8 blocks' hashes in β ([Part 9](../09-recent-history/index.md)).
 
@@ -172,12 +172,12 @@ up-down-arrow, the sequence of the hash of r, E sub 4 of t, and up-down-arrow a,
 r, t and a in order in the guarantees."
 
 **In plain words.** The header's 32-byte promise of the extrinsic, in three steps.
-(5.5) makes a, five byte strings, one per bag, in Appendix C's order. Three are the bags'
+(5.5) makes a: five byte strings, one per bag, in Appendix C's order. Three are the bags'
 own encodings. The other two, p and g from (5.6) and (5.7), are the preimages and the
 guarantees with their big part swapped for its hash: a preimage's data for ℋ(d), a
-guarantee's work-report for ℋ(r). ℋ# then hashes each of the five, and (5.4) hashes the
-five hashes, 160 bytes, into one. Why the swaps: to prove one report was in a block, you
-show that report, g with every other report as 32 bytes, and four hashes, never the other
+guarantee's work-report for ℋ(r). ℋ# then hashes each of the five. (5.4) hashes the five
+hashes, 160 bytes, into one. Why the swaps? To prove one report was in a block, you show
+that report, g with every other report as 32 bytes, and four hashes. Never the other
 reports themselves.
 
 **On a real value.** Every block of the `fallback` trace has an empty extrinsic:
@@ -208,8 +208,8 @@ with `HashedPreimage` and `HashedGuarantee` for (5.6) and (5.7).
 ## Say it in one breath
 
 A header points back at its parent with the hash of the parent's whole encoded header
-(5.2), and following those pointers back to genesis gives its ancestors (5.3), of which a
-node keeps a day's worth. It points down at its own extrinsic with one more hash (5.4):
-the hash of the five bags' hashes, in Appendix C's order (5.5), where the preimages and
+(5.2). Following those pointers back to genesis gives its ancestors (5.3), and a node
+keeps a day's worth. The header points down at its own extrinsic with one more hash
+(5.4): the hash of the five bags' hashes, in Appendix C's order (5.5). The preimages and
 the guarantees go in with their data and their reports already hashed (5.6, 5.7), so any
 one of them can be proven on its own.
