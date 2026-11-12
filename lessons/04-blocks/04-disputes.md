@@ -1,28 +1,36 @@
 # Disputes
 
-Every system that trusts people needs a way to say "that was wrong". In JAM, if a
-guaranteed work-report turns out to be bad, the validators hold a trial in the blocks:
-they vote, a verdict is recorded, whoever vouched for the bad report is named a
-*culprit*, and validators who voted the wrong way are recorded as *faults*. It's the
-extrinsic's last part. The voting happens off the chain, by validators who re-ran the
-work; the block carries the signed record, and [Part 10](../10-disputes/index.md) is the
-clerk who checks it. Today your client only reads the record.
+**In one sentence:** when a guaranteed work-report turns out to be bad, the validators
+vote on it, and a block carries the signed record of that vote.
 
-Here is the tiny vector's trial record. Open a verdict to its votes, and a vote to the
-byte that says yes or no:
+Here is the tiny vector's record. Open a verdict to its votes, and a vote to the byte that
+says yes or no.
+
+<a id="try-it"></a>
 
 <DisputesParcel />
 
-## New words
+## The idea
 
-- **Verdict.** The votes of two thirds of the validators, plus one, on one report.
-  *Example:* 5 votes on tiny.
-- **Culprit.** A validator who vouched for a report that turned out bad. *Example:* a
-  guarantor's key and its signed guarantee, as evidence.
-- **Fault.** A validator whose vote went against the verdict. *Example:* "valid", on a
-  report judged bad.
+A guarantee is two or three validators saying "this report is correct". What if they are
+wrong, or lying? Every system that trusts people needs a way to say "that was wrong".
 
-All three are in the [glossary](../glossary.md).
+JAM's way is a trial, and a block carries the court record.
+
+1. Validators re-run the work and vote: valid, or not. This happens off the chain.
+2. The votes on one report, from two thirds of the validators plus one, make a
+   [*verdict*](../glossary.md#verdict).
+3. If the report is judged bad, whoever vouched for it is named a
+   [*culprit*](../glossary.md#culprit). The evidence is the guarantor's own signature on
+   the guarantee.
+4. A validator whose vote went against the verdict is recorded as a
+   [*fault*](../glossary.md#fault). The evidence is its signed vote.
+
+So the record is three lists: verdicts, culprits, faults. It is the extrinsic's last part.
+Every entry in it is signed, so nobody has to take the author's word for what was voted.
+
+The block only carries the record. [Part 10](../10-disputes/index.md) is the clerk who
+checks it. Today your client reads it: this lesson builds the codec for the three lists.
 
 ## What the Gray Paper says
 
@@ -30,7 +38,8 @@ All three are in the [glossary](../glossary.md).
 
 - **verdicts**: each one names a work-report (by its hash, the `target`), the epoch whose
   validators voted (`age`), and the votes themselves: two thirds of the validators, plus
-  one. Each vote (a *judgement*) is a yes or no, the voter's index and its signature.
+  one. *Example:* 5 votes on tiny. Each vote (a *judgement*) is a yes or no, the voter's
+  index and its signature.
 - **culprits**: guarantors of a report found bad: the report's hash, the guarantor's
   Ed25519 key, and its signature as evidence.
 - **faults**: validators whose vote went against the verdict: the report, how they
@@ -166,7 +175,7 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
-What flows through this run — the file's bytes, the disputes they decode to, the trace printed:
+What flows through this run:
 
 ::: code-group
 
@@ -215,8 +224,7 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 `0x82ab` is a two-byte compact natural ([lesson 2.2](../02-codec/02-compact-naturals.md)): the first byte's leading `1` says
-one more byte follows, and together they make 683. Then 683 votes scroll past. It's a
-big jury.
+one more byte follows, and together they make 683. Then 683 votes scroll past.
 
 <details>
 <summary>lasair: the rule that changed</summary>
@@ -248,38 +256,40 @@ network's size no longer tells a decoder how many to read. Specs evolve, and som
 ## Check your understanding
 
 ::: check
-**How many votes does a verdict carry on full, where there are 1,023 validators?**
+**A guaranteed report turns out to be bad. What does JAM do about it?**
 
-- [ ] 682, exactly two thirds
-  > No: ⌊2 × 1023 / 3⌋ is 682, but a verdict needs two thirds *plus one*.
-- [x] 683
-  > Yes: ⌊2V/3⌋ + 1 = 682 + 1. On tiny, with 6 validators, it's 4 + 1 = 5.
-- [ ] 1,023, every validator
-  > No: a verdict holds exactly two thirds of the validators, plus one, and the full
-  > vector has exactly 683.
+- [ ] Nothing: two or three validators signed it, so it stands
+  > No: a guarantee is a claim, not a proof. Disputes exist because a guaranteed report can
+  > be wrong.
+- [x] Validators vote on it, and a block records the verdict, the guarantors who vouched for it, and anyone who voted the wrong way
+  > Yes: three lists, verdicts, culprits and faults, every entry signed.
+- [ ] Its guarantors re-run the work and take their signatures back
+  > No: the guarantors don't judge their own report. The verdict is the votes of two
+  > thirds of the validators, plus one, and the guarantors' signatures become the evidence
+  > against them.
 
-**The full vector's votes list starts with its length. How does a decoder know how many bytes that length takes?**
+**Where does the voting happen, and what does the block carry?**
 
-- [ ] It's always two bytes
-  > No: a list's length is a compact natural, so it takes as many bytes as the number
-  > needs. 683 happens to need two.
-- [ ] The number of verdicts says
-  > No: the verdicts have a length of their own. Each list says its own length.
-- [x] Its first byte's top bits say how many bytes follow
-  > Yes: it's a compact natural, so its first byte says how long it is. Here that's two
-  > bytes, holding 683, the number of votes.
+- [x] Off the chain, by validators who re-ran the work; the block carries their signed votes
+  > Yes: the block is the record, not the trial. [Part 10](../10-disputes/index.md) checks
+  > the record on the chain.
+- [ ] On the chain: every node re-runs the work when it imports the block
+  > No: the work was re-run before the block was made. A node importing the block checks
+  > signatures and counts, which is far less than re-running the work.
+- [ ] In-core, by the same three validators that guaranteed the report
+  > No: those three are the ones on trial. The votes come from the validators at large.
 
 **A culprit and a fault: what's the difference?**
 
-- [x] A culprit vouched for a bad report; a fault voted against the verdict
-  > Yes: culprits are guarantors, caught by their own signed guarantee. Faults are
-  > voters who called it the wrong way.
 - [ ] A culprit voted against the verdict; a fault vouched for a bad report
   > No: that's the right pair, swapped. The culprit is the guarantor who signed the bad
   > report.
 - [ ] They're two names for any validator who did something wrong
   > No: they're different lists with different evidence. A culprit's is its
   > guarantee; a fault's is its vote.
+- [x] A culprit vouched for a bad report; a fault voted against the verdict
+  > Yes: culprits are guarantors, caught by their own signed guarantee. Faults are
+  > voters who called it the wrong way.
 
 **Anyone who knows V can work out how many votes a verdict has. So why does Gray Paper 0.8.0 write their length in front?**
 
@@ -288,7 +298,7 @@ network's size no longer tells a decoder how many to read. Specs evolve, and som
   > because the count can't be known in advance.
 - [x] Because 0.8.0 lets the validator count change, so the size of the network no longer tells a decoder the count
   > Yes: with V free to change, the votes must say how many they are. It also closes
-  > the trap lasair fell into, a count worked out once, at tiny.
+  > a trap: a count worked out once, at tiny, and used for every size.
 - [ ] Every list in JAM has its length in front
   > No: in Gray Paper 0.7.2 these very votes had no length. Decoders had to work the
   > count out from V.

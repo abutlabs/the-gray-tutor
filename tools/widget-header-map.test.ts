@@ -74,7 +74,7 @@ test("the lesson's field table is Appendix C's order, and §5's differs exactly 
   for (const [, field, rule] of rules) assert.equal(ruleOf(node(0, field)), rule, field);
   const size = (f: string) => node(0, f).end - node(0, f).start;
   assert.equal(size("entropy_source"), Number(/`entropy_source` \| a VRF signature: (\d+) bytes/.exec(text)![1]));
-  assert.equal(size("seal"), Number(/\*\*Seal\.\*\*[\s\S]*?\*Example:\* (\d+) bytes, the\s+last field/.exec(text)![1]));
+  assert.equal(size("seal"), Number(/The seal is (\d+) bytes, the\s+last field/.exec(text)![1]));
   assert.equal(APPENDIX_C.at(-1), "seal");
 });
 
@@ -257,8 +257,9 @@ test("switching headers keeps the part, or falls back to the nearest one there",
 
 test("the lessons place the widget, and lesson 4.5 points to it", () => {
   const at = text.indexOf("<HeaderMap />");
-  assert.ok(at > text.indexOf("The encoding\nwins."), "after the order paragraph");
-  assert.ok(at < text.indexOf("## The size grows"), "before the config");
+  assert.ok(at > text.indexOf('<a id="try-it"></a>') && at < text.indexOf("## The idea"), "at the top, before The idea");
+  const back = text.indexOf("[at the top](#try-it)");
+  assert.ok(back > text.indexOf("The encoding\nwins.") && back < text.indexOf("## The size grows"), "the order paragraph sends the reader back to it");
   assert.equal(text.split("<HeaderMap />").length, 2, "once");
   const said = maybe.slice(maybe.indexOf("## What the Gray Paper says"), maybe.indexOf("## The tests"));
   assert.match(said, /widget in \[lesson 4\.6\]\(\.\/06-the-header\.md\)/);

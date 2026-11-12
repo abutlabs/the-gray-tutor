@@ -1,23 +1,39 @@
 # The header
 
-The header is a block's cover page: a few hundred bytes that say where the block sits
-in the chain, who made it, and what's inside, sealed with the author's signature. Every
-node reads every header. It's the most-read structure in JAM, and now your client can
-read it too.
+**In one sentence:** the header is a block's cover page: a few hundred bytes that say
+where the block sits in the chain, who made it and what's inside, signed by its author.
 
-## New words
+Here are the two header test vectors, byte by byte. Switch between them. Tap a field to
+light up its bytes and see its rule worked on its real value; tap a byte to find its
+field. Long values fold to their first and last bytes: tap the fold to see the rest.
 
-- **Epoch mark.** At an epoch's first block only: fresh randomness, and the keys of the
-  validators who take over in the epoch after this one. *Example:* most headers have none.
-- **Tickets mark.** At most once per epoch, when the lottery closes having filled every
-  slot: the winning ticket for every slot of the next epoch. *Example:* 600 tickets on
-  full.
-- **Seal.** The author's signature over the rest of the header. *Example:* 96 bytes, the
-  last field.
-- **Offenders mark.** The Ed25519 keys of the validators a block convicts in its
-  disputes. *Example:* empty in almost every block.
+<a id="try-it"></a>
 
-All four are in the [glossary](../glossary.md).
+<HeaderMap />
+
+## The idea
+
+A block arrives. Before a node opens it, it wants four answers. Where does this block go
+in the chain? When was it made? Who made it? What is in it?
+
+The header answers all four. It names the parent block by its hash. It gives the slot. It
+gives the author, as a number in the validator list. And it holds one hash that stands for
+the whole extrinsic. Then the author signs the lot: that signature is the
+[*seal*](../glossary.md#seal), the header's last field.
+
+A cover page can also carry a notice. Three of the header's fields are notices, and in
+most blocks they are missing or empty:
+
+- the [*epoch mark*](../glossary.md#epoch-mark), at an epoch's first block only: fresh
+  randomness, and the keys of the validators who take over in the epoch after this one;
+- the [*tickets mark*](../glossary.md#tickets-mark), at most once per epoch, when the
+  lottery closes having filled every slot: the winning ticket for every slot of the next
+  epoch;
+- the [*offenders mark*](../glossary.md#offenders-mark): the keys of the validators a
+  block convicts in its disputes.
+
+Every node reads every header. It's the most-read structure in JAM. This lesson builds
+its codec and reads two real ones.
 
 ## What the Gray Paper says
 
@@ -60,8 +76,8 @@ $$
 
 :::
 
-In plain words, here are the ten, in the order Appendix C encodes them, with the names the
-vectors give them:
+Here are the ten, in the order Appendix C encodes them, with the names the vectors give
+them:
 
 | Field | What it says |
 | --- | --- |
@@ -78,7 +94,7 @@ vectors give them:
 
 (C.22) and (C.23), in [lesson 4.7](./07-the-block.md#eq-C-22), are Appendix C's lines for
 this order: (C.23) is the header without its seal, the bytes the seal signs, and (C.22)
-adds the seal at the end.
+adds the seal at the end. The seal is 96 bytes, the last field.
 
 §5 gives the slot a rule of its own:
 
@@ -118,12 +134,12 @@ $$
 
 :::
 
-In plain words: a block's slot is later than its parent's, and not in the future. Slot
-42 began 42 × 6 = 252 seconds after JAM's clock started
+A block's slot is later than its parent's, and not in the future. Slot 42 began
+42 × 6 = 252 seconds after JAM's clock started
 ([lesson 0.4](../00-start/04-the-jam-clock.md)), so a node whose clock reads less than
 that holds the block back, and takes it once its clock catches up. Your client checks the
-first half when it imports blocks ([lesson 19.4](../19-block-import/04-importing-a-block.md#the-code));
-the vectors carry no clock, so nothing in the tutorial checks the second.
+first half when it imports blocks ([lesson 19.4](../19-block-import/04-importing-a-block.md#the-code)).
+The vectors carry no clock, so nothing in the tutorial checks the second.
 
 And the author, by number:
 
@@ -157,10 +173,10 @@ $$
 
 :::
 
-In plain words, `author_index` is a position in this epoch's validator list: 3 means the
-fourth validator. H_A, its Bandersnatch key, is looked up there, never written in the
-header. Two bytes name the author; the key that checks the seal
-([Part 8](../08-safrole/index.md)) costs nothing to carry.
+`author_index` is a position in this epoch's validator list: 3 means the fourth validator.
+H_A, its Bandersnatch key, is looked up there, never written in the header. Two bytes name
+the author; the key that checks the seal ([Part 8](../08-safrole/index.md)) costs nothing
+to carry.
 
 Last, the three markers:
 
@@ -202,24 +218,20 @@ $$
 
 :::
 
-In plain words: two markers that are only sometimes there (the ? after their type means
-"or nothing"): that's what `option` is for ([lesson 4.5](./05-maybe-and-exactly-n.md)). And
+Two of the markers are only sometimes there (the ? after their type means "or nothing"):
+that's what `option` is for ([lesson 4.5](./05-maybe-and-exactly-n.md)). And
 the tickets mark holds exactly one ticket per slot of an epoch, E of them, 12 on tiny and
 600 on full, with no length in front: that's `seqN`. The epoch mark's validator list,
 though, *does* carry its length: Gray Paper 0.8.0 lets the validator count change, so the
 list says how long it is.
 
-And the order? You know the drill. §5 lists the offenders mark before the author index;
+And the order? §5 lists the offenders mark before the author index;
 Appendix C writes the author index, the entropy source, *then* the offenders. The encoding
 wins.
 
-Here are the two header test vectors, byte by byte, in Appendix C's order. Switch between
-them. In `header_1`, the epoch mark is one byte: `00`, nothing. In `header_0`, it's `01`
-and then 449 bytes of value. Tap a field to light up its bytes and see its rule worked on
-its real value; tap a byte to find its field. Long values fold to their first and last
-bytes: tap the fold to see the rest.
-
-<HeaderMap />
+See it in the two vectors [at the top](#try-it), which are in Appendix C's order. In
+`header_1`, the epoch mark is one byte: `00`, nothing. In `header_0`, it's `01`
+and then 449 bytes of value.
 
 ## The size grows
 
@@ -363,7 +375,7 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
-What flows through this run — the file's bytes, the header they decode to, the trace printed:
+What flows through this run:
 
 ::: code-group
 
@@ -455,28 +467,38 @@ encoder, the decoder and the JSON reader at once.
 ## Check your understanding
 
 ::: check
-**§5 lists the offenders mark before the author index. In a header's bytes, what comes straight after the tickets mark?**
+**The seal is the header's last field. What does it sign?**
 
-- [ ] The offenders mark, as §5 lists it
-  > No: §5 says what a header holds, not the order of its bytes. Appendix C moves the
-  > offenders mark later.
-- [x] The author index, ℰ₂
-  > Yes: Appendix C writes the author index, then the entropy source, then the
-  > offenders mark, then the seal. The encoding wins.
-- [ ] The seal
-  > No: the seal is the very last field, a signature over everything before it.
+- [ ] The whole block: the header and the extrinsic after it
+  > No: the seal signs the header without its seal. The extrinsic is covered all the same,
+  > through the `extrinsic_hash` inside those bytes.
+- [x] Every header field before it
+  > Yes: (C.23) is the header without its seal, and those are the bytes the author signs.
+  > Change any field and the seal no longer checks.
+- [ ] Only the parent hash and the slot
+  > No: it covers all nine fields before it, the markers and the author index included.
 
-**In `header_1`, the epoch mark is the single byte `00`. What does it say?**
+**The header names its author with a two-byte index, not a key. How does a node find the key that checks the seal?**
 
-- [ ] An epoch mark with no validators in it
-  > No: an epoch mark would start `01`, then its two 32-byte hashes, then the
-  > validators' length. `00` is all there is.
-- [x] This header has no epoch mark
-  > Yes: `00` is the discriminator for "nothing". In `header_0` it's `01`, and the epoch
-  > mark follows.
-- [ ] Epoch 0
-  > No: the byte is a tag, not a number. Which epoch a header is in comes from its
-  > slot.
+- [ ] It asks the author for it over the network
+  > No: the key is looked up, never sent. It is already in this epoch's validator list.
+- [ ] It is in the epoch mark of the same header
+  > No: most headers have no epoch mark, and an epoch mark's keys are for the validators
+  > who take over later.
+- [x] It looks the index up in this epoch's validator list
+  > Yes: 3 means the fourth validator. The key is never written in the header, so it costs
+  > nothing to carry.
+
+**A node's clock says a block's slot hasn't begun yet. What does it do with the block?**
+
+- [x] Holds it back, and takes it once its clock catches up
+  > Yes: a slot must be later than its parent's and not in the future. A future block
+  > isn't bad, only early.
+- [ ] Rejects it for good
+  > No: nothing in the block is wrong. The same block is fine a few seconds later.
+- [ ] Imports it at once, since the author's clock is the one that counts
+  > No: the rule is checked against the node's own clock, and that clock says the slot
+  > hasn't begun.
 
 **The tickets mark has no length in front, but the epoch mark's validator list does. Why?**
 
@@ -490,16 +512,15 @@ encoder, the decoder and the JSON reader at once.
   > Yes: E is fixed, 12 on tiny and 600 on full, so the decoder knows the count. V can
   > change, so the list has to say how long it is.
 
-**On tiny, the epoch mark's value is 449 bytes. Where does 449 come from?**
+**A ticket in the extrinsic carries a 784-byte proof. Why does a winning ticket in the header carry none?**
 
-- [x] Two 32-byte hashes, a 1-byte length, and 6 validators' two 32-byte keys
-  > Yes: 32 + 32 + 1 + 6 × 64 = 449. The length byte is `06`.
-- [ ] 449 is the epoch mark's fixed size, on every network
-  > No: it grows with the validators. On full, 1,023 of them, it's 32 + 32 + 2 +
-  > 1,023 × 64 = 65,538 bytes, with a 2-byte length.
-- [ ] Twelve tickets, one per slot of tiny's next epoch
-  > No: those are the tickets mark, a different field. The epoch mark holds
-  > randomness and validators' keys.
+- [ ] The header's seal proves every ticket in it
+  > No: the seal is the author's signature over the header. It says nothing about who made
+  > a ticket.
+- [x] The proof did its job when the ticket was submitted: everyone has checked it by now
+  > Yes: the header keeps only the ticket's `id` and `attempt`, so it can travel light.
+- [ ] Winning tickets are no longer anonymous, so no proof is needed
+  > No: the tickets mark names no validator. It lists ids and attempts.
 :::
 
 ## What you have

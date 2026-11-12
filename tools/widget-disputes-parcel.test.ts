@@ -46,7 +46,7 @@ test("verdicts open to their votes, every chip says what it is, every goal is a 
   assert.match(DISPUTES.saysOf(DISPUTES.partAt("verdicts[0]")), /^A verdict: \d of 5 votes say valid\.$/);
 });
 
-test("lesson 4.4 opens with the widget, before New words", () => {
+test("lesson 4.4 opens with the widget, before The idea", () => {
   const at = text.indexOf("<DisputesParcel />");
-  assert.ok(at > 0 && at === text.lastIndexOf("<DisputesParcel />") && at < text.indexOf("## New words"));
+  assert.ok(at > 0 && at === text.lastIndexOf("<DisputesParcel />") && at < text.indexOf("## The idea"));
 });

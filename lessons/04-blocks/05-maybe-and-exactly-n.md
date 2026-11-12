@@ -1,23 +1,33 @@
 # Maybe, and exactly n
 
-Next up is the block header, and it has two quirks your codec can't handle yet:
+**In one sentence:** two small codecs finish the toolbox: one for a value that may be
+missing, and one for a list whose length everyone already knows.
 
-- some of its parts are only there *sometimes*. At the start of an epoch, the header
-  announces the next validator set; most headers announce nothing.
-- one of its lists has a length *everyone already knows*. When the ticket lottery
-  closes, the header lists one winning ticket per slot of the next epoch: exactly 12 on
-  tiny, 600 on full. Writing the length in front would be redundant, so JAM doesn't.
+Here are both, byte by byte. Flip the option, type a value, switch the list between `seq`
+and `seqN`, and tap any byte for its job.
 
-Two small codecs, and your toolbox covers the whole block.
+<a id="try-it"></a>
 
-## New words
+<MaybeExactly />
 
-- **Option (discriminator).** A value that may be missing, with a byte in front saying
-  whether it's there. *Example:* `00` for nothing; `01` and then the value.
-- **Fixed-length sequence.** A list whose length everyone already knows, so none is
-  written. *Example:* the tickets mark, exactly 12 tickets on tiny.
+## The idea
 
-Both are in the [glossary](../glossary.md).
+Next up is the block header, and it asks two questions your codec can't answer yet.
+
+**How do you write something that may not be there?** At the start of an epoch, the
+header announces the next validator set. Most headers announce nothing. The bytes carry no
+labels, so "nothing" can't be no bytes at all: the decoder would take the next field for
+this one. So a yes-or-no byte goes in front, like the tick box on a form: "attachment
+enclosed?" No, and that is all. Yes, and the value follows. That is an
+[*option*](../glossary.md#option).
+
+**Why write a length that everyone knows?** When the ticket lottery closes, the header
+lists one winning ticket per slot of the next epoch: exactly 12 on tiny, 600 on full.
+Nobody writes "7" in front of the days of a week. JAM doesn't write the length either:
+the items come one after another, and both sides count. That is a
+[*fixed-length sequence*](../glossary.md#fixed-length-sequence).
+
+This lesson builds both codecs. With them, your toolbox covers the whole block.
 
 ## What the Gray Paper says
 
@@ -54,12 +64,12 @@ $$
 
 :::
 
-In plain words, a value that might be missing (∅) is written with a **discriminator** in
-front, ¿x: the byte 0 for "nothing", or the byte 1 followed by the value. (C.8) says it
-as a tuple, (1, x), and a tuple is its parts side by side
+A value that might be missing (∅) is written with a **discriminator** in front, ¿x: the
+byte 0 for "nothing", or the byte 1 followed by the value. (C.8) says it as a tuple,
+(1, x), and a tuple is its parts side by side
 ([lesson 2.3](../02-codec/03-writer-and-reader.md)), so the bytes are `01` and then x's.
 
-And a sequence whose length is fixed by the protocol (the Gray Paper writes ⟦T⟧ₙ for "n
+A sequence whose length is fixed by the protocol (the Gray Paper writes ⟦T⟧ₙ for "n
 things of type T") is just its items, one after another, no length in front.
 
 To watch both at work in a real block header, try the widget in [lesson 4.6](./06-the-header.md).
@@ -99,10 +109,7 @@ The tests' bytes:
 ```
 
 Compare `seqN(u16, 3)` with [lesson 2.5](../02-codec/05-sequences-and-records.md)'s `seq(u16)`: the same three numbers, minus the
-`0x03` in front. Both shapes, byte by byte: flip the option, type a value, switch the
-list between `seq` and `seqN`, and tap any byte for its job.
-
-<MaybeExactly />
+`0x03` in front. These are the bytes of the widget [at the top](#try-it).
 
 ## The code
 
@@ -187,39 +194,49 @@ value.
 ## Check your understanding
 
 ::: check
-**`option(u32)` writes 7 as `01 07 00 00 00`. What does the `01` say?**
+**A header field is missing in most blocks. Why not write a missing value as no bytes at all?**
 
-- [ ] The length of what follows: one value
-  > No: it isn't a count. A u32 is always 4 bytes, so it needs no length; `01` only
-  > says whether there's a value at all.
-- [x] "There is a value, and here it comes"
-  > Yes: it's the discriminator. `01` for a value, then the value by its own rule, 7 as
-  > ℰ₄.
-- [ ] It's part of the number 7
-  > No: 7 as ℰ₄ is `07 00 00 00`, the four bytes after it. The `01` sits in front.
+- [ ] That would work: the decoder sees the field isn't there and moves on
+  > No: the bytes carry no labels. With nothing written, the decoder would read the next
+  > field's first byte as if it were this one.
+- [x] The decoder couldn't tell missing from present, so one byte in front says which
+  > Yes: the discriminator. 0 and that's all, or 1 and then the value by its own rule.
+- [ ] It would change the block's hash
+  > No: any change to the bytes changes a hash. The trouble is earlier: the bytes couldn't
+  > be read back at all.
 
-**How does `option(u32)` write "nothing"?**
+**Why not write a missing number as zero, and save the byte in front?**
 
-- [ ] As no bytes at all
-  > No: then the decoder couldn't tell. It would read the next field's first byte as
-  > if it were this one.
-- [ ] As `00 00 00 00`, a u32 of zero
-  > No: zero is a real value, not a missing one. `option(u32)` writes 0 as
-  > `01 00 00 00 00`.
-- [x] As the single byte `00`
-  > Yes: the tag 0, and that's all. The decoder sees `00` and knows no value follows.
+- [ ] Zero takes more bytes than the discriminator does
+  > No: that's true of a u32, but it isn't the reason. The saving would cost the meaning.
+- [ ] Zero is not a number the codec can write
+  > No: ℰ₄ writes 0 as four zero bytes without trouble.
+- [x] Zero is a real value: a reader could no longer tell "0" from "nothing"
+  > Yes: an option keeps the two apart. Nothing is one byte, 0. The number zero is the
+  > byte 1 and then zero's own bytes.
 
-**`seq(u16)` writes [1, 2, 3] as `03 01 00 02 00 03 00`. Why can `seqN(u16, 3)` leave off the `03`?**
+**When may a list be written with no length in front?**
 
-- [x] Both sides already know there are three
-  > Yes: a fixed-length sequence's length is set by the protocol, so writing it would
-  > tell the decoder nothing new.
-- [ ] Because three is small enough to guess
+- [x] When the protocol fixes its length, so both sides already know it
+  > Yes: writing it would tell the decoder nothing new. The tickets mark is exactly one
+  > ticket per slot of an epoch.
+- [ ] When it is short enough to guess
   > No: size has nothing to do with it. The tickets mark holds 600 tickets on full,
   > and still has no length.
-- [ ] Because the decoder reads until the bytes run out
+- [ ] When it is the last field, so the decoder can read until the bytes run out
   > No: more fields usually follow. Without knowing n, a decoder couldn't tell where
   > the list ends and the next field begins.
+
+**The tickets mark is exactly 12 tickets on tiny and 600 on full, with no length written. What must a decoder have before it reads one?**
+
+- [ ] Nothing: the first ticket says how many follow
+  > No: a ticket holds no count. A fixed-length list is its items and nothing else.
+- [x] The configuration of the network it is reading
+  > Yes: n comes from outside the bytes. A decoder set for tiny would read 12 tickets of a
+  > full header's 600 and take the rest for the next fields.
+- [ ] The block's extrinsic, which lists the tickets again
+  > No: the header is read by itself. Its lists don't lean on the extrinsic for their
+  > lengths.
 :::
 
 ## What you have

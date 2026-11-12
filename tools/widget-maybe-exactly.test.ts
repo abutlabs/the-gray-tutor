@@ -30,9 +30,11 @@ test("a fixed-length sequence is the same six bytes as seq, minus the count: the
   assert.deepEqual(listCells(true).map((c) => c.job), Array(6).fill("item"));
 });
 
-test("lesson 4.5 places the widget once, in The tests after the bytes block", () => {
+test("lesson 4.5 places the widget once, at the top, and The tests send the reader back to it after the bytes block", () => {
   const raw = lessonText(LESSON);
   const at = raw.indexOf("<MaybeExactly />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<MaybeExactly />"), "placed once");
-  assert.ok(at > raw.indexOf("[1, 2, 3] as exactly three u16s") && at < raw.indexOf("## The code"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("[1, 2, 3] as exactly three u16s") && back < raw.indexOf("## The code"));
 });
