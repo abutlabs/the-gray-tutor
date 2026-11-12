@@ -1,65 +1,62 @@
 # Numbers
 
-JavaScript has a secret about numbers, and JAM is exactly the kind of program it bites.
-This lesson says what the secret is, proves it with three tiny tests, and sets the one
-rule your client follows from here on.
+**In one sentence:** a JavaScript number rounds big whole numbers without a word, so your
+client keeps JAM's 64-bit values in a second kind of number that never rounds.
 
-## New words
+Start at 2^64 − 70, a real gas amount, and nudge it. As a `number` it prints as 2^64 and
+stays there, while the `bigint` moves by exactly what you asked. Below 2^53 − 1 the two
+agree on every digit.
 
-- **Floating point.** How a JavaScript `number` is stored: about 16 significant digits
-  and an exponent, so a huge whole number gets rounded. *Example:* `2 ** 64 - 70` and
-  `2 ** 64` come out equal.
-- **`bigint`.** A JavaScript whole number with no size limit, written with an `n` after
-  its digits. *Example:* `2n` is the `bigint` two, and `2n ** 64n - 70n` is exactly
-  18446744073709551546n.
-- **Unsigned integer (u8, u16, u32, u64).** A whole number that is never negative, kept in
-  a fixed number of bits. *Example:* a u32 goes from 0 to 2^32 − 1, which is 4294967295.
-- **Bitwise operator.** One that works on a number's bits: `|` (or), `&` (and), `^`
-  (xor) and the shifts `<<`, `>>`, `>>>`. *Example:* `6 & 3` is 2 (binary 110 and 011
-  share only the 2s bit).
-- **Gas.** JAM's measure of computing work: every program gets a budget of it, and every
-  step it takes is paid for from that budget. *Example:* 2^64 − 70 is a gas amount, and
-  needs a `bigint`.
-
-All five are in the [glossary](../glossary.md).
-
-## The secret
-
-A JavaScript `number` is a 64-bit *floating-point* value. It holds every whole number
-exactly up to 2^53 − 1 (that's `Number.MAX_SAFE_INTEGER`, about 9 quadrillion). Above
-that, it quietly rounds. So 2^64 − 70, a perfectly good JAM gas amount, comes out as
-2^64. No error, no warning, just a different number.
-
-A `bigint` is exact at any size. It's slower, and you can't mix it with plain numbers,
-but it never rounds.
-
-The only difference you see is one letter: an `n` after the digits makes a `bigint`.
-`2` is the `number` two, `2n` the `bigint` two, and `typeof 2n` says `"bigint"`. A
-calculation takes one kind or the other, never both, so every value in it needs its `n`:
-2^64 − 70 as a `bigint` is `2n ** 64n - 70n`. Mixing them, as in `1n + 1`, stops with
-`TypeError: Cannot mix BigInt and other types`.
-
-See it round. Start at 2^64 − 70, a real gas amount, and nudge it: as a `number` it
-prints as 2^64 and stays there, while the `bigint` moves by exactly what you asked.
-Below 2^53 − 1 the two agree on every digit.
+<a id="try-it"></a>
 
 <NumberKinds />
 
-One more trap while we're here: in JavaScript, `**` raises to a power, and `^` doesn't.
-`^` is *xor*, one of the bitwise operators below: it compares two numbers bit by bit and
-keeps the bits set in exactly one of them. 2 is `0b000010` and 53 is `0b110101`, so `2 ^ 53`
-is `0b110111`, which is 55. `2 ** 53` is 9007199254740992.
+## The idea
+
+Every JAM program runs on a budget of [*gas*](../glossary.md#gas), JAM's measure of
+computing work: each step it takes is paid for from that budget. A gas amount can be
+huge: 2^64 − 70 is a real one. Can JavaScript count that high?
+
+Not with its ordinary numbers. A JavaScript `number` is
+[*floating point*](../glossary.md#floating-point): about 16 significant digits and an
+exponent, like a calculator with a 16-digit display. A whole number with more digits than
+that gets rounded. So 2^64 − 70 comes out as 2^64. No error, no warning, just a different
+number. And in JAM, 70 units of gas matter.
+
+The trick is a second kind of number. A [*`bigint`*](../glossary.md#bigint) is a whole
+number with no size limit. It is slower, and it can't be mixed with plain numbers, but it
+never rounds.
+
+So your client follows one rule from here on: small values are `number`, 64-bit values
+are `bigint`. This lesson proves the rounding with three tests of JavaScript itself, and
+sets that rule.
 
 ## What the Gray Paper says
 
 JAM's numbers are naturals (whole numbers from 0 up) with a ceiling. The Gray Paper
 writes ℕ_{2^32} for a natural below 2^32 (timeslots, service ids, lengths) and ℕ_{2^64}
 for one below 2^64 (gas, balances). Section 4 translates for programmers: a timeslot is
-*"a natural less than 2^32 (in compute parlance, a 32-bit unsigned integer)"*.
+*"a natural less than 2^32 (in compute parlance, a 32-bit unsigned integer)"*. An
+[*unsigned integer*](../glossary.md#unsigned-integer) is a whole number that is never
+negative, kept in a fixed number of bits (u8, u16, u32, u64): a u32 goes from 0 to
+2^32 − 1, which is 4294967295.
 
-## The rule
+**Where a `number` stops.** It holds every whole number exactly up to 2^53 − 1 (that's
+`Number.MAX_SAFE_INTEGER`, about 9 quadrillion). Above that, it quietly rounds.
 
-So, for the whole client:
+**One letter apart.** An `n` after the digits makes a `bigint`. `2` is the `number` two,
+`2n` the `bigint` two, and `typeof 2n` says `"bigint"`. A calculation takes one kind or
+the other, never both, so every value in it needs its `n`: 2^64 − 70 as a `bigint` is
+`2n ** 64n - 70n`. Mixing them, as in `1n + 1`, stops with
+`TypeError: Cannot mix BigInt and other types`.
+
+**Powers.** In JavaScript, `**` raises to a power, and `^` doesn't. `^` is *xor*, a
+[*bitwise operator*](../glossary.md#bitwise-operator): one that works on a number's bits.
+It compares two numbers bit by bit and keeps the bits set in exactly one of them. 2 is
+`0b000010` and 53 is `0b110101`, so `2 ^ 53` is `0b110111`, which is 55. `2 ** 53` is
+9007199254740992.
+
+**The rule,** for the whole client:
 
 - **u8, u16 and u32 values are `number`**: timeslots, service ids, indices, lengths.
   Exact, fast, easy.
@@ -68,10 +65,10 @@ So, for the whole client:
 TypeScript keeps the two apart: `1n + 1` is a type error, so you can't mix them by
 accident. You convert on purpose, with `BigInt(x)` and `Number(x)`.
 
-## Prove it
+## The tests
 
 Tests usually check your code. These check JavaScript itself, so nobody on the project
-ever has to rediscover its quirks the hard way:
+has to rediscover its quirks the hard way:
 
 **New file** `test/js-numbers.test.ts`
 
@@ -101,8 +98,8 @@ test("bitwise operators work on signed 32-bit integers", () => {
 });
 ```
 
-Every value gets a name and says its kind, `: number` or `: bigint`, so each test reads
-as what it's about: the same two values, once as `number` and once as `bigint`.
+Every value says its kind, `: number` or `: bigint`. The first two tests hold the same
+two values, once as `number` and once as `bigint`.
 
 The third test is a trap for later. `|`, `&`, `^`, `<<` and `>>` treat numbers as
 *signed* 32-bit integers, so `allOnes`, all 32 bits set, comes out of `| 0` as −1. In a
@@ -190,38 +187,38 @@ let ult (a : int64) (b : int64) = Int64.unsigned_compare a b < 0
 ## Check your understanding
 
 ::: check
-**`2 ** 64 - 70 === 2 ** 64` is `true` in JavaScript. Why?**
+**A gas amount can be as big as 2^64 − 70. What goes wrong if a client keeps it in a JavaScript `number`?**
 
-- [ ] 70 is too small to make a difference to a number that big
-  > No: it makes a difference, and a `bigint` shows it: `2n ** 64n - 70n` is exactly
-  > 18446744073709551546n, 70 below 2^64. In JAM, 70 units of gas matter.
-- [x] A `number` is exact only up to 2^53 − 1, and above that it rounds
-  > Yes: both values round to the same float, 18446744073709552000. No error, no warning.
-- [ ] `**` is xor in JavaScript, not a power
-  > No: it's the other way round. `**` raises to a power, and `^` is xor.
+- [ ] Nothing: a `number` is 64 bits wide, so it holds any 64-bit value
+  > No: its 64 bits are floating point, about 16 significant digits and an exponent. It
+  > is exact only up to 2^53 − 1.
+- [x] Above 2^53 − 1 a value is rounded to a different number, with no error and no warning
+  > Yes: 2^64 − 70 comes out as 2^64. The client carries on with the wrong amount, and in
+  > JAM 70 units of gas matter.
+- [ ] The program stops with an overflow error
+  > No: that would be easy to find. The rounding is silent, which is why the lesson pins
+  > it down with a test.
 
-**Which types does your client use for a timeslot and for a gas amount?**
+**Why not make every number a `bigint`, to be safe?**
 
-- [ ] `number` for both
-  > No: gas is a u64, and 2^64 − 70 is a real gas amount. As a `number` it would round
-  > to 2^64.
-- [ ] `bigint` for both
-  > No: a `bigint` would hold a timeslot, but the rule keeps u32 values as `number`. A
-  > timeslot is below 2^32, far under 2^53, so a `number` is exact, and faster.
-- [x] `number` for the timeslot, `bigint` for gas
-  > Yes: a timeslot is a u32, so a `number` holds it exactly. Gas is a u64 and can climb
-  > past 2^53, so it's a `bigint`.
+- [x] A `bigint` is slower and can't be mixed with plain numbers, and a value of 32 bits or fewer is already exact as a `number`
+  > Yes: a timeslot is below 2^32, far under 2^53. So the rule keeps u8, u16 and u32
+  > values as `number`, and pays for `bigint` only where a value can climb past 2^53.
+- [ ] A `bigint` can't hold a small value
+  > No: `2n` is the `bigint` two. It holds a timeslot perfectly well. The rule is about
+  > cost, not about what fits.
+- [ ] A `bigint` rounds too, only much later
+  > No: a `bigint` is exact at any size.
 
-**What is `2 ^ 53` in JavaScript?**
+**What stops a `number` and a `bigint` from being mixed in one calculation by accident?**
 
-- [x] 55
-  > Yes: `^` is xor, a bitwise operator. 2 is `0b000010` and 53 is `0b110101`; xor keeps the
-  > bits set in exactly one of them, `0b110111`, which is 32 + 16 + 4 + 2 + 1 = 55.
-- [ ] 9007199254740992
-  > No: that's `2 ** 53`. `^` doesn't raise to a power.
-- [ ] A `TypeError`
-  > No: both are plain numbers, so nothing is mixed. JavaScript happily answers, just not
-  > with a power.
+- [ ] Nothing: JavaScript quietly converts one to the other
+  > No: `1n + 1` stops with `TypeError: Cannot mix BigInt and other types`. Nothing is
+  > converted unless you ask.
+- [ ] A test you write for each calculation
+  > No: you don't have to catch it yourself. The type check refuses the line.
+- [x] TypeScript: mixing them is a type error, so you convert on purpose, with `BigInt(x)` or `Number(x)`
+  > Yes: every conversion is one you wrote, where you can see it.
 
 **`0xffffffff | 0` is −1. Why?**
 
@@ -239,6 +236,7 @@ let ult (a : int64) (b : int64) = Int64.unsigned_compare a b < 0
 
 One rule for every number in your client, `number` up to 32 bits and `bigint` for 64,
 and three tests that keep JavaScript's quirks in plain sight. Bytes and numbers are the
-raw material. [Part 2](../02-codec/index.md) builds what turns any JAM value into them and back: the codec.
+raw material. [Part 2](../02-codec/index.md) builds what turns any JAM value into them
+and back: the codec.
 
 Next: [Part 2 · The codec](../02-codec/index.md)

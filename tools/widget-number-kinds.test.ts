@@ -42,9 +42,10 @@ test("the third trap: all 32 bits set is −1 signed, 4294967295 unsigned", () =
   assert.equal(bitsOf(0x80000000), "1" + "0".repeat(31));
 });
 
-test("lesson 1.2 places the widget once, at the end of The secret", () => {
+test("lesson 1.2 places the widget once, at the top, under try-it and before The idea", () => {
   const raw = lessonText(LESSON);
   const at = raw.indexOf("<NumberKinds />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<NumberKinds />"), "placed once");
-  assert.ok(at > raw.indexOf("## The secret") && at < raw.indexOf("## What the Gray Paper says"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.ok(raw.indexOf("## The idea") < raw.indexOf("## What the Gray Paper says"));
 });
