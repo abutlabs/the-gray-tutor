@@ -50,7 +50,7 @@ test("the report inside opens part by part, every chip says what it is, every go
   assert.equal(GUARANTEE.saysOf(GUARANTEE.partAt("report.results[1].result")), "How refine went: the tag 2, a panic, and nothing more.");
 });
 
-test("lesson 4.3 opens with the widget, before New words", () => {
+test("lesson 4.3 opens with the widget, before The idea", () => {
   const at = text.indexOf("<GuaranteeParcel />");
-  assert.ok(at > 0 && at === text.lastIndexOf("<GuaranteeParcel />") && at < text.indexOf("## New words"));
+  assert.ok(at > 0 && at === text.lastIndexOf("<GuaranteeParcel />") && at < text.indexOf("## The idea"));
 });

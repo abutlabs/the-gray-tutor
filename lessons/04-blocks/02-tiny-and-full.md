@@ -1,33 +1,38 @@
 # Tiny and full
 
-JAM runs in two configurations, with the same rules. **Full** is a realistic picture of
-the network JAM will be, with the Gray Paper's own numbers: 1,023 validators and 341
-cores. Running a network that big isn't possible on one machine, so there's **tiny**: 6
-validators and 2 cores, small enough to run and test on your own. The official vectors
-come in both, and until now every structure had the same shape in both. (Gray Paper 0.8.0
-lets the validator count be any multiple of 3 from 6 to 1,023; the full vectors use the
-most.)
+**In one sentence:** JAM comes in two sizes with the same rules, and an assurance is the
+first structure whose shape depends on which size you run.
 
-The assurance is the first structure whose *shape* depends on the configuration. Switch
-between them and watch which part grows:
+Here is one assurance. Switch between tiny and full, and watch which part grows.
+
+<a id="try-it"></a>
 
 <AssuranceParcel />
 
-## New words
+## The idea
 
-- **Configuration.** The numbers that set how big a JAM network is: how many validators,
-  how many cores. *Example:* `TINY` has 6 validators and 2 cores.
-- **Validator.** One of the machines that run JAM: they make blocks, vouch for work, and
-  keep data. *Example:* 1,023 on full.
-- **Core.** One of JAM's parallel lanes where work gets done, a few validators at a time.
-  *Example:* 341 on full, 2 on tiny.
+How do you test a network of a thousand machines on a laptop? You can't. So JAM has two
+sizes, each a [*configuration*](../glossary.md#configuration): a handful of numbers, and
+the same rules. Full is a realistic picture of the network JAM will be. Tiny is small
+enough to run and test on your own.
 
-All three are in the [glossary](../glossary.md).
+| | [*Validators*](../glossary.md#validator) | [*Cores*](../glossary.md#core) |
+| --- | --- | --- |
+| tiny | 6 | 2 |
+| full | 1,023 | 341 |
+
+Until now every structure had the same shape in both. The assurance is the first that
+doesn't. In an assurance, a validator says which cores' data it is holding. Think of an
+attendance sheet with one box per core: the validator ticks the boxes and signs the sheet.
+More cores, a longer sheet.
+
+A decoder can't guess how long the sheet is. Nothing in the bytes says. It has to know the
+size of the network it is reading. So this lesson gives the client its two configurations,
+and a codec that takes one as an argument.
 
 ## What the Gray Paper says
 
-§11 (*The Assurances Extrinsic*): each validator can say, in a block, which cores' data
-it is holding. An assurance is four things:
+§11 (*The Assurances Extrinsic*): an assurance is four things.
 
 - an **anchor**: the parent block's hash (every assurance in a block names the same one);
 - a **bitfield**: one bit per core, 1 for "I've got its chunks";
@@ -78,26 +83,34 @@ $$
 
 :::
 
-In plain words, (C.9) packs bits into bytes, eight to a byte, lowest bit first: bit 0 is
-worth 1, bit 1 is worth 2, and so on up to bit 7, worth 128. Then it does the same with
-the rest. So the bitfield takes ⌈C/8⌉ bytes: **1 byte on tiny, 43 on full**. Its length
-is fixed by C, so it carries none in front ([4.7](./07-the-block.md#eq-C-20)'s (C.20)
-writes the bitfield bare). A codec
-that reads one byte where there are 43 would misread every assurance, starting with the
-first one's validator index.
+(C.9) packs bits into bytes, eight to a byte, lowest bit first: bit 0 is worth 1, bit 1 is
+worth 2, and so on up to bit 7, worth 128. Then it does the same with the rest. So the
+bitfield takes ⌈C/8⌉ bytes: **1 byte on tiny, 43 on full**. C fixes its length, so it
+carries none in front ([4.7](./07-the-block.md#eq-C-20)'s (C.20) writes the bitfield
+bare). A codec that reads one byte where there are 43 would misread every assurance,
+starting with the first one's validator index.
 
 Which cores does a validator assure? All of them at once. As [lesson 3.3](../03-work-and-reports/03-a-work-report.md#the-big-picture)
 showed, every validator holds one shard of each report waiting on any core, so bit c says
 "I hold my shard of core c's report". It knows which cores have a report waiting because
-every validator keeps the same state. Could it lie? A bit set for a core with nothing
-waiting, or a bad signature, makes the whole block invalid ([lesson 11.3](../11-assurances/03-bad-assurances.md)). A bit for a
-shard it doesn't really hold can't be caught on the chain, and that's why a report needs
-more than two-thirds of the validators (5 of 6, 683 of 1,023): even if a third lied, the
-rest hold enough to rebuild it. Either way, every node counts the same bits by the same
-rule and reaches the same state. A lie can make the state wrong, never inconsistent.
+every validator keeps the same state.
 
-Here it is at both sizes: three guarantors per core, every validator holding a piece of
-every core's work. Switch to full and the same picture holds 1,023 validators.
+Could it lie? There are two kinds of lie.
+
+- A bit set for a core with nothing waiting, or a bad signature, makes the whole block
+  invalid ([lesson 11.3](../11-assurances/03-bad-assurances.md)).
+- A bit for a shard it doesn't really hold can't be caught on the chain. That's why a
+  report needs more than two-thirds of the validators (5 of 6, 683 of 1,023): even if a
+  third lied, the rest hold enough to rebuild it.
+
+Either way, every node counts the same bits by the same rule and reaches the same state.
+A lie can make the state wrong, never inconsistent.
+
+The two sizes are the Gray Paper's own numbers and the vectors'. Gray Paper 0.8.0 lets the
+validator count be any multiple of 3 from 6 to 1,023; the full vectors use the most.
+
+Here is the network at both sizes: three guarantors per core, every validator holding a
+piece of every core's work. Switch to full and the same picture holds 1,023 validators.
 
 <JamNetwork />
 
@@ -122,13 +135,12 @@ export const TINY: Config = { name: "tiny", validators_count: 6, core_count: 2 }
 export const FULL: Config = { name: "full", validators_count: 1023, core_count: 341 };
 ```
 
-Just the two numbers we need, for now. More constants will move in as later lessons need
-them.
+Just the two numbers we need, for now. More constants move in as later lessons need them.
 
 ## A codec that depends on the size
 
-The trick is simple: a codec whose shape depends on the size becomes a *function* that
-takes a config and returns a codec.
+A codec whose shape depends on the size becomes a *function*: it takes a config and
+returns a codec.
 
 **Add to** `src/block.ts`
 
@@ -245,7 +257,7 @@ if (!codec || !file) {
 }
 ```
 
-What flows through these two runs — one assurance list in each size, decoded, then traced:
+What flows through these two runs:
 
 ::: code-group
 
@@ -282,8 +294,8 @@ const full = { // 341 cores: the bitfield is ⌈341 / 8⌉ = 43 bytes
 :::
 
 Both files start the same: `02` assurances, then the same 32-byte anchor. What differs
-is the bitfield's size, set by the configuration's cores: one byte on tiny, 43 on full,
-which is why the codec is `AssurancesExtrinsic(config)`, not one fixed shape.
+is the bitfield: one byte on tiny, 43 on full. That is why the codec is
+`AssurancesExtrinsic(config)`, not one fixed shape.
 
 **Run**
 
@@ -347,6 +359,18 @@ Your `Assurance(config)` takes the size as an argument every time, so it can't f
 ## Check your understanding
 
 ::: check
+**What does an assurance say, and who says it?**
+
+- [ ] A core's three guarantors say a work-report is correct
+  > No: that is a guarantee, [lesson 4.3](./03-guarantees.md)'s. An assurance says nothing
+  > about whether the work is right.
+- [x] One validator says which cores' data it is holding, and signs it
+  > Yes: one bit per core, 1 for "I hold my shard of that core's report", with the
+  > validator's index and its signature.
+- [ ] The block's author says the parent block is valid
+  > No: the anchor names the parent, but an assurance comes from any validator, and what it
+  > vouches for is data it holds.
+
 **Why is an assurance's bitfield 1 byte on tiny but 43 on full?**
 
 - [x] One bit per core, eight to a byte: 2 cores fit in 1 byte, 341 need 43
@@ -358,17 +382,6 @@ Your `Assurance(config)` takes the size as an argument every time, so it can't f
   > No: the bitfield never has a length. Both sides know C, so both know how many
   > bytes to read.
 
-**Which core does a bitfield's very first bit, the lowest bit of its first byte, stand for?**
-
-- [x] Core 0
-  > Yes: bits are packed least significant first, so core 0 is the lowest bit of byte 0,
-  > and core 8 the lowest bit of byte 1.
-- [ ] Core 7
-  > No: that reads the byte from the left, as you'd write it down. Bitfields start at the
-  > lowest bit.
-- [ ] Validator 0
-  > No: an assurance is already one validator's. Its bits are cores.
-
 **What goes wrong if a decoder reads a full assurance with tiny's 1-byte bitfield?**
 
 - [ ] It reads cores 0 to 7 and quietly skips the rest
@@ -377,7 +390,7 @@ Your `Assurance(config)` takes the size as an argument every time, so it can't f
 - [ ] It stops with an error at the bitfield
   > No: the bytes have no labels to disagree with. It reads on happily, and every
   > value after is wrong.
-- [x] It takes the bitfield's next bytes, `55 55`, as the validator index, and is lost from there
+- [x] It takes the bitfield's next two bytes as the validator index, and is lost from there
   > Yes: one byte too few, and every field after it starts in the wrong place. The
   > signature, the next assurance, all misread.
 
@@ -390,6 +403,17 @@ Your `Assurance(config)` takes the size as an argument every time, so it can't f
   > config, so the config goes in as an argument.
 - [ ] Only full assurances are signed
   > No: every assurance carries a 64-byte signature, on both sizes.
+
+**A validator sets the bit for a shard it doesn't really hold. What protects the chain?**
+
+- [ ] The block is rejected: every node checks the bit against the validator's disk
+  > No: the chain can't see what a validator holds. This lie can't be caught on the chain.
+  > A bit for a core with nothing waiting can, and that does reject the block.
+- [ ] Nothing: one false bit and the report's data may be lost
+  > No: one validator's bit is never enough to count on.
+- [x] The threshold: a report needs more than two-thirds of the validators, so even if a third lied the rest can rebuild it
+  > Yes: 5 of 6 on tiny, 683 of 1,023 on full. And every node counts the same bits by the
+  > same rule, so they all reach the same state.
 :::
 
 ## What you have

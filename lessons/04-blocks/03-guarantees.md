@@ -1,26 +1,36 @@
 # Guarantees
 
-A work-report doesn't just wander into a block. Two or three validators from the core
-that did the work sign it, putting their names (and, eventually, their stake) on "this
-report is correct". A signed report is a *guarantee*: how work from the cores reaches the
-chain. The signing happens in-core, by the three; the checking happens on the chain, by
-every validator, in [Part 12](../12-guarantees/index.md). Today your client only reads
-one.
+**In one sentence:** a guarantee is a work-report with the signatures of the two or three
+validators who vouch for it, and it is how work from the cores reaches the chain.
 
 Here is the tiny vector's: the report, the slot it was signed in, and who signed. Tap
 into the report and it's [lesson 3.3](../03-work-and-reports/03-a-work-report.md)'s receipt.
 
+<a id="try-it"></a>
+
 <GuaranteeParcel />
 
-## New words
+## The idea
 
-- **Guarantee.** A work-report signed by the validators who vouch for it. *Example:* one
-  report, signed at slot 42 by validators 3 and 4.
-- **Credential.** The signatures on a guarantee, two or three of them, each a guarantor's
-  validator index and its Ed25519 signature (the `signatures` field below). *Example:*
-  index 3 and 64 bytes, then index 4 and 64 bytes.
+A core did some work and wrote a report. Why should the chain believe it? The other
+validators didn't run the work. That is the point of a core: three validators do the job
+so that a thousand don't have to.
 
-Both are in the [glossary](../glossary.md).
+So the chain asks for names. Two or three validators from the core that did the work sign
+the report, the way witnesses sign a contract. Each puts its name, and eventually its
+stake, on "this report is correct". A signed report is a
+[*guarantee*](../glossary.md#guarantee). The signatures on it, with who made each, are its
+[*credential*](../glossary.md#credential).
+
+Two places are involved. The signing happens in-core, by the core's three validators. The
+checking happens on the chain, by every validator, in
+[Part 12](../12-guarantees/index.md).
+
+A guarantee is a claim, not a proof. A guaranteed report can still turn out wrong, and
+[lesson 4.4](./04-disputes.md)'s disputes are for that.
+
+Today your client only reads one: this lesson builds the codec and checks it against the
+vectors.
 
 ## What the Gray Paper says
 
@@ -30,6 +40,8 @@ Both are in the [glossary](../glossary.md).
 - the *timeslot* the guarantors signed it in;
 - a *credential*: two or three signatures, each a validator's index and its Ed25519
   signature.
+
+*Example:* one report, signed at slot 42 by validators 3 and 4.
 
 A block carries at most one guarantee per core, in order of core.
 
@@ -73,8 +85,7 @@ export type ReportGuarantee = Value<typeof ReportGuarantee>;
 export const GuaranteesExtrinsic = seq(ReportGuarantee);
 ```
 
-The whole work-report from [Part 3](../03-work-and-reports/index.md) slots straight in as one field. Every piece you've
-built so far is a brick for the next.
+The whole work-report from [Part 3](../03-work-and-reports/index.md) slots in as one field.
 
 The report has a size-dependent part (its erasure shards, [lesson 3.3](../03-work-and-reports/03-a-work-report.md)) only in its
 *values*, not its shape: 6 or 1,023, it's a u16 either way. So `GuaranteesExtrinsic` is
@@ -122,7 +133,7 @@ const CODECS = (config: Config): Record<string, Codec<unknown>> => ({
 });
 ```
 
-What flows through this run — the file's bytes, the guarantee they decode to, the trace printed:
+What flows through this run:
 
 ::: code-group
 
@@ -217,42 +228,44 @@ record.
   > No: a guarantee carries the whole report, then the slot and the signatures. There's
   > no hash in front.
 
-**The slot is written in four bytes, lowest byte first. Where else does the codec use that order?**
+**Who signs a guarantee, and who checks the signatures?**
 
-- [x] For every fixed-width number: ℰ₂, ℰ₄ and ℰ₈ alike
-  > Yes: JAM's fixed-width numbers are all little-endian, lowest byte first. A decoder
-  > that knows one knows them all.
-- [ ] Only for slots
-  > No: slots aren't special. Service ids, gas amounts and every other fixed-width number
-  > go the same way.
-- [ ] Nowhere: other numbers are written highest byte first
-  > No: one order everywhere, which is what lets one decoder function serve them all.
+- [ ] The block's author signs it; the core's validators check it
+  > No: the author only carries the guarantee in its block. The names on it are the
+  > guarantors'.
+- [ ] The service that asked for the work signs it; every validator checks it
+  > No: a service is a program on the chain. The signatures are validators', made with
+  > their Ed25519 keys.
+- [x] Validators of the core that did the work sign it, in-core; every validator checks it, on the chain
+  > Yes: the work is done once, by a few. The check that the right validators signed is
+  > done by all, in [Part 12](../12-guarantees/index.md).
 
-**The guarantee's two signatures come from validators 0 and 1. How does a decoder know to read two, not three?**
+**A credential has two or three signatures. How does a decoder know how many to read?**
 
-- [ ] Guarantees always have exactly two signatures
-  > No: a credential has two or three. Two is only the minimum.
-- [ ] It keeps reading signatures until the bytes run out
-  > No: more can follow, another guarantee or the rest of the block. A decoder can't
-  > tell a signature from whatever comes next.
 - [x] The signatures list has its length in front
   > Yes: Appendix C writes the signatures with their length first, so the bytes say
-  > "two" before the first one starts.
+  > how many before the first one starts.
+- [ ] It reads two, then looks whether a third follows
+  > No: more can follow, another guarantee or the rest of the block. A decoder can't
+  > tell a signature from whatever comes next.
+- [ ] It reads three; a missing one is written as zeros
+  > No: nothing is padded. A credential of two is the count and two signatures.
 
 **A work-report holds the number of erasure shards: 6 on tiny, 1,023 on full. Why isn't `GuaranteesExtrinsic` a function of the config?**
 
-- [x] The size changes a value, not the shape: it's a u16 either way
-  > Yes: a codec only needs the config when the number of bytes depends on it. 6 and
-  > 1,023 both fit in the same two bytes.
 - [ ] Guarantees only ever appear in tiny blocks
   > No: the vectors have a `guarantees_extrinsic` for both sizes, and both pass.
 - [ ] A work-report is the same number of bytes in every guarantee
   > No: a report with more results is longer. Its variable parts carry their own
   > lengths, so the codec still needs no config.
+- [x] The size changes a value, not the shape: it's a u16 either way
+  > Yes: a codec only needs the config when the number of bytes depends on it. 6 and
+  > 1,023 both fit in the same two bytes.
 :::
 
 ## What you have
 
-Four of the five extrinsic parts. One left, and it's the dramatic one: disputes.
+Four of the five extrinsic parts. One left, for when a guarantee turns out wrong:
+disputes.
 
 Next: [4.4 Disputes](./04-disputes.md)

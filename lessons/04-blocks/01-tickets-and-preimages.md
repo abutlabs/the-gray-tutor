@@ -1,54 +1,58 @@
 # Tickets and preimages
 
-Time to build a block. Not all at once: a block is a header plus five bags of stuff from
-the outside world, and this lesson fills the two simplest bags.
+**In one sentence:** a block carries five lists of things from the outside world, and the
+two simplest are lottery tickets and data that services asked for.
 
-Here they are, from the tiny vectors: each bag is a count, then its items. Tap any part.
+Here are both, from the tiny vectors. Each list is a count, then its items. Tap any part.
+
+<a id="try-it"></a>
 
 <TicketsPreimages />
 
-## New words
+## The idea
 
-- **Extrinsic.** The part of a block that comes from outside the chain's state, in five
-  lists, each as long as that block needs, often empty. *Example:* a tiny block carries 0
-  to 3 tickets and 0 to 2 guarantees ([Part 4](./index.md#how-much-a-block-carries) has every range).
-- **Ticket.** An anonymous entry in the lottery for who makes blocks in the next epoch.
-  *Example:* `attempt` 1, and a 784-byte proof.
-- **Ring VRF proof.** Cryptography that proves *some* validator in a set made something,
-  without saying *which*. *Example:* every ticket carries one.
-- **Preimage.** The data behind a hash: if h = H(d), d is h's preimage. Services ask for
-  data by its hash, and blocks deliver it. *Example:* a new version of a service's code.
+What is in a block? A header, and whatever came in from outside the chain's state. That
+second part is the [*extrinsic*](../glossary.md#extrinsic). It is five lists, each as long
+as that block needs, and often empty. This lesson takes the two simplest.
 
-All four are in the [glossary](../glossary.md).
+The first list is a lottery. Every epoch, validators enter for the right to make blocks in
+the next one, and the best entries win slots. An entry is a
+[*ticket*](../glossary.md#ticket), and it is anonymous, like a raffle stub with no name on
+it. A [*ring VRF proof*](../glossary.md#ring-vrf-proof) on the ticket shows that some
+validator made it, without saying which. So nobody knows who won a slot until the slot
+comes.
+
+The second list is a delivery. A [*preimage*](../glossary.md#preimage) is the data behind
+a hash. A service asks for data by its hash, and anyone can then bring it in a block.
+
+Both lists are written the same way: how many, then the items. This lesson builds the
+codec for each and checks it against the vectors, tiny and full.
 
 ## What the Gray Paper says
 
-§4 splits a block into its *header* and its *extrinsic* (the data that comes from
-*outside* the chain's state), and the extrinsic into five parts:
+§4 splits a block into its *header* and its *extrinsic*, and the extrinsic into five
+parts:
 
 | Part | What it carries | Lesson |
 | --- | --- | --- |
 | tickets | entries in the lottery for who authors future blocks | this one |
 | preimages | data that services asked for by hash | this one |
-| guarantees | work-reports, signed by the validators who vouch for them | 4.3 |
-| assurances | validators' promises that they hold reports' data | 4.2 |
-| disputes | judgements on reports someone thinks are wrong | 4.4 |
+| guarantees | work-reports, signed by the validators who vouch for them | [4.3](./03-guarantees.md) |
+| assurances | validators' promises that they hold reports' data | [4.2](./02-tiny-and-full.md) |
+| disputes | judgements on reports someone thinks are wrong | [4.4](./04-disputes.md) |
 
-(§4's own equation lists them in another order, tickets, disputes, preimages,
-assurances, guarantees. Appendix C writes them in the table's order. You know the drill
-by now: the encoding's order wins.)
+§4's own equation lists them in another order: tickets, disputes, preimages, assurances,
+guarantees. Appendix C writes them in the table's order, and the encoding's order wins.
 
-A **ticket** (§6) is an anonymous lottery entry. Every epoch, validators submit tickets
-for the right to author blocks in the next one, and the best tickets win slots. Each
-ticket says which of its owner's tries it is (`attempt`, one byte), and carries a *ring
-VRF proof*: 784 bytes that prove *one of* the validators made it without revealing
-*which*, so nobody knows who won a slot until it comes. You won't write that cryptography:
-your client borrows it from a library ([Cryptography we use](../cryptography.md#bandersnatch-ring-vrf)), and
-[lesson 8.8](../08-safrole/08-the-ring-root.md) checks every proof with it. Today they're just 784 bytes.
+A **ticket** (§6) is two fields. `attempt`, one byte, says which of its owner's tries it
+is ([a tiny block carries 0 to 3 tickets](./index.md#how-much-a-block-carries)). Then the
+ring VRF proof, 784 bytes. You won't write that cryptography: your client borrows it from
+a library ([Cryptography we use](../cryptography.md#bandersnatch-ring-vrf)), and
+[lesson 8.8](../08-safrole/08-the-ring-root.md) checks every proof with it. Today they're
+just 784 bytes.
 
-A *preimage* is the data behind a hash. Services can ask for data by its hash, and
-anyone can then deliver it in a block: the requesting service's id (ℰ₄) and the data
-itself, as a blob.
+A **preimage** is two fields too: the requesting service's id (ℰ₄) and the data itself,
+as a blob.
 
 Tickets and preimages are each a sequence with its length in front. Appendix C's lines
 for the two are (C.17) and (C.18), quoted with the whole block's in
@@ -56,8 +60,8 @@ for the two are (C.17) and (C.18), quoted with the whole block's in
 
 ## A shortcut for vector tests
 
-[Part 4](./index.md) checks a lot of vectors, each at both sizes. One helper registers both tests in
-one line:
+[Part 4](./index.md) checks many vectors, each at both sizes. One helper registers both
+tests in one line:
 
 **Add to** `test/vectors.ts`
 
@@ -117,8 +121,8 @@ export type Preimage = Value<typeof Preimage>;
 export const PreimagesExtrinsic = seq(Preimage);
 ```
 
-Nothing new under the sun: records and sequences, the bricks from [Part 2](../02-codec/index.md). The only
-surprise is how *big* a ticket is. Those 784 bytes are the price of anonymity.
+Records and sequences, the bricks from [Part 2](../02-codec/index.md). The only surprise
+is how big a ticket is. Those 784 bytes are the price of anonymity.
 
 **Run**
 
@@ -160,7 +164,7 @@ const CODECS: Record<string, Codec<unknown>> = {
 };
 ```
 
-What flows through this run — the file's bytes, the list they decode to, the trace printed:
+What flows through this run:
 
 ::: code-group
 
@@ -239,44 +243,43 @@ changed nothing for it, and your `u8` is right from the start.
   > No: the bytes carry no names. A length says how many items, not which part they
   > belong to, so both sides must agree on one order.
 
-**A ticket is one byte of `attempt` and 784 more. What are the 784?**
+**Why does a ticket carry a ring VRF proof, and not the validator's ordinary signature?**
 
-- [x] A ring VRF proof: some validator made this ticket, without saying which
-  > Yes: that's the price of anonymity. The proof convinces everyone the entry is
-  > genuine while keeping its owner secret.
-- [ ] The validator's name and key, so everyone knows whose entry it is
-  > No: it's the opposite. A ticket is anonymous; nothing in it says which validator
-  > entered it.
-- [ ] The `attempt` number, written large
-  > No: `attempt` is ℰ₁, one byte, and it's the byte in front. The 784 bytes after it
-  > are all proof.
+- [ ] A ring proof is smaller
+  > No: it is 784 bytes, most of the ticket. Size is what anonymity costs here.
+- [ ] So that anyone, validator or not, can enter the lottery
+  > No: the proof shows that one of the validators made the ticket. Someone outside the
+  > set can't make one.
+- [x] An ordinary signature would say which validator entered, and so who wins each slot
+  > Yes: the proof shows the ticket is some validator's without saying whose. Nobody knows
+  > who won a slot until it comes.
 
 **A service asks for some data by its hash, h. What is the preimage?**
 
 - [ ] The hash h itself, which the block carries to the service
   > No: the service already knows h; that's how it asked. The block brings what it
   > doesn't have yet.
+- [x] The data d with H(d) = h: the bytes behind the hash
+  > Yes: a preimage in a block is the requester's id (ℰ₄) and that data, as a blob.
 - [ ] The service's id, so the data reaches the right place
   > No: the id, `requester`, is one of a preimage's two fields. The preimage is the
   > other one.
-- [x] The data d with H(d) = h: the bytes behind the hash
-  > Yes: a preimage in a block is the requester's id (ℰ₄) and that data, as a blob.
 
-**In the decoded preimages, the first blob starts with the byte `0x10`. What is it?**
+**Many blocks carry no tickets and no preimages. What do those two lists look like in such a block?**
 
-- [x] The blob's length: 16 bytes of data follow
-  > Yes: a blob can be any size, so its length goes in front, as a compact natural.
-  > `0x10` is 16.
-- [ ] The first byte of the data
-  > No: like the payload in [lesson 2.6](../02-codec/06-the-first-test-vectors.md), a
-  > blob's own bytes come after its length.
-- [ ] The hash of the data, shortened
-  > No: a hash is 32 bytes, and a preimage carries the data itself, not its hash.
+- [ ] They are left out, to save space
+  > No: the bytes carry no names, so a decoder couldn't tell which list was missing. All
+  > five parts are always there, in Appendix C's order.
+- [x] Each is still there, as a count of zero and nothing after it
+  > Yes: a sequence is its length, then its items. An empty one is the length alone.
+- [ ] Each is padded to a fixed size with zero bytes
+  > No: a list is as long as its block needs. The count in front says where it ends.
 :::
 
 ## What you have
 
-Two of the five parts of a block's extrinsic. The next part's size depends on the network:
+Two of the five parts of a block's extrinsic, decoded from the vectors at both sizes. The
+next part's size depends on the network:
 [lesson 4.2](./02-tiny-and-full.md) meets JAM's two configurations, tiny and full.
 
 Next: [4.2 Tiny and full](./02-tiny-and-full.md)

@@ -52,7 +52,7 @@ test("each bag: its strip is the count then each item, every chip says what it i
   assert.equal(PREIMAGES.bytesOf(PREIMAGES.partAt("preimages[0].blob")), "bytes 5 to 21, 17 of them, its length first");
 });
 
-test("lesson 4.1 opens with the widget, before New words", () => {
+test("lesson 4.1 opens with the widget, before The idea", () => {
   const at = text.indexOf("<TicketsPreimages />");
-  assert.ok(at > 0 && at === text.lastIndexOf("<TicketsPreimages />") && at < text.indexOf("## New words"));
+  assert.ok(at > 0 && at === text.lastIndexOf("<TicketsPreimages />") && at < text.indexOf("## The idea"));
 });

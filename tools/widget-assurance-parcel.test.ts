@@ -53,8 +53,8 @@ for (const [k, s] of SIZES.entries()) {
   });
 }
 
-test("lesson 4.2 opens with the widget, before New words", () => {
+test("lesson 4.2 opens with the widget, before The idea", () => {
   const at = text.indexOf("<AssuranceParcel />");
-  assert.ok(at > 0 && at === text.lastIndexOf("<AssuranceParcel />") && at < text.indexOf("## New words"));
+  assert.ok(at > 0 && at === text.lastIndexOf("<AssuranceParcel />") && at < text.indexOf("## The idea"));
   for (const p of PARCELS) for (const g of p.goals) assert.ok(p.compartments.some((c) => p.chipRows(c.id, "").flat().some(g.reached)), g.id);
 });
