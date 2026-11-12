@@ -1,34 +1,35 @@
 # The JAM clock
 
-Your first piece of real JAM, tiny and everywhere: every block says *when* it belongs,
-and that "when" comes from this clock. By the end of this lesson your client can tell
-what slot it is, with tests to prove it, and keeps a clock that reports every slot to
-Grafana as it begins. On the way you write your first test before its code, and hunt
-down your first bug.
+**In one sentence:** JAM counts time in six-second slots from one fixed moment, so every
+node works out the same slot number from its own clock.
 
-## New words
+Try the clock. Pick a moment, or nudge it a millisecond at a time, and watch which slot it
+falls in. Stop at 5.999 seconds in: rounding down says slot 0, and rounding to the nearest
+whole number says 1. That difference is the bug you will hunt in this lesson.
 
-- **Timeslot (slot).** One tick of JAM's clock: six seconds, numbered from 0. *Example:*
-  slot 1 runs from 12:00:06 to 12:00:12 UTC on 1 January 2025.
-- **JAM Common Era.** The moment JAM's clock starts: 12:00 UTC on 1 January 2025.
-  *Example:* slot 0 begins right then.
-- **Unix epoch.** The moment most computer clocks count from: 00:00 UTC on 1 January
-  1970. (Nothing to do with a JAM epoch, which arrives in [lesson 7.1](../07-time-and-shuffling/01-epochs.md).) *Example:* the JAM
-  Common Era is 1,735,732,800 seconds after it.
-- **Header.** A block's cover page; among other things, it names the block's slot
-  ([lesson 4.6](../04-blocks/06-the-header.md)). *Example:* a header saying slot 43.
-- **Test.** A small program that checks one thing your code should do, and fails loudly
-  if it doesn't. *Example:* "an hour is 600 slots", below.
-- **Test-driven development (TDD).** Writing a test before the code it tests, watching it
-  fail, then writing the code that makes it pass. *Example:* this lesson's `slotAt`.
-- **Assertion.** One check inside a test: if the value isn't what it should be, the test
-  fails and says what it got. *Example:* `assert.equal(anHourIn, 600)`.
-- **Debugger.** A tool that pauses a running program so you can read its variables, then
-  lets it go on. *Example:* VS Code's *Run and Debug*.
-- **Breakpoint.** A line where the debugger pauses the program. *Example:* the red dot
-  left of line 12 in `src/time.ts`.
-- **Command-line argument.** A word you type after a program's name, which the program
-  reads from `process.argv`. *Example:* the `3` in `npm run now 3`.
+<a id="try-it"></a>
+
+<SlotClock />
+
+## The idea
+
+Every block says *when* it belongs: its [*header*](../glossary.md#header), the block's
+cover page, names a slot. For that to mean anything, every node must answer one question
+the same way: which slot is it now?
+
+JAM's answer needs no messages. Take one moment everyone knows, the
+[*JAM Common Era*](../glossary.md#jam-common-era): 12:00 UTC on 1 January 2025. Cut the
+time since then into six-second pieces, the [*timeslots*](../glossary.md#timeslot),
+numbered from 0. Slot 0 is the first six seconds. Slot 1 is the next six. An hour in,
+slot 600 begins.
+
+So the clock is one division: the seconds since the era, divided by six, rounded down.
+Down, because a slot number counts the whole slots that have gone by. At 5.999 seconds,
+slot 1 hasn't begun.
+
+This lesson builds that clock, and keeps it running: it reports every slot to Grafana as
+it begins. It is your first [*test-driven development*](../glossary.md#test-driven-development):
+the test before its code. And on the way you hunt down your first bug.
 
 ## What the Gray Paper says
 
@@ -82,31 +83,29 @@ $$
 
 :::
 
-In plain words: JAM keeps time in six-second *timeslots*, counted from the *JAM Common
-Era*, 12:00 UTC on 1 January 2025, which is 1,735,732,800 seconds after the Unix epoch.
-One slot lasts P = 6 seconds. So slot 0 is the first six seconds of the era, slot 1 the
-next six, and slot 600 starts exactly one hour in. (600 slots make an epoch on the full
-network; the tiny one your tests run on uses 12. Epochs come back in [lesson
-7.1](../07-time-and-shuffling/01-epochs.md).)
+The zero is the JAM Common Era, 1,735,732,800 seconds after the
+[*Unix epoch*](../glossary.md#unix-epoch): 00:00 UTC on 1 January 1970, the moment most
+computer clocks count from. (Nothing to do with a JAM epoch.) Why midday? So that all the
+major time zones share the same date at every whole day of the era.
 
-Every block header names its slot, and a block may not come from the future: its slot
-times P can't be later than the current time (§5). Why midday? So that all the major
-time zones share the same date at every whole day of the era.
+One slot lasts P = 6 seconds, so an hour is 600 slots, and a day is
+86,400 seconds / 6 = 14,400 slots. 600 slots make an epoch on the full network; the tiny
+one your tests run on uses 12. Epochs come back in
+[lesson 7.1](../07-time-and-shuffling/01-epochs.md).
+
+Every block header names its slot ([lesson 4.6](../04-blocks/06-the-header.md)), and a
+block may not come from the future: its slot times P can't be later than the current
+time (§5).
 
 A slot number is a u32, (4.28), so the clock runs out after 2³² slots. Work it out and
 the paper is a year early: 2³² × 6 = 25,769,803,776 seconds after the era began is
 13 August 2841, not 2840. Either way, nobody reading this needs to worry.
 
-Try the clock. Pick a moment, or nudge it a millisecond at a time, and watch which slot
-it falls in. Stop at 5.999 seconds in: rounding down says slot 0, and rounding to the
-nearest whole number says 1. That difference is the bug you will hunt in a minute.
-
-<SlotClock />
-
 ## The test comes first
 
-You are about to write a test for a function that doesn't exist yet. That's the plan:
-test-driven development. The test says what `slotAt` must do, then you write `slotAt`
+A [*test*](../glossary.md#test) is a small program that checks one thing your code should
+do, and fails loudly if it doesn't. You are about to write one for a function that doesn't
+exist yet. That's the plan: the test says what `slotAt` must do, then you write `slotAt`
 to make it true.
 
 **New file** `test/time.test.ts`
@@ -133,10 +132,12 @@ test("an hour is 600 slots", () => {
 });
 ```
 
-`node:test` gives you `test(name, fn)`. `node:assert/strict` gives you assertions that
-compare exactly, so `assert.equal(1, "1")` fails, as it should.
+`node:test` gives you `test(name, fn)`. `node:assert/strict` gives you
+[*assertions*](../glossary.md#assertion) that compare exactly, so `assert.equal(1, "1")`
+fails, as it should. An assertion is one check inside a test: if the value isn't what it
+should be, the test fails and says what it got.
 
-Every test in this tutorial is written in steps: each value the code works out gets a
+Every test in this tutorial is written in steps. Each value the code works out gets a
 name and a type (`const lastMoment: number = ...`), and the assertion below it checks the
 name. Longer than `assert.equal(at("..."), 0)` on one line, and on purpose: you can read
 what each test compares, and when you stop a test in the debugger (this lesson's bug
@@ -144,7 +145,7 @@ hunt shows how), every step's value is there with its name.
 
 The test imports `slotAt` from a file that doesn't exist yet. Give it the smallest file
 that runs: the era's two numbers, and a `slotAt` that always says 0. Wrong on purpose. A
-test that fails because a file is missing proves only that the file is missing; a test
+test that fails because a file is missing proves only that the file is missing. A test
 that fails on its assertions proves it really checks the clock.
 
 **New file** `src/time.ts`
@@ -193,10 +194,13 @@ test at test/time.test.ts:16:1
 reported 2 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=test-1791725866613
 ```
 
-Red, for the right reason: both tests ran, and both caught the stub. Reading a failure:
-`0 !== 600` is *actual !== expected*, the test wanted 600 and got 0, as the `actual` and
-`expected` lines below say in words; `time.test.ts:18` is the assertion that failed. Now
-you know the tests really check the clock.
+Red, for the right reason: both tests ran, and both caught the stub. To read a failure:
+
+- `0 !== 600` is *actual !== expected*. The test wanted 600 and got 0, as the `actual`
+  and `expected` lines below say in words.
+- `time.test.ts:18` is the assertion that failed.
+
+Now you know the tests really check the clock.
 
 Over in Grafana, this failed run is already there: *Tests failed* is no longer 0, and
 *Test results* says which test failed and why.
@@ -260,18 +264,20 @@ Four places tell you what happened:
 3. **The line.** The failing test has three assertions; the output points at the second,
    `assert.equal(lastMoment, 0)`. `lastMoment` is `at("2025-01-01T12:00:05.999Z")`: 5.999
    seconds into the era. In slots that's 5.999 / 6 = 0.9998, and `Math.round` turns
-   0.9998 into 1. But slot 1 doesn't start until the sixth second. A slot number counts the *whole* slots that have gone by, so
-   it must round *down*.
-4. **The debugger.** Step 3 worked it out; a *debugger* lets you watch it happen. In
+   0.9998 into 1. But slot 1 doesn't start until the sixth second. A slot number counts
+   the *whole* slots that have gone by, so it must round *down*.
+4. **The debugger.** Step 3 worked it out. A [*debugger*](../glossary.md#debugger) lets
+   you watch it happen: it pauses a running program so you can read its variables. In
    `src/time.ts`, click just left of line 12's number, the `return` line. A red dot
-   appears: a *breakpoint*. Open *Run and Debug* (<kbd>⇧⌘D</kbd>, or
-   <kbd>Ctrl+Shift+D</kbd> on Windows and Linux), pick *Tests: all (npm test)* at the
-   top, and press <kbd>F5</kbd>. The test pauses on line 12, and the debugger's *Variables* list
-   shows `ms: 0`: the first assertion, 12:00:00 sharp. Press <kbd>F5</kbd> to go on, and it
-   pauses again with `ms: 5999`, the second. In the *Debug Console* (next to the
-   terminal), type `ms / (SLOT_SECONDS * 1000)` and press Enter: `0.9998333333333334`,
-   a hair under 1, and `Math.round` is about to make it 1. Press <kbd>⇧F5</kbd> to stop,
-   and click the red dot to remove it.
+   appears: a [*breakpoint*](../glossary.md#breakpoint), a line where the debugger pauses.
+   Open *Run and Debug* (<kbd>⇧⌘D</kbd>, or <kbd>Ctrl+Shift+D</kbd> on Windows and
+   Linux), pick *Tests: all (npm test)* at the top, and press <kbd>F5</kbd>. The test
+   pauses on line 12, and the debugger's *Variables* list shows `ms: 0`: the first
+   assertion, 12:00:00 sharp. Press <kbd>F5</kbd> to go on, and it pauses again with
+   `ms: 5999`, the second. In the *Debug Console* (next to the terminal), type
+   `ms / (SLOT_SECONDS * 1000)` and press Enter: `0.9998333333333334`, a hair under 1,
+   and `Math.round` is about to make it 1. Press <kbd>⇧F5</kbd> to stop, and click the
+   red dot to remove it.
 
 > [!NOTE]
 > *Tests: all (npm test)* comes from `.vscode/launch.json`, which the tutorial ships. Two
@@ -346,7 +352,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-What flows through it — the input, the values worked out, the line printed:
+What flows through it: the input, the values worked out, the line printed.
 
 ::: code-group
 
@@ -369,9 +375,8 @@ It is JAM timeslot ….
 
 :::
 
-At that moment the line would read `It is JAM timeslot 600.`; run it today and the
-number is in the millions, which is why the output below leaves it as `…` — your clock
-decides.
+At that moment the line would read `It is JAM timeslot 600.` Run it today and the number
+is in the millions, which is why the output below leaves it as `…`: your clock decides.
 
 **Run**
 
@@ -425,9 +430,10 @@ function untilSlot(slot: number): number {
 
 Three things are new:
 
-- **How long to run.** `process.argv[2]` is the first *command-line argument*, the word
-  after the file's name. `npm run now 3` means three slots. With no number, `slots`
-  is `Infinity`, and the loop never ends.
+- **How long to run.** `process.argv[2]` is the first
+  [*command-line argument*](../glossary.md#command-line-argument), the word after the
+  file's name. `npm run now 3` means three slots. With no number, `slots` is `Infinity`,
+  and the loop never ends.
 - **Waiting.** `sleep` is Node's `setTimeout` in a form you can `await`. `untilSlot` works
   out how long until a slot begins: the slot's first second, counted from the JAM Common
   Era, minus now. The slot you're in has begun already, so for that one it's 0, and the
@@ -435,7 +441,7 @@ Three things are new:
 - **A run per slot.** A run reports its numbers once (the stack refuses the same number
   twice in one report), so a clock that reports every slot makes a `Run` for each.
 
-What flows through this run — the argument, the loop it sets up, the lines printed:
+What flows through this run: the argument, the loop it sets up, the lines printed.
 
 ::: code-group
 
@@ -462,7 +468,7 @@ It is JAM timeslot ….
 
 :::
 
-The argument `3` becomes `slots`, so the loop turns three times; the first wait is 0
+The argument `3` becomes `slots`, so the loop turns three times. The first wait is 0
 because that slot has begun, and the next two are a slot's six seconds each.
 
 **Run**
@@ -522,35 +528,47 @@ clock, without sending a single message.
 ## Check your understanding
 
 ::: check
-**At 12:00:05.999 UTC on 1 January 2025, which slot is it?**
+**How do two nodes agree on which slot it is?**
+
+- [ ] The block's author announces the slot, and the others take its word
+  > No: a header names its slot, but a block may not come from the future. Each node
+  > checks that against its own clock.
+- [x] Each works it out from its own clock: the time since the JAM Common Era, in whole six-second slots
+  > Yes: one division, and no message sent. The paper presumes the nodes' clocks already
+  > agree.
+- [ ] They count the blocks so far: each block is one slot
+  > No: a slot is six seconds of time, whether a block came in it or not. Six seconds is
+  > the minimum time between blocks.
+
+**A moment is 5.999 seconds into the era. Which slot is it in, and why?**
 
 - [ ] Slot 1: 5.999 seconds is 0.9998 of a slot, nearer 1 than 0
   > No: that's the bug you hunted. `Math.round` said 1, but slot 1 doesn't begin until
   > 12:00:06.
-- [x] Slot 0: not even one whole slot has gone by
-  > Yes: a slot number counts the whole slots that have gone by, so it rounds down.
-  > 0.9998 rounds down to 0.
 - [ ] Slot 5: five whole seconds have gone by
   > No: that counts seconds. A slot is six seconds, so 5.999 seconds isn't one slot yet.
+- [x] Slot 0: a slot number counts the whole slots that have gone by, so it rounds down
+  > Yes: not even one whole slot has gone by. 0.9998 rounds down to 0.
 
-**Which slot begins at 12:00 UTC on 2 January 2025, one day into the era?**
+**A block's header names a slot that hasn't begun yet. What does the Gray Paper say of it?**
 
-- [ ] 86,400
-  > No: that's the seconds in a day, 24 × 60 × 60. A slot is six of them.
-- [ ] 1,440
-  > No: that's the minutes in a day. It would be right if a slot lasted a minute.
-- [x] 14,400
-  > Yes: 86,400 seconds / 6 = 14,400 slots. Or 24 hours × 600, since an hour is 600
-  > slots.
+- [x] It is temporarily invalid: a block may not come from the future
+  > Yes: its slot times P can't be later than the current time. That is the one use the
+  > paper makes of its assumption about time.
+- [ ] It is valid: the slot in a header is only a label
+  > No: the slot is checked against the current time. A slot still to come fails the
+  > check.
+- [ ] It is invalid for good
+  > No: the paper's word is temporarily. The block is early, not wrong.
 
 **Before writing the real `slotAt`, the lesson gave it one that always says 0. Why?**
 
-- [x] So the tests fail on their assertions, which proves they check the clock
-  > Yes: `0 !== 600` shows the test asked for the right answer and caught a wrong one.
-  > That's red for the right reason.
 - [ ] Because 0 is the right answer at the start of the era
   > No: it's right for the first six seconds only, and the stub says 0 forever. It's wrong
   > on purpose.
+- [x] So the tests fail on their assertions, which proves they check the clock
+  > Yes: `0 !== 600` shows the test asked for the right answer and caught a wrong one.
+  > That's red for the right reason.
 - [ ] Without the file, the tests would pass
   > No: they'd fail, with `Cannot find module`. That proves only that a file is missing,
   > not that the tests check anything.
@@ -559,11 +577,11 @@ clock, without sending a single message.
 
 - [ ] Without it, Node can't run the `.ts` files
   > No: Node strips the types and runs the files itself; `npm test` just did.
+- [ ] It runs the tests again, more strictly
+  > No: it runs no tests at all. It only reads the code and checks the types.
 - [x] Node strips the types without looking at them, so a type error passes `npm test`
   > Yes: Node only runs the code. `tsc`, behind `npm run typecheck`, is the one that
   > catches a type mix-up.
-- [ ] It runs the tests again, more strictly
-  > No: it runs no tests at all. It only reads the code and checks the types.
 :::
 
 ## What you have
@@ -571,7 +589,7 @@ clock, without sending a single message.
 Your first JAM rule, its tests, and a clock that reports every slot as it begins. From
 here on, every lesson's `npm test` lands in Grafana. The clock was one number you could
 check by hand. Everything after it is checked against the official test vectors, so
-[the next lesson](./05-understanding-the-vectors.md) opens that folder and shows what each kind of
-vector asks, and which file of your client will answer it.
+[the next lesson](./05-understanding-the-vectors.md) opens that folder and shows what
+each kind of vector asks, and which file of your client will answer it.
 
 Next: [0.5 Understanding the vectors](./05-understanding-the-vectors.md)

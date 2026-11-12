@@ -47,9 +47,10 @@ test("the slots under the clock surround the moment's, from 0 at the start", () 
   assert.deepEqual(slotsAround(3_600_000), [599, 600, 601, 602, 603, 604]);
 });
 
-test("lesson 0.4 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 0.4 places the widget once, at the top, under try-it and before The idea", () => {
   const raw = lessonText(LESSON);
   const at = raw.indexOf("<SlotClock />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<SlotClock />"), "placed once");
-  assert.ok(at > raw.indexOf("## What the Gray Paper says") && at < raw.indexOf("## The test comes first"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.ok(raw.indexOf("## The idea") < raw.indexOf("## What the Gray Paper says"));
 });
