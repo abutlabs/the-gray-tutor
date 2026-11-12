@@ -32,8 +32,10 @@ test("each break is named by the right rule, and 2, 1, 6 is bad_validator_index 
   assert.equal(assuranceError([{ ...START[0], onParent: false, signed: false }])!.error, "bad_attestation_parent", "the signature is checked last");
 });
 
-test("lesson 11.3 places the widget once, in What the Gray Paper says after the order paragraph", () => {
+test("lesson 11.3 places the widget once, at the top, and the order paragraph sends the reader back to it", () => {
   const at = raw.indexOf("<AssuranceRules />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<AssuranceRules />"), "placed once");
-  assert.ok(at > raw.indexOf("once everything cheap has passed.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("once everything cheap has passed."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

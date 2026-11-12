@@ -1,9 +1,31 @@
 # Timeouts
 
-A core holds one report at a time, so a report that never becomes available would block
-its core forever. JAM won't allow that. This lesson writes the rule for when a core lets
-go: the report made it, the report took too long, or the ground shifted under it. It runs
-on the chain, on every validator, right after [lesson 11.1](./01-available.md)'s count.
+**In one sentence:** a core holds one report at a time, so a report that takes too long
+to become available is dropped, and the core is free again.
+
+Report A sits on core 0, registered at slot 7. Import blocks, leave it alone until
+slot 12, and watch it go.
+
+<a id="try-it"></a>
+
+<ReportLife />
+
+## The idea
+
+A core holds one report at a time. So a report that never became available would block
+its core forever. JAM won't allow that.
+
+Think of a table held for a booking. The party gets a set time to turn up. After that,
+the table goes to someone else.
+
+A core lets go of its report in three cases:
+
+- **The report made it.** It became available, so its job on the core is done.
+- **The report took too long.** Five slots, thirty seconds, to gather its assurances.
+- **The ground shifted under it.** The validator set changed size.
+
+This lesson writes that rule. It runs on the chain, on every validator, right after
+[lesson 11.1](./01-available.md)'s count.
 
 ## What the Gray Paper says
 
@@ -62,44 +84,50 @@ $$
 
 :::
 
-In plain words, §11.2.2 defines ρ‡, the cores after the assurances. A core's pending
-report p is dropped when any of these holds:
+§11.2.2 defines ρ‡, the cores after the assurances. A core's pending report p is dropped
+when any of these holds:
 
-1. **p became available** ([lesson 11.1](./01-available.md)): its job on the core is done. It moves on to be
-   accumulated ([Part 17](../17-accumulation/index.md)).
+1. **p became available** ([lesson 11.1](./01-available.md)): its job on the core is
+   done. It moves on to be accumulated ([Part 17](../17-accumulation/index.md)).
 2. **p timed out**: the block's slot is at least p's `registered_slot` + U, where
    **U = 5** slots. Thirty seconds to gather its assurances, or it's out.
 3. **The validator set changed size**: |κ| ≠ |κ′|. Every pending report goes. The Gray
    Paper only says such reports "can be viewed as having timed out early". A likely
-   reason: each report's data was cut into one piece per validator ([lesson 3.3](../03-work-and-reports/03-a-work-report.md)), and a
-   set of another size no longer matches its pieces. [Lesson 12.4](../12-guarantees/04-bad-guarantees.md) meets the rule behind it:
-   a new report's shard count must equal the number of validators.
+   reason: each report's data was cut into one piece per validator
+   ([lesson 3.3](../03-work-and-reports/03-a-work-report.md)), and a set of another size
+   no longer matches its pieces. [Lesson 12.4](../12-guarantees/04-bad-guarantees.md)
+   meets the rule behind it: a new report's shard count must equal the number of
+   validators.
 
 Otherwise p stays, and waits another block.
 
-Try a report's whole life on tiny: six validators, two cores. Each block you import works
-in order. Its disputes clear a report judged bad ([lesson 10.3](../10-disputes/03-clearing-the-cores.md)). Its assurances make a
-report available, 5 of 6 in that one block, or let it time out. Then its guarantees put
-new reports on the cores left free ([lesson 12.3](../12-guarantees/03-onto-the-cores.md)). Report A starts on core 0, registered
-at slot 7: leave it alone until slot 12 and watch it go. Then try to guarantee a report
-onto a core that is still busy. (The validator set never changes size here.)
+Try a report's whole life on [the cores at the top](#try-it): tiny's six validators and
+two cores. Each block you import works in order.
 
-The "assured by" row starts empty at every block, and that's the Gray Paper's rule, not the
-widget forgetting. A report is available when more than two thirds assure it *in one block*:
-the count is over that block's assurances alone, and nothing carries over. Each assurance
-signs the parent block's hash ([lesson 11.3](./03-bad-assurances.md)), so it can't be reused in a later one. So a
-validator assures again in every block while it holds pieces of pending reports: one
-bitfield and one signature, for all the cores at once. "I hold my piece" is about now, and
-the chain keeps no running tally in its state.
+1. Its disputes clear a report judged bad
+   ([lesson 10.3](../10-disputes/03-clearing-the-cores.md)).
+2. Its assurances make a report available, 5 of 6 in that one block, or let it time out.
+3. Its guarantees put new reports on the cores left free
+   ([lesson 12.3](../12-guarantees/03-onto-the-cores.md)).
 
-<ReportLife />
+Report A starts on core 0, registered at slot 7: leave it alone until slot 12 and watch
+it go. Then try to guarantee a report onto a core that is still busy. (The validator set
+never changes size here.)
+
+The "assured by" row starts empty at every block. That's the Gray Paper's rule, not the
+widget forgetting. A report is available when more than two thirds assure it *in one
+block*: the count is over that block's assurances alone, and nothing carries over. Each
+assurance signs the parent block's hash ([lesson 11.3](./03-bad-assurances.md)), so it
+can't be reused in a later one. So a validator assures again in every block while it
+holds pieces of pending reports: one bitfield and one signature, for all the cores at
+once. "I hold my piece" is about now, and the chain keeps no running tally in its state.
 
 ## Splitting a function
 
-`clearCores` needs to know *which cores* became available, and [lesson 11.1](./01-available.md)'s
-`nowAvailable` already works that out, but only hands back the reports. So split it:
-`availableCores` finds the cores, and `nowAvailable` turns them into reports. Same
-behaviour, and now both users share the counting.
+`clearCores` needs to know *which cores* became available.
+[Lesson 11.1](./01-available.md)'s `nowAvailable` already works that out, but only hands
+back the reports. So split it: `availableCores` finds the cores, and `nowAvailable`
+turns them into reports. Same behaviour, and now both users share the counting.
 
 **Add to** `src/assurances.ts`
 
@@ -385,7 +413,7 @@ core   1 at slot 12: stays
 
 :::
 
-With `assurances` empty, availability can't release anything; what decides each core's
+With `assurances` empty, availability can't release anything. What decides each core's
 fate is arithmetic on two slots. Core 0 has sat since slot 7, and 12 ≥ 7 + 5, the
 timeout. Core 1 has sat since slot 11: four slots still to wait.
 
@@ -442,38 +470,6 @@ easier to test one at a time.
 ## Check your understanding
 
 ::: check
-**A report was registered at slot 7, and nobody assures it. At which slot does its core let go?**
-
-- [ ] 11
-  > No: 11 < 7 + 5. At slot 11 it may still wait.
-- [x] 12
-  > Yes: 12 ≥ 7 + 5 = 12. U is 5 slots, and at 12 they're up.
-- [ ] 13
-  > No: the rule is "at least registered slot + U", not "more than". 12 already
-  > counts.
-
-**In `assurances_for_stale_report-1`, the report from slot 7 gets all 6 assurances at slot 12, the slot it times out. What happens?**
-
-- [x] It becomes available, and its core lets go
-  > Yes: 𝐑 counts the assurances on the cores before any clearing. The vector reports
-  > it, and its core empties either way.
-- [ ] It's dropped as timed out, and the assurances are wasted
-  > No: the timeout only decides whether the core keeps it. It doesn't stop it becoming
-  > available.
-- [ ] It earns five more slots on its core
-  > No: assurances never reset the clock. A report leaves its core at its timeout at
-  > the latest.
-
-**In `val_set_size_change_clears_pending_reports-1`, κ goes from 6 validators to 3. Core 1's report was registered one slot ago, with no assurances. What happens to it?**
-
-- [ ] It stays: it has only waited one slot
-  > No: |κ| ≠ |κ′| clears every pending report, however new.
-- [ ] It stays, and now needs more than two thirds of 3
-  > No: it doesn't get to wait at all. A resize sweeps the cores.
-- [x] It's dropped: the Gray Paper calls it "timed out early"
-  > Yes: likely because its data was cut into one piece per validator of the old set,
-  > and a set of another size no longer matches its pieces.
-
 **Why does a pending report time out at all?**
 
 - [x] A core holds one report at a time, so one that never became available would block it forever
@@ -484,13 +480,56 @@ easier to test one at a time.
 - [ ] Old reports can't be accumulated
   > No: what's accumulated is what became available. The timeout is about freeing the
   > core.
+
+**A report gets enough assurances in the very block where it times out. What happens?**
+
+- [ ] It's dropped as timed out, and the assurances are wasted
+  > No: the timeout only decides whether the core keeps it. It doesn't stop it becoming
+  > available.
+- [x] It becomes available, and its core lets go
+  > Yes: 𝐑 counts the assurances on the cores before any clearing. The vector
+  > `assurances_for_stale_report-1` reports it, and its core empties either way.
+- [ ] It earns five more slots on its core
+  > No: assurances never reset the clock. A report leaves its core at its timeout at
+  > the latest.
+
+**The validator set changes size. A report has waited one slot, with no assurances. What happens to it?**
+
+- [ ] It stays: it has only waited one slot
+  > No: |κ| ≠ |κ′| clears every pending report, however new.
+- [ ] It stays, and is counted against the new set
+  > No: it doesn't get to wait at all. A resize sweeps the cores.
+- [x] It's dropped: the Gray Paper calls it "timed out early"
+  > Yes: likely because its data was cut into one piece per validator of the old set,
+  > and a set of another size no longer matches its pieces.
+
+**A report was assured by four of six validators in one block, and by two others in the next. Is it available?**
+
+- [ ] Yes: all six have assured it by now
+  > No: the chain keeps no running tally. Each block's count starts empty.
+- [x] No: more than two thirds must assure it in one block
+  > Yes: the count is over that block's assurances alone. A validator assures again in
+  > every block while it holds its pieces.
+- [ ] Yes, once the first block's assurances are sent again
+  > No: each assurance signs its parent block's hash, so it can't be reused in a later
+  > block.
+
+**The timeout is 5 slots, and the rule is "at least". A report registered at slot 7 gets no assurances. When does its core let go?**
+
+- [ ] At slot 11
+  > No: 11 < 7 + 5. At slot 11 it may still wait.
+- [x] At slot 12
+  > Yes: 12 ≥ 7 + 5 = 12. U is 5 slots, and at 12 they're up.
+- [ ] At slot 13
+  > No: the rule is "at least registered slot + U", not "more than". 12 already
+  > counts.
 :::
 
 ## What you have
 
 Your client reads every assurance, makes reports available, and frees the cores of
 reports that made it, ran out of time, or outlived their validator set. Like the court
-of [Part 10](../10-disputes/index.md), it still believes every assurance it's handed; [lesson 11.3](./03-bad-assurances.md) refuses the
-broken ones.
+of [Part 10](../10-disputes/index.md), it still believes every assurance it's handed.
+[Lesson 11.3](./03-bad-assurances.md) refuses the broken ones.
 
 Next: [11.3 Bad assurances](./03-bad-assurances.md)

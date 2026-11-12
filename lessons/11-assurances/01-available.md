@@ -1,22 +1,32 @@
 # Available
 
-A guaranteed work-report sits on its core ([lesson 10.3](../10-disputes/03-clearing-the-cores.md)) until JAM is sure its data won't
-vanish: enough validators must hold their pieces of it. Every block, validators send
-*assurances*, [lesson 4.2](../04-blocks/02-tiny-and-full.md)'s bitfields: one bit per core, 1 meaning "I hold my share of
-this core's data". Count the 1s for a core, and if more than two thirds of the
-validators say so, the report is *available*. This lesson counts.
+**In one sentence:** a report is available once more than two thirds of the validators
+say, in one block, that they hold their piece of its data.
 
-Nothing here runs a service or an authorizer. The guarantors made the shards and the
-validators signed the assurances before the block; counting them is the chain's side, on
-every validator, and [the part's page](./index.md) draws who did what.
+Six validators, two cores. Flip their bits, and watch each core's count cross the line.
 
-## New words
+<a id="try-it"></a>
 
-- **Assurance and availability.** Each validator signs one bit per core: "I hold my piece
-  of this core's data". When more than two thirds of them do, the core's report is
-  *available*. *Example:* on tiny, 5 of the 6 validators.
+<AssuranceGrid />
 
-It's in the [glossary](../glossary.md).
+## The idea
+
+A guaranteed work-report sits on its core
+([lesson 10.3](../10-disputes/03-clearing-the-cores.md)) until JAM is sure its data won't
+vanish. How can a chain be sure of that?
+
+The data is cut into one piece per validator. Every block, each validator sends an
+[*assurance*](../glossary.md#assurance), [lesson 4.2](../04-blocks/02-tiny-and-full.md)'s
+bitfield: one bit per core, 1 meaning "I hold my share of this core's data". It is a
+roll call. The chain counts the hands for each core. When more than two thirds of the
+validators have theirs up, the report is [*available*](../glossary.md#availability).
+
+An assurance says nothing about whether the work is right. It says the data is held.
+
+Nothing here runs a service or an authorizer. The guarantors made the pieces and the
+validators signed the assurances before the block. Counting them is the chain's side, on
+every validator, and [the part's page](./index.md) draws who did what. This lesson
+counts.
 
 ## What the Gray Paper says
 
@@ -151,17 +161,18 @@ $$
 
 :::
 
-In plain words, §11.1 says each core holds at most one report, ρ[c], with the slot it
-arrived; ρ†, ρ‡ and ρ′ are the same cores after each step of the block. §11.2
-(*Package Availability Assurances*) says each assurance carries a bitfield of C bits.
+§11.1: each core holds at most one report, ρ[c], with the slot it arrived. ρ†, ρ‡ and ρ′
+are the same cores after each step of the block. §11.2 (*Package Availability
+Assurances*): each assurance carries a bitfield of C bits.
 
 **Which bit is which core?** Appendix C packs bits into bytes **least significant
 first**: core 0 is the lowest bit of byte 0, core 7 the highest, core 8 the lowest bit
 of byte 1. So `0x05`, `0b0000_0101`, means cores 0 and 2.
 
-Careful: that's the *opposite* of [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s trie, which reads key bits most
-significant first. JAM uses both orders, each in its own place. Mixing them up is a
-classic way to spend an afternoon.
+Careful: that's the *opposite* of
+[lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s trie, which reads key
+bits most significant first. JAM uses both orders, each in its own place. Mixing them up
+is a classic way to spend an afternoon.
 
 **When is a report available?** 𝐑, the newly available reports, takes the cores in
 order, and a core's report joins 𝐑 if the number of assurances with its bit set is
@@ -172,11 +183,12 @@ To stay in whole numbers, multiply both sides by 3: assured × 3 > validators ×
 fractions, no rounding, no floating point.
 
 **Who assures: every validator, not the core's guarantors.** On full, each core has three
-*guarantors* (1,023 validators over 341 cores, [Part 12](../12-guarantees/index.md)): they run the work and
-sign the report. Availability is a different job, and everyone does it. The report's data
-is cut into one piece per validator (its `erasure_shards`: 6 on tiny, 1,023 on full), so
-each validator holds a piece of every core's report and assures for all the cores at once.
-An assurance's `validator_index` is the validator's place in κ, never a core:
+*guarantors* (1,023 validators over 341 cores, [Part 12](../12-guarantees/index.md)).
+They run the work and sign the report. Availability is a different job, and everyone
+does it. The report's data is cut into one piece per validator (its `erasure_shards`: 6
+on tiny, 1,023 on full). So each validator holds a piece of every core's report and
+assures for all the cores at once. An assurance's `validator_index` is the validator's
+place in κ, never a core:
 
 | | guarantees | assurances |
 | --- | --- | --- |
@@ -210,10 +222,9 @@ report is available; core 1 gets 4, one short of the 5 it needs.
 | validator_index | who: a place in κ, so the importer knows whose key checks the signature |
 | signature | that validator's Ed25519 signature, so nobody can speak for it, or change its bits |
 
-Try it on tiny: six validators, each with its one-byte bitfield, two cores. It starts with
-the counts the third test below reads from a vector, 5 for core 0 and 4 for core 1:
-
-<AssuranceGrid />
+Try it on [the grid at the top](#try-it): six validators, each with its one-byte
+bitfield, two cores. It starts with the counts the third test below reads from a vector,
+5 for core 0 and 4 for core 1.
 
 ## The tests
 
@@ -430,8 +441,8 @@ core   1: 4 of 6 hold its data: still waiting
 :::
 
 Read a `bitfield` in binary and the tabs connect: `0x03` is both cores, `0x01` core 0
-only, `0x02` core 1 only. Five validators set core 0's bit and 3·5 > 2·6, so its
-report crosses the supermajority line; four set core 1's, one short, still waiting.
+only, `0x02` core 1 only. Five validators set core 0's bit and 3·5 > 2·6, so its report
+crosses the line. Four set core 1's: one short, still waiting.
 
 **Run**
 
@@ -450,8 +461,8 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 
 Now the full-size version, `../vectors/stf/assurances/full/some_assurances-1.json`. Its
 cores alternate: 683 of 1023, *available*; 682 of 1023, *still waiting*. The test
-vectors sit exactly on the line, one validator either side, which is precisely where a
-`>=` instead of a `>` would be caught. The *Availability* panel, on the **4 · Checks**
+vectors sit exactly on the line, one validator either side. That is where a `>=` in
+place of a `>` would be caught. The *Availability* panel, on the **4 · Checks**
 dashboard, lists every core.
 
 ![Availability panel](./images/01-availability.png)
@@ -495,68 +506,57 @@ one on the chain and one off it:
 ```
 
 So availability doesn't wait for the audit. A block's import accumulates the report right
-away, on the guarantors' word and the validators' pieces, and the audit checks it
-afterwards, before the block can become final. If the audit finds it wrong, the disputes of
-[Part 10](../10-disputes/index.md) undo it. A report waits in the ready queue ([lesson 17.2](../17-accumulation/02-waiting-reports.md)) only when it
-names a package that must be accumulated first.
+away, on the guarantors' word and the validators' pieces. The audit checks it afterwards,
+before the block can become final. If the audit finds it wrong, the disputes of
+[Part 10](../10-disputes/index.md) undo it. A report waits in the ready queue
+([lesson 17.2](../17-accumulation/02-waiting-reports.md)) only when it names a package
+that must be accumulated first.
 
 ## Check your understanding
 
 ::: check
-**Core 0's report becomes available in block M. When does its service accumulate it?**
+**A validator sets a core's bit in its assurance. What is it saying?**
 
-- [ ] Only once the auditors have checked it
-  > No: accumulation doesn't wait for the audit. The audit runs off the chain afterwards,
-  > and block M can't be finalized until it's done.
-- [x] In block M itself, unless it waits on another package first
-  > Yes: it joins 𝐑 and is accumulated in the same import; only a report with a
-  > prerequisite still to come waits in the ready queue.
-- [ ] In the next block, when core 0 takes a new report
-  > No: the core's new report can come in block M too, and accumulation doesn't wait for
-  > it either way.
-
-**On full, validator 700 sends an assurance. Which cores can its bitfield speak for?**
-
-- [ ] Only the core it guarantees, one in 341
-  > No: guaranteeing is a different job. Every validator holds a piece of every core's
-  > report, so it assures for all of them.
-- [x] All 341, one bit each
-  > Yes: its `validator_index` is 700, its place in κ, and its bitfield has a bit for every
-  > core. Each bit says it holds its own piece of that core's one report, about 40 KB of a
-  > bundle at most, never the whole report.
-- [ ] Core 700 mod 341
-  > No: a validator's index never names a core. It names the validator, in κ.
-
-**Validator 3's assurance has core 0's bit set. What does that say?**
-
-- [ ] Core 0's report is correct
+- [ ] That core's report is correct
   > No: an assurance says nothing about whether the work is right. That's for the
   > disputes of [Part 10](../10-disputes/index.md).
-- [x] Validator 3 holds its piece of core 0's data
+- [x] It holds its piece of that core's data
   > Yes: one bit per core, 1 meaning "I hold my share of this core's data".
-- [ ] Validator 3 guaranteed core 0's report
+- [ ] It guaranteed that core's report
   > No: guaranteeing is vouching for the work. Assuring is only holding a piece of its
   > data.
 
-**On tiny, a core's report has 4 of the 6 validators' assurances. Is it available?**
+**Who assures a core's report?**
 
-- [ ] Yes: 4 is two thirds of 6
-  > No: two thirds isn't enough. It takes *more* than two thirds: 3 × 4 = 12 is not
-  > greater than 2 × 6 = 12.
+- [ ] The three guarantors assigned to that core
+  > No: guaranteeing is a different job. They run the work and sign the report.
+- [x] Every validator, with one bit for every core
+  > Yes: the report's data is cut into one piece per validator, so each holds a piece
+  > of every core's report. On full, one bitfield speaks for all 341 cores.
+- [ ] The validator whose index matches the core
+  > No: a validator's index never names a core. It names the validator, in κ.
+
+**Exactly two thirds of the validators assure a core's report: 4 of tiny's 6. Is it available?**
+
+- [ ] Yes: two thirds is the line
+  > No: it takes *more* than two thirds. 3 × 4 = 12 is not greater than 2 × 6 = 12.
 - [ ] Yes: a majority holds the data
   > No: half plus one isn't the line. More than two thirds is.
-- [x] Not yet: it needs 5 or more
-  > Yes: 3 × 5 = 15 > 12. In `some_assurances-1`, core 0 has 5 and becomes
-  > available, core 1 has 4 and waits.
+- [x] Not yet: it needs 5
+  > Yes: 3 × 5 = 15 > 12. In `some_assurances-1`, core 0 has 5 and becomes available,
+  > core 1 has 4 and waits.
 
-**What does one bit of an assurance's bitfield stand for?**
+**A core's report becomes available in a block. When does its service accumulate it?**
 
-- [x] One core: a 1 says this validator holds its piece of that core's report
-  > Yes: one bit per core, so a full assurance speaks for all 341 cores at once.
-- [ ] One validator
-  > No: the assurance is already one validator's. Its bits are the cores.
-- [ ] One byte of the report's data
-  > No: the data itself never goes in the block. The bit only says "I hold my piece".
+- [ ] Only once the auditors have checked it
+  > No: accumulation doesn't wait for the audit. The audit runs off the chain afterwards,
+  > and the block can't be finalized until it's done.
+- [x] In that same block, unless it waits on another package first
+  > Yes: it joins 𝐑 and is accumulated in the same import. Only a report with a
+  > prerequisite still to come waits in the ready queue.
+- [ ] In the next block, when the core takes a new report
+  > No: the core's new report can come in the same block too, and accumulation doesn't
+  > wait for it either way.
 
 **On full, `some_assurances-1` gives its cores 683 and 682 assurances, alternately. Why those counts?**
 
@@ -575,6 +575,6 @@ names a package that must be accumulated first.
 
 Your client can read a bitfield the right way round, count assurances per core, and say
 which reports just became available. A report that never gets there can't sit on its
-core forever, though: [lesson 11.2](./02-timeouts.md) decides when a core lets go.
+core forever, though. [Lesson 11.2](./02-timeouts.md) decides when a core lets go.
 
 Next: [11.2 Timeouts](./02-timeouts.md)

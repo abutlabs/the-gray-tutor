@@ -1,23 +1,33 @@
 # Bad assurances
 
+**In one sentence:** an assurance counts only if it keeps five rules, and one that breaks
+any of them gets the whole block that carries it refused.
+
+Here are tiny's assurances, all good. Break one, and see which rule names the fault.
+
+<a id="try-it"></a>
+
+<AssuranceRules />
+
+## The idea
+
 So far your client has believed every assurance it was handed. A real block can carry a
 broken one: signed with the wrong key, anchored on the wrong block, claiming a core with
-nothing on it. The assurance was signed off the chain, by one validator; the checking is
-on the chain, by all of them. This lesson writes down the five rules an assurance must
-keep and checks them against every assurances vector, including the six on each size
-meant to fail.
+nothing on it.
 
-## New words
+The assurance was signed off the chain, by one validator. The checking is on the chain,
+by all of them. So every assurance must keep five rules.
 
-- **Anchor.** The block an assurance was made on top of: it must be the parent of the
-  block carrying it. *Example:* an assurance anchored two blocks back is refused.
-- **Rejected block.** A block that breaks any rule. It's refused whole: nothing in it
-  counts, and the state stays exactly as it was. *Example:* one bad signature among six
-  assurances sinks the block.
-- **Error name.** The test vectors' name for the rule a rejected block breaks.
-  *Example:* `bad_signature`.
+One of them needs a word. An assurance's [*anchor*](../glossary.md#anchor) is the block
+it was made on top of, and it must be the parent of the block carrying it.
 
-All three are in the [glossary](../glossary.md).
+Break any rule and the result is a [*rejected block*](../glossary.md#rejected-block). It
+is refused whole: nothing in it counts, and the state stays exactly as it was. Like a
+form with one false line, handed back unprocessed. The test vectors name the rule that
+was broken, with an [*error name*](../glossary.md#error-name) such as `bad_signature`.
+
+This lesson writes the five rules down and checks them against every assurances vector,
+including the six on each size meant to fail.
 
 ## What the Gray Paper says
 
@@ -114,7 +124,7 @@ $$
 
 :::
 
-In plain words, §11.2.1 (*The Assurances Extrinsic*), with the assurance's own type from
+§11.2.1 (*The Assurances Extrinsic*), with the assurance's own type from
 [lesson 11.1](./01-available.md), gives every assurance in a block five rules:
 
 1. **Anchored on the parent.** Its anchor is H_P, the hash of the block before this one.
@@ -125,44 +135,52 @@ In plain words, §11.2.1 (*The Assurances Extrinsic*), with the assurance's own 
    twice. (`not_sorted_or_unique_assurers`)
 4. **Only cores with something on them.** A bit may be set only for a core with a report
    pending in ρ†, the cores after the judgments. (`core_not_engaged`)
-5. **Signed.** By that validator's Ed25519 key in κ, over [lesson 5.3](../05-hashing-and-signatures/03-signatures.md)'s message: `jam_available`
+5. **Signed.** By that validator's Ed25519 key in κ, over
+   [lesson 5.3](../05-hashing-and-signatures/03-signatures.md)'s message: `jam_available`
    and the hash of the parent and the bitfield. (`bad_signature`)
 
 Break any one and the whole block is invalid.
 
 **Refused, not punished.** No rule here makes anyone an offender. Culprits and faults
-([Part 10](../10-disputes/index.md)) are the only offenses the chain records, and a bad assurance is neither: the
-block that carries it is refused, which costs its author the block, and a bad signature
-doesn't even prove the named validator signed. A validator that assures a piece it doesn't
-hold can't be convicted on-chain either, since a missing piece only shows off the chain, as
-a request nobody answers. What the chain does keep is the good side: [Part 18](../18-statistics/index.md)'s statistics count
-each validator's assurances, for whatever pays validators to act on.
+([Part 10](../10-disputes/index.md)) are the only offenses the chain records, and a bad
+assurance is neither. The block that carries it is refused, which costs its author the
+block. A bad signature doesn't even prove the named validator signed. A validator that
+assures a piece it doesn't hold can't be convicted on-chain either: a missing piece only
+shows off the chain, as a request nobody answers. What the chain does keep is the good
+side. [Part 18](../18-statistics/index.md)'s statistics count each validator's
+assurances, for whatever pays validators to act on.
 
-**Anchored on the parent.** [Lesson 11.1](./01-available.md) showed one assurance field by field. Rule 1 is
-about its first field, the anchor: it must be H_P, the hash of the header of the block
-that block B builds on: in this vector, the input's `parent` and every assurance's `anchor`
-are the same `0xd61a38a0…`. It is the parent's header hash, the block's name, not a state
-root: the state after the parent is a different hash, the `parent_state_root` in B's own
-header ([lesson 4.6](../04-blocks/06-the-header.md)). Why the header, when the state root is just as much at hand? The Gray
-Paper doesn't say; the likely reason is that a header hash names one block, and with it its
-whole chain, while a state root only sums up what a state holds. An assurance must never be
-counted on the wrong fork, and every other reference to a block in JAM (a report's anchor,
-a judgment, a finality vote) names it by its header hash too. That is what an assurance is about: which reports were waiting after P, and
-which of them the validator holds. So it belongs in P's child and nowhere else. An
-assurance anchored further back speaks about cores that may have changed since (a report
-can have timed out, a new one arrived), and it could be replayed block after block. The
-anchor is inside what's signed, so nobody can re-anchor another validator's assurance
-either. On the network, the same assurance travels without its index: the connection it
-arrives on says who sent it.
+**Anchored on the parent.** [Lesson 11.1](./01-available.md) showed one assurance field
+by field. Rule 1 is about its first field, the anchor. It must be H_P, the hash of the
+header of the block that block B builds on. In this vector, the input's `parent` and
+every assurance's `anchor` are the same `0xd61a38a0…`.
 
-The Gray Paper says which rules hold, not which one to name first when several break.
-The vectors pin that down in one place: an index past the end is named before an
-unsorted list. Fair enough, since the Gray Paper's own type for an assurance (an index
-*below |κ|*) makes such an assurance not even an assurance. The other choice is this
-client's own: the signatures come last, because checking one is far slower than
-comparing two numbers, so it's worth doing only once everything cheap has passed.
+It is the parent's header hash, the block's name, not a state root. The state after the
+parent is a different hash, the `parent_state_root` in B's own header
+([lesson 4.6](../04-blocks/06-the-header.md)). Why the header, when the state root is
+just as much at hand? The Gray Paper doesn't say. The likely reason: a header hash names
+one block, and with it its whole chain, while a state root only sums up what a state
+holds. An assurance must never be counted on the wrong fork. Every other reference to a
+block in JAM (a report's anchor, a judgment, a finality vote) names it by its header
+hash too.
 
-<AssuranceRules />
+That is what an assurance is about: which reports were waiting after P, and which of
+them the validator holds. So it belongs in P's child and nowhere else. An assurance
+anchored further back speaks about cores that may have changed since (a report can have
+timed out, a new one arrived), and it could be replayed block after block. The anchor is
+inside what's signed, so nobody can re-anchor another validator's assurance either. On
+the network, the same assurance travels without its index: the connection it arrives on
+says who sent it.
+
+**Which rule is named first.** The Gray Paper says which rules hold, not which one to
+name first when several break. The vectors pin that down in one place: an index past the
+end is named before an unsorted list. Fair enough, since the Gray Paper's own type for
+an assurance (an index *below |κ|*) makes such an assurance not even an assurance. The
+other choice is this client's own: the signatures come last, because checking one is far
+slower than comparing two numbers, so it's worth doing only once everything cheap has passed.
+
+Break each rule on [the assurances at the top](#try-it), then two at once, and see which
+one is named.
 
 ## The tests
 
@@ -323,8 +341,9 @@ Five rules, five lines, in the order above:
   if (!assurances.every((a) => a.validator_index < keys.length)) return "bad_validator_index";
 ```
 
-and so on down. `every` asks whether all the assurances keep a rule. `ordered` compares each assurance with the one before it, and `engaged` walks
-every core and asks: a bit set here, with nothing on the core?
+and so on down. `every` asks whether all the assurances keep a rule. `ordered` compares
+each assurance with the one before it. `engaged` walks every core and asks: a bit set
+here, with nothing on the core?
 
 **Run**
 
@@ -536,7 +555,7 @@ stf/assurances           22 of 22  ✔
 
 :::
 
-*Run whole* means your client reads every assurance, checks every signature and bitfield, and must refuse this block with the vector's own reason, `bad_signature`; the `stf/assurances` row counts it only then.
+*Run whole* means your client reads every assurance, checks every signature and bitfield, and must refuse this block with the vector's own reason, `bad_signature`. The `stf/assurances` row counts it only then.
 
 **Run**
 
@@ -610,18 +629,6 @@ waits for everything cheaper.
 ## Check your understanding
 
 ::: check
-**An assurance's anchor is a hash. Of what?**
-
-- [ ] The state after the parent block
-  > No: that's the parent state root, a different hash, carried in the new block's header
-  > as `parent_state_root`.
-- [ ] The report it assures
-  > No: one assurance covers every core at once, so it can't name one report. Its bits
-  > say which cores.
-- [x] The parent block's header: H_P, the same hash as the new block's `parent`
-  > Yes: the anchor names the block the validator looked at, and only that block's child
-  > can carry the assurance.
-
 **One assurance in a block sets the bit for a core with nothing on it. What happens?**
 
 - [ ] That bit is ignored, and the rest of the block counts
@@ -631,15 +638,28 @@ waits for everything cheaper.
 - [ ] The assurance counts for that core once a report arrives
   > No: nothing carries over. An assurance only counts in its own block.
 
-**An assurance is anchored on the block two back, not the parent. What happens?**
+**An assurance's anchor is a hash. Of what, and why must it be that one?**
 
-- [ ] Fine: any of the last eight blocks will do
-  > No: that's a guarantee's anchor, in [lesson 9.2](../09-recent-history/02-recent-blocks.md). An assurance's anchor must be the
-  > parent.
-- [ ] Fine, as long as its bits are for cores with reports
-  > No: every rule must hold. The anchor rule alone refuses the block.
-- [x] The block is refused, `bad_attestation_parent`
-  > Yes: rule 1. Its anchor must be H_P, the block this one is built on.
+- [ ] The state after the parent block, so the validator's view of the cores is fixed
+  > No: that's the parent state root, a different hash, carried in the new block's header
+  > as `parent_state_root`. The anchor is a header hash.
+- [ ] The report it assures, so it can't be moved to another report
+  > No: one assurance covers every core at once, so it can't name one report. Its bits
+  > say which cores.
+- [x] The parent block's header, so the assurance counts in that block's child and nowhere else
+  > Yes: it speaks about the cores as the parent left them. Anchored further back, it
+  > could speak of cores that have changed, and be replayed block after block.
+
+**A block carries an assurance with a forged signature. Who does the chain record as an offender?**
+
+- [ ] The validator the assurance names
+  > No: a bad signature doesn't even prove the named validator signed.
+- [x] Nobody: the block is refused, which costs its author the block
+  > Yes: refused, not punished. Culprits and faults, from the disputes of
+  > [Part 10](../10-disputes/index.md), are the only offenses the chain records.
+- [ ] The block's author, as a culprit
+  > No: culprits come only from disputes. A refused block leaves no record at all: the
+  > state stays as it was.
 
 **On tiny, a block's assurances come from validators 2, 1 and 6, in that order. Which error do the vectors give?**
 
@@ -666,9 +686,9 @@ waits for everything cheaper.
 ## What you have
 
 Assurances that are checked, not trusted: five rules, and every official assurances
-vector, tiny and full, accepted or refused just as it should be and passing whole. [Part
-11](./index.md) is done. A
-report reaches a core in the first place because guarantors vouch for it, and
-[Part 12](../12-guarantees/index.md) checks their guarantees.
+vector, tiny and full, accepted or refused just as it should be and passing whole.
+[Part 11](./index.md) is done. A report reaches a core in the first place because
+guarantors vouch for it, and [Part 12](../12-guarantees/index.md) checks their
+guarantees.
 
 Next: [Part 12 · Guarantees](../12-guarantees/index.md)
