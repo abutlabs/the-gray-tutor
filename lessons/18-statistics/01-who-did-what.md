@@ -15,8 +15,8 @@ lands.
 Validators do the chain's work. They make blocks, vouch for work-reports, and confirm
 they hold their share of the data. Who pays them for it?
 
-Not JAM. JAM keeps the timesheet, and someone else does the paying: Polkadot's staking
-system, in the Gray Paper's picture. The timesheet is the
+Not JAM. JAM keeps the time sheet, and someone else does the paying: Polkadot's staking
+system, in the Gray Paper's picture. The time sheet is the
 [*validator statistics*](../glossary.md#validator-statistics): six counts for each
 validator.
 
@@ -675,7 +675,7 @@ the head of the Safrole state. Then the author's block is counted, in the fresh 
   > No: JAM pays nobody. It only keeps the score.
 - [x] Whoever pays the validators, to see who earned it
   > Yes: in the Gray Paper's picture that is Polkadot's staking system. The chain keeps
-  > the timesheet, and someone else does the paying.
+  > the time sheet, and someone else does the paying.
 - [ ] The block author, to choose whose assurances to include
   > No: nothing in a block's rules reads the tally. It is written each block, for
   > readers outside.
