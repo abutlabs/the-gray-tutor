@@ -1,22 +1,34 @@
 # Ejecting a service
 
-Services don't live for ever. When one is done, it can arrange to be removed: it names
-another service as its ejector, lets go of everything it keeps, and waits. Later, the
-ejector calls `eject`: the finished service is gone, and its leftover balance goes to the
-ejector. This lesson builds the call, and teaches a round to remove an account. Ten more
-official vectors pass whole.
+**In one sentence:** a finished service can be removed from the state, but only by the
+service it named, and only once it has let go of everything it keeps.
 
-## New words
+Here is a service ready to go, and the service it named. Call `eject`, then change one
+thing at a time and see which check refuses.
 
-- **Eject.** Removing a finished service from the state, for good. *Example:* service 0
-  ejects service 2, and service 2 is gone.
-- **Ejector.** The service a finished service has named to remove it. It names it in an
-  odd place: its code hash becomes the ejector's id, in 32 bytes. *Example:* a code hash of
-  32 zero bytes names service 0.
-- **Expunge period (D).** How many slots a forgotten preimage must wait before it can go:
-  32 on tiny, 19,200 on full. *Example:* forgotten at slot 10, gone from slot 43 on tiny.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<EjectService />
+
+## The idea
+
+Services don't live for ever. But who may remove one, and when? Its account holds a
+balance, and it may keep things someone still needs.
+
+So leaving works like moving out of a flat. You empty it, you say who gets the keys, and
+you wait. Only then can that person close it up, and what is left of the deposit goes to
+them.
+
+1. The finished service names another service to remove it: its
+   [*ejector*](../glossary.md#ejector).
+2. It lets go of everything it keeps.
+3. It waits out the [*expunge period*](../glossary.md#expunge-period): the slots a
+   forgotten preimage must wait before it can go.
+4. The ejector calls `eject`. To [*eject*](../glossary.md#eject) a service is to remove it
+   from the state, for good. Its leftover balance goes to the ejector.
+
+This lesson builds the call, and teaches a round to remove an account. Ten more official
+vectors pass whole.
 
 ## What the Gray Paper says
 
@@ -31,7 +43,11 @@ preimage hash h:
    than D slots ago. Otherwise `HUH`.
 4. **Go.** d is removed, and d's balance is added to s's. φ₇ = `OK`. It costs 458 gas.
 
-<EjectService />
+The ejector is named in an odd place: d's code hash becomes the ejector's id, in 32
+bytes. A code hash of 32 zero bytes names service 0. D, the expunge period, is 32 slots
+on tiny and 19,200 on full: a preimage forgotten at slot 10 can go from slot 43 on tiny.
+
+Try each check on [the two services at the top](#try-it).
 
 Why such a fuss? An account holds a deposit for everything it keeps. Making d let go of
 everything first, and wait out the expunge period, means nothing is lost that someone
@@ -39,10 +55,10 @@ might still need.
 
 **The round** needs one more rule. Each run works on its own copy of the accounts, so a
 run that ejected d left a copy without it. After the round, any account some run removed
-is removed, whatever the other runs' copies say: the Gray Paper's **(d ∪ n) \ m**
-(the line for 𝐝′ in [Δ\*](./01-a-blocks-accumulation.md#gp-12-2-p15)), where
-m is every account some run removed. (n is each run's own account as it left it, plus any
-it created: [lesson 17.8](./08-creating-a-service.md).)
+is removed, whatever the other runs' copies say. That is the Gray Paper's
+**(d ∪ n) \ m** (the line for 𝐝′ in [Δ\*](./01-a-blocks-accumulation.md#gp-12-2-p15)),
+where m is every account some run removed. (n is each run's own account as it left it,
+plus any it created: [lesson 17.8](./08-creating-a-service.md).)
 
 ## The tests
 
@@ -192,7 +208,7 @@ export function eject(m: Machine, a: Accumulation, t: number, D: number): HostEx
 }
 ```
 
-`a.accounts.delete` removes d from this run's copy of the accounts, which is also why a
+`a.accounts.delete` removes d from this run's copy of the accounts. That is also why a
 second `eject` of d finds nobody: it's gone from the very accounts the next call reads.
 
 The host answers call 22:
@@ -353,7 +369,7 @@ reported 561 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 No new program: `bin/host.ts` already names every call.
 
 **What flows through it.** Service 0's work orders it to eject service 2, which named service 0
-as its ejector long ago:
+as its ejector long ago.
 
 ::: code-group
 
@@ -466,25 +482,28 @@ that the second try finds nobody.
   > No: empty code hashes to something else (Blake2b of nothing starts `0x0e5751c0`).
   > These 32 bytes are an id, not the hash of any code.
 
-**Service 1 forgot its last preimage at slot 10. On tiny, where D is 32, service 0 tries to eject it at slot 42. What happens?**
+**A service is ready to go in every way but one: it forgot its last preimage exactly D slots ago. Its ejector calls `eject`. What happens?**
 
 - [ ] `OK`: 32 slots have passed
-  > No: it needs more than D slots. 10 < 42 − 32 is false: one slot short.
+  > No: it needs more than D slots. In the test, forgotten at slot 10 and tried at
+  > slot 42 with D = 32: 10 < 42 − 32 is false, one slot short.
 - [x] `HUH`: it was forgotten too recently
-  > Yes: the forget has to be more than 32 slots back. At slot 43 it is, and the eject
-  > goes.
-- [ ] `WHO`: service 1 isn't ready to go
-  > No: `WHO` means no such service, or one that didn't name this ejector. Service 1
-  > named service 0, so the answer is `HUH`.
+  > Yes: the forget has to be more than D slots back. In the test, at slot 43 it is,
+  > and the eject goes.
+- [ ] `WHO`: the service isn't ready to go
+  > No: `WHO` means no such service, or one that didn't name this ejector. This one
+  > named its ejector, so the answer is `HUH`.
 
-**In `work_for_ejected_service-2`, service 0 ejects service 2. Each had 227,714. How much does service 0 have afterwards?**
+**What happens to an ejected service's balance?**
 
-- [x] 455,428
-  > Yes: the ejected service's balance goes to its ejector: 227,714 + 227,714.
-- [ ] 227,714: service 2's balance goes with it
+- [x] It goes to its ejector
+  > Yes: in `work_for_ejected_service-2`, service 0 ejects service 2. Each had
+  > 227,714, and service 0 ends with 455,428.
+- [ ] It goes with the service: an account removed is money removed
   > No: nothing is thrown away. The balance is passed on to the ejector.
-- [ ] 227,714: service 2's balance goes to the service that created it
-  > No: the ejector gets it, the service 2 named in its code hash, whoever created it.
+- [ ] It goes back to the service that created it
+  > No: the ejector gets it, the service named in the code hash, whoever created the
+  > account.
 
 **Service 0 ejects service 2 in round 1. Service 5 runs in the same round, and its copy of the accounts still has service 2. After the round?**
 
@@ -497,14 +516,24 @@ that the second try finds nobody.
 - [x] Service 2 is gone
   > Yes: any account some run removed is removed, whatever the other copies say:
   > (d ∪ n) \ m, with 2 in m.
+
+**Why must a service let go of everything it keeps, and wait out the expunge period, before it can be ejected?**
+
+- [ ] So that its ejector has time to change its mind
+  > No: the wait is on the preimage the service forgot, and the ejector isn't asked
+  > anything until it calls `eject`.
+- [ ] So that ejecting costs its ejector more gas
+  > No: `eject` costs 458 gas, whatever the service once kept.
+- [x] So that nothing is lost that someone might still need
+  > Yes: an account holds a deposit for everything it keeps. A service that has let
+  > go of it all, and waited, takes nothing with it but its balance.
 :::
 
 ## What you have
 
-Services that can leave: ejected by the service they named, their balance passed on, and
-rounds that remove what their runs removed. Fifty official vectors now pass as whole
-blocks. What leaves can also arrive: [lesson 17.8](./08-creating-a-service.md) lets a service create another.
-
-**Say it out loud.** Only the service it named can remove a service, once it has let go of everything, and its balance passes on.
+Services that can leave: ejected only by the service they named, once they have let go of
+everything, their balance passed on. And rounds that remove what their runs removed.
+Fifty official vectors now pass as whole blocks. What leaves can also arrive:
+[lesson 17.8](./08-creating-a-service.md) lets a service create another.
 
 Next: [17.8 Creating a service](./08-creating-a-service.md)

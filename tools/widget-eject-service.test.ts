@@ -29,6 +29,8 @@ test("the tests: OK at 100, 2,000 and service 1 gone, then WHO; WHO for itself a
 
 test("lesson 17.7 places the widget once, after step 4", () => {
   const at = raw.indexOf("<EjectService />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<EjectService />"));
-  assert.ok(at > raw.indexOf("It costs 458 gas.") && at < raw.indexOf("Why such a fuss?"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<EjectService />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("It costs 458 gas."));
+  assert.ok(back > 0 && back < raw.indexOf("Why such a fuss?"));
 });

@@ -1,23 +1,35 @@
 # Creating a service
 
-Services can make services. A running service calls `new` with the hash of the new one's
-code, pays its starting balance, and gets back the new service's id. This lesson builds
-the call, including one place where JAM picks a number nobody could have guessed. Four
-more official vectors pass whole, among them three that eject a service and then create
-one at the same id.
+**In one sentence:** a running service can create another: it gives the hash of the new
+one's code, pays its starting balance, and gets back an id nobody could have aimed for.
 
-## New words
+Here is the tests' service 0. Create a service: pick the length of its code, ask for
+gratis storage or, as the registrar, for an id, and see what it pays and which id comes
+back.
 
-- **Public id.** A service id of 2^16 or more (S = 65,536). Anyone may create a service
-  with one; ids below S are the registrar's to hand out. *Example:* 70,000 is public, 5
-  isn't.
-- **Next free id.** The id a run's next `new` will hand out: worked out from the creating
-  service's id, η′₀ and the slot, so no one can aim for a particular id, then 42 further on
-  after each use. *Example:* 70,000, then 70,042.
-- **Gratis storage.** A discount on a service's deposit: storage it may keep without
-  paying for it. Only the manager may give it. *Example:* gratis 5 from anyone else: `HUH`.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<NewService />
+
+## The idea
+
+Services can make services. Two questions come with that. Who pays for the new account?
+And who picks its id?
+
+The creator pays. A new account keeps one thing, a request for its own code, and every
+account holds a deposit for what it keeps. So the new service starts with exactly that
+deposit, taken from its creator's balance. A discount on the deposit is
+[*gratis storage*](../glossary.md#gratis-storage), and only the manager may give it.
+
+Nobody picks the id, or almost nobody. The small ids are the registrar's to hand out.
+Everything from 65,536 up is a [*public id*](../glossary.md#public-id): anyone may create
+a service there, but the id is drawn, like a ticket from a machine. The run's
+[*next free id*](../glossary.md#next-free-id) is worked out from the creating service's
+id, the block's fresh entropy and the slot. Nobody knows the entropy until the block, so
+nobody can aim for a particular id.
+
+This lesson builds the call. Four more official vectors pass whole, among them three
+that eject a service and then create one at the same id.
 
 ## What the Gray Paper says
 
@@ -36,6 +48,9 @@ All three are in the [glossary](../glossary.md).
    next free id, which then moves 42 further on (round the public range, skipping any id
    already taken). φ₇ = the new id. It costs 3,855 gas.
 
+S is 2^16 = 65,536: 70,000 is public, 5 isn't. A run that hands out 70,000 hands out
+70,042 next.
+
 Where does a run's first free id come from? Hash s's id, η′₀ and the slot, take the first
 four bytes as a number, fold it into the public range, and skip ids already taken. Nobody
 knows η′₀ until the block, so nobody can aim for an id.
@@ -46,7 +61,7 @@ checked against the Gray Paper and by hand, not by a vector. It's in
 creates a service).
 
 **The round** already handles new accounts: [lesson 17.7](./07-ejecting-a-service.md) taught it that an id a run created
-joins the accounts after the round. One case surprises: a run that ejects service 2 and
+joins the accounts after the round. One case surprises. A run that ejects service 2 and
 then creates a service at id 2 leaves the *old* service 2 in place. The id was there before
 the round and is there after, so to the Gray Paper's merge it is neither created (n) nor
 removed (m). Three of the new vectors do exactly that, and end with the old service 2.
@@ -62,11 +77,14 @@ out, and says what a block that does it is:
 
 :::
 
-In plain words: an id comes from at most one run in a round. Removed and altered ids can't
-clash, because a service that may be ejected has a code hash with no code behind it, so it
-can't run to change itself. New ids shouldn't, because each run's first free id is hashed
-from its own service's id, so two runs start in different places. And if two runs do pick the same new id, the block is invalid: a client
-rejects it, never picks a winner.
+An id comes from at most one run in a round.
+
+- **Removed and altered ids can't clash.** A service that may be ejected has a code hash
+  with no code behind it, so it can't run to change itself.
+- **New ids shouldn't.** Each run's first free id is hashed from its own service's id, so
+  two runs start in different places.
+- **If two runs do pick the same new id, the block is invalid.** A client rejects it, and
+  never picks a winner.
 
 ## The tests
 
@@ -130,7 +148,7 @@ The numbers, by hand: a new service with 20 bytes of code keeps 2 items and 81 +
 bytes, so its minimum balance is 100 + 2 × 10 + 101 = 221. Service 0 has 1000 and must keep
 170, so it can pay. With 900 bytes of code the new one would need 1101: `CASH`.
 
-<NewService />
+Try both on [the service at the top](#try-it).
 
 Then whole blocks:
 
@@ -358,7 +376,7 @@ reported 569 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ## Watch it
 
 **What flows through it.** Service 0, the registrar, is told to create a service with 1,000
-bytes of code and give it 500:
+bytes of code and give it 500.
 
 ::: code-group
 
@@ -468,13 +486,13 @@ handed out.
 ## Check your understanding
 
 ::: check
-**In the test, service 0 creates a service with 20 bytes of code, and the new one starts with 221. Where does 221 come from?**
+**A new service starts with a balance. Whose money is it, and how much?**
 
-- [ ] Every new service starts with the same balance
+- [ ] The same for every new service, set by the chain
   > No: it grows with the code. With 900 bytes of code, the new one would need 1,101.
-- [x] It's the new service's own minimum balance, and service 0 pays it
-  > Yes: 2 items and 81 + 20 = 101 bytes make 100 + 2 × 10 + 101 = 221. Service 0 is
-  > left with 779.
+- [x] The new service's own minimum balance, paid by the service that creates it
+  > Yes: in the test, 2 items and 81 + 20 = 101 bytes make 100 + 2 × 10 + 101 = 221.
+  > Service 0 is left with 779.
 - [ ] The chain creates it, as a welcome gift
   > No: the chain makes no money here. Service 0's balance goes down by exactly 221.
 
@@ -512,11 +530,10 @@ handed out.
 
 ## What you have
 
-Services that make services: paid for, numbered so nobody can aim, and the registrar's
-small ids. Fifty-four official vectors pass as whole blocks. Until now, every report in a
-block went in round 1, however much gas it asked for. A block only has so much:
+Services that make services: the creator pays the deposit, the id comes from a hash of
+fresh entropy so nobody can aim, and the small ids are the registrar's. Fifty-four
+official vectors pass as whole blocks. Until now, every report in a block went in round
+1, however much gas it asked for. A block only has so much:
 [lesson 17.9](./09-the-blocks-gas-budget.md) gives it a budget.
-
-**Say it out loud.** A service can create another and pays its deposit. The new id comes from a hash of fresh entropy, so nobody can aim for one.
 
 Next: [17.9 The block's gas budget](./09-the-blocks-gas-budget.md)

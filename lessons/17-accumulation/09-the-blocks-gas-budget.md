@@ -1,23 +1,35 @@
 # The block's gas budget
 
+**In one sentence:** a block's accumulation has a gas budget: a round takes reports only
+while their gas fits, and the rest wait for the next round, which gets what is left.
+
+Here are some reports and a block's budget. Run the rounds: see which reports each one
+takes, and what is left for the next.
+
+<a id="try-it"></a>
+
+<BudgetRounds />
+
+## The idea
+
 Accumulation runs on gas, and a block has only so much of it. Until now your client ran
-every report in round 1, as if the tank were bottomless. The Gray Paper gives the block a
-budget: a round takes reports only while they fit, and the rest wait for the next round,
-which gets whatever the last one didn't spend. By the end of this lesson your client keeps
-that budget, and an official vector that depends on it passes: a service is ejected in
-round 1 and created again in round 2.
+every report in round 1, as if the tank were bottomless. What happens when the reports
+ask for more than the block has?
 
-## New words
+The block gets a [*gas budget*](../glossary.md#gas-budget), for all its rounds together.
+A round fills up like a lift with a weight limit. Reports board in order while their gas
+still fits. The first that doesn't fit waits, and so does everyone behind it: nobody
+jumps the queue.
 
-- **Gas budget (g).** The gas a block's accumulation may use, all rounds together: the
-  bigger of *G_T*, the block's own limit, and G_A for every core plus the
-  always-accumulate services' gas. *Example:* on tiny, max(20M, 10M × 2 + 0) = 20M.
-- **G_T.** The protocol's gas limit for a whole block's accumulation, `max_block_gas` in
-  your config. *Example:* 20,000,000 on tiny, 3,500,000,000 on full.
-- **Leftover budget (g\*).** The next round's budget: the last round's budget, plus the
-  gas its new transfers carry, minus the gas it used. *Example:* 20M + 0 − 0.35M = 19.65M.
+Those left behind go in the next round. Its budget is the
+[*leftover budget*](../glossary.md#leftover-budget): what the last round didn't spend,
+plus the gas its new transfers carry.
 
-All three are in the [glossary](../glossary.md).
+How big is the budget? Big enough that every core can bring one report asking for the
+most a report may, with the always-accumulate services' gas on top.
+
+By the end of this lesson your client keeps that budget, and an official vector that
+depends on it passes: a service is ejected in round 1 and created again in round 2.
 
 ## What the Gray Paper says
 
@@ -175,10 +187,13 @@ $$
 
 :::
 
-In plain words, Δ+ in full is five steps:
+Δ+ in full is five steps:
 
-1. **The budget.** g = max(G_T, G_A × C + the always-accumulate services' gas). G_A is
+1. **The budget.** g = max(G_T, G_A × C + the always-accumulate services' gas).
+   [*G_T*](../glossary.md#g-t) is the protocol's limit for a whole block's accumulation,
+   `max_block_gas` in your config: 20,000,000 on tiny, 3,500,000,000 on full. G_A is
    the most gas one report may ask for ([lesson 12.5](../12-guarantees/05-bad-reports.md)), C the number of cores.
+   On tiny, max(20M, 10M × 2 + 0) = 20M.
 2. **A round takes what fits.** Count the transfers' gas and the always-accumulate gas
    first. Then take reports in order while their gas still fits in g: the longest such
    run of reports. The first that doesn't fit, and everything after it, waits.
@@ -192,17 +207,19 @@ Why give every core a whole G_A? So a block can always fit one maximal report pe
 the budget is sized for the busiest block guarantees allow. Reports unlocked from the queue
 can push past it, and then the rounds share the work out.
 
-Try it with the check questions' reports, or the vector's:
-
-<BudgetRounds />
+Try it on [the rounds at the top](#try-it), with the check questions' reports or the
+vector's.
 
 Here's the vector that needs it. Its two reports ask for 19,800,000 + 200,000 and 2,000,000
 gas. (That first one is twice G_A, more than a guaranteed report may ask for: the vector
-breaks the limit on purpose, to force a second round.) The first takes the whole 20M, so the second waits for round 2. And the order matters:
-round 1 ejects service 2, round 2 creates a service 2 again. Squeezed into one round, both
-would happen in the same run of service 0, which ends with *a* service 2 in its accounts,
-just as the round began. [Lesson 17.7](./07-ejecting-a-service.md)'s merge looks at which ids are there, not at what they
-hold, so the old service 2 would survive and the new one would be lost.
+breaks the limit on purpose, to force a second round.) The first takes the whole 20M, so
+the second waits for round 2.
+
+And the order matters: round 1 ejects service 2, round 2 creates a service 2 again.
+Squeezed into one round, both would happen in the same run of service 0, which ends with
+*a* service 2 in its accounts, just as the round began.
+[Lesson 17.7](./07-ejecting-a-service.md)'s merge looks at which ids are there, not at
+what they hold, so the old service 2 would survive and the new one would be lost.
 
 ## A red you can read
 
@@ -210,7 +227,7 @@ Before the new vector, a fix to the test that checks whole blocks. Run this vect
 your client as it is, and `checkBlock` finds the accounts differ, as it should. Then
 `assert.deepEqual` sets out to print the difference between two whole sets of accounts,
 each holding its service's code: hundreds of thousands of bytes, compared line by line.
-On a laptop that takes over a minute and a gigabyte of memory, and then the test runner
+On a laptop that takes over a minute and a gigabyte of memory. Then the test runner
 gives up without a word about what differed. A red you can't read is barely a red.
 
 So `checkBlock` compares the accounts piece by piece: their info first, then storage,
@@ -504,8 +521,8 @@ adding them up one at a time:
 ```
 
 The loop stops when a round would have nothing to do (step 3). `budget` becomes g\* after
-each round (step 4). And `done` keeps the reports that actually ran, for the statistics,
-the history and the queue (step 5); `rounds` counts how many each round took.
+each round (step 4). `done` keeps the reports that actually ran, for the statistics, the
+history and the queue (step 5). `rounds` counts how many each round took.
 
 **Run**
 
@@ -592,7 +609,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** Two reports that can't share a round: the first asks for the
-whole budget:
+whole budget.
 
 ::: code-group
 
@@ -693,16 +710,17 @@ and so took reports the Gray Paper defers. Your `spent` starts with it.
 ## Check your understanding
 
 ::: check
-**On tiny, G_T is 20,000,000 and G_A is 10,000,000. If the always-accumulate services had 5,000,000 gas between them, what would the block's budget be?**
+**Why is the block's budget the bigger of G_T and a whole G_A for every core, plus the always-accumulate gas?**
 
-- [ ] 20,000,000: G_T is the block's limit
-  > No: the budget is the bigger of two numbers, and here the other one is bigger:
-  > 10M × 2 + 5M = 25M.
-- [x] 25,000,000
-  > Yes: max(20M, 10M × 2 cores + 5M) = 25M. Every core's G_A, and the free gas on top,
-  > must fit.
-- [ ] 45,000,000
-  > No: the two are compared, not added. The budget is max(20M, 25M).
+- [ ] It isn't: G_T is the block's limit, whatever the cores bring
+  > No: the budget is the bigger of the two. On tiny, with 5,000,000 of free gas, it
+  > would be max(20M, 10M × 2 + 5M) = 25M, over G_T.
+- [x] So that a block can always fit one maximal report per core, and the free gas on top
+  > Yes: the budget is sized for the busiest block guarantees allow. Every core's
+  > G_A, and the always-accumulate gas, must fit.
+- [ ] So that the two limits add up, and a block gets both
+  > No: the two are compared, not added. With 5,000,000 of free gas on tiny that is
+  > max(20M, 25M) = 25M, not 45M.
 
 **Four reports can go, asking for 6M, 9M, 7M and 2M gas, in that order. The budget is 20M, with nothing else to pay for. What does round 1 take?**
 
@@ -739,11 +757,9 @@ and so took reports the Gray Paper defers. Your `spent` starts with it.
 
 ## What you have
 
-The block's gas budget: rounds take what fits, the rest wait, and leftover gas carries
-over. Fifty-five official vectors pass as whole blocks. Each of the eight left needs a host call
-your client doesn't answer yet, and the simplest is a service replacing its own code:
-[lesson 17.10](./10-upgrading-a-service.md).
-
-**Say it out loud.** A block has a gas budget. A round takes reports while they fit, and the rest wait for the next round.
+The block's gas budget: a round takes reports while they fit, the rest wait for the next
+round, and leftover gas carries over. Fifty-five official vectors pass as whole blocks.
+Each of the eight left needs a host call your client doesn't answer yet. The simplest is
+a service replacing its own code: [lesson 17.10](./10-upgrading-a-service.md).
 
 Next: [17.10 Upgrading a service](./10-upgrading-a-service.md)

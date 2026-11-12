@@ -37,6 +37,8 @@ test("the refusals: gratis is HUH, 900 bytes is CASH (1,101), a taken id is FULL
 
 test("lesson 17.8 places the widget once, after the numbers by hand", () => {
   const at = raw.indexOf("<NewService />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<NewService />"));
-  assert.ok(at > raw.indexOf("would need 1101: `CASH`.") && at < raw.indexOf("Then whole blocks:"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<NewService />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("would need 1101: `CASH`."));
+  assert.ok(back > 0 && back < raw.indexOf("Then whole blocks:"));
 });

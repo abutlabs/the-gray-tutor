@@ -34,6 +34,8 @@ test("the vector: 20,000,000 then 2,000,000, one report each round", () => {
 
 test("lesson 17.9 places the widget once, before the vector that needs it", () => {
   const at = raw.indexOf("<BudgetRounds />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<BudgetRounds />"));
-  assert.ok(at > raw.indexOf("the rounds share the work out.") && at < raw.indexOf("Here's the vector that needs it."));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<BudgetRounds />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("the rounds share the work out."));
+  assert.ok(back > 0 && back < raw.indexOf("Here's the vector that needs it."));
 });
