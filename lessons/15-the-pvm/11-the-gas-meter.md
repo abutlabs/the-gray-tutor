@@ -1,10 +1,34 @@
 # The gas meter
 
+**In one sentence:** the machine pays for a whole basic block before it runs any of it,
+so a program that can't pay stops at the block's door, at the same place on every
+validator.
+
+Here is a program of three blocks: a start, a loop that runs three laps, and an end with
+a host call. Set the starting gas and step, and watch a whole block's price go at each
+door.
+
+<a id="try-it"></a>
+
+<GasMeter />
+
+## The idea
+
 Two lessons built the price list: what each instruction costs, and what each basic block
-costs once the model CPU has run it. Now the meter that charges it. The rule is short and
-strict: **pay for the whole block on the way in.** Not as you go, not afterwards. If the
-gas for the block isn't there, not one instruction of it runs. A program that loops
-forever? It pays at every lap, and sooner or later it can't.
+costs once the model CPU has run it. One question is left: when is the gas taken?
+
+The rule is short and strict: **pay for the whole block on the way in.** Not as you go,
+not afterwards. It is a turnstile, not a taxi meter. If the gas for the block isn't there,
+not one instruction of it runs, and nothing changes. The machine stops,
+[*out of gas*](../glossary.md#out-of-gas).
+
+So there is no such thing as half a block. A block is run whole or not at all, and every
+validator runs out of gas at exactly the same place.
+
+And the program that loops forever? A jump back to the start of a block comes in through
+the door again, so a loop pays at every lap. Sooner or later it can't.
+
+This lesson builds the meter, and runs the real service on a budget.
 
 ## What the Gray Paper says
 
@@ -115,7 +139,7 @@ $$
 
 :::
 
-In plain words, the machine carries its gas ϱ and a flag, ϱ̃: has the basic block it's in
+The machine carries its gas ϱ and a flag, ϱ̃: has the basic block it's in
 been paid for yet?
 
 - **On a step, if the flag is off**, the block's cost ϱ^Δ ([lesson 15.10](./10-the-pipeline.md)) is due. With
@@ -131,14 +155,11 @@ been paid for yet?
   15.4](./04-memory.md)), and only then the instruction's own result. The first two leave
   ı, the registers and memory as they were.
 
-Try it below, on a small program of three blocks: a start, a loop that runs three laps,
-and an end with a host call. Each block's price comes from [lesson 15.10](./10-the-pipeline.md)'s model CPU.
-Set the starting gas and step. The gas drops by a whole block's price as each block is
-entered, and the loop pays at every lap. With too little for the next block, the machine
-stops with oog at its door, and nothing in that step runs. After the `ecalli`, the rest
-of its block is already paid for.
-
-<GasMeter />
+Step the program [at the top](#try-it) again, with these rules in hand. Each block's
+price comes from [lesson 15.10](./10-the-pipeline.md)'s model CPU. The gas drops by a whole block's price as each
+block is entered, and the loop pays at every lap. With too little for the next block, the
+machine stops with oog at its door, and nothing in that step runs. After the `ecalli`,
+the rest of its block is already paid for.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Out of gas**, then **Run**. It stops at the door of a block with 16 gas left and 21 to pay. Type 23 in the gas box and run it again, then 22: one pass, then none.
 
@@ -256,7 +277,7 @@ export function runWithGas(m: Machine): Exit {
 
 The meter wraps [lesson 15.3](./03-the-machine.md)'s `step` rather than living inside it, so `machine.ts` never
 needs `gas.ts` (which already needs `machine.ts`). `stepWithGas` notes the opcode before
-stepping, because `step` moves ı on: afterwards, the question is whether the instruction
+stepping, because `step` moves ı on. Afterwards, the question is whether the instruction
 that just ran was a terminator.
 
 > [!NOTE]
@@ -344,8 +365,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The same start as [lesson 15.8](./08-a-real-program.md)'s
-going in, twice with different budgets, the meter's arithmetic, and the lines printed:
+What flows through it: the same start as [lesson 15.8](./08-a-real-program.md)'s, twice, on different budgets.
 
 ::: code-group
 
@@ -396,7 +416,7 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 The same 38 steps as [lesson 15.8](./08-a-real-program.md), now in five payments: 15, 26 ([lesson 15.10](./10-the-pipeline.md)'s block),
-27, 73, and 102 for the last block, the one with `ecalli` in it: that instruction's 100
+27, 73, and 102 for the last block, the one with `ecalli` in it. That instruction's 100
 cycles are most of the bill. 243 in all. Then the same start on a budget of 100: three
 blocks paid, 32 gas left, and the fourth costs 73. Out of gas, at the door of the block
 it couldn't afford. The *Gas* panel, on **6 · The PVM**, has both runs.
@@ -449,16 +469,17 @@ line is a tap for lasair's own debugging tools: nothing is hooked in during an i
 - [ ] The gas goes to −1, and the machine panics
   > No: gas never goes below 0. The meter refuses before it charges.
 
-**On 100 gas, the bootstrap service reaches a block that costs 73 with 32 left. Why not run as much of the block as 32 buys?**
+**What does paying for a whole block on the way in guarantee?**
 
-- [x] A block is paid for in full on the way in, or not entered at all
-  > Yes: the machine stops oog at 121410, the block's start, with all 32 still there.
-- [ ] The 32 is kept back for the host call
+- [x] A block is run whole or not at all, so every validator runs out of gas at exactly the same place
+  > Yes: on 100 gas the bootstrap service reaches a block that costs 73 with 32 left. It
+  > stops oog at 121410, the block's start, with all 32 still there.
+- [ ] That a program never runs out of gas once it has started
+  > No: it can run out at any block's door. What it can't do is run out in the middle of
+  > a block.
+- [ ] That some gas is kept back for the host call
   > No: nothing is set aside. The meter only compares the gas left with the block's
   > price.
-- [ ] It does run part of the block, and stops when the 32 runs out
-  > No: no instruction of a block runs before the whole block is paid for. That's the
-  > rule.
 
 **The machine stops at an `ecalli` in the middle of a block, and the host answers. Does the rest of that block cost anything?**
 
@@ -478,7 +499,5 @@ line is a tap for lasair's own debugging tools: nothing is hooked in during an i
 A complete PVM: every instruction, memory, a real program's setup, host calls as a way
 out, and gas, priced and charged the Gray Paper's way. [Part 15](./index.md), done. The machine can ask
 the host for things; in [Part 16](../16-host-calls/index.md), the host answers back.
-
-**Say it out loud.** A basic block is paid for in full on the way in, so every validator runs out of gas at exactly the same place.
 
 Next: [Part 16 · Host calls](../16-host-calls/index.md)

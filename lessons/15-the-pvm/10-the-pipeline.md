@@ -1,16 +1,34 @@
 # The pipeline
 
-[Lesson 15.9](./09-what-instructions-cost.md)'s block from the bootstrap service adds up to 91 cycles. Yet a real CPU would
-run it in far fewer, because it doesn't do one thing at a time. While one instruction
-waits on memory, others start; while a store crawls along, three more crawl beside it.
-The Gray Paper's gas model builds exactly such a CPU, small and made up, and charges a
-basic block the cycles that CPU needs.
+**In one sentence:** a basic block costs the time a small, made-up processor needs to run
+it, and that processor works on several instructions at once, so work side by side is
+cheap and waiting is what costs.
 
-It's the kitchen from [lesson 15.9](./09-what-instructions-cost.md). Orders are taken in
-sequence, and dishes that don't depend on each other cook side by side, up to the number of
-stations. A dish that needs another's output waits for it. Dishes go out in the order they
-were taken, however fast each one cooked. The bill is how long the whole kitchen took, not
-the sum of the recipes. That's the whole idea; the rest of this lesson is its exact rules.
+Pick a block, or build your own, and move a cycle at a time. Each row is an instruction:
+watch which ones run side by side, and which wait.
+
+<a id="try-it"></a>
+
+<PipelineCycles />
+
+## The idea
+
+[Lesson 15.9](./09-what-instructions-cost.md)'s block from the bootstrap service adds up
+to 91 cycles. Yet a real CPU would run it in far fewer, because it doesn't do one thing at
+a time. While one instruction waits on memory, others start. While a store crawls along,
+three more crawl beside it. So what does the block really cost?
+
+The Gray Paper's gas model builds exactly such a CPU, small and made up, and charges a
+basic block the cycles that CPU needs. It is the kitchen from
+[lesson 15.9](./09-what-instructions-cost.md):
+
+- Orders are taken in sequence.
+- Dishes that don't depend on each other cook side by side, up to the number of stations.
+- A dish that needs another's output waits for it.
+- Dishes go out in the order they were taken, however fast each one cooked.
+
+The bill is how long the whole kitchen took, not the sum of the recipes. That is the whole
+idea. The rest of this lesson is its exact rules.
 
 ## What the Gray Paper says
 
@@ -518,7 +536,7 @@ $$
 
 :::
 
-In plain words, the model CPU works like this:
+The model CPU works like this, the kitchen made exact:
 
 1. **Decode.** Each cycle, the front end decodes instructions in order, up to 4 decode
    slots' worth ([lesson 15.9](./09-what-instructions-cost.md)'s ď), into a *reorder buffer*. At most 32 instructions can
@@ -543,13 +561,11 @@ The Gray Paper writes those stages as steps on a state 𝕊: X′ decodes, X″ 
 the clock, and X picks which comes next: decode if it can, else start, else stop if
 everything has retired, else tick.
 
-Step through it below. Pick one of this lesson's blocks, or build your own, and move a
-cycle at a time. Each row is a line of the block; each column is the start of a cycle,
-as the printout further down catches it. Four loads start together and finish together.
-In a chain, each load waits for the register the one before it is making. Two divides
-take turns at the one divider. When everything has retired, the block's cost appears.
-
-<PipelineCycles />
+Step through it on [the timeline at the top](#try-it), with this lesson's blocks. Each
+row is a line of the block. Each column is the start of a cycle, as the printout further
+down catches it. Four loads start together and finish together. In a chain, each load
+waits for the register the one before it is making. Two divides take turns at the one
+divider. When everything has retired, the block's cost appears.
 
 **Try it in the [playground](../pvm-playground.md).** Press **What a block really costs**, then **Run**. The Gas panel lists three prices: 5 for four sums side by side, 8 for the same four in a chain, 60 for one division.
 
@@ -813,8 +829,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The same basic block going in as
-[lesson 15.9](./09-what-instructions-cost.md) priced, the model CPU's buffer mid-flight, and the lines printed:
+What flows through it, for the basic block [lesson 15.9](./09-what-instructions-cost.md) priced:
 
 ::: code-group
 
@@ -861,12 +876,15 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 One column per instruction in the buffer: the stack-pointer add, the three stores and the
-call (the two `move_reg` instructions never get a column). W is waiting, E executing, F finished, and
-a dot is retired. (Decoding lasts only until the next tick, so you never catch a D.) Read
-it top down. At cycle 2 the add runs while the
-stores wait: they need its r1. From cycle 3 all three stores run side by side, with the
-15-cycle call beside them. The call finishes at 18 but can't retire before the stores
-ahead of it. At 28 everything is finished, at 29 everything is retired: 29 − 3 = 26 gas.
+call. (The two `move_reg` instructions never get a column.) W is waiting, E executing,
+F finished, and a dot is retired. Decoding lasts only until the next tick, so you never
+catch a D. Read it top down:
+
+- At cycle 2 the add runs while the stores wait: they need its r1.
+- From cycle 3 all three stores run side by side, with the 15-cycle call beside them.
+- The call finishes at 18, but can't retire before the stores ahead of it.
+- At 28 everything is finished, and at 29 everything is retired: 29 − 3 = 26 gas.
+
 The *Pipeline* panel, on **6 · The PVM**, keeps the picture.
 
 ![Pipeline panel](./images/10-pipeline.png)
@@ -917,6 +935,17 @@ blocks, the two give the same cost every time.
 - [ ] They might read the same memory, so they mustn't overlap
   > No: the model never looks at addresses, only at registers and units.
 
+**What is a basic block charged?**
+
+- [ ] The sum of its instructions' cycles
+  > No: that is the price list, not the bill. The real block's cycles add up to 91, and
+  > it costs 26.
+- [x] The cycles the model CPU takes to decode and retire all of it, less 3, and at least 1
+  > Yes: instructions that don't wait on each other run side by side, so the whole takes
+  > less than its parts added up. The 3 is the pipeline's own overhead.
+- [ ] The time the validator's own processor took to run it
+  > No: nothing is measured. The CPU is a made-up one, and its rules are the Gray Paper's.
+
 **`r2 = [r1]`, `move_reg r5 = r2`, `r3 = [r5]` costs 50 too. What does `move_reg` change?**
 
 - [ ] It adds a cycle for the copy
@@ -943,7 +972,5 @@ blocks, the two give the same cost every time.
 
 A price for every basic block, worked out the Gray Paper's way. One piece of gas is left:
 the meter that charges those prices as the machine runs, and [lesson 15.11](./11-the-gas-meter.md) builds it.
-
-**Say it out loud.** Gas is the cycles a small model CPU takes to run a basic block, less 3. Work side by side is cheap; waiting is what costs.
 
 Next: [15.11 The gas meter](./11-the-gas-meter.md)

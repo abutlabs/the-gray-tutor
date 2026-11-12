@@ -1,21 +1,26 @@
 # Part 15 · The PVM
 
-Services are programs, and the PVM is the machine that runs them. By the end of this part
-your client has a complete one: 13 registers, memory in pages, a gas meter and all 139
-instructions, and a real service starting up on it.
+**In one sentence:** services are programs, and the PVM is the small, made-up computer
+inside every JAM node that runs them, the same way on every validator.
+
+By the end of this part your client has a complete one: 13 registers, memory in pages, a
+gas meter and all 139 instructions, and a real service starting up on it.
 
 ## The big picture
 
 A service is written in an ordinary language, such as Rust, and compiled. The PVM is the
-computer that compiled code runs on: a small, made-up CPU, the same on every validator, so
-that one program on one input gives one answer, to the last bit and the last unit of gas.
-If two validators ever disagreed, the chain would split.
+computer that compiled code runs on.
 
-The Gray Paper compares it to Ethereum's EVM, but simpler. It keeps close to RISC-V, a real
-CPU design, so existing compilers work, and it fits real hardware well enough to be
-compiled for it. There are no special instructions for cryptography or for reading the
-chain. Anything outside the machine goes through a *host call*, [Part
-16](../16-host-calls/index.md).
+Why a made-up computer, and not the validator's own? One program on one input must give
+one answer, to the last bit and the last unit of gas. If two validators ever disagreed,
+the chain would split. So every validator runs the same small CPU.
+
+The Gray Paper compares it to Ethereum's EVM, but simpler:
+
+- It keeps close to RISC-V, a real CPU design, so existing compilers work.
+- It fits real hardware well enough to be compiled for it.
+- It has no special instructions for cryptography or for reading the chain. Anything
+  outside the machine goes through a *host call*, [Part 16](../16-host-calls/index.md).
 
 One machine, three ways in:
 
@@ -27,13 +32,16 @@ One machine, three ways in:
 
 A block importer only ever uses the last one, but it needs the whole machine to do it.
 
-What the pieces are: a *program* is one preimage, a blob of bytes that a service's account
-points at by its code hash ([14.2](../14-services/02-the-service-account.md)); inside it
-are the instructions and a memory layout ([15.1](./01-the-program-blob.md)). A *service*'s
-program has two entry points, refine and accumulate, and an *authorizer*'s program has one,
-Is-Authorized. The machine is the same for all three: registers, memory in pages, a gas
-meter. What differs is where it runs and what the host lets it see, and that is [Part
-16](../16-host-calls/index.md). [What runs where](../what-runs-where.md) has the map.
+What the pieces are:
+
+- A *program* is one preimage, a blob of bytes that a service's account points at by its
+  code hash ([14.2](../14-services/02-the-service-account.md)). Inside it are the
+  instructions and a memory layout ([15.1](./01-the-program-blob.md)).
+- A *service*'s program has two entry points, refine and accumulate. An *authorizer*'s
+  program has one, Is-Authorized.
+- The machine is the same for all three: registers, memory in pages, a gas meter. What
+  differs is where it runs and what the host lets it see, and that is
+  [Part 16](../16-host-calls/index.md). [What runs where](../what-runs-where.md) has the map.
 
 | Question | Lessons | Time |
 | --- | --- | --- |
