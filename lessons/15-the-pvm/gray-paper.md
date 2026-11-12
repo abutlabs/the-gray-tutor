@@ -1,14 +1,21 @@
 # The formulas, in plain words
 
 [Part 15](./index.md)'s appendix: every formula of Appendix A, *Polkadot Virtual Machine*,
-explained. 65 numbered equations in 54 blocks, thirteen tables of instructions and one of
-prices: how a program blob is cut up (A.1, A.2), how one instruction is read (A.2 to A.5),
-what one step does (A.4), what each instruction does (A.5), how a host and a program's start
-are wired in (A.6 to A.8), and what code costs (A.9, A.10). Real values: the bootstrap
-service, service 0 of the fallback trace, whose code [lesson 15.1](./01-the-program-blob.md)
-unpacks, and the lessons' own small programs. Each formula: its key, then read aloud, in
-plain words, on a real value, in your client. Notation: [Reading the Gray
-Paper](../reading-the-gray-paper.md).
+explained. That is 65 numbered equations in 54 blocks, thirteen tables of instructions and
+one of prices. They say:
+
+- how a program blob is cut up (A.1, A.2);
+- how one instruction is read (A.2 to A.5);
+- what one step does (A.4);
+- what each instruction does (A.5);
+- how a host and a program's start are wired in (A.6 to A.8);
+- what code costs (A.9, A.10).
+
+The real values come from two places. One is the bootstrap service, service 0 of the
+fallback trace, whose code [lesson 15.1](./01-the-program-blob.md) unpacks. The other is
+the lessons' own small programs. Each formula: its key, then read aloud, in plain words, on
+a real value, in your client. Notation:
+[Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (A.1) and (A.2): the machine, and cutting the blob
 
@@ -145,15 +152,20 @@ loop, and what comes back depends on why:
   Whoever runs the machine can fix the cause (more gas, a new page, the host's answer) and
   run Ψ again from there.
 
-deblob does two jobs. It cuts the blob into the jump table 𝐣, the code 𝐜 and the bitmask
-𝐤, and "exactly one" (∃!) means the cut must use every byte, no more and no less. And it
-checks the program before a single instruction runs: v-blob walks it from 0, instruction
-by instruction, and every one must have a known opcode (U) and start where the bitmask says
-an instruction starts, and the last must be a terminator (T, in (A.5)), so the machine can
-never run off the end of the code mid-block. v-inst checks that ı itself starts an
-instruction. A blob that fails is not an error to report: the machine simply panics,
-with nothing run. The paper writes deblob inside every turn of the loop; only the ı check
-changes from one turn to the next, so a client cuts and checks once and keeps the parts.
+deblob does two jobs. First, it cuts the blob into the jump table 𝐣, the code 𝐜 and the
+bitmask 𝐤. "Exactly one" (∃!) means the cut must use every byte, no more and no less.
+Second, it checks the program before a single instruction runs. v-blob walks it from 0,
+instruction by instruction:
+
+- every instruction must have a known opcode (U);
+- every one must start where the bitmask says an instruction starts;
+- the last must be a terminator (T, in (A.5)), so the machine can never run off the end
+  of the code mid-block.
+
+v-inst checks that ı itself starts an instruction. A blob that fails is not an error to
+report: the machine simply panics, with nothing run. The paper writes deblob inside every
+turn of the loop. Only the ı check changes from one turn to the next, so a client cuts and
+checks once and keeps the parts.
 
 **On a real value.** deblob on the bootstrap service's program blob, 149,274 bytes:
 
@@ -179,12 +191,15 @@ step 34           jump_ind through r0 = 2^32 − 2^16: ε = ∎, halt
 ```
 
 **In your client.** `deblob` and `startsInstruction` in `src/pvm/program.ts`, from [15.1's
-code](./01-the-program-blob.md#the-code), cut the blob; `step` and `run` in
-`src/pvm/machine.ts`, from [15.3's code](./03-the-machine.md#the-code), are Ψ₁ and Ψ, and
+code](./01-the-program-blob.md#the-code), cut the blob. `step` and `run` in
+`src/pvm/machine.ts`, from [15.3's code](./03-the-machine.md#the-code), are Ψ₁ and Ψ.
 `Exit` grows to all six exits by [15.11](./11-the-gas-meter.md#the-code). Two parts are the
-simple road, as the lessons say: `deblob` trusts the sizes and runs no v-blob, and `run`
-leaves ı where it stopped instead of setting it to 0 on a halt or panic. The real service is
-well formed, so neither shows; the [hardening
+simple road, as the lessons say:
+
+- `deblob` trusts the sizes and runs no v-blob;
+- `run` leaves ı where it stopped instead of setting it to 0 on a halt or panic.
+
+The real service is well formed, so neither shows. The [hardening
 pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) adds both.
 
 ## (A.3) and (A.4): where an instruction ends
@@ -241,12 +256,12 @@ of 24 and the j for which, in k followed by ones forever, the entry at i plus 1 
 1." (A.4): "zeta is defined as c followed by zeros forever."
 
 **In plain words.** The code is just bytes, and nothing in an instruction says how long it
-is. The bitmask does: skip(ı) counts the bytes after the opcode at ı until the next byte
+is. The bitmask does. skip(ı) counts the bytes after the opcode at ı until the next byte
 whose bit is 1, so the next instruction starts at ı + 1 + skip(ı). The ones added after 𝐤
-make the last instruction end at the end of the code, and the 24 is a cap, so a broken
+make the last instruction end at the end of the code. The 24 is a cap, so a broken
 bitmask can't make one instruction endless. ζ does the same for the code's bytes: after
 the end, it reads zeros forever. A zero is `trap`, so a machine that runs off the end
-panics, and an instruction whose last argument byte is missing reads it as 0.
+panics. An instruction whose last argument byte is missing reads it as 0.
 
 **On a real value.** The bootstrap code's first 16 bytes, and their bits in 𝐤:
 
@@ -325,7 +340,7 @@ at most i."
 `fallthrough`, a jump or a branch (the list before (A.5)). The intersection at the end
 drops a "start" that isn't really an instruction, such as the one just past the code's last
 instruction. ϖ is the set of those starts, and only they may be jumped to ((A.20) to
-(A.22)). 𝔏(ı) walks back from ı to the start of its block: gas is charged for a whole
+(A.22)). 𝔏(ı) walks back from ı to the start of its block. Gas is charged for a whole
 block, from its start ((A.8)).
 
 **On a real value.** `SUM`, from [lesson 15.3](./03-the-machine.md#the-tests):
@@ -343,8 +358,8 @@ terminators     fallthrough at 5, branch_ne_imm at 12, jump_ind at 15
 The bootstrap service's code has 6,229 basic blocks.
 
 **In your client.** `TERMINATORS` (T) and `basicBlocks` (ϖ) in `src/pvm/machine.ts`, from
-[15.3's code](./03-the-machine.md#the-code). 𝔏 isn't built: the gas meter charges the block
-starting *at* ı, which is the same whenever ı starts a block, and [15.11's
+[15.3's code](./03-the-machine.md#the-code). 𝔏 isn't built. The gas meter charges the
+block starting *at* ı, which is the same whenever ı starts a block. [15.11's
 note](./11-the-gas-meter.md#the-code) says when it isn't.
 
 ## (A.7): one step
@@ -371,10 +386,15 @@ registers and a memory. Psi one of all those maps to epsilon star, i star, rho s
 tilde star, phi star and mu star."
 
 **In plain words.** One step's type, and a promise: the starred values are the step's
-final answer, and the next five formulas build them. (A.8) pays for the block, (A.9) checks
-memory, (A.12) and the tables say what the instruction does, and (A.10) and (A.11) pick
-which of those wins. The set of exits here leaves out ∞, though (A.8) can end a step with
-it; read it as included.
+final answer, and the next five formulas build them:
+
+- (A.8) pays for the block;
+- (A.9) checks memory;
+- (A.12) and the tables say what the instruction does;
+- (A.10) and (A.11) pick which of those wins.
+
+The set of exits here leaves out ∞, though (A.8) can end a step with it. Read it as
+included.
 
 **On a real value.** `SUM`'s step 7:
 
@@ -426,7 +446,7 @@ Three cases, in order:
    𝔏(ı), and set the flag.
 3. There isn't enough: stop, out of gas, and take nothing.
 
-So a machine never runs half a block and then runs dry: either the block is paid for, or
+So a machine never runs half a block and then runs dry. Either the block is paid for, or
 the step stops with ∞ at the block's door, gas untouched.
 
 **On a real value.** [Lesson 15.11](./11-the-gas-meter.md#watch-it)'s run of the bootstrap
@@ -487,8 +507,10 @@ readable in mu, or in w with x mod 2^32 not writable in mu."
 **In plain words.** 𝐫 and 𝐰 are the addresses the instruction would read and write. 𝐱 is
 the bad ones: read where reading isn't allowed, or written where writing isn't. No bad
 ones, carry on. Otherwise the lowest bad one decides, its address wrapped round at 2^32:
-below 2^16, the first 64 kB where nothing ever lives, it's a panic; anywhere else, a page
-fault, with the start of that page, the address rounded down to a multiple of 4,096.
+
+- below 2^16, the first 64 kB where nothing ever lives, it's a panic;
+- anywhere else, it's a page fault, with the start of that page: the address rounded down
+  to a multiple of 4,096.
 
 **On a real value.** The three touches of [lesson 15.4's tests](./04-memory.md#the-tests),
 on a machine with one read-only page at 0x10000 and nothing else:
@@ -561,8 +583,8 @@ epsilon star is continue or a host call; true otherwise."
 
 **In plain words.** A step has three verdicts, and (A.10) takes the first that isn't
 "carry on": the gas's, then memory's, then the instruction's own. The first two leave ı,
-the registers and the memory exactly as they were, which is why a paused machine can be
-resumed. (A.11) turns the flag off after a terminator that carried on: the machine is about
+the registers and the memory exactly as they were. That is why a paused machine can be
+resumed. (A.11) turns the flag off after a terminator that carried on. The machine is about
 to be in a new block, or at the start of the same one again, and the next step must pay.
 After a fault, the flag stays on: the block was paid for, and a resumed step needn't pay
 twice.
@@ -582,9 +604,10 @@ The bootstrap service's `ecalli` at 121,489 is not in T, so after the host answe
 rest of its block is already paid for.
 
 **In your client.** `stepWithGas` in `src/pvm/gas.ts`, [15.11's
-code](./11-the-gas-meter.md#the-code): the gas first, then `step`, which returns a memory
-error before the instruction changes anything ([15.4's `failed`](./04-memory.md#the-code)),
-and `charged = false` after a terminator that continues.
+code](./11-the-gas-meter.md#the-code). The gas comes first. Then comes `step`, which
+returns a memory error before the instruction changes anything ([15.4's
+`failed`](./04-memory.md#the-code)). Last, `charged = false` after a terminator that
+continues.
 
 ## (A.12): what an instruction does unless it says otherwise
 
@@ -604,8 +627,8 @@ $$
 phi, and mu prime is mu, except as indicated."
 
 **In plain words.** The default every row of the tables starts from: carry on, move to the
-next instruction, change nothing. A row only says what's different, so `add_64`'s row says
-only which register changes, and `jump`'s only where ı goes.
+next instruction, change nothing. A row only says what's different. So `add_64`'s row
+says only which register changes, and `jump`'s only where ı goes.
 
 **On a real value.** `load_imm r3, 10` at 2 in `SUM`, bytes `33 03 0a`:
 
@@ -691,8 +714,8 @@ minus 1 minus i."
 **In plain words.** A register is 64 bits, and the same bits mean different numbers
 depending on who reads them. Z_n reads n bytes as a signed number: if the top bit is set,
 the number is negative, 2^{8n} below what it looks like. Z_n⁻¹ goes back. B_n lists the
-bits, the lowest first (bit 0 is the 1s place), and the reversed B lists them the highest
-first, as people write numbers; their inverses add the bits back up.
+bits, the lowest first (bit 0 is the 1s place). The reversed B lists them the highest
+first, as people write numbers. Their inverses add the bits back up.
 
 **On a real value.** `load_imm r6, −9` at 121,473 in the bootstrap code, bytes `33 06 f7`,
 and a small number's bits:
@@ -705,9 +728,9 @@ B←₁(5)          [0, 0, 0, 0, 0, 1, 0, 1], highest first
 ```
 
 **In your client.** `signed` in `src/pvm/instructions.ts`, [15.2's
-code](./02-instructions.md#the-code), is Z_n; `s64` and `u64` in `src/pvm/arithmetic.ts`,
+code](./02-instructions.md#the-code), is Z_n. `s64` and `u64` in `src/pvm/arithmetic.ts`,
 [15.5's code](./05-arithmetic.md#the-code), are Z₈ and Z₈⁻¹. [15.7's
-code](./07-bits-and-bytes.md#the-code) reads the bits highest first, as a string, the
+code](./07-bits-and-bytes.md#the-code) reads the bits highest first, as a string: the
 reversed B.
 
 ## (A.19): stretching an immediate to 64 bits
@@ -844,13 +867,13 @@ minus 1 of j is not in curly pi; otherwise continue, and that entry."
 
 - **`sjump`**, a static jump: the target b must start a basic block, or panic.
 - **`branch`**, a jump on a condition C: *both* places it could go must start a block,
-  checked whether it jumps or not, so a bad branch panics every time, not only on the
+  checked whether it jumps or not. So a bad branch panics every time, not only on the
   rare day it's taken.
-- **`djump`**, a jump to a computed address a, through the jump table: one address,
+- **`djump`**, a jump to a computed address a, through the jump table. One address,
   2^32 − 2^16, halts the machine. Any other must be a whole entry's address, (index + 1) ×
-  Z_A with Z_A = 2: 2 is entry 0, 4 entry 1. 0, an odd number, or one past the table
-  panics, and so does an entry that isn't a block start. The table is why a program can
-  jump to an address it computed without being able to land mid-instruction.
+  Z_A with Z_A = 2: 2 is entry 0, 4 entry 1. An address of 0, an odd number, or one past
+  the table panics, and so does an entry that isn't a block start. The table is why a
+  program can jump to an address it computed without being able to land mid-instruction.
 
 **On a real value.** From the bootstrap service's start, [15.11's
 run](./11-the-gas-meter.md#watch-it):
@@ -907,20 +930,20 @@ instruction starts at 92,104, so ℓ = 5, the five bytes after the opcode `50`.
 
 A.5 has a table for each layout: the way an instruction's arguments sit in the ℓ bytes
 after its opcode. Each table but the first opens with one formula, its layout, quoted in
-[lesson 15.2](./02-instructions.md#what-the-gray-paper-says), then lists its instructions,
-one row each: the opcode, the name, and what changes, its mutations, against the default
-of (A.12). The rows are quoted in the lessons that run them. Below, one heading for each
-table: its layout read aloud, then a few rows read in plain words and run on real
-registers. Three rules hold in every layout:
+[lesson 15.2](./02-instructions.md#what-the-gray-paper-says). Then it lists its
+instructions, one row each: the opcode, the name, and what changes, its mutations, against
+the default of (A.12). The rows are quoted in the lessons that run them. Below, there is
+one heading for each table: its layout read aloud, then a few rows read in plain words and
+run on real registers. Three rules hold in every layout:
 
 - **A register is half a byte.** The byte after the opcode, ζ_{ı+1}, holds one register
-  number in its low four bits (mod 16) and another in its high four (÷ 16, rounded down),
-  and min(12, …) turns a number over 12 into 12. Three-register instructions put the third
+  number in its low four bits (mod 16) and another in its high four (÷ 16, rounded down).
+  min(12, …) turns a number over 12 into 12. Three-register instructions put the third
   in the next byte.
 - **A number takes the bytes it's given.** An immediate's length is ℓ less the bytes before
-  it, at most 4, read little-endian and stretched by X ((A.19)). When there are two, the
-  first one's length l_X is written in three bits of a byte, and the second gets what's
-  left.
+  it, at most 4. It is read little-endian and stretched by X ((A.19)). When there are two,
+  the first one's length l_X is written in three bits of a byte, and the second gets
+  what's left.
 - **An offset is relative.** It's read signed (Z, (A.13)) and added to ı, so ν is the
   target itself.
 
@@ -928,18 +951,21 @@ registers. Three rules hold in every layout:
 
 This table has no layout formula, since there's nothing to read after the opcode.
 
-**In plain words.** Three rows. `trap` (0) panics: ε = ↯. `fallthrough` (1) does
-nothing but end a basic block, by an `sjump` to the next instruction, which must therefore
-start a block. `unlikely` (2) has no mutations at all: it changes nothing, and only the
-gas model notices it ((A.65)).
+**In plain words.** Three rows:
+
+- `trap` (0) panics: ε = ↯.
+- `fallthrough` (1) does nothing but end a basic block, by an `sjump` to the next
+  instruction, which must therefore start a block.
+- `unlikely` (2) has no mutations at all. It changes nothing, and only the gas model
+  notices it ((A.65)).
 
 **On a real value.** `SUM`'s `fallthrough` at 5 is one byte, so skip(5) = 0 and it is
-`sjump`(6); 6 is in ϖ, so (▸, 6). Without it, 6 would not start a block and the loop's
-branch back to 6 would panic. In the bootstrap code, `unlikely` sits at 95, right after a
-`branch_ne`.
+`sjump`(6). And 6 is in ϖ, so (▸, 6). Without it, 6 would not start a block, and the
+loop's branch back to 6 would panic. In the bootstrap code, `unlikely` sits at 95, right
+after a `branch_ne`.
 
 **In your client.** `basics` in `src/pvm/machine.ts`, [15.3's
-code](./03-the-machine.md#the-code), runs `trap` and `fallthrough`; `decisions`, [15.6's
+code](./03-the-machine.md#the-code), runs `trap` and `fallthrough`. `decisions`, [15.6's
 code](./06-branches-and-calls.md#the-code), runs `unlikely`.
 
 ## A.5.2, (A.24): one immediate
@@ -1058,7 +1084,7 @@ of the l X bytes from i plus 2. Let l Y be the least of 4 and the greater of 0 a
 l X less 1, and nu Y be X sub l Y of the l Y bytes from i plus 2 plus l X."
 
 **In plain words.** Two numbers and no register. The byte after the opcode holds only the
-first number's length; the first number follows, and the second takes whatever is left.
+first number's length. The first number follows, and the second takes whatever is left.
 The rows, 30 to 33, are `store_imm_u8` to `store_imm_u64`: write ν_Y's low 1, 2, 4 or 8
 bytes, little-endian, at address ν_X.
 
@@ -1145,7 +1171,7 @@ and ell less 1; nu X is X sub l X of the l X bytes from i plus 2."
 - `jump_ind` (50): `djump`((φ_A + ν_X) mod 2^32), a jump through the table ((A.22)).
 - `load_imm` (51): φ′_A = ν_X.
 - `load_u8` to `load_u64` (52 to 58): φ′_A = the 1, 2, 4 or 8 bytes at address ν_X,
-  little-endian; the `_i` forms stretch them with X, so a byte 0x80 loads as −128.
+  little-endian. The `_i` forms stretch them with X, so a byte 0x80 loads as −128.
 - `store_u8` to `store_u64` (59 to 62): write φ_A's low 1, 2, 4 or 8 bytes at ν_X.
 
 **On a real value.** Three rows from the bootstrap code:
@@ -1160,7 +1186,7 @@ row 50            djump(φ₀ mod 2^32): return through r0
 ```
 
 **In your client.** The `"regImm"` case of `decodeInstruction`, [15.2's
-code](./02-instructions.md#the-code); `jump_ind` and `load_imm` in `basics`, [15.3's
+code](./02-instructions.md#the-code). `jump_ind` and `load_imm` are in `basics`, [15.3's
 code](./03-the-machine.md#the-code), and the loads and stores in `memoryInstructions`,
 [15.4's code](./04-memory.md#the-code).
 
@@ -1193,8 +1219,8 @@ bytes from i plus 2. Let l Y be the least of 4 and the greater of 0 and ell less
 
 **In plain words.** The byte after the opcode is shared: its low half is a register, its
 high half the first number's length. The rows, 70 to 73, are `store_imm_ind_u8` to
-`_u64`: write ν_Y's low bytes at φ_A + ν_X, a constant stored through a register, such as
-zeroing a variable on the stack.
+`_u64`: write ν_Y's low bytes at φ_A + ν_X. That is a constant stored through a register,
+such as zeroing a variable on the stack.
 
 **On a real value.** At 123,703, in [15.11's run](./11-the-gas-meter.md#watch-it), with
 r1 = 0xfefdf968:
@@ -1243,7 +1269,7 @@ code. The rows, 80 to 90:
 - `load_imm_jump` (80): φ′_A = ν_X and `sjump`(ν_Y), a function call. ν_X is the way back,
   as an address in the jump table.
 - `branch_eq_imm` to `branch_gt_s_imm` (81 to 90): branch(ν_Y, φ_A compared with ν_X).
-  The `_u` rows compare the two as unsigned numbers, the `_s` rows read both with Z₈
+  The `_u` rows compare the two as unsigned numbers. The `_s` rows read both with Z₈
   first, so −1 is less than 1 only in `_s`.
 
 **On a real value.** Two rows on [15.11's run](./11-the-gas-meter.md#watch-it):
@@ -1258,8 +1284,8 @@ row 82              branch(121,467, φ₇ ≠ 0): 1 ≠ 0, taken
 ```
 
 And [lesson 15.6's test](./06-branches-and-calls.md#the-tests) on the two flavors, with
-r0 = 3 and the immediate `ff`, which X makes 2^64 − 1: `branch_gt_u_imm` (86) asks
-3 > 2^64 − 1, no; `branch_gt_s_imm` (90) asks 3 > −1, yes.
+r0 = 3 and the immediate `ff`, which X makes 2^64 − 1. `branch_gt_u_imm` (86) asks
+3 > 2^64 − 1: no. `branch_gt_s_imm` (90) asks 3 > −1: yes.
 
 **In your client.** The `"regImmOffset"` case of `decodeInstruction`, [15.2's
 code](./02-instructions.md#the-code), and `decisions`, [15.6's
@@ -1292,10 +1318,13 @@ are those registers, before and after."
 
 **In plain words.** One byte, two registers: D, the one written, in the low half, and A,
 the one read, in the high half. Every row, 100 to 110, makes φ′_D from φ_A alone:
-`move_reg` copies it; `count_set_bits`, `leading_zero_bits` and `trailing_zero_bits`
-count its bits with B ((A.15)), in 64 or in the low 32; `sign_extend_8` and `_16` read the
-lowest one or two bytes as signed; `zero_extend_16` keeps the lowest two; and
-`reverse_bytes` turns its 8 bytes round.
+
+- `move_reg` copies it;
+- `count_set_bits`, `leading_zero_bits` and `trailing_zero_bits` count its bits with B
+  ((A.15)), in 64 or in the low 32;
+- `sign_extend_8` and `_16` read the lowest one or two bytes as signed;
+- `zero_extend_16` keeps the lowest two;
+- `reverse_bytes` turns its 8 bytes round.
 
 **On a real value.** `move_reg` at 92,094, and [lesson 15.7's
 tests](./07-bits-and-bytes.md#the-tests):
@@ -1308,7 +1337,7 @@ reverse_bytes         φ_A = 0x0102030405060708: φ′_D = 0x0807060504030201
 ```
 
 **In your client.** The `"regReg"` case of `decodeInstruction`, [15.2's
-code](./02-instructions.md#the-code); `move_reg` in `basics`, [15.3's
+code](./02-instructions.md#the-code). `move_reg` is in `basics`, [15.3's
 code](./03-the-machine.md#the-code), and the rest in `BIT_OPERATIONS`, [15.7's
 code](./07-bits-and-bytes.md#the-code).
 
@@ -1343,9 +1372,12 @@ bytes from i plus 2."
 **In plain words.** The biggest table, 120 to 161. Two registers in one byte, then a
 number. The first eleven rows are loads and stores through a register, at address
 φ_B + ν_X: `store_ind_…` write φ_A there, `load_ind_…` read into φ′_A. The rest are
-arithmetic with a constant, φ′_A from φ_B and ν_X: `add_imm_64` is φ_B + ν_X mod 2^64, the
-`_32` rows work on the low 32 bits and stretch the answer with X₄, the `set_…` rows give 1
-or 0, and the `_alt` rows swap the two, so `shlo_r_imm_alt_64` shifts ν_X by φ_B.
+arithmetic with a constant, φ′_A from φ_B and ν_X:
+
+- `add_imm_64` is φ_B + ν_X mod 2^64;
+- the `_32` rows work on the low 32 bits and stretch the answer with X₄;
+- the `set_…` rows give 1 or 0;
+- the `_alt` rows swap the two, so `shlo_r_imm_alt_64` shifts ν_X by φ_B.
 
 **On a real value.** Four rows the bootstrap service runs in [15.11's
 run](./11-the-gas-meter.md#watch-it):
@@ -1363,8 +1395,8 @@ row 132        φ′₇ = 0x4f87 and 1 = 1, bit by bit
 ```
 
 **In your client.** The `"regRegImm"` case of `decodeInstruction`, [15.2's
-code](./02-instructions.md#the-code); the loads and stores in `memoryInstructions`, [15.4's
-code](./04-memory.md#the-code), and the arithmetic in `OPERATIONS`, [15.5's
+code](./02-instructions.md#the-code). The loads and stores are in `memoryInstructions`,
+[15.4's code](./04-memory.md#the-code), and the arithmetic in `OPERATIONS`, [15.5's
 code](./05-arithmetic.md#the-code).
 
 ## A.5.11, (A.33): two registers and an offset
@@ -1444,7 +1476,7 @@ of the l Y bytes after."
 
 **In plain words.** Two registers, then a byte for the first number's length, then two
 numbers. The one row, `load_imm_jump_ind` (180), is a call through a register: φ′_A = ν_X,
-the way back, and `djump`((φ_B + ν_Y) mod 2^32). φ_B is read before φ_A changes, which
+the way back, and `djump`((φ_B + ν_Y) mod 2^32). φ_B is read before φ_A changes. That
 matters when they are the same register.
 
 **On a real value.** At 1,075 in the bootstrap code:
@@ -1547,15 +1579,20 @@ the size of b." (A.37): "rtz takes a number and gives an integer: x maps to x ro
 when x is below 0, and x rounded down otherwise."
 
 **In plain words.** Two inputs, φ_A and φ_B, and an output, φ′_D. The rows, 190 to 230,
-are the arithmetic of a real CPU: add, subtract, multiply, divide and remainder, in 32 and
-64 bits, signed and unsigned; shifts and rotations; and, or, xor and their inverted forms;
-comparisons, conditional moves, min and max. The paper's own corners are worth knowing:
+are the arithmetic of a real CPU:
+
+- add, subtract, multiply, divide and remainder, in 32 and 64 bits, signed and unsigned;
+- shifts and rotations;
+- and, or, xor and their inverted forms;
+- comparisons, conditional moves, min and max.
+
+The paper's own corners are worth knowing:
 
 - a `_32` row works mod 2^32 and stretches the answer with X₄, so a 32-bit result that
   looks negative fills the top 32 bits with 1s;
 - dividing by zero never fails: `div` gives 2^64 − 1, `rem` gives back φ_A;
-- signed division rounds toward zero, which is rtz, and the signed remainder takes the sign
-  of the number divided, which is smod.
+- signed division rounds toward zero, which is rtz;
+- the signed remainder takes the sign of the number divided, which is smod.
 
 **On a real value.** `SUM`'s `add_64`, and [lesson 15.5's
 tests](./05-arithmetic.md#the-tests):
@@ -1572,8 +1609,8 @@ rem_s_64        smod(−7, 2) = sgn(−7) × (7 mod 2) = −1 × 1 = −1
 ```
 
 **In your client.** The `"regRegReg"` case of `decodeInstruction`, [15.2's
-code](./02-instructions.md#the-code); `OPERATIONS` and `arithmetic`, [15.5's
-code](./05-arithmetic.md#the-code). There, rtz and smod come free: JavaScript's `/` on a
+code](./02-instructions.md#the-code), then `OPERATIONS` and `arithmetic`, [15.5's
+code](./05-arithmetic.md#the-code). There, rtz and smod come free. JavaScript's `/` on a
 `bigint` rounds toward zero, and its `%` keeps the sign of the number divided.
 
 ## (A.38) to (A.40): running with a host
@@ -1640,13 +1677,13 @@ panic, halt or out of gas: give that back, with i prime and the double-primed va
 continue, halt, panic or out of gas, with gas, registers, memory and an X."
 
 **In plain words.** Ψ stops on every host call and waits. Ψ_H is the loop that answers
-them: it hands each call to the host's function f, with x, the host's own context (for
+them. It hands each call to the host's function f, with x, the host's own context (for
 accumulation, the accounts as the service changes them). If f says carry on, the machine
-carries on after the `ecalli`, from its next instruction. If f says stop, so does Ψ_H. So Ψ_H
-never ends with a host call: it ends with halt, panic, out of gas or a fault. Gas comes back
-as Z_G, a signed number, since a host call may charge more than is left. Ψ_H starts with the
-flag false, so the first block is paid for, and the flag passes through a host call
-unchanged: `ecalli` isn't a terminator.
+carries on after the `ecalli`, from its next instruction. If f says stop, so does Ψ_H. So
+Ψ_H never ends with a host call: it ends with halt, panic, out of gas or a fault. Gas
+comes back as Z_G, a signed number, since a host call may charge more than is left. Ψ_H
+starts with the flag false, so the first block is paid for. The flag passes through a
+host call unchanged: `ecalli` isn't a terminator.
 
 **On a real value.** Service 1729's accumulation in the vector `always_accumulate-1`, from
 [lesson 16.6's run](../16-host-calls/06-checkpoints.md#watch-it), on 100,000 gas:
@@ -1726,14 +1763,22 @@ of x be Z sub P times x over Z sub P, rounded up, and Z of x be Z sub Z times x 
 Z, rounded up." (A.45): "Five Z sub Z, plus Z of the size of o, plus Z of the size of w plus
 z pages, plus Z of s, plus Z sub I, is at most 2 to the 32."
 
-**In plain words.** A standard program 𝔧 is a PVM blob with a memory plan in front: o, data
-the program may only read; w, data it may read and write, with z pages of zeroed heap after
-it; and s, the size of its stack. (A.42) is the layout, and exactly one way to read it must
-use every byte. Memory is planned in zones of Z_Z = 64 kB: P rounds a size up to whole pages
-of 4,096 bytes, and Z up to whole zones. (A.45) says it all fits in 2^32 bytes: the four
-sections, each in whole zones, the arguments' Z_I = 16 MiB, and five empty zones: one below
-everything, one between each pair of neighbors, and one at the very top. If any of this fails, Y is ∅, and the
-machine never starts.
+**In plain words.** A standard program 𝔧 is a PVM blob with a memory plan in front:
+
+- o, data the program may only read;
+- w, data it may read and write, with z pages of zeroed heap after it;
+- s, the size of its stack.
+
+(A.42) is the layout, and exactly one way to read it must use every byte. Memory is
+planned in zones of Z_Z = 64 kB. P rounds a size up to whole pages of 4,096 bytes, and Z
+up to whole zones. (A.45) says it all fits in 2^32 bytes:
+
+- the four sections, each in whole zones;
+- the arguments' Z_I = 16 MiB;
+- five empty zones: one below everything, one between each pair of neighbors, and one at
+  the very top.
+
+If any of this fails, Y is ∅, and the machine never starts.
 
 **On a real value.** The bootstrap service's code, after its 80 bytes of metadata:
 
@@ -1750,7 +1795,7 @@ b0 26 00        ℰ₃(|o|) = 9,904 bytes of read-only data
 ```
 
 **In your client.** `unpackCode` in `src/pvm/program.ts`, [15.1's
-code](./01-the-program-blob.md#the-code), reads (A.42); `ZONE`, `INPUT_SIZE` and `roundUp`
+code](./01-the-program-blob.md#the-code), reads (A.42). `ZONE`, `INPUT_SIZE` and `roundUp`
 in `src/pvm/standard.ts`, [15.8's code](./08-a-real-program.md#the-code), are Z_Z, Z_I, P
 and Z. The check of (A.45), and Y's ∅, are the simple road that 15.8's note leaves to the
 [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md).
@@ -1839,13 +1884,23 @@ a; zero, read only, to the end of a's pages; and otherwise zero, with no access.
 less 2 Z sub Z less Z sub I, when i is 1; 2 to the 32 less Z sub Z less Z sub I, when i is 7;
 the size of a, when i is 8; and 0 otherwise."
 
-**In plain words.** The memory a program wakes up in, from the bottom: nothing in the first
-zone; o, read only, one zone up, padded with zeros to a whole page; an empty zone; w,
-writable, padded to a page, then the heap's z pages; then nothing for most of the 4 GB; at
-the top, the stack, writable, ending two zones and Z_I below 2^32; an empty zone; the
-arguments a, read only; and one last empty zone. The registers tell the program where things
-are: r0 is the halt address, so returning from the program ends it; r1 is the top of the
-stack, which grows down; r7 is where the arguments start, and r8 how many bytes they are.
+**In plain words.** The memory a program wakes up in, from the bottom:
+
+1. nothing in the first zone;
+2. o, read only, one zone up, padded with zeros to a whole page;
+3. an empty zone;
+4. w, writable, padded to a page, then the heap's z pages;
+5. nothing for most of the 4 GB;
+6. at the top, the stack, writable, ending two zones and Z_I below 2^32;
+7. an empty zone;
+8. the arguments a, read only;
+9. one last empty zone.
+
+The registers tell the program where things are:
+
+- r0 is the halt address, so returning from the program ends it;
+- r1 is the top of the stack, which grows down;
+- r7 is where the arguments start, and r8 how many bytes they are.
 
 **On a real value.** The bootstrap service, started with the arguments `01 00 00` (slot 1,
 service 0, no inputs), as [lesson 15.8](./08-a-real-program.md#the-tests) starts it:
@@ -1919,10 +1974,14 @@ gas given less the greater of the gas left and 0."
 
 **In plain words.** The one door the rest of the paper uses: Is-Authorized, refine and
 accumulate all call Ψ_M (Appendix B). It lays the program out with Y, runs it with the
-host's f through Ψ_H from ı, and turns how it ended into an answer. A halt's answer is the
-bytes the program left at φ′₇, φ′₈ of them; a panic or a fault is ↯, out of gas is ∞. And it
-says how much gas was used, never more than was given, even when a host call drove the gas
-below 0.
+host's f through Ψ_H from ı, and turns how it ended into an answer:
+
+- a halt's answer is the bytes the program left at φ′₇, φ′₈ of them;
+- a panic or a fault is ↯;
+- out of gas is ∞.
+
+It also says how much gas was used. That is never more than was given, even when a host
+call drove the gas below 0.
 
 **On a real value.** Service 1729 again, [lesson 16.6's
 run](../16-host-calls/06-checkpoints.md#watch-it):
@@ -2082,13 +2141,25 @@ and for less, more, at most or at least: a compared with b is defined as: that c
 holds for every kind k."
 
 **In plain words.** The gas model prices a block by imagining a small CPU running it. Its
-state, 𝕊: ı, the next instruction to decode (∅ once the block's terminator is decoded); c,
-the clock; d and e, the decode slots and starts left this cycle; t, the free execution
-units; and 𝐫, the reorder buffer, every decoded instruction in order. Each entry, ℝ, holds
-its state, its cycles left, p, the entries it waits on, r, the registers it will make, and t,
-the units it holds. 𝔼 counts units by kind: ALU, load, store, multiply, divide. (A.52) and
-(A.53) let the paper add, take away and compare those counts all at once, kind by kind:
-units fit only if every kind fits.
+state is 𝕊:
+
+- ı, the next instruction to decode (∅ once the block's terminator is decoded);
+- c, the clock;
+- d and e, the decode slots and starts left this cycle;
+- t, the free execution units;
+- 𝐫, the reorder buffer: every decoded instruction, in order.
+
+Each entry, ℝ, holds:
+
+- its state;
+- its cycles left;
+- p, the entries it waits on;
+- r, the registers it will make;
+- t, the units it holds.
+
+𝔼 counts units by kind: ALU, load, store, multiply, divide. (A.52) and (A.53) let the
+paper add, take away and compare those counts all at once, kind by kind. Units fit only if
+every kind fits.
 
 **On a real value.** The block at 92,078, [lesson 15.10](./10-the-pipeline.md#watch-it)'s:
 
@@ -2148,10 +2219,10 @@ natural: c, k, i maps to the greater of x final's c less 3, and 1. Where x final
 k and x initial, and x initial is: i, 0, 4, 5, (4, 4, 4, 1, 1), and an empty buffer."
 
 **In plain words.** A block's gas is the cycles the model CPU takes to run it, from a
-standing start until every instruction has retired, less 3, the pipeline's own overhead,
-and never less than 1. The CPU starts at the block's first instruction, at cycle 0, with 4
-decode slots, 5 starts, 4 ALUs, 4 load units, 4 store units, a multiplier and a divider,
-and nothing in its buffer.
+standing start until every instruction has retired. Take off 3, the pipeline's own
+overhead, and never go below 1. The CPU starts at the block's first instruction, at
+cycle 0, with nothing in its buffer. It has 4 decode slots, 5 starts, 4 ALUs, 4 load
+units, 4 store units, a multiplier and a divider.
 
 **On a real value.**
 
@@ -2531,7 +2602,7 @@ Its cycles drop by 1 if it is EXE with more than 0 left, and otherwise stay."
 **In plain words.** A cycle passes. The front end gets its 4 slots and 5 starts back, every
 running instruction counts down one, and one finishing now hands its units back. Then the
 states move on: decoded becomes waiting, run out becomes finished, and finished entries
-retire, but only in order, once everything before them has.
+retire. They retire only in order, once everything before them has.
 
 **On a real value.** The block at 92,078, [15.10's printout](./10-the-pipeline.md#watch-it):
 
@@ -2602,12 +2673,12 @@ when phi A is phi D; b otherwise; where phi A and phi D come from decoding the i
 at i."
 
 **In plain words.** Some rows of the price list have two decode costs, and these pick one.
-𝔓 picks the cheaper a when the instruction writes a register it also reads: picture a CPU
+𝔓 picks the cheaper a when the instruction writes a register it also reads. Picture a CPU
 whose add always overwrites one of its inputs, so aiming at a third register costs an extra
 copy. 𝔓_S, for shifts and rotations by a register, picks a only when the output is the
-*first* input. Read literally, "φ_A = φ_D" compares the two registers' values; but a price
-is fixed before the code runs, and the note under it says φ_A and φ_D come from decoding, so
-it means the same register. Your client and lasair both compare register numbers.
+*first* input. Read literally, "φ_A = φ_D" compares the two registers' values. But a price
+is fixed before the code runs, and the note under it says φ_A and φ_D come from decoding.
+So it means the same register. Your client and lasair both compare register numbers.
 
 **On a real value.** From the bootstrap code:
 
@@ -2671,10 +2742,11 @@ and gives a natural: c and i map to 1, when the instruction after this one or th
 its target is unlikely or trap; 20 otherwise. Where c means zeta, and i target is where the
 branch goes."
 
-**In plain words.** A load or a store takes 𝔪 = 25 cycles, a stand-in: a comment in the
-paper's source calls it temporary, until memory and paging are priced properly. A branch takes 20 cycles, the price of a
-CPU guessing wrong, unless either way it can go starts with `unlikely` or `trap`: then a
-CPU would guess right, and it takes 1. That is what `unlikely` is for.
+**In plain words.** A load or a store takes 𝔪 = 25 cycles. That is a stand-in: a comment in
+the paper's source calls it temporary, until memory and paging are priced properly. A
+branch takes 20 cycles, the price of a CPU guessing wrong. The exception is when either
+way it can go starts with `unlikely` or `trap`: then a CPU would guess right, and it
+takes 1. That is what `unlikely` is for.
 
 **On a real value.**
 
@@ -2690,16 +2762,21 @@ code](./09-what-instructions-cost.md#the-code).
 
 ## A.10's table: every instruction's price
 
-This table has no formula of its own: it is a row for every instruction, with its cycles
-č, its decode slots ď, and the units x̌ it needs, one column for each kind, A, L, S, M and D.
-A.9's š, ř, č, ď and x̌ read it.
+This table has no formula of its own. It is a row for every instruction, with its cycles
+č, its decode slots ď, and the units x̌ it needs, one column for each kind: A, L, S, M
+and D. A.9's š, ř, č, ď and x̌ read it.
 
 **In plain words.** Read a row left to right: how long, how much decoding, which parts of
-the CPU. The rows come in families that share a price. Simple arithmetic takes 1 cycle and
-an ALU, its `_32` forms 2; loads and stores take 𝔪 = 25 and an ALU with a load or store
-unit; multiplies 3 to 6 cycles, an ALU and the multiplier; divides and remainders 60 cycles,
-4 decode slots, an ALU and the one divider; jumps 15 and 22, with no units; `move_reg` 0 cycles and nothing; `ecalli` 100
-cycles, 4 decode slots and an ALU; `unlikely` 40.
+the CPU. The rows come in families that share a price:
+
+- simple arithmetic: 1 cycle and an ALU, its `_32` forms 2;
+- loads and stores: 𝔪 = 25 and an ALU with a load or store unit;
+- multiplies: 3 to 6 cycles, an ALU and the multiplier;
+- divides and remainders: 60 cycles, 4 decode slots, an ALU and the one divider;
+- jumps: 15 and 22, with no units;
+- `move_reg`: 0 cycles and nothing;
+- `ecalli`: 100 cycles, 4 decode slots and an ALU;
+- `unlikely`: 40.
 
 **On a real value.** The block at 92,078, row by row, as [15.9](./09-what-instructions-cost.md#watch-it)
 prints it:
@@ -2722,13 +2799,14 @@ each instruction its kind.
 ## Say it in one breath
 
 A program blob is cut into a jump table, code and a bitmask, and checked whole before it
-runs (A.2). The bitmask says where each instruction starts, skip how far to the next, and
-the code reads as zeros past its end (A.3, A.4). Blocks start at 0 and after every
+runs (A.2). The bitmask says where each instruction starts, and skip how far to the next.
+Past its end, the code reads as zeros (A.3, A.4). Blocks start at 0 and after every
 terminator, and a jump or branch may only land on one (A.5, A.20 to A.22). Ψ runs one step
-at a time (A.1, A.7): pay for the block on the way in (A.8), check memory (A.9), and do what
-the instruction's row says, out of thirteen tables that differ in how their arguments are
-packed (A.12 to A.37); gas first, then memory, then the instruction (A.10). Ψ_H answers host
-calls (A.38), Y lays out a standard program's memory and registers (A.41 to A.47), and Ψ_M,
-the call the rest of the paper makes, puts them together (A.48). A block's gas is what a
-small model CPU takes to run it, less 3 (A.49 to A.61), from a price list of cycles,
-decode slots and units (A.62 to A.65 and A.10's table).
+at a time (A.1, A.7). A step pays for the block on the way in (A.8), checks memory (A.9),
+and does what the instruction's row says. The rows sit in thirteen tables that differ in
+how their arguments are packed (A.12 to A.37). The order is gas first, then memory, then
+the instruction (A.10). Ψ_H answers host calls (A.38). Y lays out a standard program's
+memory and registers (A.41 to A.47). Ψ_M, the call the rest of the paper makes, puts them
+together (A.48). A block's gas is what a small model CPU takes to run it, less 3 (A.49 to
+A.61), from a price list of cycles, decode slots and units (A.62 to A.65 and A.10's
+table).
