@@ -18,7 +18,7 @@
 // <details><summary>lasair: …, count as its blocks too (config.ts marks them).
 
 import type MarkdownIt from "markdown-it";
-import { CLIENTS, DEFAULT_CLIENT } from "./theme/code-link.ts";
+import { CLIENTS, DEFAULT_CLIENT, UNLISTED } from "./theme/code-link.ts";
 
 /** The line that opens a client's block, and the client it names. */
 export const CLIENT_BLOCK = /^::: client ([\w-]+)\s*$/;
@@ -58,6 +58,10 @@ export function clientBlocks(md: MarkdownIt): void {
     if (end < 0) return false;
     if (silent) return true;
     const id = m[1];
+    if (UNLISTED.includes(id)) { // not ready to show: the site is built without it
+      state.line = end + 1;
+      return true;
+    }
     if (id === DEFAULT_CLIENT || !CLIENTS.some((c) => c.id === id)) {
       throw new Error(`${state.env?.relativePath ?? "a lesson"}:${startLine + 1}: "::: client ${id}" names no other client (theme/code-link.ts lists them)`);
     }

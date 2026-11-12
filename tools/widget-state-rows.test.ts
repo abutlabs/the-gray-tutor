@@ -80,9 +80,9 @@ test("a row built elsewhere links a Part that exists", () => {
   }
 });
 
-test("lesson 6.3 opens with the widget, before New words, and says so where it explains (D.2)", () => {
+test("lesson 6.3 opens with the widget, before The idea, and says so where it explains (D.2)", () => {
   const at = raw.indexOf("<StateRows />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<StateRows />") && at < raw.indexOf("## New words"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<StateRows />") && at < raw.indexOf("## The idea"));
   assert.match(text, /\(D\.2\) is a table, the one you opened \[at the top\]\(#try-it\), row for row/);
   const widget = readFileSync(join(ROOT, ".vitepress/theme/StateRows.vue"), "utf8");
   assert.ok(widget.includes("before block 12 of the tiny <code>safrole</code> trace"));

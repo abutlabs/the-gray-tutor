@@ -41,8 +41,8 @@ test("the trie widget draws the lesson's three keys as its picture: 0xff alone o
   assert.deepEqual(where, { "0x01": "00", "0x40": "01", "0xff": "1" });
   assert.deepEqual(nodesOf(root).filter((n) => n.kind === "branch").map((n) => n.path), ["", "0"], "two branches: the root, and its 0 side");
   assert.equal(rootIs(root), "H(branch)");
-  // New words: "keys starting 0x01 and 0x40 part ways at their second bit", bit 1
-  assert.match(lessonText(TRIE), /keys starting `0x01` and `0x40` part ways at their second bit/);
+  // "The other two need a second bit to part ways": bit 1
+  assert.match(lessonText(TRIE), /`0xff` is the only key that starts with a 1, so it is a leaf after one bit\. The other two\s+need a second bit to part ways/);
   assert.equal(hashesRedone(where["0x40"]), 3, "0x40's leaf, the branch above it, and the root");
 });
 

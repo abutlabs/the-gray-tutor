@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
-import { CLIENT_CSS, CLIENT_KEY, CLIENTS, clientFromLink, clientLabel, clientOr, DEFAULT_CLIENT, fromLink, HEAD, KEY, linkFor } from "../.vitepress/theme/code-link.ts";
+import { CLIENT_CSS, CLIENT_KEY, CLIENTS, clientFromLink, clientLabel, clientOr, DEFAULT_CLIENT, fromLink, HEAD, KEY, linkFor, UNLISTED } from "../.vitepress/theme/code-link.ts";
 import { CLIENT_BLOCK, clientBlockEnd } from "../.vitepress/clients.ts";
 import { parseLesson, readLessons, ROOT } from "./lessons.ts";
 
@@ -25,15 +25,15 @@ test("an old link still works: ?concepts folds the code, ?concepts=off shows it,
   assert.equal(fromLink("?concepts=off&code=off"), false);
 });
 
-test("the clients: the one the lessons build first, ids unique and fit for a link", () => {
+test("the clients: the one the lessons build first; lasair is written but not listed, so nothing can choose it", () => {
   assert.equal(CLIENTS[0].id, DEFAULT_CLIENT);
   assert.equal(new Set(CLIENTS.map((c) => c.id)).size, CLIENTS.length);
   for (const c of CLIENTS) assert.match(c.id, /^[a-z][a-z0-9-]*$/, c.id);
-  assert.deepEqual(CLIENTS.map(clientLabel), ["TypeScript", "OCaml · lasair"]);
-  assert.equal(clientOr("lasair"), "lasair");
-  for (const id of ["rust", "", null, undefined]) assert.equal(clientOr(id), DEFAULT_CLIENT, String(id));
-  assert.equal(clientFromLink("?client=lasair"), "lasair");
-  for (const s of ["", "?client", "?client=rust", "?code"]) assert.equal(clientFromLink(s), null, s);
+  assert.deepEqual(CLIENTS.map(clientLabel), ["TypeScript"]);
+  assert.deepEqual(UNLISTED, ["lasair"]);
+  for (const id of ["lasair", "rust", "", null, undefined]) assert.equal(clientOr(id), DEFAULT_CLIENT, String(id));
+  assert.equal(clientFromLink("?client=tutor"), "tutor");
+  for (const s of ["", "?client", "?client=lasair", "?client=rust", "?code"]) assert.equal(clientFromLink(s), null, s);
 });
 
 type Saved = { code: string | null; client: string | null } | "throws";
@@ -70,17 +70,15 @@ test("before the page draws: folded unless the link or the saved choice shows th
   }
 });
 
-test("before the page draws: the client from the link, else the saved one, else the lessons' own", () => {
+test("before the page draws: the client is the lessons' own, whatever a link or an old saved choice names", () => {
   const none: Saved = { code: null, client: null };
-  assert.deepEqual(head("?client=lasair", none), { folded: true, other: true, client: "lasair", savedAfter: none });
-  assert.deepEqual(head("?code&client=lasair", none), { folded: false, other: true, client: "lasair", savedAfter: none });
-  const lasair: Saved = { code: "on", client: "lasair" };
-  assert.deepEqual(head("", lasair), { folded: false, other: true, client: "lasair", savedAfter: lasair });
-  assert.equal(head("?client=tutor", lasair).client, "tutor", "the link wins");
-  // a client nobody has, in a link or saved by an older site: the default
-  assert.equal(head("?client=rust", none).client, "tutor");
-  assert.equal(head("", { code: null, client: "rust" }).client, "tutor");
-  assert.equal(head("?client=lasair", "throws").client, "lasair");
+  for (const search of ["", "?client=tutor", "?client=lasair", "?code&client=lasair", "?client=rust"]) {
+    const page = head(search, none);
+    assert.deepEqual([page.other, page.client, page.savedAfter], [false, "tutor", none], search);
+  }
+  const old: Saved = { code: "on", client: "lasair" }; // saved while lasair was listed
+  assert.deepEqual(head("", old), { folded: false, other: false, client: "tutor", savedAfter: old });
+  assert.equal(head("?client=lasair", "throws").client, "tutor");
 });
 
 test("the address: ?code while the code shows, ?client= while another client is chosen, the rest kept", () => {
@@ -97,17 +95,20 @@ test("the address: ?code while the code shows, ?client= while another client is 
   // the old parameter goes: the address says what is on now
   assert.equal(linkFor(`${page}?concepts`, false), page);
   assert.equal(linkFor(`${page}?concepts=off`, true), `${page}?code`);
-  assert.equal(linkFor(page, true, "lasair"), `${page}?code&client=lasair`);
-  assert.equal(linkFor(`${page}?code&client=lasair`, true, "tutor"), `${page}?code`);
-  assert.equal(clientFromLink(new URL(linkFor(page, true, "lasair")).search), "lasair");
+  // a second client's choice rides in the address; the default's doesn't
+  assert.equal(linkFor(page, true, "rust"), `${page}?code&client=rust`);
+  assert.equal(linkFor(`${page}?code&client=rust`, true, "tutor"), `${page}?code`);
 });
 
 test("the site puts HEAD and the clients' rules in every page's <head>", () => {
   const config = readFileSync(join(ROOT, ".vitepress/config.ts"), "utf8");
-  assert.match(config, /import \{ CLIENT_CSS, HEAD as CODE_HEAD \} from "\.\/theme\/code-link\.ts";/);
+  assert.match(config, /import \{ CLIENT_CSS, HEAD as CODE_HEAD, UNLISTED \} from "\.\/theme\/code-link\.ts";/);
   assert.match(config, /\["script", \{\}, CODE_HEAD\]/);
   assert.match(config, /\["style", \{\}, CLIENT_CSS\]/);
-  assert.equal(CLIENT_CSS, 'html[data-client="lasair"]:not(.code-folded) .vp-doc .client-code[data-client="lasair"]{display:block}');
+  assert.equal(CLIENT_CSS, "", "one rule per listed client after the first: none yet");
+  // an unlisted client's folds and blocks are left out of the built site
+  assert.match(config, /if \(!UNLISTED\.includes\("lasair"\)\)/);
+  assert.match(readFileSync(join(ROOT, ".vitepress/clients.ts"), "utf8"), /if \(UNLISTED\.includes\(id\)\)/);
 });
 
 test("folding is the script's doing: no rule hides code unless <html> has a class the script sets", () => {

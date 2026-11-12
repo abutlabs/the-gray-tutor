@@ -5,7 +5,7 @@
 // one a lesson quotes beside it. Both choices are kept on this browser, and HEAD (config.ts
 // puts it in <head>) applies them before the page draws, so nothing flashes.
 //
-// A link can carry them, ?code and ?client=lasair; while they are on, the address bar says
+// A link can carry them, ?code and ?client=<id>; while they are on, the address bar says
 // so, and a reader shares a page as they see it by copying it.
 
 import { CLASS, CLIENT_ATTR, CLIENT_KEY, clientOr, DEFAULT_CLIENT, KEY, linkFor, OTHER_CLASS } from "./code-link.ts";

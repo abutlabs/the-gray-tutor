@@ -16,24 +16,15 @@ A trie needs a key for every entry. JAM could have hashed a name for each one, a
 key would look like noise. It builds keys you can read instead, like addresses.
 
 - **The chain's own records** (the validators, the clock, the entropy: 16 in all) get a
-  number each. The key is the number, then zeros. Each record is a *state component*.
+  number each. The key is the number, then zeros. Each record is a [*state component*](../glossary.md#state-component).
 - **A service's account** gets 255, then the service's id.
 - **Anything a service keeps** (its code, its storage) gets the service's id, woven into
   a hash that names the thing.
 
 So the keys of [lesson 6.1](./01-the-state-trie.md) were designed. `0x0b` and thirty
 zeros is the clock. `0xff` and thirty zeros is service 0's account. Learn the three
-recipes and you can find anything in the state, or look at a *state key* and say what
-it holds.
-
-## New words
-
-- **State key.** The 31-byte key an entry of the state is filed under. *Example:* `0x0b`
-  and 30 zeros is the time.
-- **State component.** One of the 16 parts of the state, each with a Greek letter.
-  *Example:* C(11) is τ, the time.
-
-Both are in the [glossary](../glossary.md).
+recipes and you can find anything in the state, or look at a [*state key*](../glossary.md#state-key) and say
+what it holds.
 
 ## What the Gray Paper says
 
@@ -82,7 +73,7 @@ $$
 
 :::
 
-In plain words: every key is 31 bytes, made by C, the *state-key constructor*. C is one
+Every key is 31 bytes, made by C, the *state-key constructor*. C is one
 function with three cases, and what you hand it picks the case:
 
 | Case | You hand it | Where it puts | The 31 bytes |
@@ -143,7 +134,7 @@ from that:
 
 :::
 
-In plain words: a client never needs a storage key back, only its hash. This lesson builds
+A client never needs a storage key back, only its hash. This lesson builds
 the keys of preimages and requests. Storage keys wait for block import
 ([lesson 19.2](../19-block-import/02-the-whole-state.md)), which puts each service's storage into the
 trie: the map [lesson 14.2](../14-services/02-the-service-account.md) reads and the `write` host call

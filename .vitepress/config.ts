@@ -16,7 +16,8 @@ import { runViews } from "./run-views.ts";
 import { lineRanges, linesOf, stepView } from "./whole.ts";
 import { EPUB_FILE, writeEpub } from "./epub.ts";
 import { execSync } from "node:child_process";
-import { CLIENT_CSS, HEAD as CODE_HEAD } from "./theme/code-link.ts";
+import { CLIENT_CSS, HEAD as CODE_HEAD, UNLISTED } from "./theme/code-link.ts";
+import { glossaryTerms } from "./glossary.ts";
 import { clientBlocks } from "./clients.ts";
 import { BESIDE, cited, grayPaperQuotes, label, SECTIONS, sorted } from "./gray-paper.ts";
 import { unitCodes } from "./units.ts";
@@ -111,7 +112,7 @@ export default defineConfig({
   markdown: {
     // the Gray Paper's longest formulas (Ψ_A's type, B.4) need more room than MathJax's default
     math: { tex: { maxBuffer: 50 * 1024 } },
-    config: (md) => { grayPaperQuotes(md); clientBlocks(md); snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
+    config: (md) => { glossaryTerms(md); grayPaperQuotes(md); clientBlocks(md); snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
     codeTransformers: [shellComments()],
   },
   // the dev server sends a moved address on too (the built site has a page there instead)
@@ -205,11 +206,22 @@ function snippetLabels(md: MarkdownIt): void {
   };
   md.core.ruler.push("snippet-labels", (state) => {
     const t = state.tokens;
-    // lasair's folds are code too, and lasair's: they go with the code when it is folded,
-    // and open while the picker is on lasair (theme/code.ts)
-    for (const token of t) {
-      if (token.type === "html_block" && /^<details>\s*<summary>lasair/.test(token.content)) {
+    // lasair's folds are code too, and lasair's. While lasair isn't listed
+    // (theme/code-link.ts), the site is built without them: the fold and all inside it go.
+    // Listed, they go with the code when it is folded, and open while the picker is on
+    // lasair (theme/code.ts).
+    for (let i = 0; i < t.length; i++) {
+      const token = t[i];
+      if (token.type !== "html_block" || !/^<details>\s*<summary>lasair/.test(token.content)) continue;
+      if (!UNLISTED.includes("lasair")) {
         token.content = token.content.replace("<details>", '<details class="lasair" data-client="lasair">');
+        continue;
+      }
+      let end = i;
+      while (end < t.length && !(t[end].type === "html_block" && t[end].content.includes("</details>"))) end++;
+      if (end < t.length) {
+        t.splice(i, end - i + 1);
+        i--;
       }
     }
     for (let i = 0; i + 3 < t.length; i++) {

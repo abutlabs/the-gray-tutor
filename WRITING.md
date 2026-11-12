@@ -287,8 +287,9 @@ of. Then stop: five words that carry the point beat fifty that surround it.
    then the trick that solves it, on one example. No Gray Paper symbols, no byte layouts,
    no code. Someone who reads only this should be able to explain the lesson to a friend.
 3. **The exact rule**, `## What the Gray Paper says`: the paper's own words (v0.8.0,
-   untouched), each quote followed by *In plain words*, which now only has to connect the
-   formula to the idea above it. Layouts, sizes and edge cases live here.
+   untouched), each quote followed by what it means, tied to the idea above it. Layouts,
+   sizes and edge cases live here. Never write "in plain words": every sentence of ours is
+   meant to be, and saying so adds only length.
 
 The code comes after, for the reader who builds.
 
@@ -300,20 +301,21 @@ is a belief someone really holds, and its reason says why it is wrong. (6.1: *wh
 every header carry a state root?*, *why is a state key 31 bytes?*)
 
 **The example first.** A lesson opens on something to try: right under its opening
-paragraph, before *New words*, its widget on real values, with two or three sentences
+sentence, before *The idea*, its widget on real values, with two or three sentences
 saying what to do with it (Parts 4 and 6 are the models: 6.3 opens the state's rows before
 it quotes (D.2), the formula that defines them). The widget is placed once, under
 `<a id="try-it"></a>`, and the plain-words explanation further down sends the reader back
 to it (`[at the top](#try-it)`) instead of repeating it. *Why:* a reader who has already
 opened τ's four bytes reads the paper's formula as a description of something they know.
 
-0. **New words**: right under the opening paragraph, every term the lesson uses for the
-   first time (a JAM word, a Gray Paper symbol, a programming word a newcomer may not
-   know), each with a one-line plain-English definition and a tiny concrete example. Add
-   each one to `lessons/glossary.md` too (plain English, example, the symbol, the lesson
-   that builds it). A word used before it's defined is a bug. `npm test` checks the two
-   lists agree: every new word has a glossary entry, and every glossary word is in some
-   lesson's New words, at or before the lesson its entry links.
+0. **New words are links, not a list.** Where a lesson first uses a term a reader may
+   not know (a JAM word, a programming word), the word is in italics and links to its
+   glossary entry: `[*trie*](../glossary.md#trie)`. The entry's words are its address
+   (`.vitepress/glossary.ts`: "Trie, leaf and branch" is `#trie`, `#leaf`, `#branch`).
+   Add each word to `lessons/glossary.md` (plain English, example, the symbol, the lesson
+   that builds it). There is no *New words* section: it said everything twice. Lessons not
+   yet rewritten still have one, and `npm test` accepts either, as long as every glossary
+   word is listed or linked by the lesson its entry names, or an earlier one.
 1. **What the Gray Paper says**: the paper's own words first, in a `::: gray-paper` block
    (*The Gray Paper's own words*), then the rule in plain words, with its section
    (§11, *Refinement Context*; Appendix C). Check every quote against the 0.8.0 tex. A
@@ -498,9 +500,11 @@ is pure commands.
 ## Clients
 
 The lessons build one client, in TypeScript, and the site can show others beside it: the
-picker next to the *Code* switch says whose code is on show (`CLIENTS` in
-`.vitepress/theme/code-link.ts`; the reader's choice is kept, and `?client=lasair` in a link
-picks one). Today the second client is lasair, quoted in its `<details>` folds.
+picker next to the *Code* switch says whose code is on show (the clients are listed in
+`.vitepress/theme/code-link.ts`; the reader's choice is kept, and `?client=<id>` in a link
+picks one). Today the picker lists TypeScript alone. lasair's OCaml is written into the
+lessons, in its `<details>` folds, but is marked `listed: false`: the site is built
+without those folds until we choose to show them.
 
 - **Our client's snippets are the plain labelled blocks**, as ever: tangle assembles them,
   verify runs them, and every check in this file is about them.

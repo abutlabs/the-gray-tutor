@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { LESSONS, ROOT, clientPackages, lessonsThrough, readParts, GRAY_PAPER_QUOTE } from "./lessons.ts";
 import { FACES } from "../.vitepress/theme/albert.ts";
+import { termId } from "../.vitepress/glossary.ts";
 
 const parts = readParts();
 const home = readFileSync(join(LESSONS, "index.md"), "utf8");
@@ -189,6 +190,8 @@ test("the next lesson and the hardening pass are links, to the right place", () 
   assert.deepEqual(problems, []);
 });
 
+// (A lesson rewritten without a New words list links each word to the glossary where it
+// first uses it, and that link is what brings the word in.)
 // New words and the glossary agree: every word a lesson's New words brings in has a
 // glossary entry, and every glossary word is brought in by some lesson's New words, at or
 // before the lesson its entry links (the one that builds it). An entry may join words
@@ -201,8 +204,12 @@ const newWords = (text: string) => [...(/^## New words\n([\s\S]*?)(?=^## )/m.exe
 test("every new word is in the glossary, and every glossary word is brought in by a lesson", () => {
   const order = parts.flatMap((p) => p.lessons).map((l) => l.file);
   const broughtIn = new Map<string, number>(); // a word, and the first lesson to list it
+  const linked = new Map<string, number>(); // a glossary id, and the first lesson to link it
   for (const [i, file] of order.entries()) {
-    for (const w of newWords(readFileSync(join(LESSONS, file), "utf8"))) if (!broughtIn.has(w)) broughtIn.set(w, i);
+    const text = readFileSync(join(LESSONS, file), "utf8");
+    for (const w of newWords(text)) if (!broughtIn.has(w)) broughtIn.set(w, i);
+    // a lesson with no New words list brings a word in by linking it: (../glossary.md#trie)
+    for (const [, id] of text.matchAll(/\(\.\.\/glossary\.md#([\w-]+)\)/g)) if (!linked.has(id)) linked.set(id, i);
   }
   const glossary = new Map<string, number>(); // a word, and the lesson its entry links
   for (const entry of readFileSync(join(LESSONS, "glossary.md"), "utf8").split(/\n\s*\n/)) {
@@ -218,8 +225,8 @@ test("every new word is in the glossary, and every glossary word is brought in b
   }
   for (const [w, at] of glossary) {
     if (at < 0) continue; // an entry that links no one lesson
-    const from = broughtIn.get(w);
-    if (from === undefined || from > at) problems.push(`glossary "${w}" (${order[at]}): no New words up to there`);
+    const from = Math.min(broughtIn.get(w) ?? Infinity, linked.get(termId(w)) ?? Infinity);
+    if (from > at) problems.push(`glossary "${w}" (${order[at]}): no lesson lists or links it up to there`);
   }
   assert.deepEqual(problems, []);
 });

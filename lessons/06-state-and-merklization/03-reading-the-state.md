@@ -25,17 +25,6 @@ This lesson does it for three records, the time, the entropy and the validators.
 A decoder that reads the wrong bytes doesn't crash. It hands you wrong values. So each
 reading is checked against something the blocks themselves say.
 
-## New words
-
-- **Validator key.** Everything the chain knows about one validator: three keys for three
-  jobs, and some metadata, 336 bytes in all. *Example:* its Ed25519 key signs assurances.
-- **Bandersnatch key.** The key a validator uses for the ticket lottery and to seal
-  blocks ([Part 8](../08-safrole/index.md)). *Example:* the first 32 of the 336 bytes.
-- **BLS key.** A 144-byte key for signatures that can be combined into one. *Example:*
-  bytes 64 to 207 of a validator key.
-
-All three are in the [glossary](../glossary.md).
-
 ## What the Gray Paper says
 
 Appendix D's T says what each key's value is:
@@ -230,7 +219,7 @@ $$
 
 :::
 
-In plain words, (D.2) is a table, the one you opened [at the top](#try-it),
+(D.2) is a table, the one you opened [at the top](#try-it),
 row for row: on the left a key, from [lesson 6.2](./02-state-keys.md)'s C, and on the
 right the encoding stored under it. The paper's second note is the rule of
 thumb for reading one: a number in the state is written fixed-width, ℰ₄ or ℰ₈, unless it
@@ -242,12 +231,12 @@ is a length or a discriminator in front of something. This lesson reads three ro
 | C(6) | η, entropy: four hashes, newest first, no length in front | `seqN(hash, 4)` |
 | C(8) | κ, this epoch's validators, with their length in front | `seq(ValidatorKey)` |
 
-A *validator key* (§6) is 336 bytes, in four parts:
+A [*validator key*](../glossary.md#validator-key) (§6) is 336 bytes, in four parts:
 
-- The Bandersnatch key, bytes 0 to 31: seals blocks and enters the ticket lottery
+- The [Bandersnatch key](../glossary.md#bandersnatch-key), bytes 0 to 31: seals blocks and enters the ticket lottery
   ([Part 8](../08-safrole/index.md)).
 - The Ed25519 key, bytes 32 to 63: signs assurances.
-- The BLS key, bytes 64 to 207: for signatures that can be combined into one.
+- The [BLS key](../glossary.md#bls-key), bytes 64 to 207: for signatures that can be combined into one.
 - Metadata, bytes 208 to 335, which the Gray Paper leaves opaque (a network address, say).
 
 An epoch mark ([lesson 4.6](../04-blocks/06-the-header.md)) carries only the first two. The state keeps all four parts.

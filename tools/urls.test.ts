@@ -5,6 +5,7 @@ import { dirname, join, posix } from "node:path";
 import { LESSONS } from "./lessons.ts";
 import { snippetNumbers } from "./snapshots.ts";
 import { LEGEND, MOVED, PUBLISHED, movedTo } from "../.vitepress/urls.ts";
+import { glossaryIds } from "../.vitepress/glossary.ts";
 
 /** A page's address: its path under lessons/ without ".md", an index by its folder. */
 function address(file: string): string {
@@ -64,6 +65,7 @@ function anchors(file: string): Set<string> {
     ids.add(id);
   }
   for (const [, id] of text.matchAll(/<a id="([^"]+)"/g)) ids.add(id);
+  if (file === "glossary.md") for (const id of glossaryIds(text)) ids.add(id); // #trie, #state-root
   for (const [key, n] of numbers) if (key.startsWith(`${file}:`)) ids.add(`snippet-${n}`); // #snippet-2
   return ids;
 }

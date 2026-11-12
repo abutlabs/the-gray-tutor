@@ -25,7 +25,7 @@ test("the four parts are lesson 6.3's ValidatorKey, in its order, with its width
   assert.deepEqual([rangeOf(PARTS, "bandersnatch"), rangeOf(PARTS, "ed25519"), rangeOf(PARTS, "bls"), rangeOf(PARTS, "metadata")],
     [{ start: 0, end: 32 }, { start: 32, end: 64 }, { start: 64, end: 208 }, { start: 208, end: 336 }]);
   assert.match(text, /The Ed25519 key, bytes 32 to 63/);
-  assert.match(text, /The BLS key, bytes 64 to 207/);
+  assert.match(text, /The \[BLS key\]\(\.\.\/glossary\.md#bls-key\), bytes 64 to 207/);
 });
 
 test("κ is a count byte then six keys: 1 + 6 × 336 = 2,017, the check question's", () => {

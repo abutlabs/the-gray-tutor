@@ -7,9 +7,11 @@
 // header shows all the code. The choice is kept on this browser (localStorage), so a reader
 // building a client turns it on once.
 //
-// The picker says whose code that is. Today the lessons build one client, in TypeScript, and
-// quote a second, lasair, in OCaml, beside it. A client in another language is one more row
-// in CLIENTS and its snippets in `::: client <id>` blocks (../clients.ts; WRITING.md, Clients).
+// The picker says whose code that is. Today it lists one client, the TypeScript one the
+// lessons build. A second, lasair, in OCaml, is written into the lessons but not listed
+// yet, so the site is built without it. A client in another language is one more row
+// below, `listed: true`, and its snippets in `::: client <id>` blocks (../clients.ts;
+// WRITING.md, Clients).
 
 /** A client whose code the lessons can show. */
 export interface Client {
@@ -21,13 +23,20 @@ export interface Client {
   name?: string;
   /** What the lessons do with it, for the picker's tooltip. */
   about: string;
+  /** False until its code is ready to show: the picker doesn't list it, a link can't
+   *  choose it, and the site is built without its folds and blocks (config.ts). */
+  listed: boolean;
 }
 
 /** Every client, the default first: the one the lessons build, snippet by snippet. */
-export const CLIENTS: Client[] = [
-  { id: "tutor", language: "TypeScript", about: "the client the lessons build, step by step" },
-  { id: "lasair", language: "OCaml", name: "lasair", about: "another client, quoted beside ours where a lesson compares the two" },
+const ALL: Client[] = [
+  { id: "tutor", language: "TypeScript", about: "the client the lessons build, step by step", listed: true },
+  { id: "lasair", language: "OCaml", name: "lasair", about: "another client, quoted beside ours where a lesson compares the two", listed: false },
 ];
+/** The clients a reader can choose: today, ours alone. */
+export const CLIENTS: Client[] = ALL.filter((c) => c.listed);
+/** The clients whose code stays out of the built site for now. */
+export const UNLISTED: string[] = ALL.filter((c) => !c.listed).map((c) => c.id);
 export const DEFAULT_CLIENT = CLIENTS[0].id;
 
 /** A client as the picker lists it: "TypeScript", "OCaml · lasair". */

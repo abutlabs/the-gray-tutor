@@ -21,32 +21,17 @@ the state later, you would have to show all of it. So the state is hashed as a t
 
 1. Cut the state into entries, each a key and a value.
 2. File the entries by the bits of their keys: 0 goes left, 1 goes right. That tree is a
-   *trie*.
-3. Hash from the bottom up. A *leaf* hashes one entry. A *branch* hashes the two hashes
-   below it. The last hash, at the top, is the *state root*.
+   [*trie*](../glossary.md#trie).
+3. Hash from the bottom up. A [*leaf*](../glossary.md#leaf) hashes one entry. A [*branch*](../glossary.md#branch) hashes the two hashes
+   below it. The last hash, at the top, is the [*state root*](../glossary.md#state-root).
 
 Change one value and its leaf's hash changes, then the branch above it, and so on up to
 the root. Nothing else moves. That is the whole trick: one hash stands for everything, and
 any one entry is tied to it by a short path of hashes. Doing this to a whole state is
-called *Merklization*.
+called [*Merklization*](../glossary.md#merklization).
 
 Every JAM header carries the result, as `parent_state_root`. This lesson builds the trie
 and checks it against 400 real states.
-
-## New words
-
-- **Trie.** A tree that files entries by the bits of their keys: 0 goes left, 1 goes
-  right. *Example:* keys starting `0x01` and `0x40` part ways at their second bit.
-- **Leaf and branch.** A trie's two kinds of node: a leaf holds one entry, a branch holds
-  the hashes of the two subtries below it. *Example:* a 64-byte node; its first bit says
-  which.
-- **Merklization.** Hashing a whole trie down to one root, so that any one entry can later
-  be proven with a few hashes. *Example:* 400 real states, each down to 32 bytes.
-- **State root.** One 32-byte hash that fingerprints the whole state, through a trie. Two
-  clients agree on the state exactly when they agree on the root. *Example:* a header's
-  `parent_state_root`.
-
-All four are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
@@ -86,7 +71,7 @@ $$
 
 :::
 
-In plain words: `parent_state_root` is the root of the state *before* this block, the one
+`parent_state_root` is the root of the state *before* this block, the one
 its parent left. Ethereum and Polkadot put the state *after* the block there. JAM's choice
 lets an author send a block before hashing the state it leaves behind: that root goes in
 the next header, so the two jobs overlap.
@@ -200,7 +185,7 @@ $$
 
 :::
 
-In plain words: every node is exactly 64 bytes, and its first bit says which kind it is.
+Every node is exactly 64 bytes, and its first bit says which kind it is.
 
 - **A leaf** (first bit 1) holds one entry: the key, then the value itself if it fits in
   32 bytes, or the value's hash if it doesn't. The second bit says which.
