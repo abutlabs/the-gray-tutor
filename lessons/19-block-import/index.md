@@ -1,8 +1,10 @@
 # Part 19 · Block import
 
-Everything comes together. By the end of this part your client imports real blocks: the
-first 100 blocks of all eight official traces, chained from genesis, every state root right
-and every bad block refused.
+**In one sentence:** this part joins every step you have built into one function, which
+takes a state and a block and gives back the next state, or a refusal.
+
+By the end of this part your client imports real blocks: the first 100 blocks of all eight
+official traces, chained from genesis, every state root right and every bad block refused.
 
 ## The big picture
 
@@ -23,10 +25,12 @@ were only names. You've built nearly all of them now:
 | 8 | keep it and answer | [20.2](../20-facing-the-fuzzer/02-a-target.md) |
 
 Every station is on the chain, on every validator. The in-core work, the authorizer and
-refine, happened before the block existed and reaches station 5 only as signed reports;
-[What runs where](../what-runs-where.md) draws the split. Station 5 is the big one, and
-until now each piece of it has only met its own test vectors. This part joins the pieces and runs real blocks through them. The test is as hard
-as a test can be: one 32-byte state root, which is wrong if any byte of the state is.
+refine, happened before the block existed. It reaches station 5 only as signed reports.
+[What runs where](../what-runs-where.md) draws the split.
+
+Station 5 is the big one, and until now each piece of it has only met its own test
+vectors. This part joins the pieces and runs real blocks through them. The test is as
+hard as a test can be: one 32-byte state root, which is wrong if any byte of the state is.
 
 | Question | Lessons | Time |
 | --- | --- | --- |

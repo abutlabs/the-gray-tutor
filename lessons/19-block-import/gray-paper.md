@@ -1,7 +1,7 @@
 # The formulas, in plain words
 
 [Part 19](./index.md)'s appendix: the two formulas of §4, *Overview*, that [Part
-19](./index.md) quotes, explained. (4.2) and (4.3) say what a block is; (4.5) to (4.20) say
+19](./index.md) quotes, explained. (4.2) and (4.3) say what a block is. (4.5) to (4.20) say
 what each new piece of state is made from, and so in what order a client can make them. The
 rest of §4 is in [Part 0's appendix](../00-start/gray-paper.md). Each formula: its key, then
 read aloud, in plain words, on a real value, in your client. Notation: [Reading the Gray
@@ -41,8 +41,8 @@ $$
 **Read it aloud.** "B is defined as the tuple H and E. E is defined as the tuple E sub T,
 E sub D, E sub P, E sub A, E sub G."
 
-**In plain words.** A block is two things: a header, the cover page signed by its author,
-and the extrinsic, the data the block carries in from outside. The extrinsic is five lists:
+**In plain words.** A block is two things. The header is the cover page, signed by its
+author. The extrinsic is the data the block carries in from outside, in five lists:
 tickets for the sealing lottery, disputes, preimages, availability assurances and
 guaranteed reports. Any of them can be empty.
 
@@ -57,8 +57,8 @@ guaranteed reports. Any of them can be empty.
 𝐄_G    guarantees    2: one for each of tiny's 2 cores
 ```
 
-That is the paper's order. A block's bytes hold the bags in another (tickets, preimages,
-guarantees, assurances, disputes), and your client imports them in a third
+That is the paper's order. A block's bytes hold the bags in another: tickets, preimages,
+guarantees, assurances, disputes. Your client imports them in a third
 ([19.4](./04-importing-a-block.md#what-the-gray-paper-says)).
 
 **In your client.** `Block` in `src/block.ts`, its header and its five lists, built in
@@ -149,17 +149,22 @@ $$
 ```
 
 **In plain words.** Not a rule to compute anything, but a list of ingredients: for each
-new piece of state, what it needs. Anything with a prime or a dagger on the right is made
-by another line, so it must be made first. Anything plain on the right is the state
-before the block, or a part of the block, and is there from the start. A dagger is a
-value halfway through the block: ρ† is the cores after the disputes, ρ‡ after the
-assurances too, β_H† the recent blocks with the parent's state root filled in, δ‡ the
-accounts after accumulation. (4.16) is one line for all of accumulation, because one run
-makes all eight of its outputs together.
+new piece of state, what it needs.
 
-**On a real value.** The order your client works out from it, one step at a time, with
-each step's wave one more than the latest wave among its ingredients (the block and the
-old state are wave 0):
+- Anything with a prime or a dagger on the right is made by another line, so it must be
+  made first.
+- Anything plain on the right is the state before the block, or a part of the block. It
+  is there from the start.
+- A dagger is a value halfway through the block: ρ† is the cores after the disputes, ρ‡
+  after the assurances too, β_H† the recent blocks with the parent's state root filled
+  in, δ‡ the accounts after accumulation.
+
+(4.16) is one line for all of accumulation, because one run makes all eight of its
+outputs together.
+
+**On a real value.** The order your client works out from it, one step at a time. A
+step's wave is one more than the latest wave among its ingredients. The block and the old
+state are wave 0:
 
 ```text
 τ′       ← 𝐇                         latest ingredient: wave 0      wave 1
@@ -173,18 +178,18 @@ old state are wave 0):
 α′       ← 𝐇, 𝐄_G, ϕ′, α             ϕ′ from (4.16): wave 3         wave 4
 ```
 
-Every step lands in one of four waves, and the chain ρ† → 𝐑* → accumulation → α′ is what
-makes it four: `npm run plan` prints all sixteen
+Every step lands in one of four waves. The chain ρ† → 𝐑* → accumulation → α′ is what
+makes it four. `npm run plan` prints all sixteen
 ([19.1](./01-the-order-of-things.md#watch-it)).
 
-**In your client.** `STEPS`, these sixteen lines as data, and `waves`, which sorts them,
-both in `src/import.ts` ([19.1](./01-the-order-of-things.md#the-code)); `importBlock` runs
+**In your client.** `STEPS` is these sixteen lines as data, and `waves` sorts them. Both
+are in `src/import.ts` ([19.1](./01-the-order-of-things.md#the-code)). `importBlock` runs
 the steps in one order the waves allow ([19.4](./04-importing-a-block.md#the-code)).
 
 ## Say it in one breath
 
 A block is a header and five bags: tickets, disputes, preimages, assurances, guarantees
 (4.2), (4.3). The dependency graph lists, for each new piece of state, what it's made from
-(4.5) to (4.20): a prime or a dagger on the right means "make that first", and sorted out
-that is four waves, with accumulation in the third and the pools, recent blocks, accounts
-and statistics waiting for it in the fourth.
+(4.5) to (4.20). A prime or a dagger on the right means "make that first". Sorted out,
+that is four waves: accumulation in the third, and the pools, recent blocks, accounts and
+statistics waiting for it in the fourth.
