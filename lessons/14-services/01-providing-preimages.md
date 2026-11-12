@@ -1,21 +1,34 @@
 # Providing preimages
 
-A JAM service can't download things. If it needs data, say a new version of its own
-code, it asks for it *by its hash and length* and waits. A later block brings the data in
-its preimages extrinsic ([lesson 4.1](../04-blocks/01-tickets-and-preimages.md)), the chain checks it is what was asked for (its
-hash says so), and hands it over. This lesson is that handover. The asking happened on
-the chain, in the service's own accumulate code ([lesson
-16.9](../16-host-calls/09-asking-for-preimages.md)); the bytes come from off the chain,
-in a block; and the handover is on the chain again, on every validator.
+**In one sentence:** a service asks for data by its hash, and a later block hands the data
+over once the chain has checked it is what was asked for.
 
-## New words
+A block at slot 8 brings data for service 0. Pick a preimage, and see whether the chain
+takes it.
 
-- **Request.** A service asking for a preimage by its hash and length. Its *history* is a
-  short list of slots: provided, forgotten, available again. *Example:* `[]`, still waiting.
-- **`Map`.** JavaScript's lookup table, from keys to values. *Example:* the state's
-  entries, each found by its key in hex.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md).
+<ProvidePreimage />
+
+## The idea
+
+A JAM service can't download things. So how does it get data it needs, say a new
+version of its own code?
+
+It asks for it *by its hash and length*, and waits. That is a
+[*request*](../glossary.md#request). A later block brings the data, the
+[*preimage*](../glossary.md#preimage) of that hash, in its preimages extrinsic
+([lesson 4.1](../04-blocks/01-tickets-and-preimages.md)). The chain hashes what came,
+looks for a request under that hash and length, and hands the data over.
+
+It works like a parcel slip. The service leaves a slip with the parcel's fingerprint on
+it. Anyone may deliver, because only the right parcel matches the slip. Wrong bytes hash
+differently, and find no slip at all.
+
+Three places are involved. The asking happened on the chain, in the service's own
+accumulate code ([lesson 16.9](../16-host-calls/09-asking-for-preimages.md)). The bytes
+come from off the chain, in a block. The handover is on the chain again, on every
+validator. This lesson is the handover.
 
 ## What the Gray Paper says
 
@@ -80,8 +93,8 @@ $$
 
 :::
 
-In plain words: after accumulation, each preimage in the block is handed to the service
-that asked for it. Two checks come first, on the state *before* the block:
+After accumulation, each preimage in the block is handed to the service that asked for
+it. Two checks come first, on the state *before* the block:
 
 - **Y, "providable"**: a preimage (s, data) is welcome if service s has a request for
   (H(data), length) whose history is `[]`, still waiting.
@@ -91,7 +104,7 @@ that asked for it. Two checks come first, on the state *before* the block:
 Then **I, "provide"**: for each welcome preimage, the data is stored under
 `preimageKey(s, data)` ([lesson 6.2](../06-state-and-merklization/02-state-keys.md)), and
 the request's history becomes `[τ′]`, the slot of this block. A preimage that
-accumulation made unneeded in this same block is skipped, not refused: that is the
+accumulation made unneeded in this same block is skipped, not refused. That is the
 "disregard, without prejudice".
 
 Where do requests live? Beside the preimages, in the service's account:
@@ -155,7 +168,7 @@ $$
 
 :::
 
-In plain words: every piece of data a service has asked for has a *request*, under
+Every piece of data a service has asked for has a request, under
 [lesson 6.2](../06-state-and-merklization/02-state-keys.md)'s `requestKey(s, H(data), length)`.
 Its value is a short *history*, the slots of its life so far:
 
@@ -167,15 +180,16 @@ Its value is a short *history*, the slots of its life so far:
 | `[x, y, z]` | available again from z, after being available from x until y |
 
 And the invariant: every stored preimage sits under its own hash, and has a request for
-its hash and length. The data proves itself: its hash is in the key, so nobody can
-provide the wrong thing.
+its hash and length. The data proves itself: its hash is in the key, so nobody can provide the wrong thing.
 
-<ProvidePreimage />
+Try it on [the block at the top](#try-it). Four of its preimages are waited for, and
+their histories go from `[]` to `[8]`. Two are skipped: one already provided, one never
+asked for.
 
 ### What the history is for
 
-Why keep a history at all, instead of "have it" or "don't"? Because of refine, which runs
-off the chain, on a core, where there is no state everyone agrees on:
+Why keep a history at all, and not just "have it" or "don't"? Because of refine, which
+runs off the chain, on a core, where there is no state everyone agrees on:
 
 ::: gray-paper 9.2 3-8
 
@@ -270,13 +284,15 @@ $$
 
 :::
 
-In plain words: Λ asks "did this service have the preimage with hash h at slot t?", and
-reads the answer off the request's history. `[]` is never; `[x]` is from x on; `[x, y]`
-is from x until just before y; `[x, y, z]` is that, or from z on. A guarantor running
-refine and an auditor checking it weeks later both ask Λ about the same slot, the lookup
-anchor's, and get the same bytes, even though the state has moved on in between. That is
-why a forgotten preimage isn't deleted at once: it waits out D slots (32 on tiny, 19,200
-on full) so that a lookup in that window still has its answer.
+Λ asks "did this service have the preimage with hash h at slot t?", and reads the answer
+off the request's history. `[]` is never. `[x]` is from x on. `[x, y]` is from x until
+just before y. `[x, y, z]` is that, or from z on.
+
+A guarantor running refine and an auditor checking it weeks later both ask Λ about the
+same slot, the lookup anchor's. They get the same bytes, even though the state has moved
+on in between. That is why a forgotten preimage isn't deleted at once: it waits out D
+slots (32 on tiny, 19,200 on full), so that a lookup in that window still has its
+answer.
 
 Your client doesn't build Λ. Only refine's `historical_lookup` host call uses it, and your
 client never runs refine ([Part 16](../16-host-calls/index.md) lists it among the calls
@@ -284,10 +300,10 @@ not built). The history it reads is what this lesson writes.
 
 ## The tests
 
-Two readers first, beside the other vector helpers: a preimages vector writes each
-account's preimages and requests as lists, and your client keeps them as state entries,
-under [lesson 6.2](../06-state-and-merklization/02-state-keys.md)'s keys. The tests read them, and so will the scoreboard at the end
-of this lesson.
+Two readers first, beside the other vector helpers. A preimages vector writes each
+account's preimages and requests as lists. Your client keeps them as state entries, under
+[lesson 6.2](../06-state-and-merklization/02-state-keys.md)'s keys. The tests read them,
+and so will the scoreboard at the end of this lesson.
 
 **Add to** `test/vectors.ts`
 
@@ -504,9 +520,10 @@ export function providePreimages(
 }
 ```
 
-`providePreimages` works on the state itself, [Part 6](../06-state-and-merklization/index.md)'s key-value entries, using its
-key recipes. A `Map` keyed by hex finds entries quickly. A request that doesn't exist,
-or isn't waiting, is skipped:
+`providePreimages` works on the state itself,
+[Part 6](../06-state-and-merklization/index.md)'s key-value entries, using its key
+recipes. A [*`Map`*](../glossary.md#map), JavaScript's lookup table, finds entries
+quickly by their key in hex. A request that doesn't exist, or isn't waiting, is skipped:
 
 ```ts
     if (history === undefined) continue; // never asked for
@@ -597,9 +614,9 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the trace's block going in, what the
+**What flows through it.** One run, three faces: the trace's block going in, what the
 program makes of each preimage, and the lines it prints. Here they are for the block's
-3-byte preimage; tab across them:
+3-byte preimage. Tab across them:
 
 ::: code-group
 
@@ -632,8 +649,8 @@ service 0: 3 bytes, hash 0xd0c7d4d8…  request [] → [8]
 
 :::
 
-Read the input into the output: `requester` names the service, and the `blob` is the
-data itself — the 3-byte one is `0xaef804` in full. The program hashes each blob with
+Read the input into the output. `requester` names the service, and the `blob` is the
+data itself: the 3-byte one is `0xaef804` in full. The program hashes each blob with
 Blake2b, finds the request filed under that service, hash and length, and prints its
 history stepping from `[]`, asked for, to `[8]`, provided at the block's slot.
 
@@ -749,7 +766,7 @@ stf/preimages             2 of 16
 
 :::
 
-*Run whole* means the block's one preimage is checked against the request waiting for it, and the request's history must move from `[]` to `[43]`, the slot it was provided in. Only 2 of the family's 16 pass at this point: the console row says so, and the failing ones, listed under it in the full output, are about statistics and an unneeded preimage.
+*Run whole* means the block's one preimage is checked against the request waiting for it, and the request's history must move from `[]` to `[43]`, the slot it was provided in. Only 2 of the family's 16 pass at this point. The console row says so, and the failing ones, listed under it in the full output, are about statistics and an unneeded preimage.
 
 **Run**
 
@@ -801,8 +818,9 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 simple road the note above took, and the [hardening
 pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) adds the refusals.
 Those ten stay red on your board until you take it. The other four store their preimages
-exactly as the vectors do, and then the vectors' service statistics count them,
-`statistics changed`: [lesson 18.2](../18-statistics/02-what-cores-and-services-did.md) keeps those, and they cross the line there.
+exactly as the vectors do. Then the vectors' service statistics count them,
+`statistics changed`. [Lesson 18.2](../18-statistics/02-what-cores-and-services-did.md)
+keeps those, and they cross the line there.
 
 > [!TIP] Milestone
 > **Preimages on the board.** Every preimage a vector accepts is stored and its
@@ -833,6 +851,16 @@ against the state keeps it short.
 ## Check your understanding
 
 ::: check
+**Why does a service ask for data by hash and length, and not fetch it?**
+
+- [x] A service can't reach outside the chain, so the data must come in a block and prove itself
+  > Yes: it asks, waits, and a later block brings the bytes. Their hash is the proof
+  > that they are what was asked for.
+- [ ] To keep the data out of the state
+  > No: once provided, the data is stored in the state, under the service's own key.
+- [ ] So that validators can't read the data
+  > No: nothing is hidden. The data travels in the block, in the open.
+
 **What stops someone providing the wrong data for a request?**
 
 - [ ] Validators compare the data with the original
@@ -845,15 +873,6 @@ against the state keeps it short.
   > No: the chain checks it before the service sees it. Y lets in only data whose hash and
   > length match a waiting request.
 
-**A request's history holds one slot. What does that say?**
-
-- [ ] The service is still waiting for the data
-  > No: waiting is the empty history, `[]`.
-- [x] The data was provided, at that slot
-  > Yes: `[x]` is provided at slot x. A second slot would say when it was forgotten.
-- [ ] The data was forgotten at that slot
-  > No: forgotten takes two slots, `[x, y]`: provided at x, forgotten at y.
-
 **A request's history is `[3, 40]`. What happened?**
 
 - [x] The data was provided at slot 3, and forgotten at slot 40
@@ -865,6 +884,16 @@ against the state keeps it short.
 - [ ] The data was provided twice, at 3 and at 40
   > No: data is welcome only while the history is `[]`. After slot 3 it was `[3]`, so a
   > second copy wasn't providable. The 40 is when it was forgotten.
+
+**Why does a request keep a history of slots, and not just "have it" or "don't"?**
+
+- [ ] So the service can be charged for how long it kept the data
+  > No: the history is read by a lookup, not by a bill.
+- [ ] So a forgotten preimage can be restored from the history
+  > No: the history holds slots, not data. It says when the data was there.
+- [x] Refine runs off the chain, and must get the same answer whenever it is run or checked
+  > Yes: a guarantor and an auditor weeks later both ask about the same slot, the lookup
+  > anchor's. The history answers "was it there then?", whatever the state is now.
 
 **A block brings a preimage for a request whose history is already `[5]`. What does the Gray Paper say?**
 
@@ -883,7 +912,7 @@ against the state keeps it short.
 Your client can hand services the data they asked for: checked by its hash, stored under
 its key, and the request marked done, the same way the real chain did, 67 times over. On
 the scoreboard, two of the preimages vectors pass whole, and the board names what the
-other fourteen need.
-Who asked, though, and what do they own? [Lesson 14.2](./02-the-service-account.md) reads a service's account.
+other fourteen need. Who asked, though, and what do they own?
+[Lesson 14.2](./02-the-service-account.md) reads a service's account.
 
 Next: [14.2 The service account](./02-the-service-account.md)

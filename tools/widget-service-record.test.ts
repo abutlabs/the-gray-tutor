@@ -40,8 +40,10 @@ test("the 89 bytes are what the lessons' client encodes for service 0 (reference
   assert.equal(RECORD.bytes.map((b) => b.toString(16).padStart(2, "0")).join(""), expected);
 });
 
-test("lesson 14.2 places the record widget once, after the field table", () => {
+test("lesson 14.2 places the record widget once, at the top, and the field table sends the reader back to it", () => {
   const at = raw.indexOf("<ServiceRecord />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ServiceRecord />"), "placed once");
-  assert.ok(at > raw.indexOf("| r, a, p |") && at < raw.indexOf("*the footprint*"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("| r, a, p |"));
+  assert.ok(back > 0 && back < raw.indexOf("*The footprint*"));
 });

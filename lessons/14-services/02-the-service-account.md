@@ -1,24 +1,31 @@
 # The service account
 
-Every service has an *account*: its code (by hash), its balance, the least gas it will
-accept, and a tally of the state it takes up, because storage on JAM isn't free: a
-service must keep enough balance to cover what it stores, like a deposit. [The part's
-page](./index.md) draws the whole account, the record and its three bags of entries; this
-lesson reads the record out of the state and checks the tally adds up.
+**In one sentence:** every service has an account in the state that says what code it
+runs, what it owns, and how much state it takes up, which it must hold a deposit for.
 
-## New words
+Here is service 0's account, 89 bytes from a real state. Open each field.
 
-- **Service.** A program that lives on JAM, with an id, code, a balance and storage. It
-  runs in two stages: refine, on a core, and accumulate, on the chain. *Example:*
-  service 0, in the real state below.
-- **Service account.** A service's record in the state: its code hash, balance, gas
-  minimums, and counts of what it keeps. *Example:* 89 bytes under C(255, s).
-- **Footprint, deposit and minimum balance.** What a service keeps, in items and bytes, is
-  its footprint. Keeping it takes a deposit: the balance must stay at least 100 + 10 per
-  item + 1 per byte, less a free allowance, its minimum balance. *Example:* service 0's
-  footprint is 4 items and 159,534 bytes.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<ServiceRecord />
+
+## The idea
+
+Who asked for those preimages, and what do they own?
+
+A [*service*](../glossary.md#service) is a program that lives on JAM, with an id, code,
+a balance and storage. Its record in the state is its
+[*service account*](../glossary.md#service-account): its code (by hash), its balance,
+the least gas it will accept, and a tally of the state it takes up.
+
+Why a tally? Storage on JAM isn't free. What a service keeps, in items and bytes, is its
+[*footprint*](../glossary.md#footprint). Keeping it takes a
+[*deposit*](../glossary.md#deposit), as renting a storage unit does: the more you keep,
+the more you must leave on account. The balance may never drop below a
+[*minimum balance*](../glossary.md#minimum-balance), worked out from the footprint.
+
+[The part's page](./index.md) draws the whole account, the record and its three bags of
+entries. This lesson reads the record out of the state, and checks the tally adds up.
 
 ## What the Gray Paper says
 
@@ -107,8 +114,8 @@ $$
 
 :::
 
-In plain words: δ is a dictionary from a service's id, a 32-bit number, to its account.
-An account is three dictionaries (storage, preimages, requests) and eight plain fields.
+δ is a dictionary from a service's id, a 32-bit number, to its account. An account is
+three dictionaries (storage, preimages, requests) and eight plain fields.
 The three dictionaries live in the state under keys of their own, one entry each
 ([lesson 6.2](../06-state-and-merklization/02-state-keys.md)). The plain fields, with the
 two counts of §9.3 below, make the record that Appendix D keeps under C(255, s), 89 bytes:
@@ -124,7 +131,7 @@ two counts of §9.3 below, make the record that Appendix D keeps under C(255, s)
 | i, items | 4 | things it keeps |
 | r, a, p | 4 + 4 + 4 | created at, last accumulated at, created by (its parent) |
 
-<ServiceRecord />
+These are the fields of [the record at the top](#try-it), in the same order.
 
 Where is the code itself? Not in the record: the record has only its hash.
 
@@ -162,10 +169,9 @@ $$
 
 :::
 
-In plain words: the code hash names one of the service's own preimages, and those bytes
-are two blobs in a row: the metadata, with its length in front, then the code. If the
-preimage isn't there, or doesn't split that way, the service has no code (∅), and nothing
-of it can run. [Lesson 15.1](../15-the-pvm/01-the-program-blob.md) takes the two apart.
+The code hash names one of the service's own preimages. Those bytes are two blobs in a
+row: the metadata, with its length in front, then the code. If the preimage isn't there,
+or doesn't split that way, the service has no code (∅), and nothing of it can run. [Lesson 15.1](../15-the-pvm/01-the-program-blob.md) takes the two apart.
 
 ::: gray-paper 9.1 6-6
 
@@ -175,12 +181,12 @@ of it can run. [Lesson 15.1](../15-the-pvm/01-the-program-blob.md) takes the two
 
 :::
 
-In plain words: g and m are floors, chosen when the service is created (and changed
-along with its code, by `upgrade`). Whoever sends it work must give
-each work-item at least g gas to accumulate with, and each transfer to it at least m, so
-a service is never started with too little gas to do anything useful. The guarantee checks
-hold work-items to g ([lesson 12.5](../12-guarantees/05-bad-reports.md)), and the `transfer`
-host call holds transfers to m ([lesson 17.3](../17-accumulation/03-sending-a-transfer.md)).
+g and m are floors, chosen when the service is created (and changed along with its code,
+by `upgrade`). Whoever sends it work must give each work-item at least g gas to
+accumulate with, and each transfer to it at least m. So a service is never started with
+too little gas to do anything useful. The guarantee checks hold work-items to g
+([lesson 12.5](../12-guarantees/05-bad-reports.md)), and the `transfer` host call holds
+transfers to m ([lesson 17.3](../17-accumulation/03-sending-a-transfer.md)).
 
 What it keeps costs a deposit:
 
@@ -239,10 +245,10 @@ $$
 
 :::
 
-In plain words, *the footprint*: items is 2 for each request plus 1 for each storage entry; octets is
-81 plus the data's length for each request, plus 34 plus the key's and value's lengths
-for each storage entry. (The 81 and the 34 are flat amounts for the bookkeeping around
-each one, on top of the data itself.)
+*The footprint* is two counts. Items is 2 for each request, plus 1 for each storage
+entry. Octets is 81 plus the data's length for each request, plus 34 plus the key's and
+value's lengths for each storage entry. (The 81 and the 34 are flat amounts for the
+bookkeeping around each one, on top of the data itself.)
 
 *The minimum balance*, a_t, is max(0, 100 + 10·i + 1·o − f): a base deposit of 100,
 10 per item and 1 per octet, less the free allowance.
@@ -306,10 +312,11 @@ test("footprints and minimum balances: 510 accounts in the accumulate vectors", 
 ```
 
 Two sources. In the real state, service 0's code sits beside its account: the value whose
-hash is the code hash, [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s 159,322-byte giant. Its footprint is two preimages
-with their requests and nothing in storage: 4 items, 81 + 159,322 + 81 + 50 = 159,534
-octets. The accumulate vectors ([Part 17](../17-accumulation/index.md)'s) list 510 account snapshots with storage
-too, and every footprint and balance checks out.
+hash is the code hash, [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s
+159,322-byte giant. Its footprint is two preimages with their requests and nothing in
+storage: 4 items, 81 + 159,322 + 81 + 50 = 159,534 octets. The accumulate vectors
+([Part 17](../17-accumulation/index.md)'s) list 510 account snapshots with storage too,
+and every footprint and balance checks out.
 
 ## The code
 
@@ -374,10 +381,11 @@ export function minimumBalance(info: ServiceInfo): bigint {
 }
 ```
 
-The record uses the vectors' field names, so `fromJson` reads them for free, and the
-Gray Paper's letters are in the comments. The 8-byte fields are `u64`, so they're
-`bigint` values, and so the footprint's `bytes` is a `bigint` too ([lesson 1.2](../01-bytes-and-numbers/02-numbers.md): a `number` would
-lose precision past 2^53).
+The record uses the vectors' field names, so `fromJson` reads them for free. The Gray
+Paper's letters are in the comments. The 8-byte fields are `u64`, so they're `bigint`
+values, and the footprint's `bytes` is a `bigint` too
+([lesson 1.2](../01-bytes-and-numbers/02-numbers.md): a `number` would lose precision
+past 2^53).
 
 `minimumBalance` is the Gray Paper's a_t, term by term:
 
@@ -386,7 +394,8 @@ lose precision past 2^53).
 ```
 
 `serviceCode` finds a service's code the simplest way there is: the state value whose
-hash is the account's code hash. Lessons to come, from [Part 15](../15-the-pvm/index.md) on, run that code, and they all start here.
+hash is the account's code hash. Lessons to come, from [Part 15](../15-the-pvm/index.md)
+on, run that code, and they all start here.
 
 > [!NOTE]
 > **The simple road.** `serviceCode` hashes every value in the state until one matches.
@@ -460,7 +469,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the state entry going in, the account
+**What flows through it.** One run, three faces: the state entry going in, the account
 the program decodes from it, and the lines it prints. Tab across them:
 
 ::: code-group
@@ -494,9 +503,9 @@ code hash 0x128fc8f0578f393b…: 159322 bytes of code
 
 :::
 
-Read the input into the output: the key's first byte is `0xff`, 255, the account-record
+Read the input into the output. The key's first byte is `0xff`, 255, the account-record
 recipe, and the zeros after it are the service id, 0. The 89-byte value packs the whole
-record — a tag byte, the code hash, the balance (`ffff…` read little-endian is
+record: a tag byte, the code hash, the balance (`ffff…` read little-endian is
 2^64 − 1), the gas minimums and the counts. The code itself isn't here: those 159,322
 bytes sit under another key, found by the hash.
 
@@ -547,7 +556,28 @@ holds 18,446,744,073,709,551,615.
 ## Check your understanding
 
 ::: check
-**Service 0 keeps two preimages and nothing in storage, and its footprint says 4 items. Why 4?**
+**Why must a service keep a minimum balance?**
+
+- [ ] To pay for the gas of its next run
+  > No: gas is given by whoever sends the work or the transfer. The minimum balance is
+  > about what the service stores.
+- [x] Storage isn't free: what it keeps in the state costs a deposit that grows with it
+  > Yes: a base of 100, 10 per item and 1 per octet, less its free allowance. Keep more,
+  > and more of the balance is tied up.
+- [ ] To show the service is still in use
+  > No: nothing here looks at how busy a service is. Only its items and its bytes count.
+
+**Where is a service's code?**
+
+- [ ] Inside its account record, under C(255, s)
+  > No: the record is 89 bytes. It holds only the code's 32-byte hash, c.
+- [ ] In a code store of its own, outside the state
+  > No: there is no other store. The code is in the state, beside the account.
+- [x] In the state, as one of the service's preimages: the value whose hash is c
+  > Yes: the account names its code by hash. For service 0 that value is 159,322
+  > bytes, and `serviceCode` finds it.
+
+**A service keeps two preimages and nothing in storage, and its footprint says 4 items. Why 4?**
 
 - [ ] One for the account, one for the code, and one for each preimage
   > No: the account record isn't counted, and the code is one of the two preimages
@@ -575,25 +605,15 @@ holds 18,446,744,073,709,551,615.
 - [x] Its free allowance, 2^64 − 1, is more than the deposit, and the minimum never goes below 0
   > Yes: 159,674 − (2^64 − 1) is negative, and max(0, …) makes it 0.
 - [ ] Bootstrap services are exempt from the deposit rule
-  > No: the rule has no exemptions. The same max(0, 100 + 10·i + o − f) applies; this
+  > No: the rule has no exemptions. The same max(0, 100 + 10·i + o − f) applies. This
   > service's f is just enormous.
-
-**Where is service 0's code, all 159,322 bytes of it?**
-
-- [ ] Inside its account record, under C(255, s)
-  > No: the record is 89 bytes. It holds only the code's 32-byte hash, c.
-- [ ] In a code store of its own, outside the state
-  > No: there is no other store. The code is in the state, beside the account.
-- [x] In the state, as one of the service's preimages: the value whose hash is c
-  > Yes: the account names its code by hash, and `serviceCode` finds the value that
-  > hashes to it.
 :::
 
 ## What you have
 
-[Part 14](./index.md), done: services get the data they asked for, and your client can read any
-service's account and check that its footprint and its balance add up. That code
-`serviceCode` found is a program for a machine you haven't built yet: [Part 15](../15-the-pvm/index.md) builds
-the PVM that runs it.
+[Part 14](./index.md), done: services get the data they asked for, and your client can
+read any service's account and check that its footprint and its balance add up. That
+code `serviceCode` found is a program for a machine you haven't built yet.
+[Part 15](../15-the-pvm/index.md) builds the PVM that runs it.
 
 Next: [Part 15 · The PVM](../15-the-pvm/index.md)

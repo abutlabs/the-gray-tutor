@@ -45,8 +45,10 @@ test("a history's meaning is the lesson's table, and the check question's [3, 40
   assert.equal(MEANS([3, 40, 50]), "available again from 50, after 3 until 40");
 });
 
-test("lesson 14.1 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 14.1 places the widget once, at the top, and the history table sends the reader back to it", () => {
   const at = raw.indexOf("<ProvidePreimage />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ProvidePreimage />"), "placed once");
-  assert.ok(at > raw.indexOf("so nobody can provide the wrong thing.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("so nobody can provide the wrong thing."));
+  assert.ok(back > 0 && back < raw.indexOf("### What the history is for"));
 });
