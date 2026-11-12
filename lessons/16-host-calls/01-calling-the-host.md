@@ -1,18 +1,33 @@
 # Calling the host
 
-Since [lesson 15.8](../15-the-pvm/08-a-real-program.md), your machine stops at `ecalli`, the program's way of asking the
-outside world for something, and that's where the story ended. A real service asks all
-the time: how much gas is left? What work came in? What's in my storage? This lesson
-gives the machine a host that answers, so it can carry on. The host is your client: the
-machine stops, your client does the work and writes the answer into a register, the same
-on every validator. It answers just one question, for now.
+**In one sentence:** a program in the machine can't reach outside it, so it stops and asks
+the client running it, which answers and lets it carry on.
 
-## New words
+Here is a tiny program that asks one question. Pick a run and step it through: the
+machine stops, the question is paid for, and the answer lands in a register.
 
-- **Host call.** A program asking the client running it for something it can't do alone:
-  the gas left, an input, a storage read. *Example:* `ecalli 0`, "how much gas is left?".
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md).
+<HostCall />
+
+## The idea
+
+A program in the PVM is shut in a room with no windows. It has its registers, its memory,
+and nothing else. But a real service needs things from outside all the time. How much gas
+is left? What work came in? What's in my storage?
+
+So the room has a bell. The program rings it with one instruction, `ecalli`, and a number
+that says which question it is asking. That is a [*host call*](../glossary.md#host-call).
+Since [lesson 15.8](../15-the-pvm/08-a-real-program.md), your machine stops there, and that's where the story ended.
+
+Now someone answers. The host is your client, the program running the machine. The
+machine stops, your client does the work, writes the answer into a register, and the
+machine carries on at the next instruction.
+
+Two rules hold for every call. The answer is the same on every validator. And every
+question has a price in gas, taken before anything else.
+
+This lesson builds the host and teaches it one question: how much gas is left?
 
 ## What the Gray Paper says
 
@@ -89,8 +104,8 @@ $$
 
 :::
 
-In plain words: **Ψ_H** (App. A.6) runs the machine, and on each *host call* h hands the
-machine to a host function. The host answers by changing the gas, the registers or the
+The bell and its answer have a name, **Ψ_H** (App. A.6). It runs the machine, and on each
+host call h hands the machine to a host function. The host answers by changing the gas, the registers or the
 memory, and then either the machine carries on, at the instruction after the `ecalli`, or
 it stops: halt, panic, or out of gas.
 
@@ -114,9 +129,8 @@ The first and simplest is **`gas`** (App. B.5, Ω_G): φ₇ becomes the gas left
 48 to ask. Its row, and every other host call's, is in the paper's three big tables, each
 explained call by call in [16.A](./gray-paper.md#b-5-s-table-the-general-host-calls).
 
-Step a host call through, start to finish:
-
-<HostCall />
+[The widget at the top](#try-it) steps a host call through, start to finish: a `gas`
+that is answered, a call nobody knows, and a `gas` the program is too poor to ask.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Asking the host**, then **Step**. The block's price and the host call's 48 both come off the gas, and the answer lands in φ7.
 
@@ -322,8 +336,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The vector going in, what the program
-builds from it, the lines the terminal prints:
+What flows through it:
 
 ::: code-group
 
@@ -374,8 +387,8 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 
 A real service this time: 1729, from the accumulate test vectors. Its very first host call
 is `fetch`, asking for item 0, the chain's protocol constants ([lesson 15.8](../15-the-pvm/08-a-real-program.md)'s bootstrap
-service asked the same). Your host has never heard of `fetch`: WHAT. And the service,
-unable to learn the rules of the chain it's running on, gives up and panics. Fair enough.
+service asked the same). Your host has never heard of `fetch`: WHAT. The service can't
+learn the rules of the chain it's running on, so it gives up and panics. Fair enough.
 The *Host calls* panel, on the **7 · Accumulation and import** dashboard (where all of [Part 16](./index.md)'s
 panels are), has the conversation, short as it is. `fetch` is next.
 
@@ -408,20 +421,21 @@ when debugging, it can print the message before saying WHAT.
   > program, and only the host can answer.
 - [x] The machine stops, the host answers by changing the gas, registers or memory, and the machine carries on after the `ecalli`
   > Yes: that's Ψ_H. The machine stops still on the `ecalli`, so carrying on means stepping
-  > past it, to the return in the test.
+  > past it, to the next instruction.
 - [ ] The machine halts for good, with the answer as the program's result
   > No: halting is one way a host call can end, but `gas` says carry on. In the test, the
   > return after the `ecalli` still runs.
 
-**The test program starts with 1,000 gas and asks `gas`. Why is φ₇ 852, not 900?**
+**Who is the host, and where does it run?**
 
-- [ ] The host reads the gas before paying for the question
-  > No: a host call's price is taken before anything else. φ₇ is the gas after paying 48.
-- [ ] Asking costs 148
-  > No: `gas` costs 48. The other 100 isn't the host call's at all.
-- [x] The block's 100 is paid first, then the question's 48: 1,000 − 100 − 48 = 852
-  > Yes: the `ecalli` and the return are one basic block, paid for as it starts. Then the
-  > host call takes its own 48, and φ₇ reports what's left.
+- [ ] A server the service keeps off the chain, which the machine calls over the network
+  > No: nothing leaves the node. The machine stops, and the client running it answers.
+- [ ] A routine inside the program, shipped with the service's code
+  > No: the program can't reach outside the machine, and that is why it asks. The host is
+  > outside the program.
+- [x] The client running the machine, yours included, giving the same answer on every validator
+  > Yes: the machine stops, your client does the work and writes the answer into a
+  > register. Every validator's client must answer alike.
 
 **A program makes host call 99, which nobody knows. What does it get?**
 
@@ -435,16 +449,16 @@ when debugging, it can print the message before saying WHAT.
   > No: NONE, 2^64 − 1, is "no such item", from a host call that exists. "No such host
   > call" is WHAT, 2^64 − 2.
 
-**With 147 gas, the program asks `gas`. Why does it run out, with φ₇ still 0?**
+**A program has less gas left than a host call costs, and makes the call anyway. What does it get?**
 
-- [x] The block leaves 47, and asking costs 48, taken first: out of gas, and no answer
-  > Yes: once the charge leaves the gas below zero, nothing else happens. φ₇ is never
-  > written.
-- [ ] The host answers first and is paid after, so the answer is lost
+- [x] Nothing: the price is taken first, the machine is out of gas, and no answer is written
+  > Yes: once the charge leaves the gas below zero, nothing else happens. No answer, no
+  > change.
+- [ ] The answer, and then it runs out: the host is paid after it has done the work
   > No: the host is paid first, always. There never was an answer.
-- [ ] φ₇ = 0 is the host's way of saying "no gas left"
-  > No: φ₇ was 0 before the call too. It's the gas counter that dips below zero, to say by
-  > how much it ran out.
+- [ ] An error value in φ₇, and the machine carries on
+  > No: B.1's values, NONE to HUH, are answers, and an answer has to be paid for. Out of
+  > gas stops the machine.
 :::
 
 ## What you have
@@ -452,7 +466,5 @@ when debugging, it can print the message before saying WHAT.
 A machine that can ask, and a host that answers. One question so far: how much gas is
 left? The service you watched wanted something else first, `fetch`, and [lesson 16.2](./02-fetch.md)
 answers it.
-
-**Say it out loud.** A service can't reach outside the machine. `ecalli` stops it, the host answers in r7, and it carries on. Every call has a price.
 
 Next: [16.2 Fetch](./02-fetch.md)

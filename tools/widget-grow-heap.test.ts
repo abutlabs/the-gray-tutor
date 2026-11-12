@@ -28,8 +28,10 @@ test("the tests: asking for 0 reports 50 for 275; asking for 53 grows 3 pages fo
   assert.equal(growHeap(53, 51).r7, 53, "less than h: just h");
 });
 
-test("lesson 16.3 places the widget once, after grow_heap's price is explained", () => {
+test("lesson 16.3 places the widget once, at the top, and grow_heap's rules send the reader back to it", () => {
   const at = raw.indexOf("<GrowHeap />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<GrowHeap />"));
-  assert.ok(at > raw.indexOf("works out the pages first, then the price.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("works out the pages first, then the price."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

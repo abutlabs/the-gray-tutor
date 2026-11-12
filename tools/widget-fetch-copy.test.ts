@@ -31,8 +31,10 @@ test("the tests: all 122 constants; 0 bytes; 2 sevens from byte 30; NONE; a pani
   assert.match(raw.replace(/\s+/g, " "), /Item 0 is a flat 390, item 1 a flat 103\./);
 });
 
-test("lesson 16.2 places the widget once, after the copying rule", () => {
+test("lesson 16.2 places the widget once, at the top, and the copying rule sends the reader back to it", () => {
   const at = raw.indexOf("<FetchCopy />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<FetchCopy />"));
-  assert.ok(at > raw.indexOf("If the memory\nthere isn't writable, the machine panics.") && at < raw.indexOf("The price depends on the item"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("If the memory\nthere isn't writable, the machine panics."));
+  assert.ok(back > 0 && back < raw.indexOf("The price depends on the item"));
 });

@@ -1,9 +1,33 @@
 # Growing the heap
 
+**In one sentence:** `grow_heap` gives a program more memory to write in, a page at a
+time, and each new page costs gas.
+
+Here is a tiny program's heap. Ask for it to end at a later page, then at an earlier one,
+and watch which pages are added and what each request costs.
+
+<a id="try-it"></a>
+
+<GrowHeap />
+
+## The idea
+
+A program starts with a heap of a fixed size: the part of its memory it may write to.
+What if it needs more? It asks the host, with `grow_heap`.
+
+Think of a notebook. The program names the page its notes should end at. If it wants
+more than it has, the host adds blank pages, all zeros, and charges for each one. If it
+already has that many, nothing changes, and the host tells it where its notes end today.
+So asking for less is how a program finds the end of its own heap. And there is a limit:
+the heap grows up towards the stack, and must stop well short of it.
+
+This makes `grow_heap` the odd one out. [Lesson 16.1](./01-calling-the-host.md) said a call's price is taken
+before anything else. Here the price depends on how many pages are new, so the host
+counts the pages first.
+
 Service 1729 runs to a clean halt now, and spends 17,867 gas doing it. The test vector
-says 16,417. Somewhere in there are 1,450 gas your client charges and the real thing
-doesn't, and [lesson 16.2](./02-fetch.md) pointed at the culprit: two calls to `grow_heap`, each answered
-WHAT, at 1,000 gas apiece. Teach your host `grow_heap`, and watch the number land.
+says 16,417. [Lesson 16.2](./02-fetch.md) pointed at the culprit: two calls to `grow_heap`, each answered
+WHAT, at 1,000 gas apiece. This lesson teaches your host `grow_heap`, and the number lands.
 
 ## What the Gray Paper says
 
@@ -34,9 +58,7 @@ depends on how many pages it's asked for, so it works out the pages first, then 
 The paper's row for it, in B.5's table, is quoted and worked through on service 1729 in
 [16.A](./gray-paper.md#grow-heap-1).
 
-Grow the test's tiny program's heap:
-
-<GrowHeap />
+[The widget at the top](#try-it) grows the heap of the tests' tiny program, by these rules.
 
 To find a and b, `grow_heap` needs the program's o and s, so accumulation's F hands it the
 service's code.
@@ -283,7 +305,7 @@ console.log(`the test vector says: ${vector.post_state.statistics[0].record.accu
 run.event("stop", { exit: JSON.stringify(exit), gas: Number(machine.gas) });
 ```
 
-**What flows through it.** The new answer is `grow_heap`'s, and the program now reads the
+What flows through it: the new answer is `grow_heap`'s, and the program now reads the
 vector's own count of the gas. The vector's side, then your host's:
 
 ::: code-group
@@ -368,25 +390,26 @@ pages. Same answer, more detective work. Your `accumulateHost` simply hands
 ## Check your understanding
 
 ::: check
-**Before this lesson, service 1729 spent 1,450 gas more than the vector. Where did 1,450 come from?**
+**Other host calls take their price before anything else. Why can't `grow_heap`?**
 
-- [x] Two `grow_heap` calls answered WHAT at 1,000 each, where the real thing costs 275: 2 × (1,000 − 275)
-  > Yes: both calls ask for page 51, where the heap already ends, so each is the cheap
-  > kind: 275.
-- [ ] `grow_heap`'s 121 gas a page, for 12 pages
-  > No: 12 × 121 is 1,452, close but wrong. Neither call adds a page, so neither pays 121.
-- [ ] The `log` call, charged as an unknown host call
-  > No: `log` still costs 1,000, and the vector charges it the same.
+- [ ] It is free when nothing changes, so there may be nothing to take
+  > No: it costs 275 even when the heap is already that big, or the request is too big.
+- [x] Its price depends on how many pages are new, so it has to work out the pages first
+  > Yes: 275, plus 121 for each new page. The host finds where the heap ends today, then
+  > knows the price.
+- [ ] The program pays afterwards, once it has written to the new pages
+  > No: the price is settled inside the call. Without that much gas, it is out of gas and
+  > no page is added.
 
-**In the test program the heap ends at page 50. It asks `grow_heap` for φ₇ = 53. What happens?**
+**φ₇ names the page the heap should end at. Which pages does the program pay 121 for?**
 
-- [ ] It pays 275 + 53 × 121
-  > No: it pays only for new pages: 50, 51 and 52.
-- [x] Pages 50, 51 and 52 become writable, for 275 + 3 × 121 = 638, and φ₇ stays 53
-  > Yes: φ₇ is the page the heap should end at, one past its last page, and growing
-  > leaves it as asked.
-- [ ] Pages 50 to 53 become writable, for 275 + 4 × 121
-  > No: 53 is one past the last page, so it isn't included.
+- [x] Only the new ones: from where the heap ends today, up to but not including page φ₇
+  > Yes: φ₇ is one past the heap's last page. A heap ending at 50, asked to end at 53,
+  > gains pages 50, 51 and 52.
+- [ ] Every page of the heap, counted from its first
+  > No: it pays only for new pages. The ones it has are already paid for.
+- [ ] The new ones and page φ₇ itself
+  > No: φ₇ is one past the last page, so it isn't included.
 
 **A program calls `grow_heap` with φ₇ = 0. Why would it?**
 
@@ -413,7 +436,5 @@ pages. Same answer, more detective work. Your `accumulateHost` simply hands
 A host that answers gas, fetch and grow_heap, and a real service's accumulation that
 matches the test vector to the last unit of gas. So far the host only answers questions;
 [lesson 16.4](./04-info.md) starts on the host calls about service accounts, with `info`.
-
-**Say it out loud.** `grow_heap` gives a program more pages, and each new page costs gas. Asking for less than it has tells it where its heap ends.
 
 Next: [16.4 Info](./04-info.md)

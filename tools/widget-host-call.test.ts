@@ -31,8 +31,10 @@ test("the tests: 852 and a halt; WHAT with 900 left; out of gas at 147 with no a
   }
 });
 
-test("lesson 16.1 places the widget once, after gas is defined", () => {
+test("lesson 16.1 places the widget once, at the top, and gas's rule sends the reader back to it", () => {
   const at = raw.indexOf("<HostCall />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<HostCall />"));
-  assert.ok(at > raw.indexOf("48 to ask.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("48 to ask."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

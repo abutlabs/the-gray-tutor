@@ -1,9 +1,32 @@
 # Fetch
 
-A service starts with a few numbers in its registers and no idea why it's running. `fetch`
-is how it learns about its world: the chain's rules, some fresh randomness, and the work
-it has been handed. [Lesson 16.1](./01-calling-the-host.md) ended with a service asking for it and getting WHAT.
-Answer it, and the service gets a lot further. Very nearly all the way.
+**In one sentence:** `fetch` is how a service learns about its world: it names an item,
+the chain's rules, some fresh randomness or the work it has been handed, and the host
+copies it into the service's memory.
+
+Here is a service asking for an item. Try each preset, then change where the copy starts
+and how many bytes are asked for, and watch what lands in memory and what the host replies.
+
+<a id="try-it"></a>
+
+<FetchCopy />
+
+## The idea
+
+A service starts with a few numbers in its registers and no idea why it's running. What
+are the chain's rules? What work was it handed? It has to ask, and `fetch` is how.
+
+The host keeps a shelf of numbered items. During accumulation there are four: the
+protocol's constants, some fresh randomness, all the service's inputs, and one input by
+number. The service names an item and says where in its memory to put it.
+
+There is a snag. The service has to make room before it knows how big the item is. So the
+host always replies with the item's whole length, however few bytes it copied. Ask for no
+bytes and you learn the length. Then ask again, with room. It is asking how thick the book
+is before clearing the shelf.
+
+[Lesson 16.1](./01-calling-the-host.md) ended with a service asking for `fetch` and getting WHAT. This lesson
+answers it, and the service gets a lot further. Very nearly all the way.
 
 ## What the Gray Paper says
 
@@ -23,9 +46,8 @@ The registers say where the item goes. φ₇ is the address o, φ₈ the first b
 and φ₉ how many bytes z. The host copies up to z bytes of the item, from byte f on, into
 memory at o, and φ₇ becomes the item's *whole* length. So a service can ask for 0 bytes
 first, to learn how big the item is, and then ask again with room for it. If the memory
-there isn't writable, the machine panics.
-
-<FetchCopy />
+there isn't writable, the machine panics. [The widget at the top](#try-it) has each
+case: a whole item, no bytes, the last two bytes, no such item, and a panic.
 
 The price depends on the item (its M_Y, listed in App. I): a base, plus a rate per 1,024
 bytes *asked for*, rounded up. The paper writes that rate as 𝒢, once for every host call
@@ -64,7 +86,7 @@ $$
 
 :::
 
-In plain words: 𝒢(L, ℓ) is ℓ bytes at L gas per 1,024 bytes, rounded up to a whole unit
+So 𝒢(L, ℓ) is ℓ bytes at L gas per 1,024 bytes, rounded up to a whole unit
 of gas. Item 0 is a flat 390, item 1 a flat 103. `fetch`'s own row in the paper, with
 every item any invocation can ask for, is in B.5's table, quoted and explained in
 [16.A](./gray-paper.md#fetch-2).
@@ -378,9 +400,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The same vector as [lesson 16.1](./01-calling-the-host.md); what's new is a host that
-answers. Here is its first `fetch`, as the service asks it, as your host handles it, and as
-it prints:
+What flows through it is the same vector as [lesson 16.1](./01-calling-the-host.md). Here is its first `fetch`,
+as the service asks it, as your host handles it, and as it prints:
 
 ::: code-group
 
@@ -482,15 +503,16 @@ sizes, and were 134 bytes long.
 - [ ] To clear the memory at φ₇
   > No: nothing is written. The test reads that byte afterwards, and it's still 0.
 
-**Item 1, the entropy, is 32 sevens. With φ₈ = 30 and φ₉ = 10, what happens?**
+**A service asks for more bytes than the item has left after its starting byte. What does the host do?**
 
-- [ ] 10 bytes are copied: 2 sevens, then 8 zeros
-  > No: copying stops at the item's end. From byte 30 there are only 2 bytes left, and the
-  > byte after them in memory isn't touched.
-- [ ] φ₇ = 2, the number of bytes copied
+- [ ] It copies what exists and fills the rest of the room with zeros
+  > No: copying stops at the item's end. The memory after the last byte copied isn't
+  > touched.
+- [ ] It copies what exists, and φ₇ becomes the number of bytes copied
   > No: φ₇ is the item's whole length, however much of it was copied.
-- [x] 2 sevens are copied, and φ₇ = 32
-  > Yes: at most 10 bytes from byte 30, but only 2 exist. φ₇ says the whole item is 32.
+- [x] It copies only the bytes that exist, and φ₇ is still the item's whole length
+  > Yes: ask for 10 bytes from byte 30 of the 32-byte entropy and 2 are copied. φ₇ says
+  > the whole item is 32.
 
 **During accumulation, a service asks `fetch` for item 7, a work-package. What does it get?**
 
@@ -503,21 +525,30 @@ sizes, and were 134 bytes long.
   > No: `fetch` panics only when the memory at φ₇ isn't writable, like 0x50000 in the
   > test. A missing item is an ordinary answer.
 
-**Service 1729 asks for item 14, all its inputs, and gets φ₇ = 1. Why 1?**
+**Who decides which items a service can fetch?**
 
-- [ ] It has one input
-  > No: it has none. One input would be at least its length byte plus the input itself.
-- [x] Item 14 is a sequence with its length in front, so no inputs is just one byte, `00`
-  > Yes: the length, 0, encoded in one byte, and nothing after it.
-- [ ] 1 means the call worked
-  > No: `fetch`'s φ₇ is a length. OK, "it worked", is 0, and `fetch` doesn't use it.
+- [ ] The service, which lists them when it is created
+  > No: a service only asks. What there is to ask for is the host's to say.
+- [x] The host of the invocation it is running in: each invocation has its own items, and accumulation's has four
+  > Yes: F, accumulation's host, decides what the items are, then sends each host call to
+  > the function that answers it.
+- [ ] Nobody: the items are the same wherever a program runs
+  > No: each invocation has its own. A work-package can be fetched in refinement, and not
+  > in accumulation.
+
+**Where an item's price grows with size, which size is it?**
+
+- [x] The bytes asked for, at a rate per 1,024 bytes, rounded up, on top of a base
+  > Yes: that is (B.17)'s 𝒢, used by every host call whose price grows with the bytes.
+- [ ] The bytes copied, so asking for too many costs nothing extra
+  > No: the rate is on the bytes asked for, whether or not the item has that many.
+- [ ] The item's whole length, whatever was asked for
+  > No: the size in the price is the one the service asked for.
 :::
 
 ## What you have
 
 A host that answers two questions, gas and fetch, and a real service that runs to a clean
 halt. 1,450 gas from matching the test vector, and [lesson 16.3](./03-growing-the-heap.md) closes the gap.
-
-**Say it out loud.** `fetch` is how a service learns about the chain: its constants, its entropy, its inputs. Asking for 0 bytes tells it how big an item is.
 
 Next: [16.3 Growing the heap](./03-growing-the-heap.md)
