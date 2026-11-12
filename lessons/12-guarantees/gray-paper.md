@@ -1,14 +1,19 @@
 # The formulas, in plain words
 
-[Part 12](./index.md)'s appendix: every formula this part quotes, explained. From §11.3 to
-§11.5, with two limits from §11.1: who guarantees which core (11.19 to 11.23), what a
-guarantee is (11.24), the rules it keeps (11.25 to 11.33), the rules its report keeps
-against the chain (11.3, 11.8, 11.34 to 11.45), and how reports take their cores (11.46).
+[Part 12](./index.md)'s appendix: every formula this part quotes, explained. They run
+from §11.3 to §11.5, with two limits from §11.1:
+
+- who guarantees which core (11.19 to 11.23);
+- what a guarantee is (11.24);
+- the rules it keeps (11.25 to 11.33);
+- the rules its report keeps against the chain (11.3, 11.8, 11.34 to 11.45);
+- how reports take their cores (11.46).
+
 Each formula: its key, then read aloud, in plain words, on a real value, in your client.
 Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 The real values come from the tiny reports vectors: 6 validators, 2 cores, an epoch of
-E = 12 slots, a rotation of R = 4, and most of them a block at slot 14.
+E = 12 slots, a rotation of R = 4. Most of them are a block at slot 14.
 `report_prev_rotation-1` is the main one: one guarantee, for core 0, made at slot 10 and
 signed by validators 1, 2 and 5.
 
@@ -124,7 +129,7 @@ At slot 16 it is ⌊4/4⌋ = 1 turn: (x + 1) mod 2 swaps them, `0 1 0 0 1 1`. Va
 4 and 5 guarantee core 0 at slot 14.
 
 **In your client.** `assignCores` and `guarantorAssignments` in `src/guarantors.ts`,
-written in [lesson 12.1](./01-who-guarantees-what.md#the-code); ℱ is
+written in [lesson 12.1](./01-who-guarantees-what.md#the-code). ℱ is
 [lesson 7.2](../07-time-and-shuffling/02-the-shuffle.md)'s shuffle and Φ
 [lesson 8.2](../08-safrole/02-rotating-the-validators.md)'s.
 
@@ -167,7 +172,7 @@ R; and Phi of k."
 
 **In plain words.** 𝐌\* is the assignment as it was one rotation ago, at τ′ − R. If that
 slot is in the same epoch, it's dealt from the same validators and entropy. If it falls in
-the previous epoch, it's dealt from that epoch's validators, λ′, and its entropy, η′₃, so
+the previous epoch, it's dealt from that epoch's validators, λ′, and its entropy, η′₃. So
 it comes out exactly as it did then.
 
 **On a real value.** `report_prev_rotation-1`, slot 14:
@@ -237,8 +242,8 @@ a  signatures   3 pairs                    1 byte: the count
                                            407 + 4 + 1 + 198 = 610 bytes
 ```
 
-`no_enough_guarantees-1` carries one signature: not even a guarantee by this type, and the
-block is refused with `insufficient_guarantees`.
+`no_enough_guarantees-1` carries one signature. By this type that is not even a
+guarantee, and the block is refused with `insufficient_guarantees`.
 
 **In your client.** `ReportGuarantee` in `src/block.ts`, from [lesson
 4.3](../04-blocks/03-guarantees.md#the-code).
@@ -386,7 +391,7 @@ token jam guarantee."
 
 **In plain words.** One rule with five checks for every signature, and one definition:
 
-1. **Which assignment.** A guarantee made in this block's rotation answers to 𝐌; one made
+1. **Which assignment.** A guarantee made in this block's rotation answers to 𝐌. One made
    in the rotation before answers to 𝐌\*. That's the `where` at the bottom.
 2. **A real validator**: v is below the number of keys.
 3. **On this core**: the assignment puts v on the report's core, and that core is active,
@@ -411,13 +416,16 @@ window          4 × (3 − 1) = 8 ≤ 10 ≤ 14
 𝐆               { 0x4418fb8c…, 0xab0084d0…, 0xf30aa544… }
 ```
 
-And the vectors that break each check: `wrong_assignment-1` (signer 2 is on core 1 in
-𝐌), `bad_core_index-1` (core 3), `future_report_slot-1` (slot 14 in a block at 13),
-`report_before_last_rotation-1` (slot 14 in a block at 22: 4 × (5 − 1) = 16 > 14).
+The vectors that break each check:
+
+- `wrong_assignment-1`: signer 2 is on core 1 in 𝐌.
+- `bad_core_index-1`: core 3.
+- `future_report_slot-1`: slot 14 in a block at 13.
+- `report_before_last_rotation-1`: slot 14 in a block at 22, and 4 × (5 − 1) = 16 > 14.
 
 **In your client.** `guaranteeSigned`, `reporters` and `guaranteeMessage` in [lesson
-12.2](./02-signed-and-counted.md#the-code); the who and when checks in `guaranteeError`
-([lesson 12.4](./04-bad-guarantees.md#the-code)); `assignmentFor` picks 𝐌 or 𝐌\* ([lesson
+12.2](./02-signed-and-counted.md#the-code). The who and when checks are in `guaranteeError`
+([lesson 12.4](./04-bad-guarantees.md#the-code)). `assignmentFor` picks 𝐌 or 𝐌\* ([lesson
 12.1](./01-who-guarantees-what.md#the-code)).
 
 ## (11.30): the incoming reports
@@ -480,7 +488,7 @@ $$
 prime."
 
 **In plain words.** The report's data was erasure-coded into v shards, one for each
-validator that will assure it, so v must be the current validator count.
+validator that will assure it. So v must be the current validator count.
 
 **On a real value.** `report_prev_rotation-1`: 6 shards, 6 validators. `bad_erasure_shards-1`
 says 5: `bad_erasure_shards`.
@@ -825,15 +833,15 @@ minus L. And there are h and h prime in A such that: h's slot is x's lookup-anch
 H of h is x's lookup-anchor hash; h prime's parent is H of h; and h prime's prior state
 root is x's lookup-anchor state root."
 
-**In plain words.** The lookup anchor, the block whose state the code was read from, may be
-older than the anchor, but at most L = 14,400 slots, a day. And the client must have seen
+**In plain words.** The lookup anchor is the block whose state the code was read from. It
+may be older than the anchor, but at most L = 14,400 slots, a day. And the client must have seen
 it: 𝐀 is the last L headers it keeps. A header carries its parent's state root, so the
 lookup anchor's state root is checked in its child's header, h′. This is one of the few
 rules no state can check, only the header chain.
 
 **On a real value.** `report_prev_rotation-1`: lookup anchor slot 6 ≥ 14 − 14,400. Its
 hash `0x16bda47e…` happens to be recent block 5 too, whose state root is `0x833233f9…`,
-the context's `lookup_anchor_state_root`: that is what its child's H_R would say.
+the context's `lookup_anchor_state_root`. That is what its child's H_R would say.
 
 **In your client.** Not yet: neither is in the vectors, and the second needs headers no
 state holds. Both wait in
@@ -938,7 +946,7 @@ dependency_missing-1          needs 0x63c03371… (here) and 0x85df040d… (nowh
 ```
 
 **In your client.** `reportError`'s `prerequisitesKnown` ([lesson
-12.5](./05-bad-reports.md#the-code)); the vectors give an unknown lookup key its own name,
+12.5](./05-bad-reports.md#the-code)). The vectors give an unknown lookup key its own name,
 `segment_root_lookup_invalid`.
 
 ## (11.43) and (11.44): the right segments roots
@@ -1051,8 +1059,8 @@ which is tau prime, when there is a g in E sub G whose report's core is c; other
 double-dagger at c."
 
 **In plain words.** Each guaranteed report takes its core, registered at this block's slot
-τ′, not the slot the guarantee was made at: the timeout of [lesson
-11.2](../11-assurances/02-timeouts.md) counts from here. Every other core keeps what the
+τ′, not the slot the guarantee was made at. The timeout of
+[lesson 11.2](../11-assurances/02-timeouts.md) counts from here. Every other core keeps what the
 assurances left it. A core at or past |κ′|/3 always stays empty, so there are never more
 reports to audit than the validators can handle.
 
@@ -1072,11 +1080,12 @@ E_G         one guarantee, core 0, made at slot 10
 
 Every block, every validator deals three guarantors to each active core: seats shuffled
 by two-epoch-old entropy, rotated every R slots (11.19 to 11.22), with the rotation before
-kept as 𝐌\* (11.23). A guarantee is a report, a slot and two or three signatures (11.24);
-guarantees go one per core, in order, signers in order (11.25 to 11.27), each signed over
-`jam_guarantee` and the report's hash by validators the assignment put on that core, within
-the last two rotations, and their keys are the reporters (11.28, 11.29). The report must
-have one shard per validator, a free core and an authorizer in that core's pool (11.31,
-11.32), sane gas and size and at most 8 dependencies (11.33, 11.3, 11.8), a new package, an
-anchor the chain remembers, known dependencies with true segments roots, and the services'
-real code (11.34 to 11.45). Then each report takes its core, registered now (11.46).
+kept as 𝐌\* (11.23). A guarantee is a report, a slot and two or three signatures (11.24).
+Guarantees go one per core, in order, signers in order (11.25 to 11.27). Each is signed
+over `jam_guarantee` and the report's hash by validators the assignment put on that core,
+within the last two rotations, and their keys are the reporters (11.28, 11.29). The
+report must have one shard per validator, a free core and an authorizer in that core's
+pool (11.31, 11.32). It must have sane gas and size, and at most 8 dependencies (11.33,
+11.3, 11.8). It must have a new package, an anchor the chain remembers, known
+dependencies with true segments roots, and the services' real code (11.34 to 11.45).
+Then each report takes its core, registered now (11.46).

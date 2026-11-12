@@ -1,8 +1,10 @@
 # Part 12 · Guarantees
 
-A work-report gets onto a core only with guarantors behind it: validators assigned to
-that core who ran the work and signed the result. This part deals out the guarantor
-assignments, checks the guarantees' signatures, and puts new reports on free cores.
+**In one sentence:** a work-report gets onto a core only with guarantors behind it:
+validators dealt to that core, who ran the work and signed the result.
+
+This part deals out the guarantor assignments, checks the guarantees' signatures, and
+puts new reports on free cores.
 
 By the end of this part your client assigns guarantors, checks guarantees and reports,
 and accepts or refuses every reports vector exactly as it should.
@@ -10,11 +12,14 @@ and accepts or refuses every reports vector exactly as it should.
 ## The big picture
 
 A work-report is the chain's only view of the work done on a core. Three validators ran
-the package in-core; the other 1,020 didn't, and never will. A *guarantee* is how those
-three put their stake behind what they saw: the report, the slot, and their signatures.
-This part is the chain's side of that bargain: deciding which three validators are each
-core's guarantors, so nobody picks their own, checking that each guarantee carries their
-signatures, and seating each report on its core.
+the package in-core. The other 1,020 didn't, and never will.
+
+A *guarantee* is how those three put their stake behind what they saw: the report, the
+slot, and their signatures. This part is the chain's side of that bargain:
+
+- deciding which three validators are each core's guarantors, so nobody picks their own;
+- checking that each guarantee carries their signatures;
+- seating each report on its core.
 
 ![A guarantee's parts: a work-report with its package spec, context, core and authorizer, segment-root lookup and one digest per work-item; then the slot and two or three guarantors' signatures](./images/index-guarantee-parts.svg)
 
@@ -70,16 +75,16 @@ Who does what, and where:
 2. **In-core**, those three take a package in, run its authorizer and refine its items on
    the PVM ([Part 15](../15-the-pvm/index.md)'s machine, which your client never runs for
    this), build the report, and each signs it. Two signatures are enough; three is normal.
-3. **On the chain**, every validator checks each guarantee in the block: the signatures
+3. **On the chain**, every validator checks each guarantee in the block. The signatures
    are real and by the dealt guarantors ([12.2](./02-signed-and-counted.md),
-   [12.4](./04-bad-guarantees.md)), the report is sensible and anchored on a block the
-   chain remembers ([12.5](./05-bad-reports.md)), and its authorizer is in the core's pool
+   [12.4](./04-bad-guarantees.md)). The report is sensible and anchored on a block the
+   chain remembers ([12.5](./05-bad-reports.md)). Its authorizer is in the core's pool
    ([12.4](./04-bad-guarantees.md), [Part 13](../13-authorization/index.md)). Then the
    report takes its core ([12.3](./03-onto-the-cores.md)) and waits for assurances ([Part
    11](../11-assurances/index.md)).
 
 The nearest thing you may know is a receipt countersigned by three workers. The chain is
-the accounts department: it checks who signed and that the paperwork is in order, and it
+the accounts department. It checks who signed and that the paperwork is in order, and it
 never redoes the work. Auditors do that, off the chain, and [Part
 10](../10-disputes/index.md) is what happens when they catch a lie.
 
