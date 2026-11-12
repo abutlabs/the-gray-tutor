@@ -16,7 +16,7 @@ test("the judge is Albert himself: the logo's hair and head, the eyebrow face", 
   assert.equal(hair.exec(svg)![1], hair.exec(drawLogo())![1], "the one hair, never redrawn");
   const brows = /<path d="(M23[^"]+)" fill="none" stroke="#8f8f99"/;
   assert.equal(brows.exec(svg)![1], brows.exec(drawFace("eyebrow"))![1], "the eyebrow face's brows");
-  assert.match(svg, /aria-label="Albert the judge in his robe, one eyebrow up, gavel raised"/);
+  assert.match(svg, /aria-label="Albert the judge"/);
   assert.match(svg, /viewBox="0 0 100 64"/, "wide enough for the gavel beside him");
   // the robe: the dark gown under his chin, the white jabot down its front
   const robe = /<g class="robe">([\s\S]*?)<\/g>/.exec(svg);

@@ -132,7 +132,7 @@ const BOARD = "#3a4f46", CHALK = "#e8e6df";
  * impact lines are <g class="bang">, so AlbertJudge.vue can slam it on hover.
  */
 export function drawJudge(): string {
-  const label = "Albert the judge in his robe, one eyebrow up, gavel raised";
+  const label = "Albert the judge";
   const robe = `<g class="robe">`
     + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${INK}"/>`
     + `<path d="M29.4 49.8 L34.6 49.8 L33.5 58 L30.5 58 Z" fill="${MOUSTACHE}" stroke="${BROW}" stroke-width="0.8"/>`
@@ -168,7 +168,7 @@ export function drawJudge(): string {
  * .chalk-line, so AlbertChalkboard.vue can have him write it on hover.
  */
 export function drawChalkboard(): string {
-  const label = "Albert at a chalkboard of Gray Paper formulas, chalk in hand";
+  const label = "Albert at the chalkboard";
   const cardigan = `<g class="cardigan">`
     + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${BROW}"/>`
     + `<path d="M27 50.5 L32 57 L37 50.5 Z" fill="${MOUSTACHE}"/>`
@@ -205,7 +205,7 @@ export function drawChalkboard(): string {
  * so AlbertChemist.vue can pour on hover. The vector says what must come out.
  */
 export function drawChemist(): string {
-  const label = "Albert the chemist in a lab coat, tipping a test tube over a flask";
+  const label = "Albert the chemist";
   const coat = `<g class="coat">`
     + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${MOUSTACHE}" stroke="${BROW}" stroke-width="1"/>`
     + `<path d="M28 51 L32 56 L36 51" fill="none" stroke="${BROW}" stroke-width="1"/>`
@@ -245,7 +245,7 @@ export function drawChemist(): string {
  * AlbertGambler.vue can spread the fan and pop the winner on hover.
  */
 export function drawGambler(): string {
-  const label = "Albert the croupier, winking, bow tie on, a fan of lottery tickets in hand";
+  const label = "Albert the croupier";
   const vest = `<g class="vest">`
     + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${INK}"/>`
     + `<path d="M26.5 50 L32 58.5 L37.5 50 Z" fill="${MOUSTACHE}"/>`
@@ -278,7 +278,7 @@ export function drawGambler(): string {
  * <g class="flag">, so AlbertClimber.vue can plant it on hover: M_R, over all of them.
  */
 export function drawClimber(): string {
-  const label = "Albert the climber, helmet on, roped to the biggest of three mountains";
+  const label = "Albert the climber";
   const jacket = `<g class="jacket">`
     + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${BOARD}"/>`
     + `<path d="M32 54.5 L32 63" fill="none" stroke="${CHALK}" stroke-width="1" opacity="0.7"/>`
@@ -318,7 +318,7 @@ export function drawClimber(): string {
  * rattle them on hover. His keys went into ψ_O.
  */
 export function drawJailbird(): string {
-  const label = "Albert the jailbird in stripes, puzzled, gripping the bars of his cell";
+  const label = "Albert the jailbird";
   const suit = `<g class="suit">`
     + `<clipPath id="albert-jail-suit"><path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z"/></clipPath>`
     + `<path d="M11 64 Q12.5 52.5 23.5 49.2 Q32 54.5 40.5 49.2 Q50 51.8 52.5 58 L54 64 Z" fill="${MOUSTACHE}"/>`
