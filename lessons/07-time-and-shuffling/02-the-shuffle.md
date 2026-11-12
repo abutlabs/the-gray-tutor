@@ -1,16 +1,35 @@
 # The shuffle
 
+**In one sentence:** JAM's shuffle puts a list in an order nobody could arrange, and the
+same order on every node, because the numbers that drive it are read from a hash they all
+share.
+
+Press *pick* and deal four letters, one number at a time. Then switch to closing the gap
+with `splice`, and see the same numbers deal a different hand.
+
+<a id="try-it"></a>
+
+<ShuffleSteps />
+
+## The idea
+
 JAM deals its validators out to cores: these three guarantee core 0 for a while, those
-three core 1. The deal must be **random**, so nobody can arrange to sit where their
-friends' work is, and **the same on every node**, or they'd disagree about who may do
-what. Random, yet the same answer everywhere: a shuffle driven by a hash everyone shares.
+three core 1. The deal has to do two things that pull against each other.
 
-## New words
+- It must be **random**, so nobody can arrange to sit where their friends' work is.
+- It must be **the same on every node**, or they'd disagree about who may do what.
 
-- **Fisher-Yates shuffle.** Shuffling by picking items one at a time, each pick from the
-  items still left. *Example:* a b c d with the numbers 1, 1, 0, 0 gives b d a c, below.
+Dice give you the first and lose the second: every node would roll its own. So nobody
+rolls. Every node holds the same hash, and reads numbers out of it. The numbers do the
+dealing.
 
-It's in the [glossary](../glossary.md).
+The dealing is a [*Fisher-Yates shuffle*](../glossary.md#fisher-yates-shuffle): pick the
+items one at a time, each pick from the items still left, and let the next number say
+which. It is a deck dealt to a script. Same deck, same script, same hands, on every
+table in the world. The letters a b c d with the numbers 1, 1, 0, 0 come out b d a c,
+whoever deals.
+
+This lesson builds the shuffle, then the way to draw its numbers from a hash.
 
 ## What the Gray Paper says
 
@@ -59,8 +78,8 @@ $$
 
 :::
 
-In plain words, Appendix F defines F, a Fisher-Yates shuffle, in two layers. This is the
-first.
+Appendix F defines F, a Fisher-Yates shuffle, in two layers. This is the first: the
+dealing.
 
 **F(s, r)** shuffles a sequence s with a sequence of numbers r. Take the first number,
 r₀, and l, how many items are left:
@@ -83,11 +102,9 @@ Result: b, d, a, c.
 
 ![The four-letter shuffle from the table, one row per step: the items left, with the pick highlighted and an arrow from the last item into the gap the pick leaves, and on the right the picks so far, ending b, d, a, c.](./images/02-shuffle-steps.svg)
 
-Step through it yourself, then through the eight numbers of the run below.
+Step through it [at the top](#try-it), then through the eight numbers of the run below.
 
-<ShuffleSteps />
-
-The second layer drives the shuffle from a hash:
+The second layer is where the numbers come from:
 
 ::: gray-paper F 3-4
 
@@ -137,10 +154,10 @@ $$
 
 :::
 
-In plain words: **Q_l(h)** makes the numbers: l of them, from a 32-byte hash h. Hash h together with
-ℰ₄(0), and the 32 bytes that come out are eight 4-byte numbers, read with ℰ₄⁻¹. Hash h
-with ℰ₄(1) for the next eight, and so on. **F(s, h)** is F(s, Q_l(h)): the shuffle as JAM
-uses it, with l the length of s.
+- **Q_l(h)** makes l numbers from a 32-byte hash h. Hash h together with ℰ₄(0): the 32
+  bytes that come out are eight 4-byte numbers, read with ℰ₄⁻¹. Hash h with ℰ₄(1) for the
+  next eight, and so on.
+- **F(s, h)** is F(s, Q_l(h)), with l the length of s. This is the shuffle as JAM uses it.
 
 ## The tests
 
@@ -172,12 +189,14 @@ test("the shuffle vectors: 0 to 341 items, shuffled by a hash", () => {
 });
 ```
 
-The first test is the table above. The eight vectors give just a length (0, 8, 16, 20,
-50, 100, 200 or 341) and a hash; the items are always 0, 1, 2 and so on, so the test
-builds them. 341 is the full network's core count, though the deal in [lesson
-12.1](../12-guarantees/01-who-guarantees-what.md) shuffles 1,023 seats, one per validator.
+The first test is the table above.
 
-A stub that doesn't shuffle at all: every list comes back as it went in.
+The eight vectors each give a length (0, 8, 16, 20, 50, 100, 200 or 341) and a hash. The
+items are always 0, 1, 2 and so on, so the test builds them. 341 is the full network's
+core count, though the deal in [lesson 12.1](../12-guarantees/01-who-guarantees-what.md)
+shuffles 1,023 seats, one per validator.
+
+A stub that doesn't shuffle: every list comes back as it went in.
 
 **New file** `src/shuffle.ts`
 
@@ -283,8 +302,10 @@ export function shuffleWithHash<T>(items: T[], h: Bytes, trace?: Trace): T[] {
 ```
 
 The Gray Paper writes F as a recursion: pick one, then F of the rest. `shuffle` is the
-same as a loop, one pick per number, and never runs out of stack. `numbersFromHash`
-hashes for every number, recomputing each block eight times: wasteful, but it reads like Q.
+same as a loop, one pick per number, and never runs out of stack.
+
+`numbersFromHash` hashes for every number, so it computes each block eight times.
+Wasteful, but it reads like Q.
 
 **Run**
 
@@ -309,8 +330,8 @@ reported 71 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 
 ### Break it on purpose
 
-Step 2 can look like an odd choice. Why move the last item into the gap, rather than just
-close it up? Find out: in `shuffle`, replace the two lines
+Step 2 can look odd. Why move the last item into the gap, and not just close it up? Find
+out: in `shuffle`, replace the two lines
 
 ```ts
     left[index] = left[left.length - 1]; // the last item fills the gap
@@ -323,10 +344,11 @@ with the more obvious
     left.splice(index, 1);
 ```
 
-and run `npm test`. Both tests go red: the letters come out b, c, a, d. That's still a
-perfectly fair shuffle, but it isn't *JAM's* shuffle, and a shuffle that every node must
-agree on has to agree down to the last detail. (Moving the last item in is also faster: no
-shifting everything after the gap.) Put the two lines back.
+and run `npm test`. Both tests go red: the letters come out b, c, a, d.
+
+That is still a fair shuffle. It isn't *JAM's* shuffle, and a shuffle every node must
+agree on has to agree down to the last detail. (Moving the last item in is also faster:
+nothing after the gap has to shift.) Put the two lines back.
 
 ## Watch it
 
@@ -385,8 +407,8 @@ shuffled: 1, 2, 6, 0, 7, 4, 3, 5
 
 :::
 
-Two arguments in, eight picks out: each line is one number read from the hash, taken
-mod the items still left, and the pick it lands on.
+Two arguments in, eight picks out. Each line is one number read from the hash, taken mod
+the items still left, and the pick it lands on.
 
 **Run**
 
@@ -409,16 +431,18 @@ shuffled: 1, 2, 6, 0, 7, 4, 3, 5
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=shuffle-1791729474845
 ```
 
-That's the second shuffle vector, worked out step by step. Look at the third pick: the
-number lands on index 2, and the item there is 6, not 2. The first two picks moved items
-7 and 6 into their gaps. The *Shuffle* panel, on the **3 · Consensus** dashboard, has every
-pick and the final order; try a hash of your own, and a longer list.
+That is the second shuffle vector, step by step. Look at the third pick: the number lands
+on index 2, and the item there is 6, not 2. The first two picks moved items 7 and 6 into
+their gaps.
+
+The *Shuffle* panel, on the **3 · Consensus** dashboard, has every pick and the final
+order. Try a hash of your own, and a longer list.
 
 ![Shuffle panel](./images/02-shuffle.png)
 
 ## The scoreboard
 
-Like the trie's, the shuffle vectors' test runs their one file whole, so it becomes the
+Like the trie's, the shuffle vectors' test runs their one file whole. So it becomes the
 scoreboard's `shuffle` family, and the test calls it:
 
 **Add to** `test/families.ts`
@@ -464,7 +488,8 @@ test("the shuffle vectors: 0 to 341 items, shuffled by a hash", () =>
   checkShuffle("shuffle/shuffle_tests.json"));
 ```
 
-The shuffle vector is a list of cases: how many items, the entropy to deal with, and the order that must come out. One of them:
+The shuffle vector is a list of cases: how many items, the entropy to deal with, and the
+order that must come out. One of them:
 
 ::: code-group
 
@@ -495,7 +520,9 @@ shuffle                    1 of 1  ✔
 
 :::
 
-Run whole means every case deals exactly its listed order, from no items to 341. This case, 8 items on all-`ff` entropy, is the one the lesson's own run printed; the row counts the file as one vector.
+Run whole means every case deals exactly its listed order, from no items to 341. This
+case, 8 items on all-`ff` entropy, is the one the lesson's own run printed. The row counts
+the file as one vector.
 
 **Run**
 
@@ -563,15 +590,16 @@ last item into the gap exactly as yours does: `work.(index) <- work.(remaining -
 ## Check your understanding
 
 ::: check
-**Shuffling `a b c d` with 1, 1, 0, 0: once b is picked, why is what's left `a d c`, not `a c d`?**
+**What is the shuffle for?**
 
-- [x] The last item, d, moves into b's gap
-  > Yes: step 2 of F. The gap is filled from the end, so nothing else moves.
-- [ ] What's left is shuffled again after every pick
-  > No: nothing is shuffled again. Only one item moves: the last, into the gap.
-- [ ] Which item fills the gap is random
-  > No: nothing in F is random by itself. All the randomness is in the numbers, and the
-  > same numbers give the same picks on every node.
+- [ ] Hiding which validators guarantee which core
+  > No: anyone with the hash can work the deal out, and every node does.
+- [x] Dealing validators out to cores in an order nobody can arrange, and that every node works out the same
+  > Yes: random, so nobody can choose to sit where their friends' work is, and the same
+  > everywhere, so every node agrees who may do what.
+- [ ] Picking who makes each block
+  > No: that is Safrole's lottery, in [Part 8](../08-safrole/index.md). The shuffle deals
+  > guarantors to cores, in [lesson 12.1](../12-guarantees/01-who-guarantees-what.md).
 
 **Why does JAM shuffle with numbers from a hash everyone shares, not each node's own random numbers?**
 
@@ -585,44 +613,46 @@ last item into the gap exactly as yours does: `work.(index) <- work.(remaining -
   > Yes: random, so nobody can arrange their seat, and yet the same everywhere, so every
   > node agrees who may do what.
 
-**Close the gap with `splice` instead, and the letters come out b, c, a, d. What's wrong with that?**
+**Who runs the shuffle?**
 
-- [ ] It isn't a fair shuffle any more
-  > No: it's still perfectly fair. Every order is as likely as before.
-- [x] It's fair, but it isn't JAM's shuffle, and every node must agree to the last detail
+- [x] Every node, by itself, from the same list and the same hash
+  > Yes: the same inputs give the same picks, so nobody has to be told the answer.
+- [ ] One validator, which sends the order to the others
+  > No: then the others would have to trust it. Each node deals the hand itself and gets
+  > the same one.
+- [ ] Only a core's three guarantors, for their own core
+  > No: every node has to agree who may do what, so every node deals the whole hand.
+
+**A client closes the gap with `splice` where F moves the last item in. What goes wrong?**
+
+- [ ] Its shuffle isn't fair any more
+  > No: it's still fair. Every order is as likely as before.
+- [x] Its shuffle is fair, but it isn't JAM's, and every node must agree to the last detail
   > Yes: the same numbers deal a different hand, b c a d instead of b d a c. A node
   > dealing that hand would disagree with all the others.
 - [ ] Nothing: the vectors accept any fair shuffle
   > No: each vector gives one exact order, and both tests go red.
 
-**A shuffle of 20 items. How many Blake2b hashes does Q need for its numbers?**
+**A 32-byte hash holds eight 4-byte numbers. Where do the numbers for a longer list come from?**
 
-- [ ] 20: one hash for each number
-  > No: one 32-byte hash holds eight 4-byte numbers. (Your `numbersFromHash` does hash 20
-  > times, but makes only three different hashes.)
-- [x] 3: h with ℰ₄(0), with ℰ₄(1), and with ℰ₄(2)
-  > Yes: each hash gives eight numbers. Two cover 16, and a third gives the last four, with
-  > four to spare.
-- [ ] 1: one hash is enough for any shuffle
-  > No: one hash holds only eight numbers, and a shuffle of 20 items takes 20.
-
-**In `bin/shuffle.ts`'s third pick, 1702679006 mod 6 = 2, yet the item picked is 6, not 2. Why?**
-
-- [ ] Item 2 was picked already, so F takes the next one along
-  > No: F never looks for a next one. Index 2 holds whatever filled its gap.
-- [x] The first two picks moved 7 and then 6 into their gaps, so 6 now sits at index 2
-  > Yes: 1 goes and 7 fills index 1; 2 goes and 6 fills index 2. What's left is
-  > 0 7 6 3 4 5.
-- [ ] The number is too big, so it wraps round
-  > No: `mod 6` already did the wrapping, giving 2. The question is what sits at index 2.
+- [ ] The same eight, used again from the start
+  > No: only the place inside the 32 bytes starts again. The bytes are a new hash each
+  > time.
+- [ ] The hash of the hash before, and so on in a chain
+  > No: every hash is of h itself with a counter after it, not of the hash before.
+- [x] More hashes of h, each with a counter after it: ℰ₄(0), then ℰ₄(1), and so on
+  > Yes: each hash gives eight numbers. A shuffle of 20 items takes three: two cover 16,
+  > and a third gives the last four, with four to spare.
 :::
 
 ## What you have
 
-A shuffle every node agrees on: give it a list and a hash, and every JAM client in the
-world deals the same hand, the shuffle vector's included. [Part 8](../08-safrole/index.md) puts epochs and entropy to work in Safrole, the
-lottery that picks who makes each block, and borrows this lesson's way of reading numbers
-out of a hash. The shuffle itself comes back in [lesson 12.1](../12-guarantees/01-who-guarantees-what.md), to deal guarantors to
-cores.
+A shuffle every node agrees on. Give it a list and a hash, and every JAM client in the
+world deals the same hand, the shuffle vector's included.
+
+[Part 8](../08-safrole/index.md) puts epochs and entropy to work in Safrole, the lottery
+that picks who makes each block. It borrows this lesson's way of reading numbers out of a
+hash. The shuffle itself comes back in [lesson 12.1](../12-guarantees/01-who-guarantees-what.md),
+to deal guarantors to cores.
 
 Next: [Part 8 · Safrole](../08-safrole/index.md)

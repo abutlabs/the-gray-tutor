@@ -44,8 +44,10 @@ test("the η values are the epochs run's eight lines, and the history moves as t
   assert.deepEqual(entropyHistory(["a", "b", "c", "d"], false), ["b", "c", "d"], "unchanged");
 });
 
-test("lesson 7.1 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 7.1 places the widget once, at the top, and What the Gray Paper says sends the reader back to it", () => {
   const at = raw.indexOf("<EpochTurn />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<EpochTurn />"), "placed once");
-  assert.ok(at > raw.indexOf("## What the Gray Paper says") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"), "at the top, before The idea");
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("## What the Gray Paper says") && back < raw.indexOf("## The tests"));
 });

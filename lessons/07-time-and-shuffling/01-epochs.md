@@ -1,21 +1,36 @@
 # Epochs
 
-A slot is six seconds. An *epoch* is 600 of them on the full network, one hour; 12 on
-tiny. A few things happen only when a new epoch begins: the validator set can change,
-the ticket lottery starts over, and the chain's randomness is set aside. This lesson
-teaches your client to tell epochs apart, and to spot the moment one turns over.
+**In one sentence:** an epoch is a fixed run of slots, one hour's worth on the full network,
+and a few things on the chain change only in the block that begins a new one.
 
-## New words
+Set the slot of the block before, then this block's slot. Find a pair that crosses into a
+new epoch, and watch what moves.
 
-- **Epoch.** A run of slots: 600 (one hour) on the full network, 12 on tiny. The
-  validators and the block lottery change when one begins. *Example:* slots 0 to 599 are
-  epoch 0.
-- **Phase.** Where a slot falls within its epoch, counted from 0. *Example:* on tiny,
-  slot 13 is epoch 1, phase 1.
-- **Entropy accumulator.** η₀: the randomness every block stirs a little more into.
-  *Example:* when an epoch ends, its value moves along to η₁.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<EpochTurn />
+
+## The idea
+
+A slot is six seconds. A few things on the chain happen far less often than that: the
+validator set can change, the ticket lottery starts over, and the chain's randomness is
+set aside. When, exactly? Every node has to give the same answer.
+
+So the slots are counted off in runs. A run is an [*epoch*](../glossary.md#epoch): 600
+slots on the full network, one hour; 12 on tiny.
+
+No node looks at a clock for this. It divides. A slot's number divided by the epoch's
+length gives its epoch, and the remainder is its [*phase*](../glossary.md#phase): where
+it falls within the epoch, counted from 0. On tiny, slot 13 is epoch 1, phase 1.
+
+A block begins a new epoch when its epoch is greater than the epoch of the block before
+it. It is like the first letter you write in a new month: it need not be dated the 1st.
+
+One of the things that moves then is the randomness. Every block stirs a little more into
+the [*entropy accumulator*](../glossary.md#entropy-accumulator). When an epoch ends, its
+value is set aside, and the chain keeps the last three.
+
+This lesson builds the division, and the rule that moves the randomness along.
 
 ## What the Gray Paper says
 
@@ -74,19 +89,22 @@ $$
 
 :::
 
-In plain words, §6.1 (*Timekeeping*): τ, the time in the state, is the slot of the block
-before this one ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)), and
-τ′, the time after this block, is this block's own slot. A slot's epoch is
-e = ⌊slot / E⌋, and its *phase*, where it falls within the epoch, is m = slot mod E: the
-quotient and the remainder of one division. A block starts a new epoch when its epoch,
-e′, is greater than the epoch of the block before it, e.
+§6.1 (*Timekeeping*) is the division:
+
+- τ, the time in the state, is the slot of the block before this one
+  ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)).
+- τ′, the time after this block, is this block's own slot.
+- A slot's epoch is e = ⌊slot / E⌋. Its phase is m = slot mod E. They are the quotient
+  and the remainder of one division.
+- A block starts a new epoch when its epoch, e′, is greater than e, the epoch of the
+  block before it.
 
 Two things happen exactly then:
 
 - **The header carries an epoch mark** ([lesson 4.6](../04-blocks/06-the-header.md)): η₀, η₁ and the next validators.
 - **The entropy history moves along one**, as below.
 
-The paper keeps the entropy's history in §6.4:
+§6.4 keeps the entropy's history:
 
 ::: gray-paper 6.4 4-5
 
@@ -139,18 +157,19 @@ $$
 
 :::
 
-In plain words: η ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)) is
-four hashes. η₀ is the *entropy accumulator*: every block stirs fresh randomness into it.
-η₁, η₂ and η₃ are what η₀ was at the end of each of the last three epochs. So at a new
-epoch, η′₁ is the old η₀, η′₂ the old η₁, η′₃ the old η₂, and the oldest is forgotten. In
-any other block, they stay as they are.
+η ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)) is four hashes.
+
+- η₀ is the entropy accumulator. Every block stirs fresh randomness into it.
+- η₁, η₂ and η₃ are what η₀ was at the end of each of the last three epochs.
+
+At a new epoch they move along one: η′₁ is the old η₀, η′₂ the old η₁, η′₃ the old η₂.
+The oldest is forgotten. In any other block they stay as they are. Try both
+[at the top](#try-it): slot 12 after 11, then slot 13 after 12.
 
 Why keep old randomness? Some decisions must use randomness nobody could have steered
 when the decision was set up. Randomness from a finished epoch is fixed, and the ticket
 lottery and the block sealers lean on it. (η₀ itself changes every block, using a
 Bandersnatch VRF output. That's [Part 8](../08-safrole/index.md).)
-
-<EpochTurn />
 
 ## The tests
 
@@ -206,12 +225,15 @@ test("at a new epoch the entropy history moves along one; otherwise it stays", (
 });
 ```
 
-The `safrole` trace's state after block n is the state before block n + 1, so
-`traceState("safrole", n + 1)` is block n's *after*. And `after.slice(1)` is η′₁ to η′₃:
-η′₀ is left out on purpose, since it changes every block and needs [Part 8](../08-safrole/index.md).
+Two things to know about the last test:
 
-A stub, with a chain where time stands still: every slot in epoch 0, and an entropy
-history that never moves along.
+- The state after block n is the state before block n + 1. So
+  `traceState("safrole", n + 1)` is block n's *after*.
+- `after.slice(1)` is η′₁ to η′₃. η′₀ is left out on purpose: it changes every block and
+  needs [Part 8](../08-safrole/index.md).
+
+A stub where time stands still: every slot is in epoch 0, and the entropy history never
+moves.
 
 **New file** `src/epoch.ts`
 
@@ -266,8 +288,8 @@ test at test/epoch.test.ts:39:1
 ...
 ```
 
-All three red, and both trace tests stopped at block 12, the first of epoch 1. For
-blocks 1 to 11 the frozen clock was right by luck; the first boundary gives it away.
+All three red. Both trace tests stopped at block 12, the first of epoch 1. For blocks 1
+to 11 the frozen clock was right by luck. The first boundary gives it away.
 
 ## The code
 
@@ -291,7 +313,7 @@ export function entropyHistory(entropy: Bytes[], newEpoch: boolean): Bytes[] {
 }
 ```
 
-`entropy.slice(0, 3)` is η₀, η₁, η₂: shifted along by one, ready to become η′₁ to η′₃.
+`entropy.slice(0, 3)` is η₀, η₁, η₂: moved along one, ready to become η′₁ to η′₃.
 `entropy.slice(1, 4)` is η₁, η₂, η₃, unchanged.
 
 **Run**
@@ -315,8 +337,8 @@ reported 69 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 ...
 ```
 
-Eight epochs began in those 100 blocks, at slots 12, 24, 36 and so on to 96, and the
-headers and the state agree about every one of them.
+Eight epochs began in those 100 blocks, at slots 12, 24, 36 and so on to 96. The headers
+and the state agree about every one.
 
 ## Watch it
 
@@ -386,10 +408,9 @@ slot 12: epoch 1 begins. Epoch mark: true. η₁ is now 0xcf7f084efbeefbda…
 
 :::
 
-The walk reads each block's header beside the state before it: when the header's slot
-lands in a later epoch than the state's τ, an epoch begins — twelve times a tiny hour,
-eight times in this trace's hundred blocks — and the η₀ of the old epoch is found one
-slot later living in η₁.
+The walk reads each block's header beside the state before it. When the header's slot
+lands in a later epoch than the state's τ, an epoch begins: eight times in this trace's
+hundred blocks. The old epoch's η₀ then moves into η₁.
 
 **Run**
 
@@ -411,10 +432,11 @@ slot 96: epoch 8 begins. Epoch mark: true. η₁ is now 0x5a9144b76436afd1…
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=epochs-1791729468062
 ```
 
-`0xcf7f084e…` should look familiar: it's the η₀ that `bin/read-state.ts` showed you in
-[lesson 6.3](../06-state-and-merklization/03-reading-the-state.md), in the state before this very block. One block later it has retired to η₁.
+You have seen `0xcf7f084e…` before. It is the η₀ that `bin/read-state.ts` showed in
+[lesson 6.3](../06-state-and-merklization/03-reading-the-state.md), in the state before this very block. One block later it is η₁.
+
 The *Epochs* panel lists every block with its epoch and phase, and flags the eight where
-a new epoch begins: watch the phase run 0 to 11, then start again.
+a new epoch begins. Watch the phase run 0 to 11, then start again.
 
 ![Epochs panel](./images/01-epochs.png)
 
@@ -443,29 +465,41 @@ old η[1]. Your `entropyHistory` says it with one `slice`.
 ## Check your understanding
 
 ::: check
-**On full, E is 600. Which epoch and phase is slot 1,234?**
+**What is an epoch, and what is it for?**
 
-- [ ] Epoch 102, phase 10
-  > No: that divides by 12, tiny's E. On full, 1,234 = 2 × 600 + 34.
-- [x] Epoch 2, phase 34
-  > Yes: ⌊1234 / 600⌋ = 2, and 1234 mod 600 = 34. Epochs 0 and 1 took slots 0 to 1,199.
-- [ ] Epoch 3, phase 34
-  > No: epochs count from 0, like phases. Slots 0 to 599 are epoch 0, so 1,234 is in
-  > epoch 2.
+- [ ] Another name for a slot: the six seconds in which one block can be made
+  > No: a slot is six seconds. An epoch is a run of slots: 600 on full, 12 on tiny.
+- [x] A fixed run of slots; the validator set, the ticket lottery and the entropy history change only when one begins
+  > Yes: one hour on full. The validator set can change, the lottery starts over and the
+  > randomness is set aside in the block that begins an epoch, and in no other.
+- [ ] The hour on each validator's own clock
+  > No: an epoch is worked out from slot numbers. Every validator divides the same slot by
+  > the same length, so every validator gets the same answer.
+
+**Where does a validator get the two slots it compares to spot a new epoch?**
+
+- [x] The block's slot from its header, and the slot of the block before from the state
+  > Yes: the state keeps τ, the latest block's slot, so that a new epoch is easy to
+  > identify. After this block, τ is this block's slot.
+- [ ] Both from its own clock
+  > No: the rule uses only the block and the state. A clock plays no part in it.
+- [ ] From the epoch mark in the header
+  > No: it's the other way round. The block carries an epoch mark *because* it starts a new
+  > epoch, and the test checks that the two always agree.
 
 **On tiny, a block at slot 13 comes straight after one at slot 11. Does it start a new epoch?**
 
 - [ ] No: only a block at phase 0, slot 12 here, starts an epoch
   > No: there was no block at slot 12, and a slot can be empty. The rule compares epochs,
   > not phases.
-- [ ] Only if its header carries an epoch mark
-  > No: it's the other way round. The block carries an epoch mark *because* it starts a new
-  > epoch, and the test checks that the two always agree.
+- [ ] No: the epoch began at slot 12, with or without a block
+  > No: there was no block at slot 12 to make the changes. They are made by the first
+  > block whose epoch is greater than the epoch of the block before it.
 - [x] Yes: its epoch, 1, is greater than the epoch of the block before it, 0
   > Yes: e′ = ⌊13 / 12⌋ = 1 and e = ⌊11 / 12⌋ = 0. It carries the epoch mark, and the
   > entropy history moves along.
 
-**At a new epoch, what happens to η₃?**
+**At a new epoch, what happens to the oldest of the three kept values, η₃?**
 
 - [ ] It comes round to η₀, so the four values go in a circle
   > No: η₀ is the accumulator, stirred by every block. Nothing old comes back into it.
@@ -492,7 +526,7 @@ old η[1]. Your `entropyHistory` says it with one `slice`.
 ## What you have
 
 Your client knows what epoch it is, where in the epoch it is, and what has to change when
-a new one begins. An epoch also deals jobs out, the same way on every node:
-[lesson 7.2](./02-the-shuffle.md) builds the shuffle that does it.
+a new one begins. An epoch also deals jobs out, the same way on every node.
+[Lesson 7.2](./02-the-shuffle.md) builds the shuffle that does it.
 
 Next: [7.2 The shuffle](./02-the-shuffle.md)

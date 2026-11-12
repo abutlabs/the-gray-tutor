@@ -41,10 +41,12 @@ test("closing the gap with splice deals b, c, a, d: fair, but not JAM's", () => 
   assert.notDeepEqual(shuffled(EIGHT, true), shuffled(EIGHT));
 });
 
-test("lesson 7.2 places the widget once, after the shuffle figure", () => {
+test("lesson 7.2 places the widget once, at the top, and the shuffle figure sends the reader back to it", () => {
   const at = raw.indexOf("<ShuffleSteps />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ShuffleSteps />"), "placed once");
-  assert.ok(at > raw.indexOf("02-shuffle-steps.svg") && at < raw.indexOf("**Q_l(h)**"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"), "at the top, before The idea");
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("02-shuffle-steps.svg") && back < raw.indexOf("**Q_l(h)**"));
 });
 
 test("every pick's division checks: quotient × l + index is the number, and the index is under l", () => {
