@@ -1,36 +1,43 @@
 # How a block is imported
 
-[Lesson 0.5](./05-understanding-the-vectors.md) showed the nine small functions that the
-vectors test one at a time. A real block uses all of them, and more: before any of them
-runs, the block has to arrive, be decoded, find the state it builds on and pass its
-header's checks; after them, the new state is hashed into a root and sent back. That whole
-journey is a *block import*, and it is what Milestone 1 asks a client to do. By the end of
-this lesson you can walk one block through it, station by station, and say where in our
-client each station lives. Nothing here is code to type. It is the map the parts you build
-next fill in.
-
-## New words
-
-- **Wave.** A group of block-import steps that need only the block, the old state, or
-  results from earlier waves, so they could run side by side. *Example:* wave 1 is
-  everything made from the block and the old state alone.
-- **Slack.** How many waves a step could wait without making anything late. *Example:*
-  the guarantees' step finishes in wave 3, but nothing needs it, so it has 1 wave of slack.
-
-## The whole import
-
-Think of a bank posting a day's batch of payments. The batch says which day it follows
-and quotes that day's closing balance. The clerk checks it belongs on top of yesterday,
-checks every payment in it, posts them all or none, and prints the new closing balance,
-which tomorrow's batch must quote. A block import is the same: the block names its parent
-and quotes the parent's state root, every part of it is checked, its changes are all made
-or none are, and out comes a new state root that the next block quotes.
+**In one sentence:** to import a block is to check that it belongs on top of a state you
+hold, apply every rule to it, and answer with the new state's root, or to refuse it and
+change nothing.
 
 In our client a block makes eight stops. Pick a block below and press *next*: the real
 one goes all the way to its StateRoot, and a wrong one stops at the station that refuses
 it.
 
+<a id="try-it"></a>
+
 <ImportLine />
+
+## The idea
+
+[Lesson 0.5](./05-understanding-the-vectors.md) showed nine small functions, each tested
+alone. A real block uses all of them, and more. What is the whole job?
+
+Think of a bank posting a day's batch of payments. The batch says which day it follows
+and quotes that day's closing balance. The clerk checks it belongs on top of yesterday,
+checks every payment in it, posts them all or none, and prints the new closing balance,
+which tomorrow's batch must quote.
+
+A block import is the same. The block names its parent and quotes the parent's state
+root. Every part of it is checked. Its changes are all made or none are. Out comes a new
+state root, which the next block quotes. That is what Milestone 1 asks a client to do.
+
+The middle of the job, applying the rules, is many small steps. Some need another's
+result, and some don't. Steps that need nothing from each other form a
+[*wave*](../glossary.md#wave): they could run side by side. A step that nothing waits for
+has [*slack*](../glossary.md#slack): it could run later and make nothing late.
+
+This lesson walks one block through the import, station by station, then opens the middle
+station as a timeline. Nothing here is code to type. It is the map the parts you build
+next fill in.
+
+## The whole import
+
+The eight stations of the line [at the top](#try-it), and where each lives in our client:
 
 | | station | what happens | refuses the block with | in our client |
 | --- | --- | --- | --- | --- |
@@ -133,23 +140,25 @@ latest:
 
 :::
 
-In plain words: Safrole, which decides who may make each slot's block, keeps two blocks
-for one slot rare. GRANDPA, a vote among the validators, makes a block final: from then
-on it is in the chain's history for good, and so is everything before it. One fork is on
-purpose: a chain holding a report that a dispute has since found bad is abandoned, and
-GRANDPA won't finalize it ([Part 10](../10-disputes/index.md)). The best block is the
-newest one a node would build on, usually a block or two past the final one.
-Your client does none of this choosing: it imports whatever block it is given, onto
-whichever parent the block names, and whoever sends the blocks does the choosing: in
-[Part 20](../20-facing-the-fuzzer/index.md), the fuzzer. The rules for the best chain are §19,
-which [What runs where](../what-runs-where.md#off-the-chain-in-the-gray-paper) quotes.
+Safrole, which decides who may make each slot's block, keeps two blocks for one slot
+rare. GRANDPA, a vote among the validators, makes a block final: from then on it is in
+the chain's history for good, and so is everything before it. One fork is on purpose: a
+chain holding a report that a dispute has since found bad is abandoned, and GRANDPA won't
+finalize it ([Part 10](../10-disputes/index.md)). The best block is the newest one a node
+would build on, usually a block or two past the final one.
+
+Your client does none of this choosing. It imports whatever block it is given, onto
+whichever parent the block names. Whoever sends the blocks does the choosing: in
+[Part 20](../20-facing-the-fuzzer/index.md), the fuzzer. The rules for the best chain are
+§19, which [What runs where](../what-runs-where.md#off-the-chain-in-the-gray-paper)
+quotes.
 
 ## Inside station 5: what waits for what
 
-Station 5 is the *state transition function* ([lesson 0.1](./01-what-you-will-build.md)):
+Station 5 is the state transition function ([lesson 0.1](./01-what-you-will-build.md)):
 a state and a block go in, and out comes the state after the block, or a refusal. In the
 Gray Paper it is the Greek capital Υ. Stations 4 and 5 are the Gray Paper's rules, a valid
-header and Υ; stations 1 to 3 and 6 to 8 are what a client does around them.
+header and Υ. Stations 1 to 3 and 6 to 8 are what a client does around them.
 
 ```text
  the state before ─┐
@@ -157,10 +166,11 @@ header and Υ; stations 1 to 3 and 6 to 8 are what a client does around them.
  the block ────────┘
 ```
 
-Inside Υ there is no single rule. There are sixteen small steps, each making one new piece of
-state (or, in accumulation's case, eight at once) from some inputs. The vectors of [lesson 0.5](./05-understanding-the-vectors.md)
-test those steps one family at a time. What the vectors can't show is how the steps fit
-together, and that is the Gray Paper's own question.
+Inside Υ there is no single rule. There are sixteen small steps, each making one new
+piece of state (or, in accumulation's case, eight at once) from some inputs. The vectors
+of [lesson 0.5](./05-understanding-the-vectors.md) test those steps one family at a time.
+What the vectors can't show is how the steps fit together, and that is the Gray Paper's
+own question.
 
 ## What the Gray Paper says
 
@@ -228,14 +238,14 @@ $$
 
 :::
 
-In plain words: the state is seventeen parts, and the paper keeps them as separate as it
-can so that a client can work on several at once. For every new piece, the list says what
-it is made from, and it is written so that as few steps as possible wait for other steps.
-The list itself, sixteen lines, is [lesson 19.1](../19-block-import/01-the-order-of-things.md)'s.
+The state is seventeen parts, and the paper keeps them as separate as it can, so that a
+client can work on several at once. For every new piece, the list says what it is made
+from. It is written so that as few steps as possible wait for other steps. The list
+itself, sixteen lines, is [lesson 19.1](../19-block-import/01-the-order-of-things.md)'s.
 
 That gives an order without anyone choosing one. Steps that need only the block and the
-old state go in wave 1. A step whose inputs come from wave 1 goes in wave 2, and so on. Steps
-in one wave don't need each other, so they could run side by side. (Lesson
+old state go in wave 1. A step whose inputs come from wave 1 goes in wave 2, and so on.
+Steps in one wave don't need each other, so they could run side by side. (Lesson
 [19.1](../19-block-import/01-the-order-of-things.md) builds the full map, symbols and all.)
 
 ## The timeline
@@ -316,16 +326,29 @@ seal. At the end, the new state has a root, ready for the next block to quote.
 - [ ] After the new state's root is made, when the fuzzer compares roots
   > No: the importer refuses it itself, before any root is made.
 
-**The importer answers a block with StateRoot `0x48dc323d…`. Where does that value appear next?**
+**The importer answers a block with a state root. Where does that value appear next?**
 
 - [ ] In this block's own header, which is filled in afterwards
   > No: a block's header is signed by its author before anyone imports it. It can't hold
   > its own import's result.
-- [x] In the next block's header, as its prior state root, checked at its station 4
-  > Yes: the safrole trace's second block quotes exactly `0x48dc323d…`.
 - [ ] Nowhere: the fuzzer only uses it to compare with the reference client
   > No: the fuzzer compares it, and the chain also quotes it. The next block's header
   > carries it.
+- [x] In the next block's header, as its prior state root, checked at its station 4
+  > Yes: the answer to one block is the check on the next. The safrole trace's second
+  > block quotes exactly the root its first block's import makes.
+
+**Does importing a block run the work in its reports again?**
+
+- [x] No: refine ran earlier, on a core. The import runs only accumulate, the light stage
+  > Yes: two or three guarantors ran refine and signed the report. Accumulate folds a
+  > report's results into its service's state.
+- [ ] Yes: every validator runs refine again, to check the guarantors
+  > No: re-running refine to check a report is auditing, done off the chain, not by the
+  > import.
+- [ ] Yes, but only for reports whose data is not yet available
+  > No: whether the data is available is what the validators' assurances say. The import
+  > never refines.
 
 **Which block-import steps could run side by side?**
 
@@ -337,32 +360,14 @@ seal. At the end, the new state has a root, ready for the next block to quote.
 - [ ] Steps tested by the same vector family
   > No: a family can span waves. Safrole's entropy is in wave 1 and its lottery in wave 2.
 
-**The guarantees' step has 1 wave of slack. What does that mean?**
-
-- [x] It could start one wave later and nothing in the block would be late
-  > Yes: nothing in this block is made from its result, so it can fill any later wave.
-- [ ] It takes one wave's time to run
-  > No: a bar's length is never time. Slack is about waiting, not duration.
-- [ ] A client may skip it when it is busy
-  > No: every step runs. Slack only says when it may.
-
-**Why is the new state's root the last value in the header's rows?**
-
-- [ ] Hashing is slow, so it is saved for last
-  > No: the order is about what the value is made from, not how long it takes.
-- [ ] The header is always checked last
-  > No: the header's first checks come before any step runs.
-- [x] It is made from the whole new state, so every step must have finished
-  > Yes: one more step could change a part of the state, and so change the root.
-
 **A block's header lists an offenders mark that differs from what its disputes convict. What does the importer do?**
 
 - [ ] Uses the header's list, since the author wrote it
   > No: the header is the author's claim, and the importer doesn't take its word on this.
-- [x] Works out the list from the disputes itself and refuses the block
-  > Yes: the offenders mark is a checked value. A mismatch is the refusal `bad_offenders_mark`.
 - [ ] Ignores the mark and carries on
   > No: a header value the importer checks is never ignored. A wrong one refuses the block.
+- [x] Works out the list from the disputes itself and refuses the block
+  > Yes: the offenders mark is a checked value. A mismatch is the refusal `bad_offenders_mark`.
 :::
 
 ## What you have
@@ -370,8 +375,9 @@ seal. At the end, the new state has a root, ready for the next block to quote.
 A whole block import, end to end: eight stations from bytes in to state root out, where
 each one lives in our client, and what refuses a wrong block. And inside station 5, a
 timeline: sixteen steps in four waves, the chain that sets its length, the steps that can
-wait, and what the block gives against what its header must match. [Part 1](../01-bytes-and-numbers/index.md)
-starts at the other end, with the bytes and numbers every vector is made of, so that by
-[Part 20](../20-facing-the-fuzzer/index.md) every station is a function you wrote.
+wait, and what the block gives against what its header must match.
+[Part 1](../01-bytes-and-numbers/index.md) starts at the other end, with the bytes and
+numbers every vector is made of, so that by [Part 20](../20-facing-the-fuzzer/index.md)
+every station is a function you wrote.
 
 Next: [Part 1 · Bytes and numbers](../01-bytes-and-numbers/index.md)
