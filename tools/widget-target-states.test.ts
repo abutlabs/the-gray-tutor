@@ -43,8 +43,10 @@ test("the hashes and roots are the storage trace's", { skip: !existsSync(join(RO
   });
 });
 
-test("lesson 20.2 places the widget once, after the protocol's steps", () => {
+test("lesson 20.2 places the widget once, at the top, and the protocol's steps send the reader back to it", () => {
   const at = raw.indexOf("<TargetStates />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<TargetStates />"));
-  assert.ok(at > raw.indexOf("**GetState.**") && at < raw.indexOf("## What the Gray Paper says"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("**GetState.**"));
+  assert.ok(back > 0 && back < raw.indexOf("## What the Gray Paper says"));
 });

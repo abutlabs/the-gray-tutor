@@ -1,24 +1,33 @@
 # A target
 
-A *fuzz target* is a client that answers the fuzzer: it listens on a socket, takes the
-messages one at a time, and replies to each. It also keeps more than one state. The
-fuzzer sends a few broken versions of a block before the real one, each built on the same
-parent, so a target must be able to import onto any state it has made, not just the
-newest. And there's one rule of block import your client hasn't been able to check until
-now, because it needs blocks older than the state remembers. By the end of this lesson
-your client is a target: everything but the socket is tested, and the socket comes with it.
+**In one sentence:** a fuzz target is a client that listens on a socket and answers the
+fuzzer, keeping every state it has made so that a block can be imported onto any of them.
 
-## New words
+Send a target messages, in any order, and watch which states it keeps.
 
-- **Fuzz target.** A client answering the fuzzer: the other end of the socket. *Example:*
-  `bin/target.ts`.
-- **Lookup anchor.** The block a work-package read its preimages from while it was refined:
-  a report names it, by its hash and its slot. *Example:* a block from up to 24 slots ago,
-  on tiny.
-- **Ancestry.** The last L blocks of a chain, by slot and header hash: what a client must
-  keep to check lookup anchors. *Example:* 24 blocks on tiny, 14,400 on full.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<TargetStates />
+
+## The idea
+
+A [*fuzz target*](../glossary.md#fuzz-target) is a client that answers the fuzzer. It
+listens on a socket, takes the messages one at a time, and replies to each.
+
+Why would it keep more than one state? The fuzzer sends a few broken versions of a block
+before the real one, each built on the same parent. So a target must be able to import
+onto any state it has made, not just the newest. Think of a chess player asked to try
+several moves from one position: the position has to stay on the board.
+
+There is also one rule of block import your client hasn't been able to check until now,
+because it needs blocks older than the state remembers. A report names its
+[*lookup anchor*](../glossary.md#lookup-anchor): the block a work-package read its
+preimages from while it was refined. To check that the anchor really is one of the
+chain's blocks, a client keeps the [*ancestry*](../glossary.md#ancestry): the last L
+blocks of the chain, by slot and header hash.
+
+By the end of this lesson your client is a target. Everything but the socket is tested,
+and the socket comes with it.
 
 ## What the protocol says
 
@@ -36,9 +45,8 @@ All three are in the [glossary](../glossary.md).
 4. **GetState.** The entries of the state under a header's hash: the fuzzer asks when a
    root came out wrong, to see why.
 
-Send a target messages, in any order:
-
-<TargetStates />
+Try each rule on [the target at the top](#try-it): a second Initialize, a block on a
+parent it doesn't have, two blocks on one parent.
 
 ## What the Gray Paper says
 
@@ -53,13 +61,13 @@ Send a target messages, in any order:
 The first is on-chain arithmetic. The second needs headers the state doesn't keep (β
 remembers only eight), so a client keeps them itself. When the fuzzer and the target both
 offer the ancestry feature, the fuzzer sends the last L blocks in Initialize, and the
-target adds each block it imports; without the feature, the protocol says to skip the
+target adds each block it imports. Without the feature, the protocol says to skip the
 check. The traces never needed it: their tests gave your importer no ancestry, so
 `importBlock` skips the check when it gets none.
 
-One honest note: the Gray Paper also asks that the lookup anchor's state root be the one
+One honest note. The Gray Paper also asks that the lookup anchor's state root be the one
 its child block names. The protocol's ancestry gives only slots and hashes, so the base
-rule here checks those two; [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) keeps the rest.
+rule here checks those two. [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) keeps the rest.
 
 ## The tests
 
@@ -220,8 +228,9 @@ function anchorError(
   const anchorProblem = anchorError(config, guaranteed.reports, block.header.slot, ancestry);
 ```
 
-`ancestry` is the last argument and may be left out: the tests from [lesson 19.4](../19-block-import/04-importing-a-block.md) on pass
-no ancestry, and their blocks import as before.
+`ancestry` is the last argument and may be left out. The tests from
+[lesson 19.4](../19-block-import/04-importing-a-block.md) on pass no ancestry, and their
+blocks import as before.
 
 Then the target's side of a session, with no socket in sight:
 
@@ -415,8 +424,8 @@ server.listen(path, () => console.log(`listening on ${path}`));
 ```
 
 A Node socket is a stream of bytes, so `readFrames` reads it as is. Anything wrong inside
-a session, a message no codec can read, say, ends that session, not the target: the
-`catch` closes the socket, and the server keeps listening for the next one. And when the
+a session, a message no codec can read, say, ends that session, not the target. The
+`catch` closes the socket, and the server keeps listening for the next one. When the
 target is stopped, it removes its socket's file: a file left behind would look like a
 target to the next fuzzer, with nobody there.
 
@@ -496,8 +505,8 @@ leaves to [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HA
 
 A fuzz target: the handshake, a state from Initialize, blocks imported onto any state it
 has kept, refusals answered with an Error, states handed over when asked, and the lookup
-anchors checked against the chain's own ancestry. What it needs now is a fuzzer:
-[lesson 20.3](./03-a-session.md) writes a small one.
+anchors checked against the chain's own ancestry. What it needs now is a fuzzer.
+[Lesson 20.3](./03-a-session.md) writes a small one.
 
 **Say it out loud.** A target keeps several states, because the fuzzer sends broken versions of a block on the same parent. A refused block changes nothing.
 

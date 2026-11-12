@@ -1,20 +1,29 @@
 # Ready to be fuzzed
 
-The official fuzzer starts each target the same way: as a Docker image for Linux on Intel
-chips (`linux/amd64`), told what to do by a few environment variables, with nothing typed
-on a command line. This lesson packages your target that way. It's short, and it's the
-last: at the end of it, your client is a block importer that the conformance fuzzer could
-start and talk to, as it does every JAM client.
+**In one sentence:** the official fuzzer starts every client the same way, as a packaged
+image told what to do by a few named settings, and this lesson packages your target that
+way.
 
-## New words
+## The idea
 
-- **Environment variable.** A named setting a program reads from the environment it was
-  started in, not from its arguments. *Example:* `JAM_FUZZ_SPEC=tiny`.
-- **Docker image.** A program packaged with everything it needs to run, from the operating
-  system up, so that [Docker](../00-start/02-set-up-the-project.md) can start it anywhere the same way. *Example:* the
-  `node:26.11.1-bookworm-slim` image, with Node 26 on Debian.
+The fuzzer knows nothing of your code or your language. So how does it start your
+client, and every other JAM client, without being told how each one works?
 
-Both are in the [glossary](../glossary.md).
+It asks them all for the same packaging. A target comes as a
+[*Docker image*](../glossary.md#docker-image): a program packaged with everything it
+needs to run, from the operating system up, so that
+[Docker](../00-start/02-set-up-the-project.md) can start it anywhere the same way. Think
+of an appliance with one kind of plug. Whatever is inside, it goes into the same socket
+in the wall.
+
+Nothing is typed on a command line. The target is told what to do by a few
+[*environment variables*](../glossary.md#environment-variable): named settings a program
+reads from the environment it was started in, not from its arguments. The image is for
+Linux on Intel chips (`linux/amd64`).
+
+This lesson is short, and it's the last. At the end of it, your client is a block
+importer that the conformance fuzzer could start and talk to, as it does every JAM
+client.
 
 ## What the protocol says
 
@@ -113,8 +122,8 @@ if (fuzzing && missing.length > 0) {
 
 Run without `JAM_FUZZ`, the target works as before, on the socket you give it. With it,
 everything comes from the environment, and nothing missing is guessed. One more line,
-`chmodSync(path, 0o666)`, lets anyone on the computer use the socket: the fuzzer may run as
-another user than your target.
+`chmodSync(path, 0o666)`, lets anyone on the computer use the socket. The fuzzer may run
+as another user than your target.
 
 **Run, expect it to fail**
 
@@ -186,9 +195,9 @@ initialize: the genesis root
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=fuzz-1791774913630
 ```
 
-The target, started the fuzzer's way, and a session with it: `target-tiny` is the
-target with the four variables set, `&` runs it in the background, your fuzzer talks to it
-on the socket the variables named, and `kill $!` stops it.
+The target, started the fuzzer's way, and a session with it. `target-tiny` is the target
+with the four variables set. `&` runs it in the background. Your fuzzer talks to it on
+the socket the variables named, and `kill $!` stops it.
 
 ## The image
 
@@ -219,7 +228,7 @@ your own `node_modules`, built for your computer, out of it.
 
 Building it for `linux/amd64` on a computer with another chip (an Apple Silicon Mac, say)
 takes a little longer, since Docker emulates the other chip. These two commands aren't
-part of the tutorial's checks: they need Docker, and its first build downloads a few
+part of the tutorial's checks. They need Docker, and its first build downloads a few
 hundred megabytes. When this lesson was written, the image built, the Bandersnatch
 library loaded in it as native code, and the target started and listened:
 
@@ -230,7 +239,7 @@ docker run --platform linux/amd64 -e JAM_FUZZ=1 -e JAM_FUZZ_SPEC=tiny -e JAM_FUZ
 
 The official fuzzer starts the image itself, with its own socket path, and connects.
 Its *lanes* (from replays of recorded sessions, through generated blocks with mutations,
-to changing validator sets) go further than any trace, and the rows of
+to changing validator sets) go further than any trace. The rows of
 [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) are where to look when a session ends with a wrong root.
 
 ## What passing proves
@@ -321,12 +330,12 @@ trie                       1 of 1  ✔
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=scoreboard-1791940234821
 ```
 
-1,406 of 1,428. Each of the 22 left has a name: ten blocks with preimages your client
-should refuse, the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md)'s to add, and twelve erasure-coding vectors,
+1,406 of 1,428. Each of the 22 left has a name. Ten are blocks with preimages your client
+should refuse, the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md)'s to add. Twelve are erasure-coding vectors,
 the code validators use to share a work-package's data, which a block importer never
 needs. Every other question the official vectors ask, your client answers as they do,
 whole. The *8 · Official vectors* dashboard in Grafana has the climb, run by run, from the
-4 of [lesson 2.6](../02-codec/06-the-first-test-vectors.md) to here, and its *Each family (last run)* panel has the finished board:
+4 of [lesson 2.6](../02-codec/06-the-first-test-vectors.md) to here. Its *Each family (last run)* panel has the finished board:
 
 ![The Each family panel: every family passing all its vectors but stf/preimages, 6 of 16, and erasure, not run yet](./images/04-each-family-last-run.png)
 

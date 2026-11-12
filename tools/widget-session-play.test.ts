@@ -42,8 +42,10 @@ test("every root and hash is the fuzzy trace's", { skip: !existsSync(join(ROOT, 
   }
 });
 
-test("lesson 20.3 places the widget once, after the fuzzer's steps", () => {
+test("lesson 20.3 places the widget once, at the top, and the fuzzer's steps send the reader back to it", () => {
   const at = raw.indexOf("<SessionPlay />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<SessionPlay />"));
-  assert.ok(at > raw.indexOf("**On the first wrong answer**") && at < raw.indexOf("## The code"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("**On the first wrong answer**"));
+  assert.ok(back > 0 && back < raw.indexOf("## The code"));
 });

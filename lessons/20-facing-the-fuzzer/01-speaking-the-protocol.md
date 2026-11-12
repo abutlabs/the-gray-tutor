@@ -1,23 +1,34 @@
 # Speaking the protocol
 
-Your client imports blocks. The official conformance fuzzer is how we check
-that: it makes blocks of its own, some of them broken on purpose, sends them to your client
-one at a time, and compares every state root with its own. It doesn't run your tests or
-read your code. It talks to your client over a socket, in a small protocol of its own, and
-that's what this part builds. First the messages: by the end of this lesson your client
-reads and writes every one of them, byte for byte as the protocol's examples have them.
+**In one sentence:** the conformance fuzzer tests a client from the outside, by sending it
+blocks over a socket in seven kinds of message, and here your client learns to read and
+write them.
 
-## New words
+Here is the fuzzer's first message, the protocol's own example. Tap through its bytes,
+and change it.
 
-- **Conformance fuzzer.** The testing program: it makes blocks, often mutated
-  into bad ones, has a client import them, and compares the state roots. *Example:* the
-  fuzzer sends a block, your client answers with a root, and the fuzzer checks it.
-- **Unix socket.** A connection between two programs on the same computer, through a file
-  path, read and written like a network connection. *Example:* `/tmp/jam_target.sock`.
-- **Frame.** One message on a stream of bytes: its length first, so the reader knows where
-  it ends. *Example:* `21 00 00 00` (33, as a u32), then 33 bytes.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<PeerInfo />
+
+## The idea
+
+Your client imports blocks. How would anyone else check that it does it right?
+
+Not by running your tests or reading your code. The official
+[*conformance fuzzer*](../glossary.md#conformance-fuzzer) works from the outside, like
+an examiner who only sees your answers. It makes blocks of its own, some of them broken
+on purpose, sends them to your client one at a time, and compares every state root with
+its own.
+
+The two programs talk over a [*Unix socket*](../glossary.md#unix-socket): a connection
+between two programs on the same computer, through a file path. A socket hands over
+bytes in pieces of any size. So each message travels as a
+[*frame*](../glossary.md#frame): its length first, so the reader knows where it ends.
+
+This part builds your client's end of that conversation. First the messages. By the end
+of this lesson your client reads and writes every one of them, byte for byte as the
+protocol's examples have them.
 
 ## What the protocol says
 
@@ -33,13 +44,14 @@ the Gray Paper, which leaves testing to others. In plain steps:
 3. **Frames.** Every message goes on the socket as its length, four bytes, little end
    first, then the message.
 
-The codec is the one you've had since [Part 2](../02-codec/index.md): the header, the block and the state's entries
-are [Part 4](../04-blocks/index.md)'s and [Part 6](../06-state-and-merklization/index.md)'s. Only the envelope is new.
+The codec is the one you've had since [Part 2](../02-codec/index.md). The header, the
+block and the state's entries are [Part 4](../04-blocks/index.md)'s and
+[Part 6](../06-state-and-merklization/index.md)'s. Only the envelope is new.
 
-The tests check the README's own three examples byte for byte, and check Initialize and
+The tests check the README's own three examples byte for byte. They check Initialize and
 ImportBlock by making them from the 0.8.0 traces and reading them back. The protocol also
-has whole recorded sessions, one folder for each Gray Paper version: [lesson
-20.3](./03-a-session.md) plays the 0.8.0 ones.
+has whole recorded sessions, one folder for each Gray Paper version.
+[Lesson 20.3](./03-a-session.md) plays the 0.8.0 ones.
 
 ## The tests
 
@@ -123,9 +135,7 @@ The README's PeerInfo example, byte by byte:
 06 66 75 7a 7a 65 72    app_name: its length, 6, then "fuzzer" in UTF-8
 ```
 
-Tap through it, and change it:
-
-<PeerInfo />
+These are the bytes of [the message at the top](#try-it).
 
 The third test feeds two frames to `readFrames` three bytes at a time, the way a slow
 socket might deliver them: a message must come out whole however its bytes arrive.
@@ -358,7 +368,8 @@ read: most of its entries are a bug the fuzzer found that no test vector had.
 ## What you have
 
 The fuzzer's language: every message, read and written, and frames on a stream. Next, a
-client that listens, keeps the states it makes, and answers: [lesson 20.2](./02-a-target.md).
+client that listens, keeps the states it makes, and answers:
+[lesson 20.2](./02-a-target.md).
 
 **Say it out loud.** The fuzzer and a client talk over a socket in seven messages, each with its length in front. It knows nothing of the client's code.
 

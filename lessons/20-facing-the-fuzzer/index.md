@@ -1,8 +1,11 @@
 # Part 20 · Facing the fuzzer
 
-JAM clients are checked against the conformance fuzzer, and this is the last part: by the
-end of it your client speaks the fuzzer's protocol, keeps its states, and starts the way
-the official fuzzer starts its targets.
+**In one sentence:** JAM clients are checked against the conformance fuzzer, a program
+that sends them blocks nobody wrote a test for, and this part gets your client ready to
+face it.
+
+This is the last part. By the end of it your client speaks the fuzzer's protocol, keeps
+its states, and starts the way the official fuzzer starts its targets.
 
 ## The big picture
 
@@ -16,7 +19,7 @@ papers. The fuzzer is an examiner who writes new questions as you sit there.
 | The fuzzer | generated from a seed, then broken on purpose | what nobody wrote a test for |
 
 It's black-box: it knows nothing of your code or your language. It also plays only the
-chain's side: it is a block author and your client is a validator importing its blocks.
+chain's side. It is a block author, and your client is a validator importing its blocks.
 Nothing in-core is tested here, because a block importer never runs it. For each block it
 makes:
 
@@ -24,7 +27,7 @@ makes:
 2. It sends the block to your client, over a socket.
 3. It compares your client's root with its own.
 
-Same root, and it goes on to the next block. A wrong root ends the session: it asks for
+Same root, and it goes on to the next block. A wrong root ends the session. It asks for
 your client's whole state, and writes a report with the seed, so anyone can replay the
 failure exactly.
 

@@ -1,16 +1,29 @@
 # A session
 
-The fuzzer's protocol is simple, and the traces hold everything a fuzzer needs: a genesis
-state, blocks, and the root after each. So this lesson writes a small fuzzer of your own,
-plays a whole trace through your target over a real Unix socket, and checks every answer.
-Then it plays something your client has never seen, and that's where it gets interesting.
+**In one sentence:** a session is one connection between a fuzzer and a target, from
+handshake to goodbye, and here a small fuzzer of your own plays a whole trace through
+your target and checks every answer.
 
-## New words
+Here is the session around the fuzzy trace's three refused blocks. Step through it.
 
-- **Session.** One connection between the fuzzer and a target, from handshake to goodbye:
-  one Initialize, then as many blocks as the fuzzer sends. *Example:* a trace's 100 blocks.
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md).
+<SessionPlay />
+
+## The idea
+
+Your target needs a fuzzer to talk to. Do you need the official one to begin?
+
+No. The fuzzer's protocol is simple, and the traces hold everything a fuzzer needs: a
+genesis state, blocks, and the root after each.
+
+A [*session*](../glossary.md#session) is one connection, from handshake to goodbye: one
+Initialize, then as many blocks as the fuzzer sends. It runs like a dictation. One side
+reads a line, the other writes it down, and the first checks it before reading the next.
+
+So this lesson writes a small fuzzer of your own, plays a whole trace through your
+target over a real Unix socket, and checks every answer. Then it plays something your
+client has never seen, and that's where it gets interesting.
 
 ## What a fuzzer does
 
@@ -24,9 +37,7 @@ The protocol's *Workflow*, as your fuzzer does it:
 4. **On the first wrong answer**, GetState for that block, as the official fuzzer does, to
    see the target's state there, and stop.
 
-The session around the fuzzy trace's three refused blocks:
-
-<SessionPlay />
+Those are the steps of [the session at the top](#try-it).
 
 ## The code
 
@@ -154,8 +165,8 @@ const target = given ? undefined : start();
 ```
 
 Unless given a socket, the fuzzer starts a target of its own, `bin/target.ts` on a socket
-in your computer's temporary folder, and stops it at the end: one command for a whole
-session. Given a socket, it talks to a target you've started yourself, in another
+in your computer's temporary folder, and stops it at the end. One command for a whole
+session. Given a socket, it talks to a target you've started yourself: in another
 terminal, say, where you can watch what the target logs.
 
 ```ts
@@ -168,8 +179,8 @@ may not be listening yet.
 
 ## Run a session
 
-**What flows through it.** The trace replayed as
-`fuzz-proto` messages going down the socket, what the fuzzer tracks, the lines it prints:
+**What flows through it.** The trace replayed as `fuzz-proto` messages going down the
+socket, what the fuzzer tracks, the lines it prints:
 
 ::: code-group
 
@@ -215,7 +226,7 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 
 A hundred blocks, each answered as the trace has it: the three bad ones with an Error, the
 rest with the right root. The *Fuzz session* panel, on **7 · Accumulation and import**, has
-every block; the *Target* panel, the target's side.
+every block. The *Target* panel has the target's side.
 
 ![Fuzz session panel](./images/03-fuzz-session.png)
 
@@ -237,7 +248,7 @@ to the finished client when we played them through it:
 After a wrong root the session is over: every later block builds on a state your client
 doesn't have. A few tallies wrong in one component of sixteen, and the root gives it away.
 
-Neither is a mystery: both are rows of
+Neither is a mystery. Both are rows of
 [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md), which
 this tutorial leaves for after the base rules. But no vector and no trace showed either.
 That's what a fuzzer is for.
@@ -315,8 +326,8 @@ once you install `minifuzz`.
 
 A target that has been through a fuzzer's session, over a real socket, on the hardest
 trace: a handshake, genesis, a hundred blocks, three refused. One thing is left before the
-official fuzzer can meet it: packaging it the way the fuzzer starts targets, [lesson
-20.4](./04-ready-to-be-fuzzed.md).
+official fuzzer can meet it: packaging it the way the fuzzer starts targets.
+[Lesson 20.4](./04-ready-to-be-fuzzed.md) does that.
 
 **Say it out loud.** A session is one connection: a handshake, a genesis, then blocks. A wrong root ends it, and a fuzzer finds what vectors and traces can't.
 

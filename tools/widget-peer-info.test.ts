@@ -29,8 +29,10 @@ test("the README's examples: the PeerInfo byte for byte, and the StateRoot's fra
   assert.equal(peerParcel(2, "the-gray-tutor").bytes.at(-15), 14, "a 14-byte name: its length first");
 });
 
-test("lesson 20.1 places the widget once, after the bytes by hand", () => {
+test("lesson 20.1 places the widget once, at the top, and the bytes by hand send the reader back to it", () => {
   const at = raw.indexOf("<PeerInfo />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<PeerInfo />"));
-  assert.ok(at > raw.indexOf("app_name: its length, 6, then \"fuzzer\" in UTF-8") && at < raw.indexOf("The third test feeds two frames"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("app_name: its length, 6, then \"fuzzer\" in UTF-8"));
+  assert.ok(back > 0 && back < raw.indexOf("The third test feeds two frames"));
 });
