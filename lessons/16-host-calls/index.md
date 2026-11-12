@@ -1,15 +1,17 @@
 # Part 16 · Host calls
 
-A service is a program in a sealed box. It can compute all it likes, but it can't see the
-chain. By the end of this part your client answers the host calls of a service
-accumulating, and 13 services in 12 official vectors match, down to the last unit of gas.
+**In one sentence:** a service is a program in a sealed box that can compute all it likes
+but can't see the chain, and a host call is how it asks your client for what is outside.
+
+By the end of this part your client answers the host calls of a service accumulating, and
+13 services in 12 official vectors match, down to the last unit of gas.
 
 ## The big picture
 
 A host call is to a service what a system call is to an ordinary program: the only way out
-of the box. The program asks with `ecalli`, the machine stops, your client does the work,
-answers in a register, and the program carries on. Every validator answers the same way,
-and every call has a price.
+of the box. The program asks with `ecalli`. The machine stops, your client does the work
+and answers in a register, and the program carries on. Every validator answers the same
+way, and every call has a price.
 
 A real service's conversation, the one you'll have by [lesson
 16.3](./03-growing-the-heap.md): what are the chain's rules? (`fetch`) How much memory have
@@ -33,12 +35,15 @@ This part takes about 50 minutes. [16.1](./01-calling-the-host.md) and
 [16.6](./06-checkpoints.md) matter most: every other lesson is one more call on the same
 pattern.
 
-Where it runs: the host is whoever runs the machine. For accumulate that is every
-validator, your client included, so each call here reads and writes the chain's own state,
-and every validator must get the same answer. For refine and Is-Authorized the host is one
-of the core's three guarantors, in-core, and those calls can only read: the refine-only
-row above is the whole difference, and it is why a block importer never answers it. What
-a service can touch through these calls, its account, is drawn on [Part
+Where it runs: the host is whoever runs the machine.
+
+- **For accumulate** that is every validator, your client included. Each call here reads
+  and writes the chain's own state, and every validator must get the same answer.
+- **For refine and Is-Authorized** the host is one of the core's three guarantors,
+  in-core, and those calls can only read. The refine-only row above is the whole
+  difference, and it is why a block importer never answers it.
+
+What a service can touch through these calls, its account, is drawn on [Part
 14](../14-services/index.md)'s page.
 
 The paper's Appendix B, where all of this is written down, opens with those three runs:
@@ -51,15 +56,18 @@ The paper's Appendix B, where all of this is written down, opens with those thre
 
 :::
 
-In plain words: there are three moments when the protocol runs code in the PVM, and the
-paper calls each an invocation, Ψ with a letter. Ψ_I runs an authorizer, Ψ_R refines a
-work-item, Ψ_A accumulates a service. Each hands the machine only small arguments (a
-core's index, a slot, a service id; refine also the item's payload), never everything it
-might need: a big argument means a big memory to set up before the program has paid any
-gas. Anything else, the program asks for with `fetch`, a piece at a time, paying as it
-goes. The paper admits this is clumsier, and keeps it because it is predictable. Each
-invocation also brings a host of its own: the list of host calls it will answer. Only Ψ_A
-runs on your client.
+There are three moments when the protocol runs code in the PVM. The paper calls each an
+invocation, Ψ with a letter: Ψ_I runs an authorizer, Ψ_R refines a work-item, Ψ_A
+accumulates a service.
+
+Each hands the machine only small arguments (a core's index, a slot, a service id; refine
+also the item's payload), never everything it might need. A big argument means a big
+memory to set up before the program has paid any gas. Anything else, the program asks for
+with `fetch`, a piece at a time, paying as it goes. The paper admits this is clumsier, and
+keeps it because it is predictable.
+
+Each invocation also brings a host of its own: the list of host calls it will answer.
+Only Ψ_A runs on your client.
 
 The first and smallest is the gatekeeper of [Part 13](../13-authorization/index.md) at
 work. An authorizer is PVM code plus a configuration blob, and Ψ_I is how a core's
@@ -140,20 +148,22 @@ $$
 
 :::
 
-In plain words: the guarantors take the authorizer's code, **u**, which the package names
-and some service keeps as a preimage. No such code, and the answer is BAD; code over
+The guarantors take the authorizer's code, **u**, which the package names and some
+service keeps as a preimage. No such code, and the answer is BAD; code over
 W_A = 64,000 bytes, BIG. Otherwise they run it from instruction 0, with G_I = 50,000,000
 gas and one argument, the core's index in two bytes. Its host knows only three calls,
 `gas`, `grow_heap` and `fetch` (which hands out the package and the chain's constants),
 and says WHAT to every other for 1,000 gas. What the code returns is the trace, **r**,
-and u the gas it used. Your client never runs this. It sees only what the guarantors
-write in the report: the authorizer's hash, the trace and the gas
-([lesson 3.3](../03-work-and-reports/03-a-work-report.md)), and it checks that hash is in
+and u the gas it used.
+
+Your client never runs this. It sees only what the guarantors write in the report: the
+authorizer's hash, the trace and the gas
+([lesson 3.3](../03-work-and-reports/03-a-work-report.md)). And it checks that hash is in
 the core's pool ([13.1](../13-authorization/01-the-authorizer-pools.md)).
 
-Refine, Ψ_R, also runs in-core, and your client never runs it either; the paper's B.3 and
+Refine, Ψ_R, also runs in-core, and your client never runs it either. The paper's B.3 and
 B.6, the refine invocation and its eight extra host calls, are in [16.A](./gray-paper.md)
-with the rest of the part's formulas, each in plain words.
+with the rest of the part's formulas, each one explained.
 
 **Builds on** [Part 3 · Work and reports](../03-work-and-reports/index.md), [Part 4 ·
 Blocks](../04-blocks/index.md), [Part 5 · Hashing and
