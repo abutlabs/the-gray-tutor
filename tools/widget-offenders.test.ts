@@ -33,13 +33,14 @@ test("the evidence signs the lesson's messages: jam_guarantee ⌢ r, or the vote
 test("the mark keeps the block's order, ψ_O a sorted set; the bad-signatures vector forges the second culprit", () => {
   assert.match(code, /return \[\.\.\.disputes\.culprits\.map\(\(c\) => c\.key\), \.\.\.disputes\.faults\.map\(\(f\) => f\.key\)\];/);
   assert.deepEqual(recordOffenders([], OFFENDERS), ["0x4418fb8c…", "0xad93247b…", "0xcab2b9ff…"]);
-  assert.match(raw.replace(/\s+/g, " "), /`0x4418…`, `0xad93…`, `0xcab2…`, sorted(?: >)? No: that's how ψ_O keeps them/);
+  assert.match(raw.replace(/\s+/g, " "), /ψ_O keeps them as `0x4418…`, `0xad93…`, `0xcab2…`, sorted/);
   assert.match(code, /const signed: boolean\[\] = culprits\.map\(culpritSigned\);\s*assert\.deepEqual\(signed, \[true, false\]\);/);
   assert.deepEqual(FORGED_SECOND_CULPRIT, [true, false]);
 });
 
-test("lesson 10.2 places the widget once, in What the Gray Paper says after the four rules", () => {
+test("lesson 10.2 places the widget once, at the top, before The idea; the four rules follow it", () => {
   const at = raw.indexOf("<Offenders />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<Offenders />"), "placed once");
-  assert.ok(at > raw.indexOf("in the order the block gives them.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.ok(raw.indexOf("in the order the block gives them.") > at && raw.indexOf("in the order the block gives them.") < raw.indexOf("## The tests"));
 });

@@ -1,15 +1,38 @@
 # Culprits and faults
 
-A verdict says what's true. Now the consequences: anyone who put their name to a
-falsehood is named in the block as an **offender**, with their own signature as the
-evidence. Two kinds of offender, two kinds of evidence:
+**In one sentence:** a validator who guaranteed a bad report, or voted against a verdict,
+is named in the block as an offender, and the evidence is their own signature.
 
-- a **culprit** guaranteed a report that turned out *bad*. Exhibit A: their guarantee.
-- a **fault** voted against the verdict: "valid" on a bad report, or "invalid" on a good
-  one. Exhibit A: their vote.
+Here is one real block's trial: two reports, three offenders. Look at the message each
+offender's evidence signs, and where its key ends up.
 
-Offenders are remembered forever in ψ_O, and [lesson 8.2](../08-safrole/02-rotating-the-validators.md)'s Φ keeps them out of the next
-validator set. This lesson checks the evidence and keeps the record.
+<a id="try-it"></a>
+
+<Offenders />
+
+## The idea
+
+A verdict says what's true. Somebody vouched for a report that turned out bad. Somebody
+voted the wrong way. What happens to them?
+
+They are named, in the block, and nobody's word has to be taken for it. The evidence
+against each one is a signature they made themselves. Only their key could have made it,
+so it convicts its own signer.
+
+Anyone named this way is an [*offender*](../glossary.md#offender). There are two kinds,
+with two kinds of evidence:
+
+- A [*culprit*](../glossary.md#culprit) guaranteed a report that turned out *bad*.
+  Exhibit A: their guarantee.
+- A [*fault*](../glossary.md#fault) voted against the verdict: "valid" on a bad report, or
+  "invalid" on a good one. Exhibit A: their vote.
+
+Offenders are remembered forever in the state, and
+[lesson 8.2](../08-safrole/02-rotating-the-validators.md) keeps them out of the next
+validator set. The block's header announces them too, in its
+[*offenders mark*](../glossary.md#offenders-mark).
+
+This lesson checks the evidence and keeps the record.
 
 ## What the Gray Paper says
 
@@ -51,9 +74,9 @@ $$
 
 :::
 
-In plain words, with the rest of §10.2 that this lesson uses (the paper's culprit and
-fault rules are (10.6) and (10.7), quoted whole in [lesson 10.5](./05-bad-culprits-and-faults.md#what-the-gray-paper-says),
-and ψ′_O is (10.18), in [lesson 10.1](./01-votes-and-verdicts.md#eq-10-18)):
+The rest of §10.2 that this lesson uses is quoted elsewhere. The culprit and fault rules
+are (10.6) and (10.7), quoted whole in [lesson 10.5](./05-bad-culprits-and-faults.md#what-the-gray-paper-says),
+and ψ′_O is (10.18), in [lesson 10.1](./01-votes-and-verdicts.md#eq-10-18). Together:
 
 - A **culprit** (r, k, s) is valid if s is k's Ed25519 signature on `$jam_guarantee` ⌢ r,
   the very message a guarantor signs when vouching for report r. (The `$` is notation;
@@ -61,14 +84,17 @@ and ψ′_O is (10.18), in [lesson 10.1](./01-votes-and-verdicts.md#eq-10-18)):
 - A **fault** (r, v, k, s) is valid if s is k's signature on the vote v about r:
   `$jam_valid` or `$jam_invalid`, then r, exactly like [lesson 10.1](./01-votes-and-verdicts.md)'s votes.
 - **ψ′_O**, the offenders, gains every culprit's and every fault's key.
+  [Lesson 8.2](../08-safrole/02-rotating-the-validators.md)'s Φ reads it.
 - **The offenders mark** ([lesson 4.6](../04-blocks/06-the-header.md)'s `offenders_mark`) lists the same keys: the
   culprits' first, then the faults', in the order the block gives them.
 
-<Offenders />
+The mark and ψ_O hold the same keys in different orders. [The block at the top](#try-it)
+has culprits `0xad93…` and `0xcab2…` and fault `0x4418…`. The mark lists them so. ψ_O is a
+set, so ψ_O keeps them as `0x4418…`, `0xad93…`, `0xcab2…`, sorted.
 
-More rules say *which* offenders may appear: a culprit's report must really be bad, a
-fault's vote must really contradict the verdict, an offender must be a current or previous
-validator and not already punished. [Lesson 10.5](./05-bad-culprits-and-faults.md) adds that fine print; for now,
+More rules say *which* offenders may appear. A culprit's report must really be bad. A
+fault's vote must really contradict the verdict. An offender must be a current or previous
+validator, and not already punished. [Lesson 10.5](./05-bad-culprits-and-faults.md) adds that fine print. For now,
 check the evidence and keep the record.
 
 ## The tests
@@ -251,8 +277,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The same vector [lesson 10.1](./01-votes-and-verdicts.md)'s program read, but this
-program reads the *other* two parts of `input.disputes` — the accusations:
+**What flows through it.** The same vector [lesson 10.1](./01-votes-and-verdicts.md)'s program read. This
+program reads the *other* two parts of `input.disputes`, the accusations:
 
 ::: code-group
 
@@ -288,7 +314,7 @@ offenders mark: 0xad93247b…, 0xcab2b9ff…, 0x4418fb8c…
 :::
 
 Each accusation names its `target`, the disputed report, and the accused validator by
-Ed25519 `key`. A culprit's `signature` is the guarantee they signed over that report; a
+Ed25519 `key`. A culprit's `signature` is the guarantee they signed over that report. A
 fault adds `vote`, the way they had voted, and its `signature` is that vote. The program
 checks every signature and prints the mark: the keys of everyone proven an offender.
 
@@ -346,18 +372,16 @@ size between epochs. That's why your `outcome` takes the judges' count.
 ## Check your understanding
 
 ::: check
-**In `progress_with_verdicts-4`, report `0x7b0a…` is judged bad. Who becomes a culprit?**
+**A report is judged bad. Who becomes a culprit?**
 
 - [ ] Every judge who voted invalid on it
   > No: they voted with the verdict. Nobody is punished for being right.
 - [ ] Every judge who voted valid on it
-  > No: a "valid" vote on a bad report makes a fault, not a culprit. And this verdict
-  > had 0 valid votes.
-- [x] The validators who guaranteed it, caught by their own guarantee signatures
-  > Yes: two culprits, `0xad93…` and `0xcab2…`. Their evidence is the guarantee they
-  > signed.
+  > No: a "valid" vote on a bad report makes a fault, not a culprit.
+- [x] The validators who guaranteed it
+  > Yes: they vouched for it, and the guarantee they signed is the evidence.
 
-**In the same block, validator `0x4418…` voted invalid on report `0x11da…`, which is judged good. What is it?**
+**A validator voted "invalid" on a report that is then judged good. What is it?**
 
 - [ ] A culprit
   > No: a culprit guaranteed a bad report. This validator cast a vote on a good one.
@@ -366,25 +390,38 @@ size between epochs. That's why your `outcome` takes the judges' count.
 - [ ] Nothing: a judge may vote as it likes
   > No: a vote against the verdict is a fault, and the block names it.
 
+**Why is the evidence against an offender their own signature?**
+
+- [x] Only their key could have made it, so nobody's word has to be taken
+  > Yes: every validator checks it, on the chain, against the accused's Ed25519 key.
+- [ ] The verdict already names the offenders, so the signature is a formality
+  > No: a verdict names a report and carries votes on it. It doesn't say who guaranteed
+  > the report. Each offender is convicted by evidence of its own.
+- [ ] It shows who made the accusation
+  > No: an accusation holds the report's hash, the accused's key and the accused's
+  > signature. The accuser isn't in it.
+
 **Why is a culprit's evidence checked against `jam_guarantee` ⌢ the report's hash?**
 
+- [ ] It's the message of an "invalid" vote
+  > No: that's `jam_invalid` ⌢ the hash, a fault's evidence.
 - [x] It's the very message a guarantor signs when vouching for a report
   > Yes: only that validator's key could have signed it, so the guarantee convicts its
   > own signer.
-- [ ] It's the message of an "invalid" vote
-  > No: that's `jam_invalid` ⌢ the hash, a fault's evidence.
 - [ ] Any signature by the key will do: the prefix is decoration
   > No: in `progress_with_bad_signatures-2`, the second culprit's signature fails on
   > that message, and the forgery is caught.
 
-**In `progress_with_verdicts-4`, the offenders are culprits `0xad93…` and `0xcab2…` and fault `0x4418…`. In what order does the offenders mark list them?**
+**Where do an offender's keys go?**
 
-- [ ] `0x4418…`, `0xad93…`, `0xcab2…`, sorted
-  > No: that's how ψ_O keeps them, as a set. The mark keeps the block's order.
-- [x] `0xad93…`, `0xcab2…`, `0x4418…`: the culprits first, then the faults
-  > Yes: H_O is the culprits' keys in the block's order, then the faults'.
-- [ ] `0x4418…` first, since the votes came before the offenses
-  > No: faults come after culprits in the mark, whatever happened first.
+- [ ] Into the header's offenders mark only: the header is the record
+  > No: the mark announces them in this block. ψ_O is what remembers them.
+- [ ] Nowhere: a block that accuses a validator is refused
+  > No: a block whose accusations come with real evidence is accepted, and its offenders
+  > are recorded.
+- [x] Into the header's offenders mark, in the block's order, and into ψ_O, for good
+  > Yes: the same keys twice. The mark lists the culprits' and then the faults'. ψ_O is
+  > a sorted set, and it keeps them out of the next validator set.
 :::
 
 ## What you have

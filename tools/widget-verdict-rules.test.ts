@@ -43,8 +43,10 @@ test("the check questions: 1 of 5 valid is bad_vote_split; κ of 1,023 needs 683
   assert.equal(EPOCH, 0);
 });
 
-test("lesson 10.4 places the widget once, in The code after the seven lines paragraph", () => {
+test("lesson 10.4 places the widget once, at the top, before The idea; The code keeps the seven lines paragraph", () => {
   const at = raw.indexOf("<VerdictRules />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<VerdictRules />"), "placed once");
-  assert.ok(at > raw.indexOf("names the same one as the vector, for every disputes vector.") && at < raw.indexOf("> [!NOTE]", raw.indexOf("## The code")));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const lines = raw.indexOf("names the same one as the vector, for every disputes vector.");
+  assert.ok(lines > raw.indexOf("## The code") && lines < raw.indexOf("> [!NOTE]", raw.indexOf("## The code")));
 });

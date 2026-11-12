@@ -1,13 +1,34 @@
 # Bad verdicts
 
-Your court from lessons [10.1](./01-votes-and-verdicts.md) to [10.3](./03-clearing-the-cores.md) believes every verdict it's handed. A real block can
-carry a broken one: the wrong number of votes, votes out of order, a judge who never
-signed, a report judged long ago. Any of them sinks the whole block. This lesson writes
-down the rules and checks them against every disputes vector; [lesson 10.5](./05-bad-culprits-and-faults.md) does the
-same for culprits and faults.
+**In one sentence:** a verdict that breaks any one of seven rules, such as the wrong
+number of votes or a judge who never signed, sinks the whole block that carries it.
 
-The rules lean on three words from [lesson 10.1](./01-votes-and-verdicts.md): *judges*, *verdict age* and *vote
-split*. All three are in the [glossary](../glossary.md) too.
+Two verdicts on tiny, and every rule holds. Break one thing, and read the name of the
+error the block is refused with.
+
+<a id="try-it"></a>
+
+<VerdictRules />
+
+## The idea
+
+Your court from lessons [10.1](./01-votes-and-verdicts.md) to [10.3](./03-clearing-the-cores.md) believes every verdict it's handed. Should
+it?
+
+No. A verdict is a proof, and a proof has to be checked. A real block can carry a broken
+one: the wrong number of votes, votes out of order, a judge who never signed, a report
+judged long ago.
+
+So your client goes down a list, like a clerk with a form. Is it in order? Is it new? Is
+it recent? Has it the right number of votes? Are they in order? Are they signed? Does the
+count mean anything? One "no" sinks the whole block, not only the verdict.
+
+The rules lean on three words from [lesson 10.1](./01-votes-and-verdicts.md):
+[*judges*](../glossary.md#judges), [*verdict age*](../glossary.md#verdict-age) and
+[*vote split*](../glossary.md#vote-split).
+
+This lesson writes down the seven rules and checks them against every disputes vector.
+[Lesson 10.5](./05-bad-culprits-and-faults.md) does the same for culprits and faults.
 
 ## What the Gray Paper says
 
@@ -78,11 +99,11 @@ $$
 
 :::
 
-Those are rules 1, 2 and 5 below; the other four are in the lines [lesson
+Those are rules 1, 2 and 5 below. The other four are in the lines [lesson
 10.1](./01-votes-and-verdicts.md#what-the-gray-paper-says) quoted: the age in (10.2), the
 count and the signatures in (10.4), the split in (10.12). (10.9), the order of culprits
-and faults, is [lesson 10.5](./05-bad-culprits-and-faults.md)'s. In plain words, every
-verdict in a block must keep seven rules:
+and faults, is [lesson 10.5](./05-bad-culprits-and-faults.md)'s. Every verdict in a block
+must keep seven rules:
 
 1. **In order.** Verdicts are sorted by report hash, with no report twice.
    (`verdicts_not_sorted_unique`)
@@ -104,6 +125,8 @@ Rule 7 changes [lesson 10.1](./01-votes-and-verdicts.md)'s `outcome`: it called 
 
 The Gray Paper's names: the judges are **K(a)**, κ if a = ⌊τ/E⌋ and λ otherwise; the
 count is **⌊⅔|K|⌋ + 1**; the three splits are **V**'s three cases.
+
+Break each rule in turn [at the top](#try-it).
 
 ## The tests
 
@@ -166,14 +189,19 @@ for (const { config, name } of VERDICT_VECTORS) {
 
 `BAD_VERDICTS` lists the vectors whose verdicts break a rule, and which rule. Every other
 disputes vector's verdicts must pass, including those the vector refuses for a culprit or
-a fault ([lesson 10.5](./05-bad-culprits-and-faults.md)'s business). The test runs every tiny vector, and only the two full
-ones that tiny can't have: a full verdict carries 683 signed votes, and checking every
-full vector takes about twenty seconds (more on a slower machine), on every `npm test`. Watch it, below,
-checks them all whenever you ask. One error name comes up in both lessons: in
+a fault ([lesson 10.5](./05-bad-culprits-and-faults.md)'s business). One error name comes up in both lessons: in
 `progress_with_bad_signatures-2` the bad signature is a culprit's, so its verdicts pass
-here. The full vectors have one case tiny can't have: in
+here.
+
+The test runs every tiny vector, and only the two full ones that tiny can't have. A full
+verdict carries 683 signed votes, and checking every full vector takes about twenty
+seconds (more on a slower machine), on every `npm test`. Watch it, below, checks them all
+whenever you ask.
+
+The full vectors have one case tiny can't have: in
 `progress_with_verdicts_from_resized_previous_set-2`, λ has 6 validators and κ has 1,023.
-Its verdict is aged this epoch, so its judges are κ, and 5 votes are far short of 683.
+Its verdict is aged this epoch, so its judges are κ. It carries 5 votes, right for λ's 6
+and far short of the ⌊2 · 1,023/3⌋ + 1 = 683 that κ needs.
 
 A stub that passes every verdict:
 
@@ -270,8 +298,6 @@ answer one question about one verdict: who its judges are, whether its votes are
 order, how many votes it needs, whether it's signed, whether its split means anything.
 The order matters when a block breaks two rules at once, because a vector names only one
 of them. This order names the same one as the vector, for every disputes vector.
-
-<VerdictRules />
 
 > [!NOTE]
 > **The simple road.** The test vectors' list of error names has one more for rule 6:
@@ -398,9 +424,10 @@ progress_with_verdicts-5: bad_vote_split (the vector: bad_vote_split)
 :::
 
 The first vector's verdict carries 4 votes where a verdict carries exactly 5: refused
-by count alone, before a single signature is read. The second carries 5 of which one
-says valid — a split [lesson 10.1](./01-votes-and-verdicts.md)'s table doesn't have. Each output line shows your
-rules' answer beside the vector's, so a disagreement reads instantly.
+by count alone, before a single signature is read. The second carries 5, of which one
+says valid. 1 is not 5, 0 or 2, so the split means nothing: it is one
+[lesson 10.1](./01-votes-and-verdicts.md)'s table doesn't have. Each output line shows
+your rules' answer beside the vector's, so a disagreement is plain to see.
 
 **Run**
 
@@ -484,23 +511,25 @@ name comes from reading the vectors' error list, not from a vector that proved i
 ## Check your understanding
 
 ::: check
-**In `progress_with_verdicts-5` on tiny, a verdict's 5 votes include 1 valid. What happens?**
+**One verdict in a block breaks one of the seven rules. What does your client refuse?**
 
-- [ ] The report is wonky: neither all nor none
-  > No: wonky is exactly ⌊6/3⌋ = 2 valid votes, not any count in between.
-- [x] The whole block is refused, `bad_vote_split`
-  > Yes: 1 is not 5, 0 or 2, so the split means nothing, and rule 7 sinks the block.
-- [ ] The report is bad: nearly everyone said invalid
-  > No: bad needs zero valid votes. One judge said valid.
+- [ ] That verdict only: the rest of the block goes through
+  > No: one broken verdict sinks the whole block.
+- [x] The whole block
+  > Yes: the block is invalid, and the error names the rule that was broken.
+- [ ] Nothing: the report is filed as wonky
+  > No: wonky is one exact split, a third of the judges saying valid. A broken verdict is
+  > no verdict at all.
 
-**On full, `progress_with_verdicts_from_resized_previous_set-2` has λ of 6 validators and κ of 1,023. Its verdict, aged this epoch, carries 5 votes. Why is it refused?**
+**A verdict's votes are neither all valid, nor none, nor a third of the judges. Why isn't its report wonky?**
 
-- [ ] It isn't: 5 votes is right for 6 validators
-  > No: it would be, if its judges were λ. Its age is this epoch, so they're κ.
-- [x] Its judges are κ, so it needs 683 votes, and 5 is far short: `bad_votes_count`
-  > Yes: ⌊2 · 1,023/3⌋ + 1 = 683. The count is against the judges the age picks.
-- [ ] Its age is too old: `bad_judgement_age`
-  > No: this epoch is always a fine age. It's the count that's wrong.
+- [ ] It is: every split between all and none is wonky
+  > No: that was [lesson 10.1](./01-votes-and-verdicts.md)'s simple `outcome`. Rule 7 refuses every split but the
+  > three.
+- [ ] It isn't wonky, it's bad: most of the votes say invalid
+  > No: bad needs zero valid votes. A majority against isn't enough.
+- [x] Wonky is itself one exact split. Any other count means nothing, and the block is refused
+  > Yes: `bad_vote_split`. On tiny, only 5, 0 or 2 valid votes mean anything.
 
 **A block in epoch 3 carries a verdict of age 1. What happens?**
 
@@ -520,6 +549,17 @@ name comes from reading the vectors' error list, not from a vector that proved i
   > No: agreeing or not, the report was judged before. That alone refuses it.
 - [x] The block is refused, `already_judged`
   > Yes: rule 2. A report in the good, bad or wonky set can't be judged again.
+
+**A block breaks two of the rules at once. Why does the order of your checks matter?**
+
+- [ ] It doesn't: the block is refused either way
+  > No: refused, yes, but under which name? Your client's answer is compared with the
+  > vector's.
+- [x] A vector names only one error, and your client has to name the same one
+  > Yes: checked in this lesson's order, your rules name the vector's error for every
+  > disputes vector.
+- [ ] The cheapest check should come first, to refuse the block sooner
+  > No: the order here isn't about cost. It decides which rule gets named.
 :::
 
 ## What you have

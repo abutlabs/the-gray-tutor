@@ -1,10 +1,36 @@
 # Clearing the cores
 
-A trial has one more consequence, and it's the most practical one. Remember the cores
-from [Part 3](../03-work-and-reports/index.md). Each one can hold a single guaranteed work-report (ρ, in [lesson
-6.2](../06-state-and-merklization/02-state-keys.md)'s table) while the validators make sure its data is available. If that report has just been judged bad, or wonky, it has no
-business sitting there. Out it goes, freeing the core for honest work. This lesson
-finishes what an honest block's disputes do to the state.
+**In one sentence:** a report judged bad or wonky is taken off its core, before anything
+else in the block touches the cores.
+
+Two cores, two reports on trial. Judge each one, and see which core is emptied.
+
+<a id="try-it"></a>
+
+<ClearCores />
+
+## The idea
+
+A core holds one guaranteed work-report at a time, while the validators make sure its
+data is available. Now a verdict says that report is bad, or wonky. Should it go on
+waiting there?
+
+No. It has no business sitting there. Out it goes, and the core is free for honest work.
+A report judged good stays where it is.
+
+Think of a core as a parking space that holds one report, and of the block as three
+stations the space passes through, in a fixed order:
+
+1. **The court.** A condemned report is towed.
+2. **The assurances.** A report that finished waiting, or gave up, moves on.
+3. **The guarantees.** A new report parks, if the space is free.
+
+The court goes first, so that a condemned report gets no further.
+
+One snag. A verdict names its report by a hash, and a core holds a whole report. So your
+client hashes each waiting report and compares.
+
+This lesson builds that. It finishes what an honest block's disputes do to the state.
 
 ## What the Gray Paper says
 
@@ -52,21 +78,20 @@ $$
 
 :::
 
-In plain words: §11 defines **ρ** (C(10), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)): for each core, either nothing or a *pending
-report*: the guarantee that put it there ([lesson 4.3](../04-blocks/03-guarantees.md), report, slot and signatures) and
-the slot it arrived in.
+§11 defines **ρ** (C(10), [lesson 6.2](../06-state-and-merklization/02-state-keys.md)): for each core, either nothing or a *pending
+report*. A pending report is the guarantee that put it there ([lesson 4.3](../04-blocks/03-guarantees.md), report, slot and signatures) and
+the slot it arrived in. The cores are [Part 3](../03-work-and-reports/index.md)'s.
 
-§10 then clears it, in (10.14): ρ†, ρ after the judgments, is ρ with every core emptied
+§10 then clears it, in (10.14). ρ† is ρ after the judgments: ρ with every core emptied
 whose report was judged **bad or wonky** in this block, ⊥ or ∅ in 𝐯. Which report
 is it? The verdict names a report by its hash, H(ℰ(report)), the very same hash
 [lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md) put in the extrinsic hash. So: hash each pending report, and compare.
 
 A good verdict leaves its report where it is. The † is the Gray Paper's mark for a point
-partway through the block, here just after the judgments: the assurances ([Part 11](../11-assurances/index.md)) make
+partway through the block, here just after the judgments. The assurances ([Part 11](../11-assurances/index.md)) make
 ρ‡ from it, and the guarantees ([Part 12](../12-guarantees/index.md)) make ρ′, later in the same block.
 
-Why does this stage come first? Think of a core as a parking space that holds one report,
-and of the block as three stations the space passes through, in a fixed order:
+Why does this stage come first? Here are the three stations again, with the paper's names:
 
 ```text
                  core 1 holds report R, waiting
@@ -77,18 +102,17 @@ and of the block as three stations the space passes through, in a fixed order:
   ρ′    3  GUARANTEES         a new report S, space is free    [ S ]      S parks
 ```
 
-Each station works on what the one before left. The court goes first because a condemned
-report must not get any further: were the assurances first, a report judged bad in this
-very block could be called available and sent on to accumulation before the verdict took
-it away. The assurances come second because they empty the spaces that finished or gave up
-waiting. The guarantees come last because a new report can only park in a free space; a
-core that still holds a report refuses a second one ([lesson 12.4](../12-guarantees/04-bad-guarantees.md)'s
-`core_engaged`). So ρ† is made from ρ, ρ‡ from ρ†, and ρ′ from ρ‡, a chain, and the first
-link is this lesson.
+Each station works on what the one before left.
 
-Two cores, two reports on trial: judge them and see ρ†.
+- **The court goes first** because a condemned report must not get any further. Were the
+  assurances first, a report judged bad in this very block could be called available and sent on to accumulation before the verdict took it away.
+- **The assurances come second** because they empty the spaces that finished or gave up
+  waiting.
+- **The guarantees come last** because a new report can only park in a free space. A core
+  that still holds a report refuses a second one ([lesson 12.4](../12-guarantees/04-bad-guarantees.md)'s `core_engaged`).
 
-<ClearCores />
+So ρ† is made from ρ, ρ‡ from ρ†, and ρ′ from ρ‡: a chain, and the first link is this
+lesson. Judge the two reports [at the top](#try-it) and see ρ†.
 
 ## The cores
 
@@ -391,8 +415,8 @@ core 0: its report 0xf9076864… was judged bad
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=cores-1791731900567
 ```
 
-Both cores' reports were on trial in this block. Core 0's was judged bad, so it leaves;
-core 1's was judged good, so it stays. Run the `full` version of the same vector: 340 of
+Both cores' reports were on trial in this block. Core 0's was judged bad, so it leaves.
+Core 1's was judged good, so it stays. Run the `full` version of the same vector: 340 of
 341 cores keep their reports. The *Cores* panel, on the **4 · Checks** dashboard, shows
 which core was emptied, and why.
 
@@ -431,35 +455,35 @@ read more than one way, and checking that the readings agree.
 
 **A verdict names its report only by hash. How does your client find the core that holds it?**
 
-- [ ] The verdict carries the core's index
-  > No: a verdict is a report hash, an age and votes. No core.
 - [x] It hashes each pending report, H(ℰ(report)), and compares
   > Yes: the same hash [lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md) put in the extrinsic hash. A match empties that core.
+- [ ] The verdict carries the core's index
+  > No: a verdict is a report hash, an age and votes. No core.
 - [ ] It looks the hash up in ψ's bad set
   > No: ψ's sets hold report hashes, not cores. They say what was judged, not where it
   > sits.
 
-**In `progress_invalidates_avail_assignments-1` on tiny, core 0's report is judged bad and core 1's good. What do the cores hold after?**
+**What could go wrong if a block's assurances were applied before its disputes?**
 
-- [x] Core 0 nothing, core 1 its report
-  > Yes: "1 of 2 cores keep their reports". The bad one leaves, the good one stays.
-- [ ] Nothing on either: a trial clears the core whatever the outcome
-  > No: only bad and wonky clear it. A report judged good stays.
-- [ ] Both reports: clearing waits for the assurances
-  > No: the disputes clear the cores first, ρ†. The assurances then work from what's
+- [ ] A report judged good could lose its core
+  > No: a good verdict leaves its report where it is, in any order. The danger is a
+  > condemned report moving on.
+- [ ] Nothing: the order is a convention
+  > No: each stage works on what the one before left, so the order changes the result.
+- [x] A report judged bad in this very block could be called available and sent on to accumulation first
+  > Yes: so the disputes clear the cores first, ρ†. The assurances then work from what's
   > left.
 
-**In one block, in what order do the cores change?**
+**Why do the guarantees change the cores last?**
 
-- [ ] Guarantees, then assurances, then disputes
-  > No: the guarantees come last, so they can use the cores the other two have just
-  > freed.
-- [ ] Assurances, then disputes, then guarantees
-  > No: then a report judged bad in this block could still be made available first.
-- [x] Disputes (ρ†), then assurances (ρ‡), then guarantees (ρ′)
-  > Yes: condemned reports leave first, so they can't be called available; then available
-  > and timed-out ones leave; then new reports take the free cores. Each stage works on
-  > what the one before left.
+- [ ] A new report replaces whatever its core holds, so it must have the last word
+  > No: a core that still holds a report refuses a second one, `core_engaged`.
+- [x] A new report can only take a free core, and the two stages before are what free them
+  > Yes: condemned reports leave first, then available and timed-out ones. The new
+  > reports take the cores those left free.
+- [ ] Guarantees take the longest to check
+  > No: the order isn't about time. It is about what each stage needs from the one
+  > before.
 :::
 
 ## What you have

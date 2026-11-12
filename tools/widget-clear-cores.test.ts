@@ -46,16 +46,18 @@ test("the reports and verdicts are the vector's, and its ρ after, where vectors
   assert.deepEqual(clearJudged(judged).map((c) => c !== null), v.post_state.rho.map((r: unknown) => r !== null));
 });
 
-test("lesson 10.3 places the widget once, after ρ† is defined", () => {
+test("lesson 10.3 places the widget once, at the top, before The idea; ρ† is defined before The cores", () => {
   const at = raw.indexOf("<ClearCores />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ClearCores />"));
-  assert.ok(at > raw.indexOf("A good verdict leaves its report where it is.") && at < raw.indexOf("## The cores"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const defined = raw.indexOf("A good verdict leaves its report where it is.");
+  assert.ok(defined > raw.indexOf("## What the Gray Paper says") && defined < raw.indexOf("## The cores"));
 });
 
 test("lesson 10.3 shows why the cores change in this order: three stations, and the reasons", () => {
   const picture = /```text\n[\s\S]*?ρ†\s+1\s+DISPUTES[\s\S]*?ρ‡\s+2\s+ASSURANCES[\s\S]*?ρ′\s+3\s+GUARANTEES[\s\S]*?```/.exec(raw);
   assert.ok(picture, "the three stations, in the order ρ†, ρ‡, ρ′");
-  assert.ok(raw.indexOf("DISPUTES") < raw.indexOf("<ClearCores />"), "the picture comes before the widget");
+  assert.ok(raw.indexOf("DISPUTES") > raw.indexOf("## What the Gray Paper says") && raw.indexOf("DISPUTES") < raw.indexOf("## The cores"), "the picture is with the paper's rule, before the build");
   const prose = raw.replace(/\s+/g, " ");
   assert.match(prose, /could be called available and sent on to accumulation/, "why disputes first");
   assert.match(prose, /a new report can only park in a free space/, "why guarantees last");
