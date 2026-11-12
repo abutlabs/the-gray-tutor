@@ -1,10 +1,11 @@
 # Part 11 · Assurances
 
-A report on a core is a promise that some work is done. Before JAM acts on it, the data
-behind it has to be safely spread among the validators. Every block, validators report
-which cores' data they hold. This part counts those assurances, makes reports
-available, clears out the ones that waited too long, and refuses assurances that break
-the rules.
+**In one sentence:** before JAM acts on a report, the data behind it has to be spread
+among the validators, and this part counts their word that it is.
+
+A report on a core is a promise that some work is done. Every block, validators say
+which cores' data they hold. This part counts those assurances, makes reports available,
+clears out the ones that waited too long, and refuses assurances that break the rules.
 
 By the end of this part your client counts assurances, makes reports available, clears
 the ones that waited too long, and handles every assurances vector, tiny and full.
@@ -13,13 +14,15 @@ the ones that waited too long, and handles every assurances vector, tiny and ful
 
 A core's three guarantors have refined a package and signed a report ([Part
 12](../12-guarantees/index.md) checks that). The chain still can't act on it. The report
-is small, but the data behind it, the package, its payloads and what refine exported, is
+is small. The data behind it, the package, its payloads and what refine exported, is
 big, and so far it lives on three machines. If those three vanished, nobody could audit
-the work or build on it. So before a report counts, its data is spread out: the
-guarantors erasure-code it into one shard per validator ([lesson
-3.3](../03-work-and-reports/03-a-work-report.md)) and send each validator its shard.
-Every validator that has its shard says so in the next block. That saying-so is an
-*assurance*: one small signed record per validator per block.
+the work or build on it.
+
+So before a report counts, its data is spread out. The guarantors erasure-code it into
+one shard per validator ([lesson 3.3](../03-work-and-reports/03-a-work-report.md)) and
+send each validator its shard. Every validator that has its shard says so in the next
+block. That saying-so is an *assurance*: one small signed record per validator per
+block.
 
 The paper tells the same journey at the start of §11, and says why a block deals with the
 assurances before the guarantees, though a report meets them the other way round:
@@ -60,15 +63,16 @@ Who does what, and where:
    accumulation ([Part 17](../17-accumulation/index.md)). That's your client, in
    [11.1](./01-available.md).
 4. A report that isn't available after 5 slots is dropped and its core freed
-   ([11.2](./02-timeouts.md)); an assurance that breaks a rule refuses its whole block
+   ([11.2](./02-timeouts.md)). An assurance that breaks a rule refuses its whole block
    ([11.3](./03-bad-assurances.md)).
 
 Why two thirds: the erasure code rebuilds the data from any third of the shards. If more
 than two thirds of the validators hold theirs, then even with a third of them dishonest,
-honest validators hold enough to rebuild it. The nearest thing you may know is a storage
-system that won't acknowledge a write until enough replicas confirm they hold it: the
-report is the write, the assurances are the acknowledgements, and two thirds is the
-quorum.
+honest validators hold enough to rebuild it.
+
+The nearest thing you may know is a storage system that won't acknowledge a write until
+enough replicas confirm they hold it. The report is the write, the assurances are the
+acknowledgements, and two thirds is the quorum.
 
 **Builds on** [Part 3 · Work and reports](../03-work-and-reports/index.md), [Part 4 ·
 Blocks](../04-blocks/index.md), [Part 5 · Hashing and

@@ -52,7 +52,7 @@ g, a guarantee, and t, a timeslot."
 **In plain words.** A type line. ρ has one place per core, and each place is empty (∅) or
 holds one report waiting for its data: the whole guarantee that brought it, report and
 signatures, and the slot it arrived, t. One per core, never more: that is why a core can
-take a new report only when its place is empty. ρ†, ρ‡ and ρ′ have the same shape; they
+take a new report only when its place is empty. ρ†, ρ‡ and ρ′ have the same shape. They
 are ρ after the block's disputes, assurances and guarantees.
 
 **On a real value.** `some_assurances-1`, before the block:
@@ -109,9 +109,9 @@ bits; v, a natural below the number of validators; and s, an Ed25519 signature."
 
 **In plain words.** The assurances extrinsic is a list, at most one entry per validator.
 Each says: the block I looked at (a), which cores' data I hold, one bit per core (f), who
-I am (v, my place in κ), and my signature (s). The bit is a promise the chain can't check:
-the footnote says a false one has no on-chain consequence, since a missing shard only shows
-off the chain, when someone asks for it.
+I am (v, my place in κ), and my signature (s). The bit is a promise the chain can't
+check. The footnote says a false one has no on-chain consequence: a missing shard only
+shows off the chain, when someone asks for it.
 
 **On a real value.** Validator 0's assurance in `some_assurances-1`:
 
@@ -216,8 +216,8 @@ H sub P and a's f. X sub A is defined as the token jam available."
 
 **In plain words.** The signature must be the assurer's own: made with the Ed25519 key of
 validator v in the current set κ, over a message of two parts. First the context string
-`jam_available`, 13 bytes, so a signature made for anything else can never pass as an
-assurance. Then the hash of the parent hash followed by the bitfield: change a bit, or
+`jam_available`, 13 bytes. A signature made for anything else can never pass as an
+assurance. Then the hash of the parent hash followed by the bitfield. Change a bit, or
 the anchor, and the signature fails.
 
 **On a real value.** Validator 0's assurance in `some_assurances-1`:
@@ -268,7 +268,7 @@ dagger at c is not nothing."
 
 **In plain words.** A bit may be 1 only for a core that has a report waiting, after this
 block's disputes have cleared any judged bad. "Implies" reads: if the bit is set, then the
-core must be busy; a 0 bit says nothing, so it's always allowed.
+core must be busy. A 0 bit says nothing, so it's always allowed.
 
 **On a real value.** `assurance_for_not_engaged_core-1`:
 
@@ -414,8 +414,8 @@ available in this block, so it goes on to accumulation rather than being thrown 
 
 Each core holds at most one report waiting for its data, with the slot it arrived (11.1).
 Each validator may send one assurance a block: the parent's hash, one bit per core, its
-index and its signature (11.11), anchored on the parent, in index order (11.12, 11.13),
-signed over `jam_available` and the hash of the parent and bits (11.14, 11.15), with bits
-only for busy cores (11.16). A core whose bit more than two thirds of the validators set
-has its report made available (11.17), and a core lets go when its report became
-available, waited 5 slots, or the validator set changed size (11.18).
+index and its signature (11.11). It is anchored on the parent, in index order (11.12,
+11.13), signed over `jam_available` and the hash of the parent and bits (11.14, 11.15),
+with bits only for busy cores (11.16). A core whose bit more than two thirds of the
+validators set has its report made available (11.17). A core lets go when its report
+became available, waited 5 slots, or the validator set changed size (11.18).
