@@ -2,11 +2,14 @@
 
 [Part 16](./index.md)'s appendix: every formula of Appendix B, *Virtual Machine
 Invocations*, (B.1) to (B.21), explained, and its three tables of host calls, row by row.
-Your client builds some: Ψ_A, accumulation, and the host calls it answers. Guarantors run
-the others, Is-Authorized and refine, in-core; each section says which. The tables have no
-equation numbers, so they are quoted whole, each row explained under them. Each formula: its
-key, then read aloud, in plain words, on a real value, in your client. Notation: [Reading
-the Gray Paper](../reading-the-gray-paper.md).
+
+- Your client builds some: Ψ_A, accumulation, and the host calls it answers.
+- Guarantors run the others, Is-Authorized and refine, in-core.
+
+Each section says which. The tables have no equation numbers, so they are quoted whole,
+with each row explained under them. Each formula: its key, then read aloud, in plain words,
+on a real value, in your client. Notation:
+[Reading the Gray Paper](../reading-the-gray-paper.md).
 
 One reading tip for the whole appendix. Every machine run returns how it stopped, written
 with a sign: ▸ carry on, ∎ halt, ↯ panic, ∞ out of gas. And ϱ is the gas, φ the 13
@@ -92,24 +95,24 @@ and nothing for every other item; otherwise, out of gas if the gas left is below
 else carry on; where phi 7 becomes WHAT and the gas goes down by M sub nothing."
 
 **In plain words.** This is the authorizer of [Part 13](../13-authorization/index.md)
-running, and it is the smallest of the three invocations:
+running. It is the smallest of the three invocations:
 
-1. **Find the code.** 𝐩_𝐮 is the authorizer's code: the package names it by hash, and
+1. **Find the code.** 𝐩_𝐮 is the authorizer's code. The package names it by hash, and
    some service keeps it as a preimage. No such code: BAD. Code over W_A = 64,000 bytes:
    BIG. Either way, no gas spent.
-2. **Run it.** Ψ_M is the PVM's standard run ([lesson 15.8](../15-the-pvm/08-a-real-program.md)):
-   lay the program out, start at instruction 0 with G_I = 50,000,000 gas, and hand it one
-   argument, the core's index in 2 bytes, little-endian. What it returns is the trace,
-   𝐫; u is the gas it used. If it panics or runs out of gas, 𝐫 is that error instead.
+2. **Run it.** Ψ_M is the PVM's standard run ([lesson 15.8](../15-the-pvm/08-a-real-program.md)).
+   Lay the program out, start at instruction 0 with G_I = 50,000,000 gas, and hand it one
+   argument: the core's index in 2 bytes, little-endian. What it returns is the trace,
+   𝐫. The gas it used is u. If it panics or runs out of gas, 𝐫 is that error instead.
 3. **(B.2), its host.** F answers three calls: `gas`, `grow_heap` and `fetch`. Through
    `fetch` the code reads the package: its token, its configuration, its items. Any other
    call costs M_∅ = 1,000 gas and answers WHAT, the same rule every invocation ends with.
-   There's no context to carry (the ⟨{}⟩ after Ω), because the run changes nothing: it
-   only says yes or no.
+   There's no context to carry (the ⟨{}⟩ after Ω). The run changes nothing: it only
+   says yes or no.
 
 **On a real value.** The accumulate vector `process_one_immediate_report-1` carries a
 report from core 1, with the two fields Ψ_I filled. The vectors make up their reports to
-test accumulation, so no code really ran here, but the fields are the ones a real run
+test accumulation, so no code really ran here. But the fields are the ones a real run
 writes:
 
 ```text
@@ -122,8 +125,8 @@ authorizer      bf52de5a…            the hash the chain checks against core 1'
 ```
 
 **In your client.** Not built: your client never runs an authorizer. It decodes the
-report's `auth_gas_used` and `auth_output` in [lesson 3.3](../03-work-and-reports/03-a-work-report.md),
-and checks the authorizer's hash is in the core's pool in [13.1](../13-authorization/01-the-authorizer-pools.md).
+report's `auth_gas_used` and `auth_output` in [lesson 3.3](../03-work-and-reports/03-a-work-report.md).
+It checks the authorizer's hash is in the core's pool in [13.1](../13-authorization/01-the-authorizer-pools.md).
 
 ## (B.3): how long a forgotten preimage stays
 
@@ -160,10 +163,10 @@ $$
 **In plain words.** Refine may read a service's preimages as they were at the package's
 lookup-anchor block, with `historical_lookup`. Auditors re-run refine later, to check the
 guarantors, and they must get the same answer. So a preimage a service has forgotten
-must stay in the state long enough: the anchor can be up to L = 14,400 slots old, and the
+must stay in the state long enough. The anchor can be up to L = 14,400 slots old. The
 paper adds 4,800 slots, eight hours at 6 seconds a slot, as a margin for auditing. That's
-D, the expunge period: [lesson 16.9](./09-asking-for-preimages.md)'s `forget` only drops
-a preimage forgotten more than D slots ago.
+D, the expunge period. The `forget` of [lesson 16.9](./09-asking-for-preimages.md) only
+drops a preimage forgotten more than D slots ago.
 
 **On a real value.**
 
@@ -174,7 +177,7 @@ D = L + 4,800    19,200 slots        32 hours, on the full network
 D on tiny        32 slots            set on its own: 24 + 4,800 would be 4,824
 ```
 
-The tiny network doesn't follow the formula: its D is 32, so tests can watch a preimage
+The tiny network doesn't follow the formula. Its D is 32, so tests can watch a preimage
 expire in a few dozen slots.
 
 **In your client.** `expunge_period` in `src/config.ts`, which
@@ -218,11 +221,16 @@ i, a register's value; and g tilde, true or false."
 
 **In plain words.** Refine may start whole PVMs of its own, inner machines, and run them
 a piece at a time: a virtual machine inside a virtual machine. 𝕀 is what refine keeps
-about each one so it can stop it and carry on later: its program 𝔭, its memory 𝐮, its
-instruction counter i, and g̃, whether the basic block it stopped in is already paid for
-(gas is charged a block at a time, [lesson 15.11](../15-the-pvm/11-the-gas-meter.md), so a
-machine stopped halfway through a block mustn't pay for it twice). Refine holds them in
-a dictionary, 𝐦, from a number to an 𝕀.
+about each one, so it can stop it and carry on later:
+
+- its program 𝔭;
+- its memory 𝐮;
+- its instruction counter i;
+- g̃, whether the basic block it stopped in is already paid for.
+
+Gas is charged a block at a time ([lesson 15.11](../15-the-pvm/11-the-gas-meter.md)), so a
+machine stopped halfway through a block mustn't pay for it twice. Refine holds the
+machines in a dictionary, 𝐦, from a number to an 𝕀.
 
 **On a real value.** Made up, since no vector runs refine: a refining service calls
 `machine` with a 100-byte program, to start at instruction 0.
@@ -355,11 +363,12 @@ each work-item, the blob of each of its extrinsics, in order."
    w_g, and the argument 𝐚: the core, the item's index, the service, the payload with its
    length in front, and the package's hash.
 3. **Keep the output, and the exports only on success.** A panic or running out of gas
-   gives the error and no exports; anything else, the output and the segments it exported.
+   gives the error and no exports. Anything else gives the output and the segments it
+   exported.
 4. **(B.6), its host.** Refine's F answers 11 calls: the 3 everyone gets, plus
    `historical_lookup`, `export` and six for inner machines. Its `fetch` can hand out the
    whole package, the authorizer's trace 𝐫, the imports ī and the extrinsics x̄. Entropy,
-   item 1, is 32 zero bytes here: refine must give the same answer on every guarantor and
+   item 1, is 32 zero bytes here. Refine must give the same answer on every guarantor and
    every auditor, whenever it runs, so there's no fresh randomness to give it.
 
 The context (𝐦, 𝐞) is the inner machines and the exported segments, both empty at the
@@ -433,8 +442,8 @@ service id; t, a sequence of deferred transfers; y, a hash or nothing; and p, a 
 pairs of a service id and bytes. For every x in L, x sub bold s is defined as x's state's
 accounts at x's s."
 
-**In plain words.** 𝕃 is the bundle of everything an accumulation can change, the
-context, and Ψ_A keeps two of them, 𝐱 and 𝐲 ([16.6](./06-checkpoints.md)):
+**In plain words.** 𝕃 is the context: the bundle of everything an accumulation can
+change. Ψ_A keeps two of them, 𝐱 and 𝐲 ([16.6](./06-checkpoints.md)):
 
 | Field | What it is | Built in |
 | --- | --- | --- |
@@ -627,8 +636,8 @@ otherwise x's as they are."
    runs, so 𝐬 is the state with that money in. Even if the service has no code (or code
    over W_C = 4,000,000 bytes), the money still arrives, and nothing else happens: 0 gas
    used.
-2. **(B.9), then run it.** Lay out the service's code, start at instruction 5,
-   accumulate's way in, with g gas and the argument E(t, s, |𝐢|): the slot, the service's
+2. **(B.9), then run it.** Lay out the service's code and start at instruction 5,
+   accumulate's way in, with g gas. The argument is E(t, s, |𝐢|): the slot, the service's
    id, and how many inputs it has. Everything else it asks for with `fetch`.
 3. **(B.10), two copies of a fresh context.** I starts the context: this service, the
    state, nothing sent, yielded or provided yet, and the first id a service created now
@@ -643,8 +652,8 @@ otherwise x's as they are."
    provisions as (𝐱, 𝐲)_𝐩; your client reads it as 𝐱's, as the case under it says.)
 
 The new id in (B.10) comes from a hash of the service's id, the fresh entropy η′₀ and the
-slot, so nobody can know it before the block: B.4's last paragraphs, quoted in
-[16.6](./06-checkpoints.md), say why. The paper's text there calls that field a; in the
+slot, so nobody can know it before the block. B.4's last paragraphs, quoted in
+[16.6](./06-checkpoints.md), say why. The paper's text there calls that field a. In the
 formula it is i.
 
 **On a real value.** Service 1729 in `always_accumulate-1`, run by your client in
@@ -664,7 +673,7 @@ C                 a halt, no 32-byte output: keep 𝐱, yield nothing
 u                 16,417                     the vector's accumulate_gas_used
 ```
 
-The vector's `output` is 32 zero bytes: the root of every yield, and with none, zeros.
+The vector's `output` is 32 zero bytes. That is the root of every yield, and with none, zeros.
 
 **In your client.** `accumulate` in `src/host.ts`, [16.6](./06-checkpoints.md#the-code):
 `standardProgram` and `pc = 5` are (B.9)'s run, `accumulateHost` is F, and `collapse`
@@ -694,8 +703,8 @@ accounts' keys; otherwise check of: i minus S plus 1, mod 2 to the 32 minus 2 to
 minus S, plus S."
 
 **In plain words.** If id i is free, it's the answer. If not, try the next one up, and
-keep going. The mod and the S make "the next one up" wrap round inside the public range:
-from S = 65,536 to 2^32 − 257, so the top 256 ids are never handed out and the ids below
+keep going. The mod and the S make "the next one up" wrap round inside the public range,
+from S = 65,536 to 2^32 − 257. So the top 256 ids are never handed out, and the ids below
 S are left for the registrar to choose ([17.8](../17-accumulation/08-creating-a-service.md)).
 B.4's last paragraph adds: if two services still end up with one id in the same block,
 the block is invalid.
@@ -787,7 +796,7 @@ $$
 
 **In plain words.** A host call that moves bytes charges for them: L gas for each 1,024
 bytes, and a part of 1,024 rounded up to a whole unit of gas. ℓ is the number of bytes
-the registers name, asked for or written, not the number found: asking for a lot costs a
+the registers name, asked for or written, not the number found. Asking for a lot costs a
 lot, even when there is little to copy.
 
 **On a real value.** [16.5](./05-storage.md)'s `write` of the key "last" (4 bytes) with
@@ -824,11 +833,15 @@ comment calls it 𝔐; the 0.8.0 paper writes 𝒢.)
 
 :::
 
-How to read a row. The left cell says three things: the function and what it's given
-(Ω_L gets the gas, registers, memory, the service's account 𝐬, its id s and all the
-accounts 𝐝), its name and number (`lookup` = 3), and its price g. The right cell is a
-list of *let* lines, the values the call pulls out of the registers and memory, and then
-the lines with ≡, what changes. (B.15) and (B.16) cover the rest. 𝕍_μ is the memory you
+How to read a row. The left cell says three things:
+
+- the function and what it's given: Ω_L gets the gas, registers, memory, the service's
+  account 𝐬, its id s and all the accounts 𝐝;
+- its name and number: `lookup` = 3;
+- its price g.
+
+The right cell is a list of *let* lines, the values the call pulls out of the registers
+and memory. Then come the lines with ≡: what changes. (B.15) and (B.16) cover the rest. 𝕍_μ is the memory you
 may read, and 𝕍*_μ the memory you may write.
 
 ### gas (0)
@@ -850,12 +863,17 @@ pay M Gemini c, and phi 7 is h, if phi 7 is at most h or more than b; otherwise 
 gas, gas unchanged, phi 7 is h, if the gas is less than g; otherwise carry on, pay g, and
 phi 7 stays; and the pages from a up to the new phi 7 become writable."
 
-**In plain words.** φ₇ asks for the page the heap should end at. a is the heap's first
-page, b the furthest it may ever reach, a whole zone short of the stack, and h where it
-ends now. Asking for no more than h (or for more than b) changes nothing: it costs 275
-and answers h, which is how a program asks "where does my heap end?". Otherwise it costs
-275 plus 121 for each new page, and the new pages become writable, all zeros. This is
-the one general call that sets the gas itself, because the price depends on the pages.
+**In plain words.** φ₇ asks for the page the heap should end at. Three values decide
+the answer:
+
+- a is the heap's first page;
+- b is the furthest it may ever reach, a whole zone short of the stack;
+- h is where it ends now.
+
+Asking for no more than h (or for more than b) changes nothing. It costs 275 and answers
+h, which is how a program asks "where does my heap end?". Otherwise it costs 275 plus 121
+for each new page, and the new pages become writable, all zeros. This is the one general
+call that sets the gas itself, because the price depends on the pages.
 
 **On a real value.** Service 1729 in `always_accumulate-1`: 760 bytes of o, 20 of w and 2
 heap pages, a stack of 8,192 bytes, and it asks for page 51:
@@ -879,10 +897,14 @@ v's length; l the smaller of z and what's left of v after f. Then: panic if o to
 isn't writable; otherwise NONE if v is nothing; otherwise phi 7 is v's length, and memory
 from o gets v's l bytes from f." Price: item c's own base, plus 𝒢 of its own rate and z.
 
-**In plain words.** φ₁₀ picks an item and each invocation offers only some of them,
-because each passes ∅ for the rest: Is-Authorized the constants and the package (0, 7 to
-13); refine all but 14 and 15; accumulation the constants, the entropy and its inputs (0,
-1, 14 and 15). The bytes are copied as every "copy out" call copies them (below).
+**In plain words.** φ₁₀ picks an item. Each invocation offers only some of them,
+because each passes ∅ for the rest:
+
+- Is-Authorized: the constants and the package (0, 7 to 13);
+- refine: all but 14 and 15;
+- accumulation: the constants, the entropy and its inputs (0, 1, 14 and 15).
+
+The bytes are copied as every "copy out" call copies them (below).
 
 | Items | What |
 | --- | --- |
@@ -997,8 +1019,8 @@ gases and bytes in 8 bytes each; its items in 4; its gratis storage in 8; and th
 created and last accumulated, and its parent's id, in 4 each, if there is such an
 account; else nothing." Then the copy-out ending, from φ₉, at most φ₁₀ bytes. Price: 703.
 
-**In plain words.** A service account's record, in 96 bytes: whose is in φ₇, 2^64 − 1
-meaning "mine".
+**In plain words.** A service account's record, in 96 bytes. φ₇ says whose, and
+2^64 − 1 means "mine".
 
 **On a real value.** Service 1729's record in `always_accumulate-1`:
 
@@ -1011,7 +1033,7 @@ r, a, p            0, 0, 0                            4 bytes each: 12
 total              32 + 40 + 4 + 8 + 12 = 96 bytes
 ```
 
-a_t, the minimum balance, isn't stored: `info` works it out, 100 + 10 × 2 + 1 × 19,130 −
+a_t, the minimum balance, isn't stored. `info` works it out: 100 + 10 × 2 + 1 × 19,130 −
 0 = 19,250 ([lesson 14.2](../14-services/02-the-service-account.md)).
 
 **In your client.** `info` in `src/host.ts`, [16.4](./04-info.md#the-code).
@@ -1072,7 +1094,7 @@ segments. None of these runs on your client, so here is each in a line or two:
 
 B.1's second list of result codes, HALT = 0 to OOG = 4, is what `invoke` answers. B.1's
 last line, on the values a host-call-request exit may return, is used by no formula in
-this appendix, and nothing in your client depends on it.
+this appendix. Nothing in your client depends on it.
 
 **On a real value.** Made up, since no vector runs refine: a service exports three
 segments in an item whose package's earlier items exported 5 (ς = 5).
@@ -1151,7 +1173,7 @@ g = 103          10,000 ≥ 103: pay
 
 These are the calls that change the chain, and only accumulation has them. Each reads
 its arguments from φ₇ on, and panics if a hash or a list it needs can't be read from
-memory. Most are built in [Part 17](../17-accumulation/index.md); each section says where.
+memory. Most are built in [Part 17](../17-accumulation/index.md). Each section says where.
 
 ### bless (15)
 
@@ -1175,7 +1197,7 @@ price        422 + 20 × 1 = 442
 ```
 
 **In your client.** `bless`, [17.13](../17-accumulation/13-blessing-and-designating.md#the-code).
-The 0.8.0 paper answers HUH to anyone but the manager; the test vectors follow a later
+The 0.8.0 paper answers HUH to anyone but the manager. The test vectors follow a later
 change, and 17.13 says so.
 
 ### assign (16)
@@ -1272,7 +1294,7 @@ the transfers, and the balance becomes b." Price: 575 + t, where t is l on succe
 otherwise.
 
 **In plain words.** Send money, and gas for the receiver to run on, to another service.
-The money leaves now; the receiver gets it in its own accumulation, later
+The money leaves now. The receiver gets it later, in its own accumulation
 ([17.4](../17-accumulation/04-rounds.md)).
 
 **On a real value.** [17.3](../17-accumulation/03-sending-a-transfer.md)'s test: 30 from a
@@ -1294,7 +1316,7 @@ or no request for h; OK, d removed and its balance added to this service's, if t
 request was forgotten more than D slots ago; otherwise HUH." Price: 458.
 
 **In plain words.** A service that has given up on itself names its ejector in its code
-hash, and the ejector removes it and takes its balance, once its last preimage has
+hash. The ejector removes it and takes its balance, once its last preimage has
 expired.
 
 **On a real value.** [17.7](../17-accumulation/07-ejecting-a-service.md)'s test: service 0
@@ -1366,10 +1388,10 @@ request   [] → [44] at the end of the round
 
 ## Say it in one breath
 
-The protocol runs code three ways (Appendix B): Ψ_I runs an authorizer and Ψ_R refines a
-work-item, both in-core, on the guarantors (B.1 to B.6); Ψ_A accumulates a service, on
+The protocol runs code three ways (Appendix B). Ψ_I runs an authorizer and Ψ_R refines a
+work-item, both in-core, on the guarantors (B.1 to B.6). Ψ_A accumulates a service, on
 every validator, your client included (B.9). Ψ_A credits incoming money, runs the code
 from instruction 5 with two copies of a context 𝕃 (B.7), answers its host calls with F
 (B.11), and keeps 𝐱 on a halt or 𝐲, the last checkpoint, on a panic (B.13). Every host
-call pays first and changes only what its row says (B.15, B.20), charges 𝒢 per 1,024
+call pays first and changes only what its row says (B.15, B.20). It charges 𝒢 per 1,024
 bytes it moves (B.17), and answers in φ₇: a length, OK, or one of B.1's "no"s.
