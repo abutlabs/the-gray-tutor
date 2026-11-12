@@ -1,8 +1,9 @@
 # Part 14 · Services and preimages
 
-Services are JAM's programs: each has an account holding its code, its balance and its
-storage. This part opens those accounts up, starting with how a service gets data it
-asked for: preimages.
+**In one sentence:** services are JAM's programs, each with an account holding its code,
+its balance and its storage, and this part opens those accounts up.
+
+It starts with how a service gets data it asked for: preimages.
 
 By the end of this part your client hands services the data they asked for, and reads
 any service's account, checking that its footprint and balance add up.
@@ -59,13 +60,17 @@ Who touches an account, and where:
    code does, or nothing does. **In-core**, refine can read a service's preimages as a
    recent block saw them, but can't change anything.
 
-A *preimage* is bytes filed under their own hash, and it is how data gets into a service
-at all, its own code included. The life of one: the service asks, during accumulation, for
-the data with hash h and length z ([16.9](../16-host-calls/09-asking-for-preimages.md)),
-and a request appears in its account. Someone puts the bytes into a block's preimages
-extrinsic, off the chain. Every validator hashes them, finds the matching request, and
-files them ([14.1](./01-providing-preimages.md)). From then on the service reads them with
-a host call ([16.8](../16-host-calls/08-lookup.md)).
+A *preimage* is bytes filed under their own hash. It is how data gets into a service at
+all, its own code included. The life of one:
+
+1. The service asks, during accumulation, for the data with hash h and length z
+   ([16.9](../16-host-calls/09-asking-for-preimages.md)), and a request appears in its
+   account.
+2. Someone puts the bytes into a block's preimages extrinsic, off the chain.
+3. Every validator hashes them, finds the matching request, and files them
+   ([14.1](./01-providing-preimages.md)).
+4. From then on the service reads them with a host call
+   ([16.8](../16-host-calls/08-lookup.md)).
 
 Why not keep that data in storage, which the service writes itself? The paper gives three
 reasons, and the last is the one that shapes [14.1](./01-providing-preimages.md):
@@ -82,8 +87,8 @@ reasons, and the last is the one that shapes [14.1](./01-providing-preimages.md)
 
 In short: storage is the service's own scratch space, only on the chain. Preimages come
 from outside, are checked by their hash, and are kept with a history of when they were
-there, because refine, off the chain, must be able to say whether a preimage was there at
-a given slot, and auditors must reach the same answer later.
+there. Refine, off the chain, must be able to say whether a preimage was there at a given
+slot, and auditors must reach the same answer later.
 
 If you build web services: the account is an app's row and its tables, and the preimage
 store is a content-addressed blob store, a cache keyed by hash. You ask by hash, you get

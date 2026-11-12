@@ -183,10 +183,10 @@ the encoding of m with its length, then c, is a's preimage at a's code hash; oth
 nothing and nothing."
 
 **In plain words.** The record holds only a hash, c. To find the code, look c up in the
-account's own preimages. The bytes there are two blobs in a row: the metadata 𝐦, a name
-and a version for people, with its length in front; then the code 𝐜, the PVM program. If
-the preimage is missing, or its bytes don't split that way, the service has no code (∅):
-it exists, holds a balance, and can't run.
+account's own preimages. The bytes there are two blobs in a row. First the metadata 𝐦, a
+name and a version for people, with its length in front. Then the code 𝐜, the PVM
+program. If the preimage is missing, or its bytes don't split that way, the service has
+no code (∅): it exists, holds a balance, and can't run.
 
 **On a real value.** Service 1's preimage at `dd0e…`, 127,513 bytes:
 
@@ -431,9 +431,9 @@ B sub S, plus B sub I times a sub i, plus B sub L times a sub o, less a sub f."
 **In plain words.** What an account keeps, counted two ways, then priced.
 
 1. **Items, i.** Each request counts 2, as if for the request and the preimage it
-   brings; each storage entry counts 1.
-2. **Octets, o.** Each request costs 81 bytes of bookkeeping plus the length it asked for;
-   each storage entry costs 34 plus its key's and its value's bytes. The preimages
+   brings. Each storage entry counts 1.
+2. **Octets, o.** Each request costs 81 bytes of bookkeeping plus the length it asked
+   for. Each storage entry costs 34 plus its key's and its value's bytes. The preimages
    themselves are counted through their requests' lengths, so a request is paid for
    before its data arrives.
 3. **The minimum balance, t.** A base of B_S = 100, plus B_I = 10 per item, plus B_L = 1
@@ -543,9 +543,9 @@ $$
 **Read it aloud.** "Delta prime equals I of delta double dagger and E sub P."
 
 **In plain words.** The accounts after the block are the accounts after accumulation,
-δ‡, with I applied: for each preimage that is providable in δ‡, the data is filed in
-the service's preimages and its request's history becomes `[τ′]`. In δ‡, not δ, because
-accumulation in this block may have removed the service or dropped the request; then the
+δ‡, with I applied. For each preimage that is providable in δ‡, the data is filed in
+the service's preimages and its request's history becomes `[τ′]`. Why δ‡, not δ?
+Accumulation in this block may have removed the service or dropped the request. Then the
 preimage is passed over, and the block stays valid. (12.20), explained in
 [17.A](../17-accumulation/gray-paper.md#ex-12-20), says what I does, step by step.
 
@@ -571,5 +571,5 @@ for its hash and length (9.6), whose history of up to three slots tells refine, 
 Λ, whether the bytes were there at a given recent slot (9.5, 9.7). What the account keeps
 counts as items and octets, and its balance must cover 100 + 10 per item + 1 per octet,
 less its gratis offset (9.8). A block's preimages come sorted, once each, and each one
-asked for (12.34 to 12.36), and after accumulation each still-wanted one is filed and its
+asked for (12.34 to 12.36). After accumulation, each still-wanted one is filed and its
 request marked with the block's slot (12.37).
