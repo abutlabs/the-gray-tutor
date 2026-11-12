@@ -51,8 +51,11 @@ test("every block and η₀ is the safrole trace's, where vectors/ is downloaded
   }
 });
 
-test("lesson 8.6 places the widget once, after the three steps", () => {
+test("lesson 8.6 places the widget once, at the top, and the three steps send the reader back to it", () => {
   const at = raw.indexOf("<VrfOutput />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<VrfOutput />"));
-  assert.ok(at > raw.indexOf("**Keep the first 32 bytes**") && at < raw.indexOf("Two places use it."));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const steps = raw.indexOf("**Keep the first 32 bytes**");
+  const back = raw.indexOf("[The five blocks at the top](#try-it)");
+  assert.ok(steps > 0 && back > steps && back < raw.indexOf("Two places use it."));
 });

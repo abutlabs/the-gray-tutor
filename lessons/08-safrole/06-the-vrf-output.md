@@ -1,24 +1,35 @@
 # The VRF output
 
-Since [lesson 8.1](./01-stirring-the-entropy.md), your client has trusted the test vectors for one value: Y(H_V), the
-randomness a block's author stirs into η₀. The vectors handed it over as `input.entropy`,
-because computing it seemed to need Bandersnatch, a whole elliptic curve. Good news: it
-doesn't. A VRF signature carries its output in its first 32 bytes, as a point on the curve,
-and the output is just a hash of that point. By the end of this lesson your client reads
-the VRF output of any real block, works out a ticket's id, and gets η′ right on 198 real
-blocks, with no help from the vectors.
+**In one sentence:** the random output of a VRF signature is a hash of the signature's
+first 32 bytes, so one hash reads every block's randomness and every ticket's score.
 
-## New words
+Here are five real blocks. Pick one and follow its entropy source through three steps,
+to the randomness the block stirs in.
 
-- **Output point.** The first 32 bytes of a Bandersnatch VRF signature: a point on the
-  curve that only the signer's secret key could have made for that input. *Example:* the
-  first 32 bytes of a header's 96-byte `entropy_source`.
-- **SHA-512.** A hash function, like Blake2b, with a 64-byte result. *Example:* the VRF
-  output is the first 32 of those bytes.
-- **Ticket id.** A ticket's score in the lottery: the VRF output of its ring proof. Lower
-  is better. *Example:* `0x00e51b1c…` beats `0x20164381…`.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<VrfOutput />
+
+## The idea
+
+Since [lesson 8.1](./01-stirring-the-entropy.md), your client has taken one value on
+trust: the randomness each block stirs into the entropy. The test vectors handed it over,
+because working it out seemed to need Bandersnatch, a whole elliptic curve.
+
+It doesn't. *Checking* a VRF signature needs the curve. *Reading* its output does not.
+The signature carries its output at the front: its first 32 bytes are a point on the
+curve, the [*output point*](../glossary.md#output-point). The output is a hash of that
+point, made with [*SHA-512*](../glossary.md#sha-512).
+
+It is a sealed envelope with the answer written on the outside. You can read the answer
+without opening it. Only opening it tells you the answer is genuine.
+
+The same hash gives a lottery ticket its score, the [*ticket id*](../glossary.md#ticket-id):
+a ticket's proof starts with an output point too.
+
+This lesson builds the hash. With it your client reads the VRF output of any real block,
+works out a ticket's id, and gets the entropy right on 198 real blocks, with no help from
+the vectors.
 
 ## What the Gray Paper says
 
@@ -63,11 +74,12 @@ $$
 
 :::
 
-In plain words, (G.1) says a Bandersnatch signature is any 96 bytes that check out for
-a key, a context and a message, and (G.2) defines 𝒴(s) as the first 32 bytes of the
-signature's output. What "output" is, the Gray Paper leaves to the Bandersnatch VRF specification it
-cites, which the VRF library ark-vrf implements as the suite `Bandersnatch_SHA-512_ELL2`.
-There, the output is a hash of the output point, as RFC 9381, the standard for VRFs, says:
+(G.1) says a Bandersnatch signature is any 96 bytes that check out for a key, a context
+and a message. (G.2) defines 𝒴(s) as the first 32 bytes of the signature's output.
+
+What "output" is, the Gray Paper leaves to the Bandersnatch VRF specification it cites,
+which the VRF library ark-vrf implements as the suite `Bandersnatch_SHA-512_ELL2`. There,
+the output is a hash of the output point, as RFC 9381, the standard for VRFs, says:
 
 1. **Take the output point**: the signature's first 32 bytes, as they are.
 2. **Hash** the suite's name, then the byte 3, then the point, then the byte 0, with
@@ -75,9 +87,7 @@ There, the output is a hash of the output point, as RFC 9381, the standard for V
    can't be mistaken for any other hash of the same bytes.
 3. **Keep the first 32 bytes**: that's 𝒴.
 
-The three steps on five real blocks:
-
-<VrfOutput />
+[The five blocks at the top](#try-it) each go through these three steps.
 
 Two places use it. A header's entropy source gives η′₀ = H(η₀ ⌢ 𝒴(H_V)) ([lesson 8.1](./01-stirring-the-entropy.md)).
 And a ticket's id is 𝒴 of its 784-byte ring proof (§6), which also starts with its output
@@ -148,9 +158,9 @@ test("η′ of 198 real blocks: η₀ stirred with each header's VRF output, at 
 ```
 
 The first test checks every ticket in the safrole vectors' accepted blocks: its id,
-worked out from its proof, must be in the lottery afterwards. The second is [lesson
-7.1](../07-time-and-shuffling/01-epochs.md)'s trace test, finished: 7.1 left η′₀ out, since it needed a VRF output. Now
-nothing is left out.
+worked out from its proof, must be in the lottery afterwards. The second is
+[lesson 7.1](../07-time-and-shuffling/01-epochs.md)'s trace test, finished. That lesson
+left η′₀ out, since it needed a VRF output. Now nothing is left out.
 
 A stub first, so the red is about the rule:
 
@@ -284,9 +294,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** This program reads real blocks, not a state-transition vector: each trace
-file holds a block and the state before it. What block 1 gives, what the program makes
-of it, and what it prints:
+What flows through it. This program reads real blocks, not a state-transition vector:
+each trace file holds a block and the state before it. Here is block 1:
 
 ::: code-group
 
@@ -318,11 +327,11 @@ block 1, slot 1: entropy source 0x62bc9d23…
 
 :::
 
-Read the input into the output: the 96-byte `entropy_source` is the header's VRF
-signature, and 𝒴 of it — first 32 bytes through SHA-512, as this lesson built — is the
-output the program stirs into the η₀ it read from `pre_state.keyvals`
-(`../vectors/traces/safrole/00000001.json` is the file). The parenthesis is the check:
-the next file's state holds the η₀ the real chain got, and yours must be byte-identical.
+The 96-byte `entropy_source` is the header's VRF signature. 𝒴 of it, the first 32 bytes
+through SHA-512, is the output. The program stirs it into the η₀ it read from
+`pre_state.keyvals` (the file is `../vectors/traces/safrole/00000001.json`). The value in
+brackets is the check: the next file's state holds the η₀ the real chain got, and yours
+must be the same, byte for byte.
 
 **Run**
 
@@ -348,8 +357,9 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 Each block's η′₀ matches the trace's. And look at blocks 2 and 3: the same entropy source,
 byte for byte. Both were made by validator 3, and a VRF's output depends only on the key
 and the input, never on what else the block says. In a fallback epoch the input is the
-same for every block a validator seals, so validator 3's randomness is the same twice. η₀
-still moves on, because each block hashes the new output in with the η₀ before it. The
+same for every block a validator seals, so validator 3's randomness is the same twice.
+
+η₀ still moves on, because each block hashes the new output in with the η₀ before it. The
 *VRF output* panel, on **3 · Consensus**, lists the blocks.
 
 ![VRF output panel](./images/06-vrf-output.png)
@@ -391,30 +401,41 @@ named above. lasair asks its Rust library for the same hash
 ## Check your understanding
 
 ::: check
-**How does your client get 𝒴(H_V) from the 96-byte entropy source?**
+**Why can your client read a VRF signature's output without any curve arithmetic?**
 
-- [ ] It takes the first 32 bytes, as they are
+- [ ] The output is the signature's first 32 bytes, as they are
   > No: those 32 bytes are the output point. 𝒴 is a hash of it.
-- [x] SHA-512 of the suite's name, a 3, the first 32 bytes and a 0, cut to 32 bytes
-  > Yes: RFC 9381's output hash. The 3 and the 0 make sure it can't be mistaken for any
-  > other hash of the same bytes.
-- [ ] Blake2b of all 96 bytes
+- [ ] Blake2b of all 96 bytes gives it
   > No: Blake2b is JAM's usual hash, but a VRF's output follows its own suite: SHA-512, of
   > the output point only.
+- [x] The signature carries its output point at the front, and the output is a hash of that point
+  > Yes: SHA-512 of the suite's name, a 3, the first 32 bytes and a 0, cut to 32 bytes.
+  > That is RFC 9381's output hash.
 
-**Your client now reads every block's VRF output. Does that mean it checks the signatures?**
+**Why are a 3 and a 0 hashed in with the point?**
 
-- [ ] Yes: a forged signature would give the wrong output
+- [x] They mark the hash as a VRF output, so it can't be mistaken for any other hash of the same bytes
+  > Yes: that is the RFC's way of saying "this hash is a VRF output".
+- [ ] They are the signer's index and its attempt
+  > No: they are the same two bytes for every signature. Nothing of the signer goes in but
+  > the point.
+
+**Your client now reads every block's VRF output. What does it still take on trust?**
+
+- [ ] Nothing: a forged signature would give the wrong output
   > No: anyone can write any 32 bytes into a header, and your client hashes them without
-  > question. Checking needs the curve's arithmetic.
-- [x] No: reading the output takes the block's word; checking waits for [lesson 8.9](./09-seals.md)
-  > Yes: that's fine for the official traces, where every block is honest, and not for a
-  > stranger's block.
+  > question.
+- [x] That the signature checks: reading the output takes the block's word, and checking waits for [lesson 8.9](./09-seals.md)
+  > Yes: checking needs the curve's arithmetic. Until then this is fine for the official
+  > traces, where every block is honest, and not for a stranger's block.
+- [ ] That SHA-512 was the right hash
+  > No: the tests settle that. η′₀ matches the trace on 198 real blocks.
 
-**Blocks 2 and 3 of the `safrole` trace have the same entropy source, byte for byte. Why?**
+**Two blocks in a row carry the same entropy source, byte for byte. How can that be?**
 
 - [ ] One block was replayed, and the chain should have refused it
-  > No: they're two different blocks, at slots 2 and 3, and both are accepted.
+  > No: in the `safrole` trace they're two different blocks, at slots 2 and 3, and both are
+  > accepted.
 - [x] The same validator made both for the same input, and a VRF's output depends only on the key and the input
   > Yes: in a fallback epoch the input is the same for every block a validator seals, so
   > validator 3's randomness is the same twice.

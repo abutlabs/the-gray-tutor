@@ -1,24 +1,42 @@
 # The lottery's winners
 
-Safrole's big idea. For the first Y slots of every epoch, validators enter a **lottery**
-with anonymous tickets: each proves "a validator made me" without saying which. The best
-tickets win a slot in the *next* epoch, and nobody knows who holds one until that
-validator makes its block, so nobody can plan an attack on the next author. This lesson
-handles the result: closing the lottery, announcing the winners, handing out their slots.
+**In one sentence:** validators enter a lottery with tickets that don't say whose they
+are, and each of the best tickets wins one slot of the next epoch, so nobody knows who
+makes a block until it arrives.
 
-(Entering a ticket waits for [lesson 8.7](./07-entering-tickets.md), and checking its ring proof for [lesson 8.8](./08-the-ring-root.md). The
-winners, though, are already in the state, so everything here works today.)
+Move the two slots and the number of tickets. See which block announces the winners, and
+who seals the next epoch.
 
-## New words
+<a id="try-it"></a>
 
-- **Ticket accumulator.** γ_A. The best tickets entered so far in this epoch's lottery, at
-  most E of them, sorted by id, lowest first. *Example:* at a new epoch it starts again,
-  from only that block's own tickets.
-- **Outside-in order.** Z. The order the winning tickets take their slots: the first, the
-  last, the second, the second to last, and so on inwards. *Example:* slot 0 gets the best
-  ticket, slot 1 the worst of the winners.
+<LotteryClose />
 
-Both are in the [glossary](../glossary.md).
+## The idea
+
+If everyone knows who makes the next block, anyone can plan an attack on that validator.
+So Safrole hides the answer.
+
+For most of every epoch, validators enter a lottery with anonymous tickets. Each ticket
+proves "a validator made me" without saying which. Each carries a random number, and
+lower is better. The chain keeps the best ones, as many as an epoch has slots. That pile
+is the [*ticket accumulator*](../glossary.md#ticket-accumulator).
+
+Near the end of the epoch the lottery closes. The first block after the close announces
+the winning tickets in its header. At the next epoch, each winner gets one slot. Everyone
+can see which ticket has which slot. Nobody knows who holds it until that validator
+makes its block.
+
+It is a raffle where the winning stubs are pinned to the board, and each holder shows up
+only when their number is called.
+
+The winners take their slots in an order of their own, the
+[*outside-in order*](../glossary.md#outside-in-order): best, worst, second best, and so on
+inwards.
+
+This lesson builds the lottery's end: closing it, announcing the winners, seating them.
+Entering a ticket waits for [lesson 8.7](./07-entering-tickets.md), and checking its ring
+proof for [lesson 8.8](./08-the-ring-root.md). The winners are already in the state, so
+everything here works today.
 
 ## What the Gray Paper says
 
@@ -85,19 +103,25 @@ $$
 
 :::
 
-In plain words, §6.2. A ticket is two things: its id y, 32 random bytes (a VRF output),
-and its entry index e, which of its maker's attempts it was. The state keeps γ_A, the
-*ticket accumulator*: the best tickets entered so far, at most E of them, sorted by id.
-Lower is better. And γ_S, this epoch's sealers, always has exactly E entries: E tickets,
-or, in the fallback, E Bandersnatch keys.
+§6.2. A ticket is two things:
 
-**Y** (not 8.1's Y(·), the VRF output: the Gray Paper uses two different letters) is the
-phase at which the lottery closes: slot 500 of a 600-slot epoch on full, 10
-of 12 on tiny. Slots tick with the clock whether or not their block arrives: a slot whose
-sealer stays silent is simply empty, so there may be no block *at* slot 10 to make the
-announcement. Both rules below therefore compare two consecutive *blocks*: the parent, at
-phase m of its epoch, and the block itself, at phase m′, however many empty slots lie
-between them. The paper's two rules, the tickets mark and the sealers:
+- its id, y: 32 random bytes, a VRF output. Lower is better;
+- its entry index, e: which of its maker's attempts it was.
+
+The state keeps γ_A, the ticket accumulator: the best tickets entered so far, at most E
+of them, sorted by id. And γ_S, this epoch's sealers, always has exactly E entries: E
+tickets or, in the fallback, E Bandersnatch keys.
+
+**Y** is the phase at which the lottery closes: slot 500 of a 600-slot epoch on full, 10
+of 12 on tiny. (It is not [lesson 8.1](./01-stirring-the-entropy.md)'s Y(·), the VRF
+output: the Gray Paper uses two different letters.)
+
+Slots tick with the clock whether or not their block arrives. A slot whose sealer stays
+silent is simply empty, so there may be no block *at* slot 10 to make the announcement.
+Both rules below therefore compare two consecutive *blocks*: the parent, at phase m of
+its epoch, and the block itself, at phase m′, however many empty slots lie between them.
+
+The paper's two rules, the tickets mark and the sealers:
 
 ::: gray-paper 6.6 4-5
 
@@ -192,7 +216,7 @@ $$
 
 :::
 
-In plain words, two things can happen:
+Two things can happen:
 
 - **The tickets mark** (*The Markers*): the block that crosses phase Y, in the same epoch
   (m < Y ≤ m′), puts the winners in its header, if the lottery filled up, with all E
@@ -201,7 +225,8 @@ In plain words, two things can happen:
   directly (e′ = e + 1), the block before was past the close (m ≥ Y), and the lottery
   was full, then γ′_S is the winners. Otherwise it's [lesson 8.3](./03-the-fallback-sealers.md)'s fallback.
 
-<LotteryClose />
+Try both rules [at the top](#try-it): step the two slots across phase 10, then take a
+ticket away.
 
 Either way the winners go in *outside-in* order, Z: the first, the last, the second,
 the second to last, and so on inwards. Slot 0 gets the best ticket, slot 1 the worst of
@@ -336,10 +361,10 @@ test("γ′_S: a new epoch is sealed by the winners, outside in, if the lottery 
 });
 ```
 
-The second test pins the boundaries, because "m < Y ≤ m′" is exactly where off-by-one
-bugs live: the block from slot 9 to 10 closes tiny's lottery, and the one from 10 to 11
-doesn't, since by then it's closed. The vectors only cross Y from further away (slot 3 to
-11, say), so without this test a `<=` where a `<` belongs would slip through.
+The second test pins the boundaries: "m < Y ≤ m′" is exactly where off-by-one bugs live.
+The block from slot 9 to 10 closes tiny's lottery. The one from 10 to 11 doesn't: by then
+it's closed. The vectors only cross Y from further away (slot 3 to 11, say), so without
+this test a `<=` where a `<` belongs would slip through.
 
 ## The code
 
@@ -465,8 +490,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The vector fields the program reads — the accumulator is
-already sorted, lowest id first — the values it computes, and the lines it prints:
+What flows through it. The accumulator is already sorted, lowest id first:
 
 ::: code-group
 
@@ -505,10 +529,10 @@ slot   1 of the next epoch: ticket 11, 0xff0aa173…
 
 :::
 
-Read the input into the output: `tau` 3 to `slot` 11 steps over phase 10 — Y, where the
-lottery closes — and `gamma_a` holds all 12 tickets, so there *is* a mark. The order the
-output shows is Z on the input's order: `gamma_a[0]`, the `0x00e5…` id, takes slot 0;
-`gamma_a[11]`, the `0xff0a…` one, takes slot 1; and the zip walks inwards from there.
+`tau` 3 to `slot` 11 steps over phase 10: Y, where the lottery closes. `gamma_a` holds
+all 12 tickets, so there *is* a mark. The order the output shows is Z on the input's
+order: `gamma_a[0]`, the `0x00e5…` id, takes slot 0; `gamma_a[11]`, the `0xff0a…` one,
+takes slot 1; and the zip walks inwards from there.
 
 **Run**
 
@@ -536,10 +560,10 @@ slot  11 of the next epoch: ticket 6, 0xd6feae23…
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=lottery-1791730487634
 ```
 
-Read the ticket column down: 0, 11, 1, 10, 2, 9, … the zip of two lists, one counting
-up, one counting down, meeting at 5 and 6 in the middle. And the ids show what "best"
-means: ticket 0's id starts `0x00e5`, ticket 11's `0xff0a`. The *Lottery* panel has every
-seat. Try `publish-tickets-with-mark-3.json`, one block earlier: no mark yet.
+Read the ticket column down: 0, 11, 1, 10, 2, 9 and so on. It is the zip of two lists,
+one counting up, one counting down, meeting at 5 and 6 in the middle. The ids show what
+"best" means: ticket 0's id starts `0x00e5`, ticket 11's `0xff0a`. The *Lottery* panel has
+every seat. Try `publish-tickets-with-mark-3.json`, one block earlier: no mark yet.
 
 ![Lottery panel](./images/04-lottery.png)
 
@@ -564,37 +588,49 @@ back. Same order, a different way to see it. Try a few slots by hand: both give 
 ## Check your understanding
 
 ::: check
-**Twelve winners, sorted from t0, the best, to t11. Which ticket seals slot 3 of the next epoch?**
+**Why does Safrole seat block makers by anonymous tickets, when a hash could deal the slots out just as fairly?**
 
-- [ ] t3
-  > No: that's sorted order. Z goes outside in: t0, t11, t1, t10, and so on.
-- [x] t10
-  > Yes: slot 0 gets t0, slot 1 t11, slot 2 t1, slot 3 t10. Even slots count up from the
-  > front, odd ones down from the back.
-- [ ] t1
-  > No: t1 is slot 2's. Slot 3 takes the next one from the back, t10.
+- [ ] A hash can be steered, and tickets can't
+  > No: [lesson 8.3](./03-the-fallback-sealers.md)'s fallback draws by hash, and nobody
+  > could have steered it. What it gives up is secrecy, not fairness.
+- [x] So that nobody knows who makes a block until it arrives, and nobody can plan an attack on the next author
+  > Yes: a ticket proves "a validator made me" without saying which. Its holder is known
+  > only when that validator makes its block.
+- [ ] To keep the winning tickets themselves hidden
+  > No: the tickets mark puts the winning tickets in a header, for everyone. What stays
+  > hidden is who holds them.
 
-**Tiny's lottery is full. A block at slot 3 is followed by one at slot 11, in the same epoch. Does the slot-11 block carry the tickets mark?**
+**The lottery is full, but no block is made in the slot where it closes. Which block carries the tickets mark?**
 
-- [x] Yes: it's the block that crosses phase 10, since m = 3 < Y ≤ m′ = 11
-  > Yes: there was no block at slot 10, and none is needed. The mark goes in the first
-  > block to reach Y. That's `publish-tickets-with-mark-4`.
-- [ ] No: only a block at exactly phase 10 can carry it
-  > No: slots can be empty. The rule is m < Y ≤ m′, and a jump from 3 to 11 meets it.
-- [ ] No: the lottery closed at phase 10, so slot 11 is too late
-  > No: the mark announces the close, in the first block after it. Only a block whose
-  > previous block was already at Y or past it is too late.
+- [x] The first block to reach or pass the close, in the same epoch
+  > Yes: slots can be empty, so the rule compares two blocks: m < Y ≤ m′. On tiny, a block
+  > at slot 3 followed by one at slot 11 meets it. That's `publish-tickets-with-mark-4`.
+- [ ] None: only a block at exactly the closing phase can carry it
+  > No: no block is needed *at* Y. The mark goes in the first block to get there.
+- [ ] Every block from the close to the end of the epoch
+  > No: one block announces the close. A block whose previous block was already at Y or
+  > past it is too late.
 
-**Two tickets' ids start `0x00e5` and `0xff0a`. Which is better?**
+**More tickets are entered than an epoch has slots. Which ones win?**
 
-- [ ] `0xff0a`, the higher
-  > No: lower is better. `0xff0a…` was ticket 11, the worst of the twelve winners.
-- [x] `0x00e5`, the lower
-  > Yes: γ_A keeps its tickets sorted by id, lowest first, and ticket 0, `0x00e5…`, took
-  > slot 0.
-- [ ] Neither: ids are random, so they don't rank
+- [ ] The first E to be entered
+  > No: γ_A keeps the best tickets entered so far, not the earliest.
+- [ ] None can be ranked: ids are random
   > No: an id is random when it's made, but then it's a number, and the lottery keeps the
   > lowest. Chance decides who gets a low one, not whether low wins.
+- [x] The E with the lowest ids
+  > Yes: γ_A is sorted by id, lowest first, and holds at most E. In the run, ticket 0's id
+  > starts `0x00e5` and ticket 11's `0xff0a`.
+
+**The winners are sorted, best first. Which of them seals the second slot of the next epoch?**
+
+- [ ] The second best
+  > No: that's sorted order. The second best seals the third slot.
+- [x] The worst of the winners
+  > Yes: Z goes outside in: the first, the last, the second, the second to last. Even slots
+  > count up from the front, odd ones down from the back.
+- [ ] Whichever validator the entropy picks
+  > No: that is the fallback. A full lottery seats tickets, and Z alone decides the order.
 
 **The lottery fills up, but the chain then skips a whole epoch. Who seals the epoch it lands in?**
 
@@ -611,7 +647,7 @@ back. Same order, a different way to see it. Try a few slots by hand: both give 
 ## What you have
 
 The lottery's endgame: closing on time, announcing the winners, and seating them, outside
-in, in the epoch they'll seal. [Lesson 8.5](./05-one-step-of-safrole.md) puts
-every piece together into one step of Safrole.
+in, in the epoch they'll seal. [Lesson 8.5](./05-one-step-of-safrole.md) puts every piece
+together into one step of Safrole.
 
 Next: [8.5 One step of Safrole](./05-one-step-of-safrole.md)

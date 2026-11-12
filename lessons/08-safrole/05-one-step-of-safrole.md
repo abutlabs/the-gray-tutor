@@ -1,9 +1,38 @@
 # One step of Safrole
 
-Four lessons, four pieces: entropy, rotation, fallback sealers, the lottery's winners.
-Time to snap them together. This lesson writes `safroleStep`: give it Safrole's state and
-one block, and it hands back the state after the block, plus the two marks the block's
-header must carry. Then the test throws the whole post-state of every vector it can at it.
+**In one sentence:** one function takes Safrole's state and a block and gives back the
+state after the block, by doing the last four lessons' steps in a fixed order.
+
+Press *next block* and watch every piece move. While the lottery is open, pick tickets to
+go in: fill it and the winners seal the next epoch, or let it close short and see the
+fallback.
+
+<a id="try-it"></a>
+
+<SafroleEpoch />
+
+## The idea
+
+A block arrives. What does Safrole do with it?
+
+Four lessons gave four answers: stir the entropy, rotate the validators, seat the
+fallback sealers, seat the lottery's winners. A client needs one answer: the state
+before, the block, the state after.
+
+The pieces are done. What is left is their order, and it matters, because some pieces
+feed others. A new epoch's fallback sealers are drawn from the new entropy and the new
+validators, so the stir and the rotation come first. It is a recipe: the same
+ingredients in another order make another dish.
+
+So the step first asks one question: does this block start a new epoch? Most blocks
+don't. For them the clock moves on and the entropy is stirred, and nothing else in this
+lesson's step changes. At a new epoch, everything turns at once.
+
+The step also writes two notes that the block's header must carry, the marks. One
+announces a new epoch. The other announces the lottery's winners.
+
+This lesson builds that function, `safroleStep`, and checks the whole state it leaves
+against every vector it can run.
 
 ## What the Gray Paper says
 
@@ -47,9 +76,15 @@ $$
 
 :::
 
-In plain words: γ is four fields, the pending validators γ_P ([lesson 8.2](./02-rotating-the-validators.md)), the ring
-root γ_Z ([lesson 8.8](./08-the-ring-root.md)), the sealers γ_S ([lessons 8.3](./03-the-fallback-sealers.md) and [8.4](./04-the-lotterys-winners.md)) and the lottery γ_A
-([lesson 8.4](./04-the-lotterys-winners.md)). `safroleStep` takes them all, with τ, η, κ, λ and ι, and hands back the new ones.
+γ is four fields:
+
+- the pending validators, γ_P ([lesson 8.2](./02-rotating-the-validators.md));
+- the ring root, γ_Z ([lesson 8.8](./08-the-ring-root.md));
+- the sealers, γ_S ([lessons 8.3](./03-the-fallback-sealers.md) and
+  [8.4](./04-the-lotterys-winners.md));
+- the lottery, γ_A ([lesson 8.4](./04-the-lotterys-winners.md)).
+
+`safroleStep` takes them all, with τ, η, κ, λ and ι, and hands back the new ones.
 
 The epoch mark, the one rule no earlier lesson built, comes from §6.6:
 
@@ -97,7 +132,7 @@ $$
 
 :::
 
-In plain words, a few last rules join in:
+A few last rules join in:
 
 - **τ′** is the block's slot ([lesson 7.1](../07-time-and-shuffling/01-epochs.md)).
 - **The epoch mark** ([lesson 4.6](../04-blocks/06-the-header.md)) appears exactly at a new epoch ([lesson 7.1](../07-time-and-shuffling/01-epochs.md)), and carries
@@ -117,16 +152,15 @@ And three things this step can't do yet, all to do with the Bandersnatch VRF:
 So `safroleStep` takes blocks with no tickets, and its test skips the rest, honestly
 counted.
 
-Here is all of it at once, on tiny, for you to drive. It starts at slot 0, from the state
-every tiny safrole vector starts from. Press *next block* to make a block. While the
-lottery is open, pick up to 3 tickets to go in it: lower ids are better. Fill the lottery
-before phase 10, and the block that reaches phase 10 carries the tickets mark. Then the
-next epoch's slots go to the winners, outside in. Or let it close short, and see the
-fallback. Two things are stand-ins. A ticket id here is two hex digits, not a 32-byte VRF
-output. And the page can't run Blake2b, so only the first fallback's picks are the real
-ones; later picks are illustrative, and each says so.
+[The epoch at the top](#try-it) is all of it at once, on tiny. It starts at slot 0, from
+the state every tiny safrole vector starts from. While the lottery is open, pick up to 3
+tickets to go in each block: lower ids are better. Fill the lottery before phase 10, and
+the block that reaches phase 10 carries the tickets mark. Then the next epoch's slots go
+to the winners, outside in. Let it close short, and the fallback seats the epoch.
 
-<SafroleEpoch />
+Two things there are stand-ins. A ticket id is two hex digits, not a 32-byte VRF output.
+And the page can't run Blake2b, so only the first fallback's picks are the real ones;
+later picks are illustrative, and each says so.
 
 ## The tests
 
@@ -279,19 +313,21 @@ export function safroleFromJson(json: SafroleJson): Safrole {
 }
 ```
 
-Two imports change shape here. `src/safrole.ts` already imports the *types* `ValidatorKey`
-([lesson 8.2](./02-rotating-the-validators.md)) and `TicketBody` ([lesson 8.4](./04-the-lotterys-winners.md)). Now it needs their *values* too, for `fromJson`,
-and a value import brings the type along. So take those two names out of the
-`import type` lines, and drop a line that's left empty. TypeScript would complain about a
-name imported twice.
+Two imports change shape. `src/safrole.ts` already imports the *types* `ValidatorKey`
+([lesson 8.2](./02-rotating-the-validators.md)) and `TicketBody`
+([lesson 8.4](./04-the-lotterys-winners.md)). Now it needs their *values* too, for
+`fromJson`, and a value import brings the type along. So take those two names out of the
+`import type` lines, and drop a line that's left empty: TypeScript complains about a name
+imported twice.
 
 `Sealers` is either tickets or keys: `{ tickets } | { keys }`. The `"tickets" in sealers`
 check in the next program tells them apart. `safroleFromJson` is to Safrole's state what
 `fromJson` is to a codec: the vectors' form, with its Greek names, turned into your
 client's.
 
-`safroleStep` itself reads like a summary of [Part 8](./index.md), the six steps in order. Every line of
-it is a lesson you've done. The one place three lessons meet is step 4, the sealers:
+`safroleStep` itself reads like a summary of [Part 8](./index.md): the six steps, in
+order. Every line of it is a lesson you've done. Three lessons meet in one place, step 4,
+the sealers:
 
 ```ts
   let sealers = before.sealers;
@@ -380,9 +416,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The vector fields the one step reads — this one's extrinsic
-is empty, which is what lets the program run it — the values it computes, and the lines
-it prints:
+What flows through it. This vector's extrinsic is empty, which is what lets the program
+run it:
 
 ::: code-group
 
@@ -423,12 +458,12 @@ the whole state after matches the vector: true
 
 :::
 
-Read the input into the output: an empty `extrinsic` is the program's admission ticket —
-tickets would need Bandersnatch, [lesson 8.7](./07-entering-tickets.md)'s work. `slot` 48 against `tau` 45 turns
-the epoch, so every piece of the last four lessons fires in one step: `input.entropy`
-stirs η₀, `post_offenders` zeroes one pending key, and with no closed lottery the sealers
-fall back. The final line is the point of the program: your step's entire state equals
-the vector's.
+An empty `extrinsic` lets the program in: tickets would need Bandersnatch,
+[lesson 8.7](./07-entering-tickets.md)'s work. `slot` 48 against `tau` 45 turns the
+epoch, so every piece of the last four lessons fires in one step. `input.entropy` stirs
+η₀. `post_offenders` zeroes one pending key. With no closed lottery, the sealers fall
+back. The last line is the point of the program: your step's entire state equals the
+vector's.
 
 **Run**
 
@@ -478,27 +513,40 @@ vectors handed you that output as `input.entropy`. The line after it is your
 ## Check your understanding
 
 ::: check
-**A new epoch, and no full lottery. Do the fallback keys use η and κ from before this block's changes, or after?**
+**What is one step of Safrole, and who runs it?**
 
-- [ ] Before: η₂ and κ, as the block found them
-  > No: F(η′₂, κ′) asks for the values after. The old κ is the set leaving active duty; it
-  > would seat last epoch's validators.
-- [x] After: η′₂ and κ′, once the entropy has moved along and the validators rotated
-  > Yes: that's why step 4 comes after steps 2 and 3. `entropy[2]` and `validators.active`
-  > are the new values.
-- [ ] It makes no difference: η₂ and η′₂ are always the same
+- [x] The whole change Safrole makes to the state for one block, worked out by every node that takes the block
+  > Yes: state before, block, state after. Each node runs the same six steps and must
+  > reach the same state, and the same two marks the header must carry.
+- [ ] A check only the block's author runs, to fill in its header
+  > No: the author needs the marks, but so does everyone else, to see that the header
+  > carries the ones it must.
+- [ ] The check that a block's seal is valid
+  > No: seals wait for [lesson 8.9](./09-seals.md). This step moves the time, the entropy,
+  > the validators, the sealers and the lottery.
+
+**A new epoch, and no full lottery. Why must the fallback keys be picked after the entropy has moved and the validators have rotated?**
+
+- [ ] It makes no difference: the values are the same before and after
   > No: at a new epoch the history moves along, and η′₂ is the old η₁.
+- [x] F asks for the new values, η′₂ and κ′; the old ones would seat the validators who are leaving
+  > Yes: that's why step 4 comes after steps 2 and 3. `entropy[2]` and `validators.active`
+  > are the new values. The old κ is the set leaving active duty.
+- [ ] So that an offender's block can still be sealed
+  > No: Φ zeroes offenders in the new pending set. The order is about which entropy and
+  > which active set F reads.
 
-**What does the epoch mark carry?**
+**What is the epoch mark for?**
 
-- [ ] η′₀ and η′₁ from after the block, and κ′'s keys
-  > No: the entropy is η₀ and η₁ as they were. The validators are γ′_P, the next epoch's.
-- [x] η₀ and η₁ as they were, and the Bandersnatch and Ed25519 keys of γ′_P
-  > Yes: γ′_P is the newly pending set, active from the next epoch, and two keys each are
-  > all the mark holds.
-- [ ] η₀ and η₁ as they were, and all four parts of κ′'s keys
-  > No: just two keys a validator, and of γ′_P, the next epoch's, not of the validators
-  > taking over now.
+- [ ] It is what rotates the validators: nodes copy its keys into the state
+  > No: the rotation comes from the state itself, ι and γ_P. The mark reports it in the
+  > header.
+- [ ] It proves the author was allowed to make the block
+  > No: that is the seal's job. The mark appears in the first block of an epoch, whoever
+  > made it.
+- [x] It puts a new epoch's randomness and the next validators' keys in the header, for nodes that don't hold the whole state
+  > Yes: §6.6 says the markers "minimize data transfer". The mark carries η₀ and η₁ as
+  > they were, and the Bandersnatch and Ed25519 keys of γ′_P, the newly pending set.
 
 **The first block of a new epoch brings no tickets. What is γ′_A?**
 

@@ -38,8 +38,10 @@ test("3 → 11 carries the mark, and a skipped epoch falls back: the run and the
   for (const p of PRESETS) assert.ok(p.before < p.after && p.tickets <= E, p.says);
 });
 
-test("lesson 8.4 places the widget once, in What the Gray Paper says after the two rules", () => {
+test("lesson 8.4 places the widget once, at the top, and the two rules send the reader back to it", () => {
   const at = raw.indexOf("<LotteryClose />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<LotteryClose />"), "placed once");
-  assert.ok(at > raw.indexOf("Otherwise it's [lesson 8.3]") && at < raw.indexOf("## The size grows again"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const rules = raw.indexOf("Otherwise it's [lesson 8.3]");
+  assert.ok(rules > 0 && raw.indexOf("Try both rules [at the top](#try-it)") > rules);
 });
