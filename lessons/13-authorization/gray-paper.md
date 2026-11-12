@@ -1,11 +1,9 @@
 # The formulas, in plain words
 
-[Part 13](./index.md)'s appendix: every formula of §8, *Authorization*, explained. There are three, (8.1) to (8.3), and they are the whole of what the chain does about
-authorization; [the part's page](./index.md#the-big-picture) tells the rest, what an
-authorizer is and who runs it. Each formula comes with its key, then the same four steps:
-read it aloud, say it in plain words, watch it work on a real vector, and find it in your
-client. [Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line can
-take, if one of these stops you.
+[Part 13](./index.md)'s appendix: every formula of §8, *Authorization*, explained. Three,
+(8.1) to (8.3): all the chain does about authorization. Each formula: its key, then read
+aloud, in plain words, on a real value, in your client. Notation: [Reading the Gray
+Paper](../reading-the-gray-paper.md).
 
 ## (8.1): what a pool and a queue are
 

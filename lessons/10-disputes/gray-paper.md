@@ -1,14 +1,10 @@
 # The formulas, in plain words
 
-[Part 10](./index.md)'s appendix: every formula of §10, *Disputes, Verdicts and Judgments*, explained. There are eleven blocks, (10.1) to (10.19): what the state
-keeps, what a block carries, how a verdict is counted and recorded, what it does to the
-cores, who is named an offender, and the rules of order. [The part's
-page](./index.md#the-big-picture) tells the rest: the trial happens off the chain, and
-every validator, your client included, only checks the record. Each formula comes with its
-key, then the same four steps: read it aloud, say it in plain words, watch it work on a
-real vector, and find it in your client. [Reading the Gray
-Paper](../reading-the-gray-paper.md) teaches the shapes a line can take, if one of these
-stops you.
+[Part 10](./index.md)'s appendix: every formula of §10, *Disputes, Verdicts and Judgments*,
+explained. Eleven blocks, (10.1) to (10.19): what the state keeps, what a block carries, how
+a verdict is counted and recorded, what it does to the cores, who is named an offender, and
+the rules of order. Each formula: its key, then read aloud, in plain words, on a real value,
+in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 Most real values here come from one vector, `progress_invalidates_avail_assignments-1` on
 tiny: six validators, slot τ = 0 (epoch 0), two reports pending on the two cores, and a

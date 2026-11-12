@@ -1,16 +1,11 @@
 # The formulas, in plain words
 
-[Part 2](./index.md)'s appendix: every formula of Appendix C, *Serialization Codec*, that this part
-quotes, explained. There are eleven displayed blocks, (C.1)
-to (C.7) and (C.10) to (C.15), and between them they say how any JAM value becomes bytes;
-[the part's page](./index.md) says why that matters (one byte off, and every hash
-differs). Each comes with its key, then the same four steps: read it aloud, say it in
-plain words, watch it work on a real value, and find it in your client. The real values
-come from the codec vectors (`vectors/codec/tiny`) and the block traces. Appendix C's
-other lines, the bits, the maybe and the block itself, are explained in
-[4.A](../04-blocks/gray-paper.md), since [Part 4](../04-blocks/index.md) is where they are
-built. [Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line
-can take, if one of these stops you.
+[Part 2](./index.md)'s appendix: every formula of Appendix C, *Serialization Codec*, this
+part quotes, explained. Eleven blocks, (C.1) to (C.7) and (C.10) to (C.15): how any JAM
+value becomes bytes. Real values: the codec vectors (`vectors/codec/tiny`) and the block
+traces. The bits, the maybe and the block are in [4.A](../04-blocks/gray-paper.md). Each
+formula: its key, then read aloud, in plain words, on a real value, in your client.
+Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (C.1) and (C.2): nothing, and bytes
 

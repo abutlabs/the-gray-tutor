@@ -1,16 +1,12 @@
 # The formulas, in plain words
 
-[Part 4](./index.md)'s appendix: every formula this part quotes, explained.
-They come from three places: §4.1 says what a block is made of, §5 what its header holds,
-and Appendix C how all of it is written as bytes. There are eight displayed blocks, and
-the last one, Appendix C's *Block Serialization*, holds twenty-two equations, (C.16) to
-(C.37), so it gets a heading for each group of lines. [The part's page](./index.md) says
-who makes each bag and where. Each formula comes with its key, then the same four steps:
-read it aloud, say it in plain words, watch it work on a real value, and find it in your
-client. The real values are the codec vectors' (`vectors/codec/tiny`) and the `fallback`
-trace's. [2.A](../02-codec/gray-paper.md) explains the rest of Appendix C, the rules
-these lines are built from; [Reading the Gray Paper](../reading-the-gray-paper.md)
-teaches the shapes a line can take.
+[Part 4](./index.md)'s appendix: every formula this part quotes, explained. Eight blocks
+from three places: §4.1, what a block is made of; §5, what its header holds; Appendix C, how
+it is written as bytes. The last, *Block Serialization*, holds (C.16) to (C.37), so each
+group of lines gets a heading. Real values: the codec vectors (`vectors/codec/tiny`) and the
+`fallback` trace. The rest of Appendix C is in [2.A](../02-codec/gray-paper.md). Each
+formula: its key, then read aloud, in plain words, on a real value, in your client.
+Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (4.2) and (4.3): a block, and its five bags
 

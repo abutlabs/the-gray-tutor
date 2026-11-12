@@ -1,15 +1,12 @@
 # The formulas, in plain words
 
-[Part 16](./index.md)'s appendix: every formula of Appendix B, *Virtual Machine Invocations*, explained, and its three tables of host calls, row by row. The
-formulas are (B.1) to (B.21). Your client builds some of them: Ψ_A, accumulation, and the
-host calls it answers. It never runs the others, Is-Authorized and refine, because a
-core's guarantors run those in-core; each section says which kind it is.
-[The part's page](./index.md#the-big-picture) tells the rest: what a host call is and who
-answers it. Each formula comes with its key, then the same four steps: read it aloud, say
-it in plain words, watch it work on a real value, and find it in your client. The tables
-have no equation numbers, so they're quoted here whole, in the paper's words, and each
-row is explained under them. [Reading the Gray Paper](../reading-the-gray-paper.md)
-teaches the shapes a line can take, if one of these stops you.
+[Part 16](./index.md)'s appendix: every formula of Appendix B, *Virtual Machine
+Invocations*, (B.1) to (B.21), explained, and its three tables of host calls, row by row.
+Your client builds some: Ψ_A, accumulation, and the host calls it answers. Guarantors run
+the others, Is-Authorized and refine, in-core; each section says which. The tables have no
+equation numbers, so they are quoted whole, each row explained under them. Each formula: its
+key, then read aloud, in plain words, on a real value, in your client. Notation: [Reading
+the Gray Paper](../reading-the-gray-paper.md).
 
 One reading tip for the whole appendix. Every machine run returns how it stopped, written
 with a sign: ▸ carry on, ∎ halt, ↯ panic, ∞ out of gas. And ϱ is the gas, φ the 13

@@ -1,14 +1,11 @@
 # The formulas, in plain words
 
-[Part 14](./index.md)'s appendix: every formula of §9, *Service Accounts*, and of §12.4, *Preimage
-Integration*, explained. There are nine: what an account is
-made of (9.1) to (9.3), where its code is (9.4), how refine looks a preimage up at a past
-slot (9.5) to (9.7), what its storage costs (9.8), and how a block hands preimages over
-(12.34) to (12.37). [The part's page](./index.md#the-big-picture) tells the rest, what a
-service is and who runs it where. Each formula comes with its key, then the same four
-steps: read it aloud, say it in plain words, watch it work on a real vector, and find it
-in your client. [Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes
-a line can take, if one of these stops you.
+[Part 14](./index.md)'s appendix: every formula of §9, *Service Accounts*, and of §12.4,
+*Preimage Integration*, explained. Nine: what an account is made of (9.1) to (9.3), where
+its code is (9.4), how refine looks a preimage up at a past slot (9.5) to (9.7), what its
+storage costs (9.8), and how a block hands preimages over (12.34) to (12.37). Each formula:
+its key, then read aloud, in plain words, on a real value, in your client. Notation:
+[Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (9.1) and (9.2): a service id, and the accounts
 

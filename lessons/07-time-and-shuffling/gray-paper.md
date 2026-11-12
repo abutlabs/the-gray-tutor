@@ -1,13 +1,9 @@
 # The formulas, in plain words
 
-[Part 7](./index.md)'s appendix: every formula the part quotes, explained.
-There are six. Two from §6.1 tell the time, (6.1) and (6.2); two from §6.4 keep the
-entropy's history, (6.22) and (6.24); and two from Appendix F shuffle a list, (F.1) and
-(F.2) with (F.3). [The part's page](./index.md) says why a client needs a clock and a
-shuffle at all. Each formula comes with its key, then the same four steps: read it aloud,
-say it in plain words, watch it work on a real value, and find it in your client.
-[Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line can take,
-if one of these stops you.
+[Part 7](./index.md)'s appendix: every formula this part quotes, explained. Six: (6.1) and
+(6.2) tell the time; (6.22) and (6.24) keep the entropy's history; (F.1) and (F.2), with
+(F.3), shuffle a list. Each formula: its key, then read aloud, in plain words, on a real
+value, in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (6.1): the time is the header's slot
 

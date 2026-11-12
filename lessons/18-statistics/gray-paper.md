@@ -1,14 +1,11 @@
 # The formulas, in plain words
 
-[Part 18](./index.md)'s appendix: every formula of §13, *Statistics*, explained. There are five blocks: what the validators' tallies are (13.1) to (13.3) and how a
-block moves them on (13.4) to (13.6); what the cores' and services' tallies are (13.7) and
-(13.8), and how each block fills them (13.9) to (13.17). They are all counting: nothing
-here decides anything, but every count goes into the state root.
-[The part's page](./index.md#the-big-picture) says who the counts are for. Each formula
-comes with its key, then the same four steps: read it aloud, say it in plain words, watch
-it work on a real vector, and find it in your client. [Reading the Gray
-Paper](../reading-the-gray-paper.md) teaches the shapes a line can take, if one of these
-stops you.
+[Part 18](./index.md)'s appendix: every formula of §13, *Statistics*, explained. Five
+blocks: the validators' tallies (13.1) to (13.3) and how a block moves them on (13.4) to
+(13.6); the cores' and services' tallies (13.7) and (13.8), and how each block fills them
+(13.9) to (13.17). All counting: nothing here decides anything, but every count goes into
+the state root. Each formula: its key, then read aloud, in plain words, on a real value, in
+your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (13.1) to (13.3): the four tallies
 

@@ -1,15 +1,11 @@
 # The formulas, in plain words
 
-[Part 12](./index.md)'s appendix: every formula the part quotes, explained.
-They come from §11.3 to §11.5, with two limits from §11.1: who guarantees which core
-(11.19 to 11.23), what a guarantee is (11.24), the rules a guarantee keeps (11.25 to
-11.33), the rules its report keeps against the chain (11.3, 11.8 and 11.34 to 11.45), and
-how the reports take their cores (11.46). [The part's page](./index.md#the-big-picture)
-tells who does what; everything here is the chain's side, on every validator, your client
-included. Each formula comes with its key, then the same four steps: read it aloud, say it
-in plain words, watch it work on a real vector, and find it in your client. [Reading the
-Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line can take, if one of
-these stops you.
+[Part 12](./index.md)'s appendix: every formula this part quotes, explained. From §11.3 to
+§11.5, with two limits from §11.1: who guarantees which core (11.19 to 11.23), what a
+guarantee is (11.24), the rules it keeps (11.25 to 11.33), the rules its report keeps
+against the chain (11.3, 11.8, 11.34 to 11.45), and how reports take their cores (11.46).
+Each formula: its key, then read aloud, in plain words, on a real value, in your client.
+Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 The real values come from the tiny reports vectors: 6 validators, 2 cores, an epoch of
 E = 12 slots, a rotation of R = 4, and most of them a block at slot 14.

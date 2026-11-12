@@ -1,12 +1,11 @@
 # The formulas, in plain words
 
-[Part 0](./index.md)'s appendix: every formula of §4, *Overview*, that [Part 0](./index.md) and the map pages quote, explained. There are nine blocks: the state transition, the
-state's seventeen parts, a balance, the PVM and its gas and memory, and a timeslot. §4's
-block and dependency graph are [Part 19's appendix](../19-block-import/gray-paper.md).
-Each formula comes with its key, then the same four steps: read it aloud, say it in plain
-words, watch it work on a real value, and find it in your client. [Reading the Gray
-Paper](../reading-the-gray-paper.md) teaches the shapes a line can take, if one of these
-stops you.
+[Part 0](./index.md)'s appendix: every formula of §4, *Overview*, that [Part 0](./index.md)
+and the map pages quote, explained. Nine blocks: the state transition, the state's seventeen
+parts, a balance, the PVM with its gas and memory, and a timeslot. §4's block and dependency
+graph are in [Part 19's appendix](../19-block-import/gray-paper.md). Each formula: its key,
+then read aloud, in plain words, on a real value, in your client. Notation: [Reading the
+Gray Paper](../reading-the-gray-paper.md).
 
 ## (4.1): one block, one step
 

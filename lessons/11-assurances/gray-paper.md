@@ -1,13 +1,10 @@
 # The formulas, in plain words
 
-[Part 11](./index.md)'s appendix: every formula of §11.1 and §11.2 the part quotes, explained. There are seven blocks, (11.1) and (11.11) to (11.18): what a core
-holds, what an assurance is, the five rules it keeps, when a report becomes available,
-and when a core lets go. [The part's page](./index.md#the-big-picture) tells who makes the
-shards and the assurances; all of this is the chain's side, on every validator, your
-client included. Each formula comes with its key, then the same four steps: read it aloud,
-say it in plain words, watch it work on a real vector, and find it in your client.
-[Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line can take,
-if one of these stops you.
+[Part 11](./index.md)'s appendix: every formula of §11.1 and §11.2 this part quotes,
+explained. Seven blocks, (11.1) and (11.11) to (11.18): what a core holds, what an assurance
+is, the five rules it keeps, when a report becomes available, and when a core lets go. Each
+formula: its key, then read aloud, in plain words, on a real value, in your client.
+Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 The real values come from the tiny assurances vectors: 6 validators, 2 cores, and a block
 at slot 12 whose parent's header hash is `0xd61a38a0…`.

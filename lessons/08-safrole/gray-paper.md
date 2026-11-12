@@ -1,17 +1,14 @@
 # The formulas, in plain words
 
-[Part 8](./index.md)'s appendix: every formula of §6 that the part quotes, and the two of Appendix G, explained. They come in the paper's order, which is not the
-lessons' order: §6.2 names Safrole's state, §6.3 rotates the validators, §6.4 seals the
-block and stirs the randomness, §6.5 seats the sealers, §6.6 writes the two marks, §6.7
-enters the tickets, and Appendix G says what a VRF signature and a ring proof are. (§6.1's
-clock and the entropy's history, (6.1), (6.2), (6.22) and (6.24), are in
-[7.A](../07-time-and-shuffling/gray-paper.md).) [The part's page](./index.md#the-big-picture)
-tells the cycle they make together, one epoch long. Each formula comes with its key, then
-the same four steps: read it aloud, say it in plain words, watch it work on a real value,
-and find it in your client. The real values are the tiny network's: 6 validators, E = 12
-slots an epoch, the lottery closing at Y = 10, at most K = 3 tickets a block. Each hash or
-key is shown by its first two bytes. [Reading the Gray Paper](../reading-the-gray-paper.md)
-teaches the shapes a line can take, if one of these stops you.
+[Part 8](./index.md)'s appendix: every formula of §6 this part quotes, and the two of
+Appendix G, explained. In the paper's order, not the lessons': §6.2 Safrole's state, §6.3
+the validators' rotation, §6.4 the seal and the randomness, §6.5 the sealers, §6.6 the two
+marks, §6.7 the tickets, Appendix G the VRF signature and the ring proof. §6.1's clock and
+the entropy's history are in [7.A](../07-time-and-shuffling/gray-paper.md). Real values: the
+tiny network, 6 validators, E = 12 slots an epoch, the lottery closing at Y = 10, at most K
+= 3 tickets a block. A hash or key is shown by its first two bytes. Each formula: its key,
+then read aloud, in plain words, on a real value, in your client. Notation: [Reading the
+Gray Paper](../reading-the-gray-paper.md).
 
 ## (6.3): Safrole's four fields
 

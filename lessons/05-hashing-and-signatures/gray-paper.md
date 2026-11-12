@@ -1,16 +1,12 @@
 # The formulas, in plain words
 
-[Part 5](./index.md)'s appendix: every formula this part quotes, explained.
-§3.8, where the paper names its hash and its signatures, has no formulas of its own, only
-sentences, and [5.1](./01-hashes.md#what-the-gray-paper-says) and
-[5.3](./03-signatures.md#what-the-gray-paper-says) say them in plain words. What is left
-is three formulas of §5, *The Header*: (5.2), the parent hash; (5.3), the ancestors; and
-(5.4) to (5.7), the extrinsic hash. They are the two hashes a header carries, the ones
-that tie a block to the block before it and to its own contents. Each comes with its key,
-then the same four steps: read it aloud, say it in plain words, watch it work on a real
-value, and find it in your client. The real values are the `fallback` and `preimages`
-traces' (`vectors/traces`). [Reading the Gray Paper](../reading-the-gray-paper.md)
-teaches the shapes a line can take, if one of these stops you.
+[Part 5](./index.md)'s appendix: every formula this part quotes, explained. §3.8 names the
+hash and the signatures in sentences, which [5.1](./01-hashes.md#what-the-gray-paper-says)
+and [5.3](./03-signatures.md#what-the-gray-paper-says) cover. That leaves three formulas of
+§5: (5.2), the parent hash; (5.3), the ancestors; (5.4) to (5.7), the extrinsic hash. Real
+values: the `fallback` and `preimages` traces. Each formula: its key, then read aloud, in
+plain words, on a real value, in your client. Notation: [Reading the Gray
+Paper](../reading-the-gray-paper.md).
 
 ## (5.2): the parent hash
 

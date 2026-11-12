@@ -1,17 +1,14 @@
 # The formulas, in plain words
 
-[Part 15](./index.md)'s appendix: every formula of Appendix A, *Polkadot Virtual Machine*, explained. There are 65 numbered equations in 54 displayed blocks,
-plus thirteen tables of instructions and one table of prices, and they are the whole
-machine: how a program blob is cut up (A.1, A.2), how one instruction is read (A.2 to
-A.5), what one step does (A.4), what each instruction does (A.5), how a host and a
-program's start are wired in (A.6 to A.8), and what code costs (A.9, A.10). [The part's
-page](./index.md#the-big-picture) tells who runs the machine and why. Each formula comes
-with its key, then the same four steps: read it aloud, say it in plain words, watch it
-work on a real value, and find it in your client. The real values come from the bootstrap
-service, service 0 of the fallback trace, whose code [lesson
-15.1](./01-the-program-blob.md) unpacks, and from the lessons' own small programs. [Reading
-the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line can take, if one of
-these stops you.
+[Part 15](./index.md)'s appendix: every formula of Appendix A, *Polkadot Virtual Machine*,
+explained. 65 numbered equations in 54 blocks, thirteen tables of instructions and one of
+prices: how a program blob is cut up (A.1, A.2), how one instruction is read (A.2 to A.5),
+what one step does (A.4), what each instruction does (A.5), how a host and a program's start
+are wired in (A.6 to A.8), and what code costs (A.9, A.10). Real values: the bootstrap
+service, service 0 of the fallback trace, whose code [lesson 15.1](./01-the-program-blob.md)
+unpacks, and the lessons' own small programs. Each formula: its key, then read aloud, in
+plain words, on a real value, in your client. Notation: [Reading the Gray
+Paper](../reading-the-gray-paper.md).
 
 ## (A.1) and (A.2): the machine, and cutting the blob
 

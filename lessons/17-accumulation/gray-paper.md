@@ -1,15 +1,12 @@
 # The formulas, in plain words
 
 This part's appendix: every formula of §12, *Accumulation*, and of §9.4, *Service
-Privileges*, explained. There are twenty-one blocks of them,
-more than any other part, because accumulation is where queues, rounds, privileges and
-preimages meet; [the part's page](./index.md#the-big-picture) tells the story first, on one
-real block. Each formula comes with its key, then the same four steps: read it aloud, say
-it in plain words, watch it work on a real vector, and find it in your client. The vectors
-are the tiny ones in `vectors/stf/accumulate/tiny/`: E = 12 slots an epoch, C = 2 cores,
-G_T = 20,000,000 and G_A = 10,000,000 gas. A hash is shown by its first two bytes.
-[Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line can take,
-if one of these stops you.
+Privileges*, explained. Twenty-one blocks, more than any other part: [the part's
+page](./index.md#the-big-picture) tells the story first, on one real block. Real values: the
+tiny vectors in `vectors/stf/accumulate/tiny/`, E = 12 slots an epoch, C = 2 cores, G_T =
+20,000,000 and G_A = 10,000,000 gas. A hash is shown by its first two bytes. Each formula:
+its key, then read aloud, in plain words, on a real value, in your client. Notation:
+[Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (9.9) to (9.11): who holds which privilege
 

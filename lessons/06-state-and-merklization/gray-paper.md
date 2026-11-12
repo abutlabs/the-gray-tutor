@@ -1,16 +1,12 @@
 # The formulas, in plain words
 
-[Part 6](./index.md)'s appendix: every formula this part quotes, explained.
-They say how the whole state becomes one 32-byte root: (4.4) lists what the state is,
-(5.9) puts its root in every header, and Appendix D does the work, (D.1) and (D.2) cutting
-the state into keys and values, (D.3) to (D.6) hashing those into a trie. Then comes
-Appendix E.1, the paper's other Merkle trees, which no lesson of this part builds, quoted
-and explained at the end. [The part's page](./index.md#the-big-picture) has the sixteen
-components. Each formula comes with its key, then the same four steps: read it aloud, say
-it in plain words, watch it work on a real value, and find it in your client. The real
-values are the `fallback` trace's: block 1's state before it, the tiny genesis state, 21
-entries. [Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes a line
-can take, if one of these stops you.
+[Part 6](./index.md)'s appendix: every formula this part quotes, explained. How the state
+becomes one 32-byte root: (4.4) lists the state, (5.9) puts its root in every header, (D.1)
+and (D.2) cut it into keys and values, (D.3) to (D.6) hash those into a trie. Last comes
+Appendix E.1, the paper's other Merkle trees, which no lesson here builds. Real values: the
+`fallback` trace's genesis state, 21 entries. Each formula: its key, then read aloud, in
+plain words, on a real value, in your client. Notation: [Reading the Gray
+Paper](../reading-the-gray-paper.md).
 
 ## (4.4): the state's seventeen parts
 

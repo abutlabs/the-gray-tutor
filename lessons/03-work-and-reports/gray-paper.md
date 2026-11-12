@@ -1,13 +1,11 @@
 # The formulas, in plain words
 
-[Part 3](./index.md)'s appendix: every formula of the paper the part quotes, explained. The first half is the shapes your client decodes: a package and its
-items (§14.3), a context (§11.1.2), a digest (§11.1.4) and a report with its availability
-specification (§11.1.1, §11.1.3). The second half is the rest of §14, what the guarantors
-do in-core to turn a package into a report: your client never runs it, but a report's
-every field comes from it, and an interview may ask. Each formula comes with its key, then
-the same four steps: read it aloud, say it in plain words, watch it work on a real value,
-and find it in your client. [Reading the Gray Paper](../reading-the-gray-paper.md) teaches
-the shapes a line can take, if one of these stops you.
+[Part 3](./index.md)'s appendix: every formula this part quotes, explained. First the shapes
+your client decodes: a package and its items (§14.3), a context (§11.1.2), a digest
+(§11.1.4), a report and its availability specification (§11.1.1, §11.1.3). Then the rest of
+§14, what guarantors do in-core: your client never runs it, but every field of a report
+comes from it. Each formula: its key, then read aloud, in plain words, on a real value, in
+your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 All the real values here come from the codec vectors, `vectors/codec/tiny/`: one
 `work_package`, one `work_report` and two `work_result` vectors (the old name for a digest). They

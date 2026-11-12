@@ -1,14 +1,11 @@
 # The formulas, in plain words
 
-[Part 9](./index.md)'s appendix: every formula of §7, *Recent History*, and of Appendix E.2, *Merkle
-Mountain Ranges and Belts*, explained. There are seven
-blocks: what the state remembers (7.1 to 7.4), the blank filled in (7.5), the belt's
-append, bytes and super-peak (E.8 to E.10), what each block appends to it (7.6, 7.7), and
-the new entry (7.8). [The part's page](./index.md#the-big-picture) tells the rest, what
-the memory is for and who reads it. Each formula comes with its key, then the same four
-steps: read it aloud, say it in plain words, watch it work on a real vector, and find it
-in your client. [Reading the Gray Paper](../reading-the-gray-paper.md) teaches the shapes
-a line can take, if one of these stops you.
+[Part 9](./index.md)'s appendix: every formula of §7, *Recent History*, and of Appendix E.2,
+*Merkle Mountain Ranges and Belts*, explained. Seven blocks: what the state remembers (7.1
+to 7.4), the blank filled in (7.5), the belt's append, bytes and super-peak (E.8 to E.10),
+what each block appends (7.6, 7.7), and the new entry (7.8). Each formula: its key, then
+read aloud, in plain words, on a real value, in your client. Notation: [Reading the Gray
+Paper](../reading-the-gray-paper.md).
 
 ## (7.1) to (7.4): what the state remembers
 
