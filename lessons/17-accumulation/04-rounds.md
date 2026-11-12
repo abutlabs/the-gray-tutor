@@ -1,23 +1,37 @@
 # Rounds
 
-[Lesson 17.3](./03-sending-a-transfer.md)'s gift left service 0 and went nowhere. Time to deliver it. A block's
-accumulation doesn't happen all at once: it happens in *rounds*, and the transfers sent in
-one round arrive in the next. By the end of this lesson, the gift's whole block matches
-its official vector, receiver and all.
+**In one sentence:** a block's accumulation runs in rounds: the transfers sent in one
+round are delivered in the next, until a round sends none.
 
-## New words
+Here is the gift's block. Step through its rounds, and watch the hundred leave service 0
+and reach service 1.
 
-- **Δ+ (accumulating in rounds).** The Gray Paper's loop over rounds: one round, then
-  another for the transfers it sent, and so on until a round sends none (with the gas
-  budget, [lesson 17.9](./09-the-blocks-gas-budget.md), reports left over make rounds too). *Example:* the gift's
-  block takes two rounds.
-- **Delivery.** What happens to a transfer in the round after it was sent: its money goes
-  into the receiver's balance, and the transfer itself becomes one of the receiver's
-  inputs. *Example:* service 1's balance grows by 100, then its code reads "gift".
-- **Transfer input.** An input that starts with a 1, followed by one transfer, encoded.
-  Operands start with a 0. *Example:* service 1's only input in round 2.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md). (*Round* itself is from [lesson 17.1](./01-a-blocks-accumulation.md).)
+<GiftRounds />
+
+## The idea
+
+[Lesson 17.3](./03-sending-a-transfer.md)'s gift left service 0 and went nowhere. When
+does it arrive?
+
+Not in the same round: in a round, no service sees what another does. So the block runs
+another round, for the transfers alone. It works like the post. What is sent in one round
+arrives in the next.
+
+Round 1 is the block you already have. If it sent transfers, round 2 runs every service
+a transfer was sent to. If those send transfers, there is a round 3. It goes on until a
+round sends nothing. That loop is
+[*accumulating in rounds*](../glossary.md#accumulating-in-rounds). The gift's block takes
+two rounds.
+
+[*Delivery*](../glossary.md#delivery) is two things, in this order. First the money goes
+into the receiver's balance. Then the receiver's code runs, with the transfer as one of
+its inputs: a [*transfer input*](../glossary.md#transfer-input). The money comes first, so
+it arrives even if the receiver has no code, and it stays even if the code panics.
+
+By the end of this lesson, the gift's whole block matches its official vector, receiver
+and all.
 
 ## What the Gray Paper says
 
@@ -37,13 +51,13 @@ All three are in the [glossary](../glossary.md). (*Round* itself is from [lesson
 
 :::
 
-In plain words, §12.2's rounds are five steps:
+§12.2's rounds are five steps:
 
 1. **Round 1 is the block you already have**: every report that can go, and the
    always-accumulate services. It may send transfers.
 2. **If it did, round 2 runs, for those transfers only.** Every service a transfer was
    sent to runs once, all from the same accounts, as in any round. Its transfers come
-   first among its inputs, then any operands; its gas is all of their gas added up.
+   first among its inputs, then any operands. Its gas is all of their gas added up.
 3. **The money comes first.** Before a receiver's code runs, the amounts go into its
    balance. That happens even if it has no code at all, and then nothing else does. And
    it stays even if the receiver's code then panics: a panic undoes what the run did, and
@@ -54,12 +68,12 @@ In plain words, §12.2's rounds are five steps:
    rounds, and T counts the transfers it received ([lesson 17.1](./01-a-blocks-accumulation.md) left T at 0). A service
    that only received a transfer still counts, and gets its last-accumulation slot.
 
-Inside a round the services go in order of their ids, and so do the transfers they send:
-that's the order the next round hands them out in.
+Inside a round the services go in order of their ids, and so do the transfers they send.
+That's the order the next round hands them out in.
 
 ![The gift's block in rounds. Round 1 runs service 0 with its one operand; it uses 255,437 gas and sends service 1 a transfer of 100 with the memo "gift" and 80,000 gas. Round 2 runs service 1: first 100 goes into its balance, from 227,714, then it runs with the transfer as its input and uses 61,711 gas, sending nothing. So there is nothing for a round 3, and Δ+ stops.](./images/04-rounds.svg)
 
-<GiftRounds />
+[The rounds at the top](#try-it) are this picture, one step at a time.
 
 In the Gray Paper the loop is *Δ+*, one round *Δ\**, and one service in a round *Δ₁*,
 whose inputs are *i^T ⌢ i^U*: transfers, then operands. Here is Δ₁, whose g and
@@ -195,11 +209,15 @@ $$
 
 :::
 
-In plain words: one service's run gets its free gas, plus the gas of every transfer sent
-to it, plus the gas limit of every digest for it, all added up as g; its inputs are the
-transfers to it, in order, then its operands, in order; and Ψ_A runs its code on them. What
-comes back, an 𝕆, is the state it left (𝐞), the transfers it sent (𝐭), its yield (y), the
-gas it used (u) and the preimages it provided (𝐩).
+One service's run, piece by piece:
+
+- **Its gas**, g: its free gas, plus the gas of every transfer sent to it, plus the gas
+  limit of every digest for it.
+- **Its inputs**: the transfers to it, in order, then its operands, in order. A transfer
+  input starts with a 1, followed by one transfer, encoded. An operand starts with a 0.
+- **Its run**: Ψ_A runs its code on those inputs.
+- **What comes back**, an 𝕆: the state it left (𝐞), the transfers it sent (𝐭), its yield
+  (y), the gas it used (u) and the preimages it provided (𝐩).
 
 > [!NOTE]
 > **The simple road.** Δ+ also keeps a gas budget for the whole block, max(G_T, G_A · C +
@@ -308,9 +326,9 @@ test at test/accumulate.test.ts:184:1
 ```
 
 Three red: the gift never arrives. Read the second: the receiver's balance is 227,714
-where the vector has 227,814, the hundred that never came. These fail on an assertion,
-not a missing name: the tests use only functions you already have, so the red is the
-rule itself, missing.
+where the vector has 227,814. That is the hundred that never came. These fail on an
+assertion, not a missing name. The tests use only functions you already have, so the red
+is the rule itself, missing.
 
 ## The code
 
@@ -518,7 +536,7 @@ reported 537 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
-`bin/accumulate.ts` shows each service's digests and gas; now it shows the transfers it
+`bin/accumulate.ts` shows each service's digests and gas. Now it shows the transfers it
 received too.
 
 **Rewrite** `bin/accumulate.ts`
@@ -572,7 +590,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** The same block as [lesson 17.3](./03-sending-a-transfer.md)'s, this time whole: one
-report for service 0, nothing waiting, and service 1 there to receive:
+report for service 0, nothing waiting, and service 1 there to receive.
 
 ::: code-group
 
@@ -698,11 +716,11 @@ used.
   > Yes: the amounts go into the balance first, and both the run and its checkpoint
   > start from there. The money would arrive even with no code at all.
 
-**After the block, service 1's statistics are (0, 1, 61,711). Does its last-accumulation slot change?**
+**A service receives one transfer in a block and accumulates no digests. Does its last-accumulation slot change?**
 
 - [x] Yes: a service that only received a transfer still counts
-  > Yes: no digests, one transfer, 61,711 gas in round 2. S(s) isn't (0, 0, 0), so
-  > service 1 gets this block's slot.
+  > Yes: service 1's statistics are (0, 1, 61,711): no digests, one transfer, 61,711
+  > gas in round 2. S(s) isn't (0, 0, 0), so it gets this block's slot.
 - [ ] No: it accumulated no digests, so it didn't really accumulate
   > No: receiving a transfer is accumulating too. T counts the transfers, and any
   > S(s) that isn't (0, 0, 0) sets the slot.
@@ -724,9 +742,8 @@ used.
 ## What you have
 
 A block's accumulation in rounds: transfers sent, carried over, and delivered, the money
-before the code. Thirty-seven official vectors now match as whole blocks. Money is one
-thing a service can hand on; [lesson 17.5](./05-privileges.md) turns to rights.
-
-**Say it out loud.** Transfers arrive in the next round: the money first, then the receiver's code. So one block can take several rounds.
+before the code. One block can take several rounds. Thirty-seven official vectors now
+match as whole blocks. Money is one thing a service can hand on.
+[Lesson 17.5](./05-privileges.md) turns to rights.
 
 Next: [17.5 Privileges](./05-privileges.md)

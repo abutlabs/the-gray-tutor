@@ -764,7 +764,7 @@ read. *Example:* the bytes of "gift", then 124 zeros.
 the ones its last checkpoint kept. *Example:* two sent, one before the checkpoint.
 ([17.3](./17-accumulation/03-sending-a-transfer.md))
 
-**Δ+ (accumulating in rounds).** The loop over a block's rounds: one round, then another
+**Accumulating in rounds (Δ+).** The loop over a block's rounds: one round, then another
 for the transfers it sent, until a round sends none (or, with the gas budget, until no
 reports are left either). *Example:* a block with one transfer
 takes two rounds. ([17.4](./17-accumulation/04-rounds.md))

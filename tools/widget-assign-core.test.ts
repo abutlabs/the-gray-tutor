@@ -29,6 +29,8 @@ test("the tests: core 0 to service 1 is OK and [1, 0]; CORE, HUH and WHO change 
 
 test("lesson 17.5 places the widget once, after the hand-over", () => {
   const at = raw.indexOf("<AssignCore />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<AssignCore />"));
-  assert.ok(at > raw.indexOf("It costs 1,818 gas.") && at < raw.indexOf("And the checkpoint rule holds again"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<AssignCore />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("It costs 1,818 gas."));
+  assert.ok(back > 0 && back < raw.indexOf("And the checkpoint rule holds again"));
 });

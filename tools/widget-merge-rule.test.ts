@@ -30,6 +30,8 @@ test("the test: before [1, 1], manager [5, 1], holder [7, 7] merge to [5, 7], wi
 
 test("lesson 17.6 places the widget once, after R", () => {
   const at = raw.indexOf("<MergeRule />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<MergeRule />"));
-  assert.ok(at > raw.indexOf("where e* is the manager's run.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<MergeRule />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("R(1, 1, 7) = 7."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

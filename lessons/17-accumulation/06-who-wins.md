@@ -1,22 +1,33 @@
 # Who wins
 
+**In one sentence:** when two services change the same privilege in one round, the
+manager's change wins, and if the manager left it alone, the holder's own change does.
+
+Here are two cores, and the runs of this lesson's test. Change what the manager's run and
+the holder's run each leave, and see who has each core after the round.
+
+<a id="try-it"></a>
+
+<MergeRule />
+
+## The idea
+
 Every service in a round starts from the same privileges, so two of them can change the
 same one. Say the manager gives core 0 to service 5, while core 0's own assigner gives it
-to service 7. Both runs finish happily. Which one does the chain believe? This lesson
-settles it the Gray Paper's way, keeps the privileges in the block's state from round to
-round, and three more official vectors pass whole.
+to service 7. Both runs finish happily. Which one does the chain believe?
 
-## New words
+After a round, the chain has to turn every run's version of the privileges into one.
+That is a [*merge*](../glossary.md#merge). For each privilege it reads two runs only: the
+manager's, and the run of the [*holder*](../glossary.md#holder), the service holding the
+privilege when the round starts.
 
-- **Holder.** The service holding a privilege when the round starts. *Example:* service 1
-  holds core 0's assignment.
-- **Merge.** Turning every run's version of something into one, after a round. *Example:*
-  two runs left different assigners for core 0; the merge picks one.
-- **R (replace if changed).** The Gray Paper's merge rule for a privilege: the manager's
-  change wins; if the manager left it alone, the holder's own change. *Example:*
-  R(1, 5, 7) = 5, R(1, 1, 7) = 7.
+The rule is the one of any office. If your manager decided, that stands. If your manager
+said nothing, your own decision does.
 
-All three are in the [glossary](../glossary.md).
+So service 5 gets core 0. Had the manager left core 0 alone, service 7 would have it.
+
+This lesson builds the merge and keeps the privileges in the block's state from round to
+round. Three more official vectors pass whole.
 
 ## What the Gray Paper says
 
@@ -53,7 +64,7 @@ $$
 
 :::
 
-In plain words, §12.2's merge after a round (Δ\*) is five steps:
+§12.2's merge after a round (Δ\*) is five steps:
 
 1. **The manager's run decides the manager.** Whoever the manager's run left as manager
    is the manager now.
@@ -71,18 +82,19 @@ Why this rule? The Gray Paper's own reason, [in the sentence before
 Δ\*](./01-a-blocks-accumulation.md#gp-12-2-p14): it lets privileges be *owned*, each holder
 changing its own, and it makes it possible to remove the manager altogether.
 
-Read R with o the holder at the start, a the manager's choice and b the holder's: if the
+R is [*replace if changed*](../glossary.md#r). Read it with o the holder at the start, a
+the manager's choice and b the holder's: if the
 manager left it as it was (a = o), the holder's choice b wins; otherwise the manager's a
 does. For core c's assigner that is 𝐚′[c] = R(𝐚[c], 𝐞\*_𝐚[c], what core c's assigner's own
 run left as 𝐚[c]), where 𝐞\* is the state the manager's run left.
 
-R on two cores, starting from the test's runs:
-
-<MergeRule />
+On the example: service 1 holds core 0, the manager says 5 and service 1 says 7, so
+R(1, 5, 7) = 5. Had the manager left it with service 1, R(1, 1, 7) = 7.
+Try both on [the two cores at the top](#try-it).
 
 ## The tests
 
-The merge on its own first, with the example from the top of the lesson:
+The merge on its own first, with the example from *The idea*:
 
 **Add to** `test/accumulate.test.ts`
 
@@ -329,7 +341,7 @@ export function accumulateRound(
 }
 ```
 
-Most of that is [lesson 17.4](./04-rounds.md)'s round. What's new is four lines: the round takes the privileges
+Most of that is [lesson 17.4](./04-rounds.md)'s round. Four lines are new. The round takes the privileges
 it starts with, hands them to every run, keeps what each run left them as, and merges
 them when every run is done:
 
@@ -429,8 +441,8 @@ export function accumulateBlock(
 }
 ```
 
-The same idea, one level up. The privileges start from the state, each round's merge is
-the next round's start, the last one goes back into the state, and the queues the rounds
+The same idea, one level up. The privileges start from the state. Each round's merge is
+the next round's start. The last one goes back into the state, and the queues the rounds
 set are kept (a later round's over an earlier's):
 
 ```ts
@@ -503,7 +515,7 @@ for (const [s, { count, transfers, gasUsed }] of statistics) {
 one block, with no blank line in it.)
 
 **What flows through it.** [Lesson 17.5](./05-privileges.md)'s hand-over, run as a whole block, so the merge
-has its say. Service 0 is the manager and holds both cores:
+has its say. Service 0 is the manager and holds both cores.
 
 ::: code-group
 
@@ -637,14 +649,26 @@ lists those seeds now as R's ordinary cases.
 - [x] The run of core 0's assigner at the round's start, if it set one
   > Yes: in `assign_from_non_assigner-3`, service 0 held core 0 and set its 80 hashes,
   > and the block keeps them.
+
+**Why does the holder's change count at all, when the manager could decide everything?**
+
+- [ ] The holder's run comes after the manager's, so it has the last word
+  > No: the order doesn't matter. Every run starts from the same privileges, and the
+  > merge reads them all afterwards.
+- [x] So that privileges can be owned, each holder changing its own, and the manager can be removed altogether
+  > Yes: that is the Gray Paper's own reason, in the sentence before Δ\*. With no
+  > manager changing anything, every privilege is its holder's to pass on.
+- [ ] It counts only for that round: the manager's next run puts things back
+  > No: the merged privileges are the chain's. The next round starts from them, and
+  > the last round's are the block's.
 :::
 
 ## What you have
 
 Privileges that survive the round they're changed in, settled the Gray Paper's way: the
-manager first, then the holder. Forty official vectors match as whole blocks. Services so
-far only come and change; [lesson 17.7](./07-ejecting-a-service.md) lets one go.
-
-**Say it out loud.** When two services change one privilege in a round, the manager's change wins. If the manager left it alone, the holder's own does.
+manager first, then the holder. When two services change one privilege in a round, the
+manager's change wins. If the manager left it alone, the holder's own does. Forty
+official vectors match as whole blocks. Services so far only come and change:
+[lesson 17.7](./07-ejecting-a-service.md) lets one go.
 
 Next: [17.7 Ejecting a service](./07-ejecting-a-service.md)

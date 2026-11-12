@@ -1,25 +1,43 @@
 # Privileges
 
-Some services are more equal than others. One may hand out privileges. One, for each core,
-picks which authorizers that core will accept, by filling its queue ([Part
-13](../13-authorization/index.md)'s gatekeepers). One picks the next validators. One may create
-services with small ids. The chain keeps a record of who's who, and a privileged service
-changes it from inside its own accumulation, with a host call. This lesson builds the
-record and the first of those calls, `assign`. [Lesson 17.6](./06-who-wins.md) sorts out what happens when two
-services change the same privilege in one round.
+**In one sentence:** a few services hold special rights, such as choosing a core's
+authorizers, and the chain keeps a record of who holds which.
 
-## New words
+Here service 0 holds every privilege. Have it hand a core to another service, then try
+the orders that should be refused.
 
-- **Privilege.** A right held by one service (or, for always-accumulate, by a list of
-  them). The chain keeps who holds which in χ. *Example:* service 0 is core 0's assigner.
-- **Assigner.** For each core, the service that may set the core's authorizer queue, and
-  hand that right to another service. *Example:* service 0 hands core 0 to service 1.
-- **Authorizer queue.** For each core, 80 authorizer hashes, one of which joins the core's
-  pool every slot ([lesson 13.1](../13-authorization/01-the-authorizer-pools.md)). *Example:* the 80 hashes `assign` hands over with a core.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<AssignCore />
+
+## The idea
+
+Some services are more equal than others. Somebody has to decide which authorizers a
+core will accept, and who the next validators are. Who?
+
+A service. The chain keeps a short record: for each special right, the id of the service
+that holds it. Each right is a [*privilege*](../glossary.md#privilege). There are five.
+
+- One service may hand out the privileges.
+- One, for each core, picks which authorizers that core will accept. It is the core's
+  [*assigner*](../glossary.md#assigner), and it does so by filling the core's
+  [*authorizer queue*](../glossary.md#authorizer-queue)
+  ([Part 13](../13-authorization/index.md)'s gatekeepers).
+- One picks the next validators.
+- One may create services with small ids.
+- A list of services accumulates every block.
+
+A privilege works like a key. The holder may use it, and may hand it to another service.
+It does both from inside its own accumulation, with a host call. Like everything else a
+run changes, the hand-over is undone if the run fails.
+
+This lesson builds the record and the first of those calls, `assign`.
+[Lesson 17.6](./06-who-wins.md) sorts out what happens when two services change the same
+privilege in one round.
 
 ## What the Gray Paper says
+
+§9.4, *Service Privileges*:
 
 ::: gray-paper 9.4
 
@@ -73,7 +91,7 @@ $$
 
 :::
 
-In plain words, §9.4 lists five privileges, χ:
+§9.4 lists five privileges, χ:
 
 - the *manager*, χ_M, may change all the others at once (with `bless`);
 - an *assigner* for each core, χ_A, may set that core's authorizer queue (`assign`);
@@ -85,7 +103,7 @@ The test vectors name the first four after the host call each one allows: `bless
 `assign`, `designate`, and `register` (though the registrar's call is `new`). Your client
 uses the same names.
 
-`assign` is host call 16 (Appendix B.7, Ω_A). In plain steps:
+`assign` is host call 16 (Appendix B.7, Ω_A). It has three steps:
 
 1. **Read the order.** The core is φ₇, its new queue is the 80 hashes (2,560 bytes) at
    φ₈ (unreadable: panic), and the next assigner is φ₉.
@@ -94,11 +112,11 @@ uses the same names.
 3. **Hand it over.** The core's queue becomes the 80 hashes, and its assigner becomes φ₉.
    φ₇ = `OK`. It costs 1,818 gas.
 
-Try it with service 0 holding every privilege:
+One of those 80 hashes joins the core's pool every slot
+([lesson 13.1](../13-authorization/01-the-authorizer-pools.md)). Try each refusal on
+[the core at the top](#try-it).
 
-<AssignCore />
-
-And the checkpoint rule holds again: the privileges and the queues are part of what a run
+And the checkpoint rule holds again. The privileges and the queues are part of what a run
 can change, so a failure undoes the changes made since its last checkpoint, and a
 checkpoint keeps them. In the Gray Paper they sit in the run's partial state, 𝕊, next to
 the accounts:
@@ -151,10 +169,10 @@ $$
 
 :::
 
-In plain words, a partial state 𝐞 is everything a run may change: the accounts 𝐝, the next
-validators' keys 𝐢 (ι), the authorizer queues 𝐪 (ϕ), and the five privileges m, 𝐚, v, r
-and 𝐳 (χ_M, χ_A, χ_V, χ_R, χ_Z). A run holds two of them, in X and in Y, and a failure
-falls back from one to the other.
+A partial state 𝐞 is everything a run may change: the accounts 𝐝, the next validators'
+keys 𝐢 (ι), the authorizer queues 𝐪 (ϕ), and the five privileges m, 𝐚, v, r and 𝐳 (χ_M,
+χ_A, χ_V, χ_R, χ_Z). A run holds two of them, in X and in Y, and a failure falls back
+from one to the other.
 
 ## The tests
 
@@ -399,7 +417,7 @@ export function assign(m: Machine, s: number, powers: Powers, cores: number): Ho
 ```
 
 `startPowers` gives a run that wasn't handed any privileges `NO_PRIVILEGES`, a world
-where nobody holds one: `NOBODY` is 2^32, an id no service can have, and no core has an
+where nobody holds one. `NOBODY` is 2^32, an id no service can have, and no core has an
 assigner. Every earlier test that builds a run without privileges keeps working.
 
 Then the same small changes as in [lesson 17.3](./03-sending-a-transfer.md), so the powers go where they should. A run
@@ -639,11 +657,10 @@ function answerName(r7: bigint): string {
 
 (The `for` loop comes along because it sits right under `const result`, with no blank
 line between: a Replace takes both.) `answerName` is a function declaration, so it can be
-used above the line it's written on.
-(Its `const` cousins can't.)
+used above the line it's written on. Its `const` cousins can't.
 
 **What flows through it.** Service 0 holds core 0's assignment, and its work tells it to hand
-the core to service 1:
+the core to service 1.
 
 ::: code-group
 
@@ -811,15 +828,16 @@ right now. Same answers; your way is shorter to read.
   > No: the delegator chooses the next validators' keys. Authorizers are the
   > assigner's business.
 
-**In `assign_from_non_assigner-1`, service 1 calls `assign` for core 0, which service 0 holds. What happens?**
+**A service that isn't a core's assigner calls `assign` for that core. What happens?**
 
 - [ ] Service 1's run panics, and everything it did is undone
   > No: a refusal is an answer, not a failure. Only an unreadable queue makes `assign`
   > panic.
 - [x] It gets `HUH`, nothing changes, and its code carries on
-  > Yes: its code expects that, carries on, and uses exactly the vector's 1,305,017
-  > gas.
-- [ ] It gets `CORE`: core 0 isn't its core
+  > Yes: in `assign_from_non_assigner-1`, service 1 asks for core 0, which service 0
+  > holds. Its code expects the refusal, carries on, and uses exactly the vector's
+  > 1,305,017 gas.
+- [ ] It gets `CORE`: the core isn't its core
   > No: `CORE` means there's no such core. Tiny has cores 0 and 1, so core 0 exists.
 
 **Service 0 hands core 0 to service 1, then panics before any checkpoint. Who holds core 0?**
@@ -845,11 +863,10 @@ right now. Same answers; your way is shorter to read.
 
 ## What you have
 
-A record of who holds which privilege, and the first privileged call: a core's assigner
-can hand it on, with a new queue, and a failure takes it back. Three more official
-service runs match. Every service in a round starts from the same privileges, though, so
-two can change the same one: [lesson 17.6](./06-who-wins.md) decides who wins.
-
-**Say it out loud.** A few services hold privileges: the manager, each core's assigner, the delegator, the registrar, and the always-accumulate list.
+A record of who holds which privilege: the manager, each core's assigner, the delegator,
+the registrar, and the always-accumulate list. And the first privileged call: a core's
+assigner can hand it on, with a new queue, and a failure takes it back. Three more
+official service runs match. Every service in a round starts from the same privileges,
+though, so two can change the same one. [Lesson 17.6](./06-who-wins.md) decides who wins.
 
 Next: [17.6 Who wins](./06-who-wins.md)
