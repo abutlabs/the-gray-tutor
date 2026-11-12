@@ -1,19 +1,37 @@
 # Checkpoints
 
+**In one sentence:** what a service does is kept only if it finishes; if it fails, its
+changes roll back to the last moment it chose to say "keep everything up to here".
+
+Here is service 0, [lesson 16.4](./04-info.md)'s made-up record, with a balance of 1,000.
+Tap host calls to build a run: the two writes of this lesson's tests, a checkpoint, and a
+transfer of a hundred ([lesson 17.3](../17-accumulation/03-sending-a-transfer.md) adds that one). Then stop the machine, and see
+what survives.
+
+<a id="try-it"></a>
+
+<CheckpointRun />
+
+## The idea
+
 A service that panics halfway through its accumulation has written half of what it meant
-to. What happens to that half? The Gray Paper's answer: it's thrown away, back to the last
-*checkpoint*, a moment the service itself chose to say "keep everything up to here". This
-lesson gives accumulation its two sets of accounts, the `checkpoint` host call that copies
-one into the other, and the function that decides at the end which one survives. And with
-those, your client has its first Ψ_A: a whole accumulation, start to finish.
+to. What happens to that half? It's thrown away.
 
-## New words
+The trick is two copies of everything the service may change: a working copy and a
+fallback. Both start as the same state. Every host call changes the working copy. Only
+one host call touches the fallback: `checkpoint`, which copies the working copy over it.
+That is a [*checkpoint*](../glossary.md#checkpoint), the service saying "keep everything
+up to here". It works like a save point in a game.
 
-- **Checkpoint.** A moment a service marks as "keep everything up to here": if it fails
-  later, its changes roll back to the last checkpoint. *Example:* a write, a checkpoint,
-  another write, then a panic: only the first write survives.
+When the machine stops, one copy survives. A halt keeps the working copy, with everything
+the service did. A panic, or running out of gas, keeps the fallback: the state at the
+last checkpoint, or at the start if there was none.
 
-It's in the [glossary](../glossary.md).
+Take a write, a checkpoint, another write, then a panic: only the first write survives.
+
+This lesson builds the two sets of accounts, the `checkpoint` host call, and the function
+that picks the survivor. With those, your client has its first whole accumulation, start
+to finish.
 
 ## What the Gray Paper says
 
@@ -278,9 +296,9 @@ $$
 
 :::
 
-In plain words: Ψ_A (App. B.4) runs a service with a *pair* of contexts, X and Y (the
-paper's bold 𝐱 and 𝐲). Both start as the same state (I(…)², the Gray Paper writes: I's
-context, twice). Every host call changes X. Y is the fallback.
+The two copies are a *pair* of contexts, X and Y (the paper's bold 𝐱 and 𝐲), and Ψ_A
+(App. B.4) runs a service with them. Both start as the same state (I(…)², the Gray Paper
+writes: I's context, twice). Every host call changes X, the working copy. Y is the fallback.
 
 - **`checkpoint`** (host call 18, App. B.7, Ω_C): Y′ = X, so everything done so far
   survives whatever comes next. φ₇ = the gas left, after paying 103. Its row is in B.7's
@@ -302,12 +320,8 @@ the entropy and the slot, skipping ids already taken (B.14): that's for `new`, i
 [17.8](../17-accumulation/08-creating-a-service.md). Every formula of B.4 is worked through
 on service 1729 in [16.A](./gray-paper.md#ex-B-9).
 
-Try it below. Service 0 is [lesson 16.4](./04-info.md)'s made-up record, with a balance of
-1,000. Tap host calls to build a run: the two writes of this lesson's tests, a checkpoint,
-and a transfer of a hundred ([lesson 17.3](../17-accumulation/03-sending-a-transfer.md) adds that one). X and Y sit side by side after
-each step. Then stop the machine, and see which one survives.
-
-<CheckpointRun />
+In [the widget at the top](#try-it), X and Y sit side by side after each step. Stop the
+machine, and see which one survives.
 
 ## The tests
 
@@ -608,7 +622,7 @@ reported 467 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 
 ## Watch it
 
-**What flows through it.** The run is the same as [lesson 16.3](./03-growing-the-heap.md)'s; what's new is Ψ_A around it,
+What flows through it: the run is the same as [lesson 16.3](./03-growing-the-heap.md)'s. What's new is Ψ_A around it,
 the context it keeps and what it hands back:
 
 ::: code-group
@@ -716,22 +730,23 @@ holds so far. It will hold more.
 - [ ] Both
   > No: that's what a halt would keep. A panic keeps Y.
 
-**The same run, but at the end it halts instead. Which keys are left?**
+**Who decides when a checkpoint is taken?**
 
-- [ ] "last" only, as the checkpoint said
-  > No: a checkpoint only matters if the service fails. A halt keeps X, everything.
-- [ ] None
-  > No: a halt keeps every change the service made.
-- [x] Both, "last" and `"ast"`
-  > Yes: X has both writes, and a halt keeps X.
+- [ ] The host, after every host call that worked
+  > No: then a panic could undo nothing. Only the `checkpoint` host call copies X into Y.
+- [ ] The chain, once at the end of every block
+  > No: X and Y belong to one accumulation, and one of them is gone when it stops.
+- [x] The service itself, by calling `checkpoint`
+  > Yes: it is a moment the service chose. A service that halts never needed one: a
+  > checkpoint only matters if the service fails, and a halt keeps X, everything.
 
 **Why must Y be a true copy, not the same accounts shared with X?**
 
+- [ ] A true copy takes less memory
+  > No: it takes more. Correctness is the reason.
 - [x] Otherwise a write after the checkpoint would change Y too, and a panic couldn't undo it
   > Yes: a copy of the `Map` alone shares each account's storage. `"ast"` would land in both,
   > and survive the panic.
-- [ ] A true copy takes less memory
-  > No: it takes more. Correctness is the reason.
 - [ ] Y is what gets written to the chain, so it needs its own memory
   > No: only one of X and Y survives, and which one depends on how the service stops.
 :::
@@ -741,7 +756,5 @@ holds so far. It will hold more.
 A whole accumulation, Ψ_A, that keeps what a service does when it succeeds, and falls
 back to its last checkpoint when it doesn't. So far each service has run with no inputs:
 [lesson 16.7](./07-a-services-inputs.md) hands it the work it was actually given.
-
-**Say it out loud.** Accumulation keeps two copies of what a service does. A halt keeps the new one; a panic or running out of gas falls back to the last checkpoint.
 
 Next: [16.7 A service's inputs](./07-a-services-inputs.md)

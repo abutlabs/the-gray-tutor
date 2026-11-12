@@ -1,17 +1,32 @@
 # Storage
 
-Every service has a little key-value store of its own in the state: its *storage*. [Lesson
-14.2](../14-services/02-the-service-account.md) counted what it costs to keep. This lesson lets a service use it, with two host calls,
-`read` and `write`, and with them the first real check on what a service may keep: it has
-to be able to afford it. When they're done, eight of the accumulate vectors' services run
-to the same gas *and* leave exactly the storage the vectors expect.
+**In one sentence:** a service keeps a small store of keys and values in the state, reads
+and writes it through the host, and may keep only what its balance can cover.
 
-## New words
+Here is the tests' account. Write to it step by step: a small value, one too big to
+afford, then a deletion, and watch the footprint and the host's reply.
 
-- **Storage.** A service's own key-value store in the state. *Example:* a service writes
-  the key "last" with some bytes, and reads it back next time.
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md).
+<WriteStore />
+
+## The idea
+
+How does a service remember anything from one accumulation to the next? It keeps a
+key-value store of its own in the state: its [*storage*](../glossary.md#storage). It
+writes a key with some bytes, and reads it back next time.
+
+Two host calls do it. `read` looks a key up, in the service's own storage or another's.
+`write` sets a key or deletes it, and only in the service's own.
+
+Storage isn't free. Think of a rented locker with a deposit: the more you put in, the
+more you must hold. [Lesson 14.2](../14-services/02-the-service-account.md) counted it: every key a service stores raises its
+minimum balance. So before the host writes anything, it works out the account as it would
+be after the write. If the service couldn't afford that, nothing is written, and the host
+says so. That is the first real check on what a service may keep.
+
+This lesson builds both calls. When they're done, eight of the accumulate vectors'
+services run to the same gas *and* leave exactly the storage the vectors expect.
 
 ## What the Gray Paper says
 
@@ -32,9 +47,7 @@ item and 34 + |key| + |value| bytes for each, and the minimum balance a_t grows 
 If after the write a_t would be more than the service's balance, nothing is written and
 φ₇ is **FULL** (2^64 − 5).
 
-Write to the tests' account, step by step:
-
-<WriteStore />
+[The widget at the top](#try-it) writes to the tests' account, step by step, FULL included.
 
 ## The tests
 
@@ -297,27 +310,28 @@ every branch too, since it compares the account as it would be, whatever the wri
 ## Check your understanding
 
 ::: check
-**Service 0 writes "last" → 1, 2, 3, and its footprint grows by 41 bytes. Why 41, for 7 bytes of data?**
+**What does a service pay to keep an entry in its storage?**
 
-- [ ] Every entry takes 41 bytes, whatever its size
-  > No: a 1,000-byte value under "last" counts 34 + 4 + 1,000.
-- [x] A flat 34 for the bookkeeping around each entry, plus the key's 4 bytes and the value's 3
-  > Yes: 34 + 4 + 3 = 41, and one more item. The deposit grows with both.
-- [ ] 41 is what the write cost in gas
-  > No: gas and footprint are different things. The write cost 2,442 + 14 + 1 gas; the
-  > footprint is what the service must hold deposit for, for as long as it keeps the entry.
+- [ ] Gas, once, when it writes: after that the entry costs nothing
+  > No: gas and footprint are different things. The write costs gas once; the footprint is
+  > what the service must hold deposit for, for as long as it keeps the entry.
+- [x] Deposit: the entry adds one item and 34 + |key| + |value| bytes to its footprint, and the minimum balance grows with it
+  > Yes: a flat 34 for the bookkeeping around each entry, plus the key and the value.
+  > Storing "last" → 1, 2, 3 adds 34 + 4 + 3 = 41 bytes.
+- [ ] Nothing: the state is the validators' to keep
+  > No: every stored key costs the service deposit. That is what limits how much it keeps.
 
-**With a balance of 1,000, writing 1,000 bytes under "last" gets FULL. Why?**
+**What makes a `write` come back FULL?**
 
-- [ ] A value can be at most 1 KiB
+- [ ] The value is over a size limit
   > No: there's no such limit here. What decides it is the deposit.
-- [x] a_t would be 100 + 10 × 3 + (50 + 34 + 4 + 1,000) = 1,218, more than the balance
-  > Yes: the account as it would be after the write can't afford itself, so nothing is
-  > written.
 - [ ] The write ran out of gas
-  > No: it had 10,000 gas, and paid. FULL is an answer in φ₇, not a way of stopping.
+  > No: out of gas stops the machine. FULL is an answer in φ₇, and the machine carries on.
+- [x] After the write, the account's minimum balance would be more than its balance
+  > Yes: the account as it would be after the write can't afford itself, so nothing is
+  > written. With a balance of 1,000, a 1,000-byte value would push a_t to 1,218.
 
-**After that FULL, what has changed?**
+**After a FULL, what has changed?**
 
 - [x] Only the gas: the write was paid for, and the storage and footprint are as they were
   > Yes: the charge comes first, before the check. Then nothing is committed.
@@ -327,14 +341,15 @@ every branch too, since it compares the account as it would be, whatever the wri
   > No: FULL isn't a crash. The machine carries on, and the service reads φ₇ and decides
   > what to do.
 
-**"last" holds 1, 2, 3. The service writes "last" with an empty value. What is φ₇?**
+**A service writes a key it already holds, with an empty value. What happens?**
 
-- [ ] NONE, because the key is gone now
+- [ ] The key is deleted, and φ₇ is NONE, because the key is gone now
   > No: φ₇ tells what was there *before*. NONE would mean there was nothing.
-- [ ] 0, the new value's length
+- [ ] The key stays, with a value of no bytes, and φ₇ is 0, the new length
   > No: there is no new value. An empty one means delete.
-- [x] 3, the old value's length, and the key is deleted
-  > Yes: the test's eraser gets 3, and the storage is empty after.
+- [x] The key is deleted, and φ₇ is the length of the value that was there
+  > Yes: with "last" holding 1, 2, 3, the tests' eraser gets 3, and the storage is empty
+  > after.
 
 **Whose storage can a service change with `write`?**
 
@@ -352,7 +367,5 @@ every branch too, since it compares the account as it would be, whatever the wri
 Services that can remember things between accumulations, and pay for what they keep. But
 a service that writes and then panics leaves half a job behind: [lesson 16.6](./06-checkpoints.md) decides
 what survives.
-
-**Say it out loud.** A service's storage is a key-value store in the state, paid for by deposit. A write it can't afford answers FULL, and nothing changes.
 
 Next: [16.6 Checkpoints](./06-checkpoints.md)

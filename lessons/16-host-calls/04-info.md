@@ -1,10 +1,33 @@
 # Info
 
+**In one sentence:** `info` shows a service an account's record, its own or any other's:
+the balance, what it keeps, and the least it must hold.
+
+Here is one account twice: its record in the state, and what `info` hands out. Compare
+the two, and look for the number the state doesn't hold.
+
+<a id="try-it"></a>
+
+<InfoView />
+
+## The idea
+
 A service needs to know what it has: its balance, what it keeps, what it may spend. That's
-its *account*, the record and storage [lesson 14.2](../14-services/02-the-service-account.md) read out of the state. Across the
-accumulate test vectors, the first call your host can't answer yet is about accounts: `info`,
-`read` or `write`. So the host needs the accounts now, and the gentlest of the three goes
-first. `info` just looks.
+its *account*, the record and storage [lesson 14.2](../14-services/02-the-service-account.md) read out of the state. The service
+can't read the state. So it asks the host, with `info`.
+
+It is like asking a bank for a statement. The service names an account, its own or
+another's, and the host copies that account's record into the service's memory, just as
+`fetch` copies an item. A service that doesn't exist has no record, and the host says so.
+Nothing changes anywhere: `info` just looks.
+
+One line of the statement is kept nowhere: the minimum balance. It depends on how much
+the service stores, and a service can store more in the middle of a run. So the host
+works it out at the moment it is asked.
+
+Across the accumulate test vectors, the first call your host can't answer yet is about
+accounts: `info`, `read` or `write`. So the host needs the accounts now. This lesson hands
+them over, and answers the gentlest of the three.
 
 ## What the Gray Paper says
 
@@ -31,9 +54,8 @@ NONE is 2^64 − 1 too, the same number that means "the service itself" going in
 it is depends only on the direction: in φ₇ on the way in, it asks about yourself; in φ₇ on
 the way out, it says there's no such service.
 
-The same account both ways, the state's record and what `info` hands out:
-
-<InfoView />
+[The widget at the top](#try-it) shows the same account both ways: the state's record,
+and the 96 bytes `info` hands out.
 
 Accumulation's F hands `info` two things: X's service id, and the accounts as the context X
 holds them. So accumulation needs a little bundle of its own: which service is running,
@@ -357,36 +379,35 @@ out on the spot, as both clients do here, it can't go stale.
 ## Check your understanding
 
 ::: check
-**A service calls `info` with φ₇ = 2^64 − 1. Whose record does it get?**
+**In φ₇, `info` uses the number 2^64 − 1 twice. What does it mean each time?**
 
-- [ ] Nobody's: 2^64 − 1 is NONE
+- [ ] An error both times: 2^64 − 1 is NONE
   > No: NONE is what the host writes back for "no such item". Going in, the same number
-  > means "myself".
-- [x] Its own
-  > Yes: the test asks with 2^64 − 1 and gets service 0's record, its code hash of nines
-  > first.
-- [ ] The newest service in the accounts
-  > No: a service is named by its id. 2^64 − 1 stands for the one asking.
+  > is a request, and a valid one.
+- [ ] Going in, every service at once; coming out, how many records were written
+  > No: `info` hands out one record. A service is named by its id, and 2^64 − 1 stands
+  > for the one asking.
+- [x] Going in, "the service itself"; coming out, NONE, "no such service"
+  > Yes: which one it is depends only on the direction.
 
-**The made-up record keeps 2 items in 50 bytes, with no gratis storage. Why is its a_t 170?**
+**Whose record may a service ask `info` for?**
 
-- [ ] The record stores 170
-  > No: the record doesn't keep a_t at all. `info` works it out.
-- [x] 100 to exist, 10 for each of its 2 items, 1 for each of its 50 bytes: 100 + 20 + 50
-  > Yes: the minimum balance, worked out from the footprint, and written as bytes 40 to 47
-  > of the 96.
-- [ ] It's the balance, 1,000, less what the items cost
-  > No: a_t doesn't depend on the balance. It's what the service must keep, whatever it
-  > has.
+- [x] Any service's, by its id, or its own
+  > Yes: φ₇ says whose. The host has the accounts, and can tell a service about any of
+  > them.
+- [ ] Only its own: another service's record is private
+  > No: `info` takes a service id. Looking isn't touching, and `info` changes nothing.
+- [ ] Its own and its parent's
+  > No: the parent, p, is a field of the record. It doesn't limit whose record may be read.
 
 **Why is a_t worked out on the spot, not kept with the record?**
 
-- [x] A `write` in the middle of an accumulation changes the items and bytes, so a kept copy would go stale
-  > Yes: lasair's accounts carry a cached copy, and its comment says why `info` mustn't
-  > use it.
 - [ ] Keeping it would make the 96 bytes longer
   > No: the 96 bytes include a_t either way. The question is only where its value comes
   > from.
+- [x] A `write` in the middle of an accumulation changes the items and bytes, so a kept copy would go stale
+  > Yes: lasair's accounts carry a cached copy, and its comment says why `info` mustn't
+  > use it.
 - [ ] Working it out costs less gas
   > No: `info` costs a flat 703 either way.
 
@@ -405,7 +426,5 @@ out on the spot, as both clients do here, it can't go stale.
 
 A host that knows the accounts, and can tell a service about any of them. Looking isn't
 touching: [lesson 16.5](./05-storage.md) lets a service read and write its own storage.
-
-**Say it out loud.** `info` shows a service any account's record, with the minimum balance worked out on the spot.
 
 Next: [16.5 Storage](./05-storage.md)

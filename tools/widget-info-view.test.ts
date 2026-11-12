@@ -28,8 +28,10 @@ test("the tests: 96 bytes, nines then 232; a_t = 170 at bytes 40 and 41; the sta
   assert.match(raw.replace(/\s+/g, " "), /100 \+ 10 per item \+ 1 per byte = 170/);
 });
 
-test("lesson 16.4 places the widget once, after NONE's two meanings", () => {
+test("lesson 16.4 places the widget once, at the top, and NONE's two meanings send the reader back to it", () => {
   const at = raw.indexOf("<InfoView />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<InfoView />"));
-  assert.ok(at > raw.indexOf("it says there's no such service.") && at < raw.indexOf("Accumulation's F hands `info`"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("it says there's no such service."));
+  assert.ok(back > 0 && back < raw.indexOf("Accumulation's F hands `info`"));
 });

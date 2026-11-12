@@ -27,8 +27,10 @@ test("the tests: \"last\" → 3 bytes adds an item and 41 bytes for 2,457 gas; 1
   assert.deepEqual([erased.r7, erased.after.items, erased.after.bytes, Object.keys(erased.after.storage)], ["3", 2, 50, []]);
 });
 
-test("lesson 16.5 places the widget once, after FULL", () => {
+test("lesson 16.5 places the widget once, at the top, and FULL sends the reader back to it", () => {
   const at = raw.indexOf("<WriteStore />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<WriteStore />"));
-  assert.ok(at > raw.indexOf("φ₇ is **FULL** (2^64 − 5).") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("φ₇ is **FULL** (2^64 − 5)."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });
