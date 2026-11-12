@@ -1,15 +1,17 @@
 # Part 17 · Accumulation
 
-Accumulation is the moment a block's finished work reaches the chain: each service folds
-the results of its work into its own state. By the end of this part your client does that
-for whole blocks, and all 63 official accumulate vectors pass.
+**In one sentence:** accumulation is the moment a block's finished work reaches the
+chain, when each service folds the results of its work into its own state.
+
+By the end of this part your client does that for whole blocks, and all 63 official
+accumulate vectors pass.
 
 ## The big picture
 
-A core is a workshop and the chain is a ledger. The heavy work happens in the workshop, and
-only its result is written into the ledger. *Refine* is the workshop. *Accumulate* is the
-writing down, and every validator does it, the same way, so that they all end up with the
-same ledger.
+A core is a workshop and the chain is a ledger. The heavy work happens in the workshop,
+and only its result is written into the ledger. *Refine* is the workshop. *Accumulate* is
+the writing down. Every validator does it, the same way, so they all end up with the same
+ledger.
 
 | | Refine | Accumulate |
 | --- | --- | --- |
@@ -31,15 +33,18 @@ than "run each service's code":
 
 :::
 
-Those three are where this part's lessons go: the environment is [Part
-16](../16-host-calls/index.md)'s host calls, the gas is [17.9](./09-the-blocks-gas-budget.md)'s
-budget, and the transfers are [17.3](./03-sending-a-transfer.md) and
-[17.4](./04-rounds.md). (𝐑 is the reports that just became available, δ the accounts; ι′,
-ϕ′ and χ′ are the next validators, the authorizer queues and the privileges.)
+Those three are where this part's lessons go:
 
-Service code runs in both refine and accumulate, but block import never refines. So why does accumulation need 13
-lessons? Because many services accumulate in one block, and they can affect each other. One
-real block from the vectors shows most of it:
+- the environment is [Part 16](../16-host-calls/index.md)'s host calls;
+- the gas is [17.9](./09-the-blocks-gas-budget.md)'s budget;
+- the transfers are [17.3](./03-sending-a-transfer.md) and [17.4](./04-rounds.md).
+
+(𝐑 is the reports that just became available, δ the accounts; ι′, ϕ′ and χ′ are the next
+validators, the authorizer queues and the privileges.)
+
+Service code runs in both refine and accumulate, but block import never refines. So why
+does accumulation need 13 lessons? Many services accumulate in one block, and they can
+affect each other. One real block from the vectors shows most of it:
 
 1. A report for service 0 became available, so service 0 runs, using 255,437 gas.
 2. Its code pays service 1 a hundred. The money leaves service 0 at once, but nothing
@@ -47,16 +52,21 @@ real block from the vectors shows most of it:
 3. A second round runs for that transfer: the 100 lands first, then service 1 runs, using
    61,711 gas. It sends nothing, so there's no third round.
 
-What the pieces are: the inputs are the *digests* in the block's available reports, one
-per work-item, each saying what refine produced for one service ([lesson
-3.2](../03-work-and-reports/02-work-digests.md)); the thing that changes is the service's
-*account*, its storage, balance, requests and privileges, through host calls ([Part
-14](../14-services/index.md)'s page draws it); and the outputs are a *yield* per service,
-a 32-byte hash for the outside world, and the transfers to other services. Only the
-accumulate code runs here: the refine code already ran, in-core, and nothing re-runs it.
+What the pieces are:
 
-Everything else is what can go right or wrong around those three steps. Read this part in
-this order, not necessarily the sidebar's, which is the order the code gets built in:
+- **What goes in:** the *digests* in the block's available reports. There is one per
+  work-item, and each says what refine produced for one service ([lesson
+  3.2](../03-work-and-reports/02-work-digests.md)).
+- **What changes:** the service's *account*, through host calls: its storage, balance,
+  requests and privileges ([Part 14](../14-services/index.md)'s page draws it).
+- **What comes out:** a *yield* per service, a 32-byte hash for the outside world, and
+  the transfers to other services.
+
+Only the accumulate code runs here. The refine code already ran, in-core, and nothing
+re-runs it.
+
+Everything else is what can go right or wrong around those three steps. The sidebar's
+order is the order the code gets built in. To read for the ideas, take this order:
 
 | Question | Lessons | Time |
 | --- | --- | --- |

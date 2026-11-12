@@ -1,12 +1,13 @@
 # The formulas, in plain words
 
 This part's appendix: every formula of §12, *Accumulation*, and of §9.4, *Service
-Privileges*, explained. Twenty-one blocks, more than any other part: [the part's
-page](./index.md#the-big-picture) tells the story first, on one real block. Real values: the
-tiny vectors in `vectors/stf/accumulate/tiny/`, E = 12 slots an epoch, C = 2 cores, G_T =
-20,000,000 and G_A = 10,000,000 gas. A hash is shown by its first two bytes. Each formula:
-its key, then read aloud, in plain words, on a real value, in your client. Notation:
-[Reading the Gray Paper](../reading-the-gray-paper.md).
+Privileges*, explained. That is twenty-one blocks, more than any other part. [The part's
+page](./index.md#the-big-picture) tells the story first, on one real block.
+
+The real values are the tiny vectors in `vectors/stf/accumulate/tiny/`: E = 12 slots an
+epoch, C = 2 cores, G_T = 20,000,000 and G_A = 10,000,000 gas. A hash is shown by its
+first two bytes. Each formula: its key, then read aloud, in plain words, on a real value,
+in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (9.9) to (9.11): who holds which privilege
 
@@ -59,8 +60,8 @@ Chi M, chi V and chi R are each a service id. Chi A is a sequence of C service i
 is a dictionary from service id to gas."
 
 **In plain words.** A type line: the shape of the privileges, the state's list of who may
-do what. Five privileges, three held by one service each, one held per core, and one a
-list:
+do what. There are five. Three are held by one service each, one is held per core, and
+one is a list:
 
 - χ_M, the *manager*, may change all the privileges at once, with `bless`;
 - χ_V, the *delegator*, chooses the next validators' keys ι, with `designate`;
@@ -82,7 +83,7 @@ list:
 One service may hold many privileges: here service 0 holds four.
 
 **In your client.** The `Privileges` type in `src/host.ts`, [17.5's
-code](./05-privileges.md#the-code); χ_Z is the accumulation state's `free`, and joins a
+code](./05-privileges.md#the-code). χ_Z is the accumulation state's `free`, and joins a
 run's privileged state in [17.13](./13-blessing-and-designating.md#the-code).
 
 ## (12.1) to (12.3): the history and the queue
@@ -211,10 +212,14 @@ above zero or its segment-root lookup isn't empty; and xi union. D of r is the p
 the set of its prerequisites joined with the keys of its segment-root lookup."
 
 **In plain words.** The block's newly available reports 𝐑 split in two, keeping their
-order. A report that waits for nothing goes straight into 𝐑!, to accumulate now. A report
-with a prerequisite, or a segment-root lookup naming another package, is a waiter: D pairs
-it with every package it depends on, and E (below) strikes off any the history ξ∪ says are
-done. That is 𝐑^Q, the waiters.
+order.
+
+- A report that waits for nothing goes straight into 𝐑!, to accumulate now.
+- A report with a prerequisite, or a segment-root lookup naming another package, is a
+  waiter. D pairs it with every package it depends on. E (below) strikes off any the
+  history ξ∪ says are done.
+
+The waiters are 𝐑^Q.
 
 **On a real value.** `enqueue_and_unlock_chain-3`, slot 46, brings two reports, and the
 history is empty:
@@ -328,8 +333,8 @@ order. P maps a set of reports to the set of their package hashes."
 - **P, package hashes.** From some reports, the set of their work-package hashes.
 
 **On a real value.** `enqueue_and_unlock_chain-4`, slot 47. Its one new report is `38b7`,
-and the queue read round the ring (next section) is four waiters. E strikes `38b7` off;
-then Q unlocks in three passes:
+and the queue read round the ring (next section) is four waiters. E strikes `38b7` off.
+Then Q unlocks in three passes:
 
 ```text
 queue           [(7749, {38b7}), (d54f, {1817, 6af0}), (6af0, {7749}), (1817, {38b7})]
@@ -378,8 +383,8 @@ m, all joined, followed by R Q; and P of R bang."
 
 **In plain words.** Everything that accumulates in this block, in order: first the reports
 that wait for nothing, then whatever the queue can now let go. The queue is read round the
-ring starting at this block's slot m, so the oldest waiters come first, then the new
-waiters 𝐑^Q at the end. Before unlocking, the packages in 𝐑! are struck off, since they are
+ring starting at this block's slot m, so the oldest waiters come first. The new waiters
+𝐑^Q come at the end. Before unlocking, the packages in 𝐑! are struck off, since they are
 about to be done.
 
 **On a real value.** `enqueue_and_unlock_chain-4` again, slot 47:
@@ -457,11 +462,20 @@ $$
 hash; g, gas; t, a blob; and l, a blob or a work error. X is defined as the tuple of: s, a
 service id; d, a service id; a, a balance; m, a memo; and g, gas."
 
-**In plain words.** The two kinds of input a service's accumulate can get. An *operand* 𝕌
-is what it learns about one of its digests: the package's hash p, its exports root e, its
-authorizer a, the item's payload hash y, the digest's gas g, the authorizer's trace t, and
-refine's result l, which may be an error. A *transfer* 𝕏 is money with a note: from s, to
-d, amount a, a 128-byte memo m, and gas g that the sender pays for the receiver's run.
+**In plain words.** The two kinds of input a service's accumulate can get.
+
+An *operand* 𝕌 is what it learns about one of its digests:
+
+- p, the package's hash;
+- e, its exports root;
+- a, its authorizer;
+- y, the item's payload hash;
+- g, the digest's gas;
+- t, the authorizer's trace;
+- l, refine's result, which may be an error.
+
+A *transfer* 𝕏 is money with a note: from s, to d, amount a, a 128-byte memo m, and gas g
+that the sender pays for the receiver's run.
 
 **On a real value.** `transfer_for_live_service-1`, slot 43. Service 0's one digest
 becomes this operand, and its run sends service 1 one transfer:
@@ -527,10 +541,15 @@ account; i, the validators' keys; q, a sequence of C sequences of Q hashes; m, a
 id; a, a sequence of C service ids; v, a service id; r, a service id; and z, a dictionary
 from service id to gas."
 
-**In plain words.** Everything accumulation may change, in one record: the accounts, the
-next validators' keys ι, the authorizer queues ϕ (C cores, Q = 80 hashes each), and the
-five privileges of (9.9). Accumulation never touches the rest of the state. Every run gets
-one, 𝐞, and gives one back.
+**In plain words.** Everything accumulation may change, in one record:
+
+- the accounts;
+- the next validators' keys ι;
+- the authorizer queues ϕ (C cores, Q = 80 hashes each);
+- the five privileges of (9.9).
+
+Accumulation never touches the rest of the state. Every run gets one, 𝐞, and gives one
+back.
 
 **On a real value.** `transfer_for_live_service-1`, before the block:
 
@@ -584,8 +603,8 @@ round, and service 1 yields.
 𝐮   [(1, 183,402), (2, 0)]      service 2 was ejected: no account, nothing runs
 ```
 
-**In your client.** `AccumulationOutput`, a pair of 𝐛, in [17.11](./11-what-a-service-yields.md#the-code);
-the round's `used` map is 𝐮.
+**In your client.** `AccumulationOutput`, a pair of 𝐛, in [17.11](./11-what-a-service-yields.md#the-code).
+The round's `used` map is 𝐮.
 
 ## (12.17): Δ+, round after round
 
@@ -821,10 +840,13 @@ its run's accounts no longer have. And R of o, a, b is b if a equals o, otherwis
    the holder's own run decides. The next validators come from the delegator's run, and
    each core's queue from its assigner's run.
 
-Δ\* reaches across the whole part: [17.1](./01-a-blocks-accumulation.md) builds steps 1
-and 2, [17.4](./04-rounds.md) adds the transfers, [17.6](./06-who-wins.md) and
-[17.13](./13-blessing-and-designating.md) the privileges, [17.7](./07-ejecting-a-service.md)
-and [17.8](./08-creating-a-service.md) 𝐦 and 𝐧, and [17.12](./12-providing-a-preimage.md) I.
+Δ\* reaches across the whole part:
+
+- [17.1](./01-a-blocks-accumulation.md) builds steps 1 and 2;
+- [17.4](./04-rounds.md) adds the transfers;
+- [17.6](./06-who-wins.md) and [17.13](./13-blessing-and-designating.md) add the privileges;
+- [17.7](./07-ejecting-a-service.md) and [17.8](./08-creating-a-service.md) add 𝐦 and 𝐧;
+- [17.12](./12-providing-a-preimage.md) adds I.
 
 **On a real value.** `same_round_storage_isolation-1`, slot 43: two reports, one for 1729,
 one for 1730.
@@ -853,8 +875,8 @@ assign_from_non_assigner-3   core 0's assigner is the manager, 0; its one run as
 ```
 
 **In your client.** `accumulateRound` in `src/accumulate.ts`, rebuilt lesson by lesson
-from [17.4's](./04-rounds.md#the-code) to [17.13's](./13-blessing-and-designating.md#the-code);
-`R` and `mergePrivileges` in [17.6's code](./06-who-wins.md#the-code).
+from [17.4's](./04-rounds.md#the-code) to [17.13's](./13-blessing-and-designating.md#the-code).
+`R` and `mergePrivileges` are in [17.6's code](./06-who-wins.md#the-code).
 
 ## (12.20) and (12.21): I and Y, filing provided preimages
 
@@ -903,12 +925,15 @@ i is the sequence of tau prime, and d′ of s's preimage at the hash of i is i. 
 accounts, a service id and a blob to a boolean: d, s, i give whether d of s's request for
 the hash and length of i is the empty sequence, when s is a key of d; otherwise false."
 
-**In plain words.** Y asks "is this blob still wanted?": the service must exist, and its
-request for exactly this hash and length must be `[]`, asked for and not yet given. I
-files every wanted blob: the bytes go in the service's preimages under their hash, and the
-request becomes `[τ′]`, provided in this block's slot. Anything unwanted is dropped
-without fuss. Δ\* calls I on the round's provisions; §12.4 calls it again on the block's
-preimages extrinsic ([Part 14](../14-services/index.md)).
+**In plain words.** Y asks "is this blob still wanted?" The service must exist, and its
+request for exactly this hash and length must be `[]`: asked for and not yet given.
+
+I files every wanted blob. The bytes go in the service's preimages under their hash, and
+the request becomes `[τ′]`: provided in this block's slot. Anything unwanted is dropped
+without fuss.
+
+Δ\* calls I on the round's provisions. §12.4 calls it again on the block's preimages
+extrinsic ([Part 14](../14-services/index.md)).
 
 **On a real value.** `provide_preimage-2`, slot 44: service 0 provides 8 bytes to 1729.
 
@@ -1021,11 +1046,15 @@ every digest for s. i T is every transfer to s, in order. i U is, for each diges
 in each report r, in order, the operand: its result, gas limit and payload hash from d;
 its trace, exports root, package hash and authorizer from r."
 
-**In plain words.** One service's run in a round. Add up its gas: its free gas, the gas of
-every transfer sent to it, and every digest's gas limit. Line up its inputs: the transfers
-first, then one operand per digest. Run its accumulate code on them with Ψ_A
-([Part 16](../16-host-calls/index.md)). What comes back, 𝕆, is the state it left 𝐞, the
-transfers it sent 𝐭, its yield y, the gas it used u, and the preimages it provided 𝐩.
+**In plain words.** One service's run in a round.
+
+1. **Add up its gas:** its free gas, the gas of every transfer sent to it, and every
+   digest's gas limit.
+2. **Line up its inputs:** the transfers first, then one operand per digest.
+3. **Run** its accumulate code on them with Ψ_A ([Part 16](../16-host-calls/index.md)).
+
+What comes back, 𝕆, is the state it left 𝐞, the transfers it sent 𝐭, its yield y, the gas
+it used u, and the preimages it provided 𝐩.
 
 **On a real value.** `transfer_for_live_service-1`, both rounds:
 
@@ -1041,7 +1070,7 @@ transfers it sent 𝐭, its yield y, the gas it used u, and the preimages it pro
 ```
 
 **In your client.** `serviceInputs` (g and the inputs) and the loop of `accumulateRound`, in
-[17.4's code](./04-rounds.md#the-code); `accumulate` in `src/host.ts` returns the 𝕆, as an
+[17.4's code](./04-rounds.md#the-code). `accumulate` in `src/host.ts` returns the 𝕆, as an
 `Accumulated`.
 
 ## (12.24) to (12.26): the block calls Δ+
@@ -1113,9 +1142,12 @@ new privileges."
 
 **In plain words.** The block's budget is G_T, or enough for one maximal report per core
 plus every free service's gas, whichever is larger. The state's accounts, next validators,
-queues and privileges go in as one partial state; Δ+ runs every round on this block's 𝐑\*;
-what comes out is the new ι′, ϕ′ and χ′, the accounts δ† (still to be stamped and given the
-block's preimages), the yields θ′, the gas 𝐮 and the transfers 𝐭.
+queues and privileges go in as one partial state. Δ+ runs every round on this block's 𝐑\*.
+What comes out:
+
+- the new ι′, ϕ′ and χ′;
+- the accounts δ†, still to be stamped and given the block's preimages;
+- the yields θ′, the gas 𝐮 and the transfers 𝐭.
 
 **On a real value.** `always_accumulate-1`, slot 43, has no reports at all:
 
@@ -1128,7 +1160,7 @@ out    n = 0 reports;  𝐮 = [(1729, 16,417)];  𝐛 = {};  𝐭 = []
 ```
 
 **In your client.** `floor` and `budget` in `accumulateBlock`, [17.9's
-code](./09-the-blocks-gas-budget.md#the-code); θ′ is its `outputs`, [17.11](./11-what-a-service-yields.md#the-code).
+code](./09-the-blocks-gas-budget.md#the-code). θ′ is its `outputs`, [17.11](./11-what-a-service-yields.md#the-code).
 
 ## (12.27) and (12.28): the statistics
 
@@ -1176,9 +1208,13 @@ Where S of s is the tuple N of s, T of s, G of s; N of s is the count of digests
 the first n reports of R star; T of s is the count of transfers to s in t; and G of s is
 the sum of the gas u of every pair s, u in u."
 
-**In plain words.** For each service, three tallies over the whole block: N, the digests
-it accumulated (only from reports that ran: the first n); T, the transfers it received; G,
-the gas it used, added up over every round. A service with all three at zero is left out.
+**In plain words.** For each service, three tallies over the whole block:
+
+- N, the digests it accumulated (only from reports that ran: the first n);
+- T, the transfers it received;
+- G, the gas it used, added up over every round.
+
+A service with all three at zero is left out.
 
 **On a real value.** `transfer_for_live_service-1`:
 
@@ -1304,8 +1340,11 @@ Five privileges say who may change what (9.9). Reports wait in a ring ω for the
 they need, and a history ξ remembers an epoch of done packages (12.1 to 12.3). Each block,
 the reports that wait for nothing go now, and E, Q and P unlock whatever they free (12.4 to
 12.12). A service's inputs are operands and transfers (12.13), its state a partial state
-(12.15). Δ+ runs rounds while reports fit the gas or transfers wait (12.17); each round Δ\*
-runs every service once from the same state and merges the results, privileges through R
-(12.18, 12.19), preimages through I (12.20); each run is Δ₁ (12.22, 12.23). The block feeds
-it a budget and its state (12.24), then counts N, T and G (12.27), stamps the slot (12.29),
-and moves the history and the queue on (12.31).
+(12.15).
+
+Δ+ runs rounds while reports fit the gas or transfers wait (12.17). Each round, Δ\* runs
+every service once from the same state and merges the results: privileges through R
+(12.18, 12.19), preimages through I (12.20). Each run is Δ₁ (12.22, 12.23).
+
+The block feeds it a budget and its state (12.24). Then it counts N, T and G (12.27),
+stamps the slot (12.29), and moves the history and the queue on (12.31).

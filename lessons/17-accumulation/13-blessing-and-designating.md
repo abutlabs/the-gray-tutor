@@ -1,22 +1,36 @@
 # Blessing and designating
 
-Two privileged calls are left. `bless` is the manager's big lever: it sets every privilege
-at once, and the list of always-accumulate services with them. `designate` is the
-delegator's: it chooses the validators for a coming epoch. By the end of this lesson your
-client answers both, and every one of the 63 official accumulate vectors passes as a
-whole block.
+**In one sentence:** one call, *bless*, hands out every privilege at once, and another,
+*designate*, lets one service choose the next validators.
 
-## New words
+Here is one `bless` order, as a service lays it out in registers and memory. Tap a
+register or a group of bytes to see what it is. Then change an assigner or the gas and
+watch the bytes redraw.
 
-- **Bless.** Setting every privilege in one call: the manager, each core's assigner, the
-  delegator, the registrar, and the always-accumulate services with their gas. *Example:*
-  service 1 blesses service 2 as the delegator.
-- **Designate.** The delegator choosing the next validators, ι: a list of keys, 336 bytes
-  for each validator. *Example:* 6 validators on tiny, 2,016 bytes.
-- **Validator counts (V).** The sizes the chain allows for a set of validators: a multiple
-  of 3, from 6 up to 3 for each core. *Example:* on tiny, with 2 cores, only 6.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<BlessOrder />
+
+## The idea
+
+Privileges have holders ([lesson 17.5](./05-privileges.md)). Who changes the holders? And
+who picks the validators? Two services, with one call each.
+
+To [*bless*](../glossary.md#bless) is to set every privilege in one call: the manager,
+each core's assigner, the delegator, the registrar, and the services that accumulate in
+every block, with their gas. It is the manager's big lever, like a club naming all its
+officers in one vote.
+
+To [*designate*](../glossary.md#designate) is the delegator's call: it chooses the
+validators for a coming epoch, as a list of keys. Not any number will do. The
+[*validator counts*](../glossary.md#validator-counts) the chain allows are multiples of
+3, from 6 up to 3 for each core.
+
+Neither call changes the chain by itself. A run only notes what it wants. The merge after
+the round ([lesson 17.6](./06-who-wins.md)) decides what counts.
+
+By the end of this lesson your client answers both calls, and every one of the 63
+official accumulate vectors passes as a whole block.
 
 ## What the Gray Paper says
 
@@ -48,14 +62,14 @@ the holder's own.
 
 Here the test vectors and the Gray Paper part ways. Gray Paper 0.8.0 says `bless` answers
 `HUH` to anyone but the manager. The 0.8.0 test vectors follow a later change to the paper
-(GP pull request 519): anyone may call it, and the merge decides what counts. In
-`bless_from_non_manager-1`, service 1 is the delegator, not the manager, and blesses
-service 2 as the delegator. Strictly, that's `HUH`. In the vectors it's `OK`, and since the
-manager left the delegator alone, R takes the holder's own choice: service 2.
+(GP pull request 519): anyone may call it, and the merge decides what counts.
+
+In `bless_from_non_manager-1`, service 1 is the delegator, not the manager, and blesses
+service 2 as the delegator. By the paper, that's `HUH`. In the vectors it's `OK`. The
+manager left the delegator alone, so R takes the holder's own choice: service 2.
 
 Your client follows the vectors: they're what a client is checked against. Both bless
-vectors fail under
-the strict rule; the switch is one line, noted in
+vectors fail under the strict rule. The switch is one line, noted in
 [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) for when a new version of the paper settles it.
 
 ## The tests
@@ -116,9 +130,8 @@ test("designate: the delegator picks the next validators; a count tiny can't hav
 
 The bytes by hand: the assigners are 2 and 3, four bytes each, little end first; the one
 always-accumulate entry is service 6 (`06 00 00 00`), then 1,000 gas in 8 bytes (1,000 is
-`0x03e8`, so `e8 03` and six zeros).
-
-<BlessOrder />
+`0x03e8`, so `e8 03` and six zeros). The widget [at the top](#try-it) draws the same
+bytes.
 
 `checkBlock` learns to compare the always-accumulate services, which only a `bless` could
 change:
@@ -330,9 +343,9 @@ export function designate(m: Machine, s: number, powers: Powers, cores: number):
 ```
 
 `powers.now.privileges` is the run's own copy, so a `bless` earlier in the same run counts:
-a service that blesses itself as the delegator may then designate. It gets `OK`, but its
-keys count only if it was already the delegator when the round started: the merge takes
-ι′ from that service's run alone.
+a service that blesses itself as the delegator may then designate. It gets `OK`. But its
+keys count only if it was the delegator when the round started: the merge takes ι′ from
+that service's run alone.
 
 **Replace in** `src/host.ts`
 
@@ -701,10 +714,13 @@ the test vector says: 507819
 :::
 
 Service 1 isn't the manager, yet its `bless` answers `OK`: in the vectors anyone may
-call it. The merge after the round sorts it out. The manager stays 0, the
-always-accumulate list stays empty (only the manager's changes count there), and the
-delegator becomes 2, because service 1 held that privilege and changed its own. The
-vector's privileges after the block are exactly that. Service 0's `designate` is
+call it. The merge after the round sorts it out:
+
+- the manager stays 0;
+- the always-accumulate list stays empty, since only the manager's changes count there;
+- the delegator becomes 2, because service 1 held that privilege and changed its own.
+
+The vector's privileges after the block are exactly that. Service 0's `designate` is
 refused before anything is read into ι: five validators is not a size tiny can have.
 
 **Run**
@@ -851,7 +867,7 @@ stf/accumulate         126 of 126  ✔
 
 :::
 
-*Run whole* means your client runs service 1's real code on the PVM and must land on every part of the vector: the privileges after (here the delegator `designate` moves from 1 to 2, the manager `bless` stays 0), and the yielded root in `output`. The `stf/accumulate` row counts it only when every part matches.
+*Run whole* means your client runs service 1's real code on the PVM and must land on every part of the vector: the privileges after, and the yielded root in `output`. Here the delegator (`designate`) moves from 1 to 2 and the manager (`bless`) stays 0. The `stf/accumulate` row counts it only when every part matches.
 
 **Run**
 
@@ -924,38 +940,39 @@ one.
 ## Check your understanding
 
 ::: check
-**In `bless_from_non_manager-1`, service 1, the delegator but not the manager, blesses service 2 as the delegator. The manager leaves the delegator alone. Who is the delegator after?**
+**What does `bless` do?**
 
-- [ ] Service 1: only the manager may bless
-  > No: that's Gray Paper 0.8.0's text, but the vectors follow the later change:
-  > anyone may call `bless`, and the merge decides what counts.
-- [x] Service 2
-  > Yes: R(1, 1, 2) = 2. The manager made no change, so the holder's own choice goes
-  > through.
-- [ ] Service 0, the manager
-  > No: the manager's run left the delegator at 1, and leaving it is no change.
+- [ ] It chooses the next validators
+  > No: that's `designate`, the delegator's call.
+- [x] It sets every privilege in one call
+  > Yes: the manager, each core's assigner, the delegator, the registrar, and the
+  > always-accumulate services with their gas.
+- [ ] It gives one service free gas in every block
+  > No: the always-accumulate list is one part of it. The call sets all the privileges
+  > at once.
 
-**Suppose service 1's `bless` also lists new always-accumulate services. What does the list look like after the round?**
+**In the vectors, any service may call `bless` and get `OK`. What stops a service with no privilege from making itself the manager?**
 
-- [ ] The new list: in the vectors, anyone may bless
-  > No: anyone may call it, but the always-accumulate services come from the
-  > manager's run alone.
-- [x] The old list: only a manager's `bless` changes it
-  > Yes: χ_Z after the round is what the manager's run left. Service 1 isn't the
-  > manager, so its list counts for nothing.
-- [ ] The old and the new lists, merged
-  > No: the lists aren't merged. It's the manager's list, whole.
+- [ ] Nothing: in the vectors any service can take over
+  > No: anyone may call it, but the merge decides what counts.
+- [ ] `bless` answers `HUH` to anyone but the manager
+  > No: that's Gray Paper 0.8.0's text. The vectors follow a later change to the paper,
+  > and your client follows the vectors.
+- [x] The merge after the round
+  > Yes: `OK` only says the run noted its wish. The merge takes the next manager, and
+  > the always-accumulate services, from the manager's run alone.
 
-**On tiny, with 2 cores, service 0, the delegator, designates 3 validators. What does it get?**
+**Why does `designate` refuse some counts of validators?**
 
-- [x] `HUH`
-  > Yes: tiny allows only 6: multiples of 3, from 6 up to 3 × 2 cores. 3 isn't one
-  > of them.
-- [ ] `OK`: 3 is a multiple of 3
-  > No: it's also below 6, the fewest the chain allows.
-- [ ] A panic
-  > No: only keys it can't read make it panic. A count the chain doesn't allow is
+- [x] A set of validators must have a size the chain allows
+  > Yes: a multiple of 3, from 6 up to 3 for each core. On tiny, with 2 cores, that
+  > leaves only 6, and any other count is `HUH`.
+- [ ] The keys for that many validators can't be read
+  > No: keys that can't be read make the run panic. A count the chain doesn't allow is
   > `HUH`.
+- [ ] Each validator costs 302 gas, and the service ran out
+  > No: the count is checked whatever gas is left. Tiny refuses 3 and 5 however much
+  > the service holds.
 
 **At the round's start, service 1 is the delegator. In one run, service 0, the manager, blesses itself as the delegator, then designates 6 validators. Service 1 designates nothing. Do service 0's 6 become ι′?**
 
@@ -975,7 +992,5 @@ Every accumulate host call a block needs, and whole blocks that match all 63 off
 accumulate vectors, and all 126 at both sizes on the scoreboard: the gas budget, upgrades,
 yields and their root, provisions, and every privilege. That's [Part 17](./index.md) done. Next, the chain keeps score of all this work:
 [Part 18](../18-statistics/index.md) builds the statistics.
-
-**Say it out loud.** `bless` sets every privilege, and `designate` picks the next validators. The merge after the round decides what counts.
 
 Next: [Part 18 · Statistics](../18-statistics/index.md)

@@ -26,8 +26,10 @@ test("the test's bytes and result: 02 00 00 00 | 03 00 00 00; 06 00 00 00 e8 03 
   assert.match(raw.replace(/\s+/g, " "), /1,000 is `0x03e8`, so `e8 03` and six zeros/);
 });
 
-test("lesson 17.13 places the widget once, after the bytes by hand", () => {
+test("lesson 17.13 places the widget once, at the top, and the bytes by hand send the reader back to it", () => {
   const at = raw.indexOf("<BlessOrder />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<BlessOrder />"));
-  assert.ok(at > raw.indexOf("so `e8 03` and six zeros).") && at < raw.indexOf("`checkBlock` learns to compare the always-accumulate"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("so `e8 03` and six zeros)."));
+  assert.ok(back > 0 && back < raw.indexOf("`checkBlock` learns to compare the always-accumulate"));
 });
