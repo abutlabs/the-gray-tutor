@@ -1,19 +1,34 @@
 # Memory
 
-Registers alone are thirteen numbers. This lesson gives the PVM its *memory*: 4 gigabytes
-of address space, of which a program can touch only the pages it's been given, and the
-thirty instructions that load and store.
+**In one sentence:** the PVM's memory is four gigabytes of numbered bytes, of which a
+program may touch only the pages it was given, and a touch anywhere else stops the machine
+before anything changes.
 
-## New words
+Here is a map with one writable page, one read-only page and nothing else. Pick a load or
+a store, a width and an address, and see whether the machine carries on, faults or panics.
 
-- **Memory and page.** The PVM's memory is 2^32 bytes, handed out in pages of 4,096. A
-  program can touch only the pages it has. *Example:* the page at 0x20000 holds the
-  bytes 0x20000 to 0x20fff.
-- **Fault.** The machine stopping because a program touched a page it wasn't given,
-  reporting that page's address so whoever runs it could add the page and go on.
-  *Example:* a load from 0x30005 with no page there faults at 0x30000.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md).
+<MemoryTouch />
+
+## The idea
+
+Thirteen registers are thirteen numbers. A real program needs far more room. So the
+machine gets [*memory*](../glossary.md#memory): one long row of numbered bytes, 2^32 of
+them, 4 gigabytes.
+
+No program gets the whole row. It is cut into [*pages*](../glossary.md#page), in pages of
+4,096 bytes, and a program can touch only the pages it has been given. Some it may read
+and write. Some it may only read. Think of a hotel corridor four gigabytes long, and a key
+that opens a handful of its doors.
+
+What if a program tries a door its key doesn't open? The machine stops, and nothing is
+changed. That stop is a [*fault*](../glossary.md#fault). It names the page, so whoever
+runs the machine could add the page and carry on. One stretch is different: nothing may
+ever live in the first 64 kB. A touch there is a panic, so an address near zero is always
+a crash.
+
+This lesson builds the pages, the check, and the thirty instructions that load and store.
 
 ## What the Gray Paper says
 
@@ -73,8 +88,6 @@ $$
 → [(A.9) in plain words](./gray-paper.md#ex-A-9)
 
 :::
-
-In plain words:
 
 **RAM** is 2^32 bytes, cut into *pages* of Z_P = 4,096 bytes. Each page is *readable*
 (R), *writable* (W, which is readable too), or *inaccessible*. A fresh machine has only
@@ -156,8 +169,8 @@ With a register and two immediates, the stores of a constant through a register:
 :::
 
 The loads and stores through a register, `load_ind_…` and `store_ind_…` (120 to 130), share
-a table with [lesson 15.5](./05-arithmetic.md)'s arithmetic, and it's quoted there. In
-plain words, the families differ only in width and form:
+a table with [lesson 15.5](./05-arithmetic.md)'s arithmetic, and it's quoted there. The
+families differ only in width and form:
 
 | Instructions | Address | Does |
 | --- | --- | --- |
@@ -170,9 +183,9 @@ plain words, the families differ only in width and form:
 
 A store keeps only the low bytes: `store_u8` writes φ_A mod 2^8.
 
-Try a touch on a map with one writable page, one read-only page and nothing else:
-
-<MemoryTouch />
+Try each case on [the map at the top](#try-it): a store to the read-only page, a load
+where there is no page, a load below 2^16, and a load of 8 bytes that runs off the end of
+its page.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Reading and writing memory**, then **Step** twice: the Memory panel jumps to the store and lights `88 77 66 55 44 33 22 11`. Then press **Writing to a read-only page**, and **Run**: the store stops with a page fault, and the page says what to change.
 
@@ -303,9 +316,9 @@ export function writeMemory(memory: Memory, address: bigint, bytes: Bytes): Memo
 ```
 
 Memory is a `Map` from page number to page, so the 2^32 bytes cost nothing until a page
-is added. `check` is ε^μ: every address that can't be used, the lowest of them, panic or
-fault. Only if every byte is fine does anything get read or written. The `!` after
-`memory.get(…)` tells TypeScript the page is there; `check` already made sure.
+is added. `check` is ε^μ: it finds every address that can't be used, takes the lowest, and
+says panic or fault. Only if every byte is fine is anything read or written. The `!` after
+`memory.get(…)` tells TypeScript the page is there: `check` already made sure.
 
 Now the machine. It gets a new way to stop, a memory, and the new family.
 
@@ -381,10 +394,11 @@ function memoryInstructions(m: Machine, ins: Instruction): Exit | undefined {
 }
 ```
 
-Thirty instructions in two `if` statements: a regular expression reads the name, and the name says
-everything. `load_ind_i16` is "load, through a register, signed, 16 bits". The
+Thirty instructions in two `if` statements. A regular expression reads the name, and the
+name says everything: `load_ind_i16` is "load, through a register, signed, 16 bits". The
 `([ui])` group catches signed or unsigned, `(ind_)?` the indirect form, `(8|16|32|64)`
-the width. That's [lesson 15.3](./03-the-machine.md)'s `FAMILIES` paying off: `step` hasn't changed at all.
+the width. And `step` hasn't changed at all: that is what
+[lesson 15.3](./03-the-machine.md)'s `FAMILIES` is for.
 
 **Run**
 
@@ -450,8 +464,7 @@ const link = await report.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The page and registers going in, the
-memory and registers after, and the lines printed:
+What flows through it:
 
 ::: code-group
 
@@ -480,10 +493,10 @@ load from 0x30005, where there's no page: a fault at 0x30000
 
 :::
 
-r2's value goes to memory lowest byte first, so the
-page reads backwards; loading 8 bytes undoes the reversal, loading 1 byte picks up
-`0x80` alone and sign-extends it to −128. The second machine's address has no page
-behind it, and the fault names the page's start, 0x30000, not the byte it reached for.
+r2's value goes to memory lowest byte first, so the page reads backwards. Loading 8 bytes
+undoes the reversal. Loading 1 byte picks up `0x80` alone and sign-extends it to −128. The
+second machine's address has no page behind it, and the fault names the page's start,
+0x30000, not the byte it reached for.
 
 **Run**
 
@@ -541,43 +554,43 @@ the answer.
 - [ ] `i8` rounds the byte to a whole number
   > No: bytes are already whole numbers. `i` only means signed.
 
-**A load from 0x30005, where there is no page. How does the machine stop?**
+**A program loads from a page it was never given, at 0x30005. What does the machine report, and why?**
 
-- [ ] With a fault at 0x30005
-  > No: a fault names the page, not the byte: 0x30005 rounded down to a multiple of
+- [ ] A fault at 0x30005, the byte it reached for
+  > No: a fault names the page, not the byte: the address rounded down to a multiple of
   > 4,096.
-- [x] With a fault at 0x30000, still on the load
-  > Yes: the start of the missing page. ı stays on the load, so whoever runs the machine
-  > could add the page and carry on.
-- [ ] With a panic
-  > No: a panic is for an address below 2^16, 0x10000. 0x30005 is above it.
+- [ ] A panic: missing memory is a crash
+  > No: a panic is for an address below 2^16. Above it, a missing page is a fault.
+- [x] A fault at 0x30000, the page's start, with the machine still on the load
+  > Yes: whoever runs the machine could add that page and carry on from the same
+  > instruction.
 
-**And a load from 0x0100, where there's no page either?**
+**Why is a touch below 2^16 a panic and not a fault?**
 
-- [ ] A fault at 0x0000
-  > No: nothing may live in the first 64 kB, so there's no page anyone could add.
-- [x] A panic
-  > Yes: 0x0100 is below 2^16. A near-null pointer is always a crash.
-- [ ] r1 gets 0
-  > No: missing memory doesn't read as zeros. The machine stops, and r1 keeps what it had.
+- [x] Nothing may live in the first 64 kB, so there is no page anyone could add
+  > Yes: a fault says "this page is missing". Down there no page can ever be given, so a
+  > near-null pointer is always a crash.
+- [ ] The program's code lives there, and code may not be read
+  > No: nothing lives there at all.
+- [ ] Reads there give zeros, and only a write panics
+  > No: missing memory never reads as zeros. A load there panics as a store does.
 
-**`store_imm_u8` tries to write 42 at 0x10000, a read-only page. What happens?**
+**A store finds that one of its bytes is not writable. What has changed when the machine stops?**
 
-- [ ] 42 is written, and then the machine faults
-  > No: the check comes first. If any byte can't be written, the machine stops and
-  > changes *nothing*.
-- [x] A fault at 0x10000, and the byte is still 0
-  > Yes: the page isn't writable, so nothing is written, and the fault names the page.
-- [ ] A panic, and the byte is still 0
-  > No: 0x10000 is 2^16 exactly. A panic is only for addresses *below* 2^16, so this is
-  > a fault.
+- [ ] The bytes before the bad one: they were written first
+  > No: the check comes first, over every byte. If any can't be written, the machine
+  > stops and changes *nothing*.
+- [ ] The register holding the address: it is cleared
+  > No: no register changes either.
+- [x] Nothing: every byte is checked before any is written
+  > Yes: the machine stops as it was, on the same instruction. A store to the read-only
+  > page at 0x10000 leaves the page as it was, and faults at 0x10000. It is a fault
+  > because 0x10000 is 2^16 exactly. A panic is only for addresses *below* 2^16.
 :::
 
 ## What you have
 
 Memory with pages and permissions, and every load and store, failing exactly as the Gray
 Paper says when a program reaches too far. [Lesson 15.5](./05-arithmetic.md) adds the arithmetic.
-
-**Say it out loud.** A program can only touch the pages it was given. Anything else is a page fault, and anything below 64 KiB is a panic.
 
 Next: [15.5 Arithmetic](./05-arithmetic.md)

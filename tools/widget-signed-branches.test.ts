@@ -56,8 +56,10 @@ test("the grid holds every comparison once, eq and ne with no twin; flipping a s
   assert.equal(parse("x"), null);
 });
 
-test("lesson 15.6 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.6 places the widget once, at the top, and −1 against 1 sends the reader back to it", () => {
   const at = raw.indexOf("<SignedBranches />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<SignedBranches />"), "placed once");
-  assert.ok(at > raw.indexOf("Same bits, opposite answers.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("Same bits, opposite answers."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

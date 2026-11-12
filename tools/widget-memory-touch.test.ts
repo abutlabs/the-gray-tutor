@@ -36,8 +36,10 @@ test("the tests' outcomes: a fault at 0x30000, a panic at 0x0100, a fault writin
   for (const p of PRESETS) assert.ok(p.width >= 1 && p.address >= 0, p.says);
 });
 
-test("lesson 15.4 places the touch widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.4 places the touch widget once, at the top, and the instruction families send the reader back to it", () => {
   const at = raw.indexOf("<MemoryTouch />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<MemoryTouch />"), "placed once");
-  assert.ok(at > raw.indexOf("A store keeps only the low bytes") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("A store keeps only the low bytes"));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

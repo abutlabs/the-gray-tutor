@@ -1,9 +1,33 @@
 # Branches and calls
 
-Programs make choices (*if the balance is too low, stop*) and call functions and come
-back. [Lesson 15.3](./03-the-machine.md) gave your machine equal and not equal; this lesson adds the other
-fourteen branches and the two instructions for a call. One question runs through it: is
-−1 less than 1? That depends on who's asking.
+**In one sentence:** a branch jumps only if a comparison holds, read with a sign or
+without, and a call is a jump that leaves the way back in a register.
+
+Set two registers, or flip a sign bit, and see every comparison, unsigned beside signed.
+Start with −1 and 1: is −1 less than 1?
+
+<a id="try-it"></a>
+
+<SignedBranches />
+
+## The idea
+
+Programs make choices (*if the balance is too low, stop*), and they call functions and
+come back. Both are jumps with something added.
+
+A branch is a jump with a condition: compare two numbers, and jump only if the comparison
+holds. Simple, until you ask whether −1 is less than 1. A register holds −1 as 64 set
+bits. Read as a plain count, those bits are the biggest number there is. Read with a sign,
+they are −1. The bits don't say which is meant, so the instruction does: "less than" and
+its like come twice, once for each reading. Equal needs no twin, since equal bits are
+equal however you read them.
+
+A call is a jump that remembers. Before it jumps to the function, it leaves the way back
+in a register, like a bookmark where you stopped reading. The function returns by jumping
+through that register.
+
+[Lesson 15.3](./03-the-machine.md) gave your machine equal and not equal. This lesson adds
+the other fourteen branches and the two instructions for a call.
 
 ## What the Gray Paper says
 
@@ -65,8 +89,6 @@ Two registers and two immediates: the call through a register:
 
 :::
 
-In plain words:
-
 - **Branches** compare φ_A with a register φ_B, or with an immediate ν_X, and jump if the
   comparison holds. It's [lesson 15.3](./03-the-machine.md)'s `branch`: the target and the next instruction must
   both start basic blocks. There are ten comparisons: `eq`, `ne`, and `lt`, `le`, `ge`,
@@ -87,9 +109,8 @@ In plain words:
   only the gas meter cares: a branch with `unlikely` (or `trap`) at either end costs less
   ([15.9 to 15.11](./09-what-instructions-cost.md)).
 
-Set two registers and see every comparison, unsigned beside signed:
-
-<SignedBranches />
+Set −1 against 1 [at the top](#try-it) and read the two columns: every `_u` comparison
+and its `_s` twin disagree. Then flip r0's sign bit, and they agree again.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Any instruction** and pick `branch_lt_s`. In the edit box set `.reg r7 = -1` and `.reg r8 = 1`, press **Assemble and reset**, then **Step**: it jumps. Do the same with `branch_lt_u`: it doesn't, because those same bits are now the biggest number there is.
 
@@ -182,8 +203,8 @@ test("every branch in the GP's tables has a comparison: 16 of them", () => {
 });
 ```
 
-`jumps` runs one branch whose target is 5, with fallthroughs filling the gap so that both
-ways start basic blocks. Then it asks one thing: did the machine land on 5?
+`jumps` runs one branch whose target is 5. Fallthroughs fill the gap, so that both ways
+start basic blocks. Then it asks one thing: did the machine land on 5?
 
 `withCall` is a whole program with a function in it. The call at 0 goes to the function
 at 6, which doubles r2 and returns through r0 to 4. The jump table has two entries:
@@ -222,7 +243,7 @@ test at test/branches.test.ts:20:1
 ```
 
 Red, and for a reason worth reading: the tests reach branches that no family handles
-yet, so `step` throws "isn't built yet". That's [lesson 15.3](./03-the-machine.md)'s rule of thumb at work:
+yet, so `step` throws "isn't built yet". That is [lesson 15.3](./03-the-machine.md)'s rule at work:
 a thrown `Error` is your client's gap, not the program's crash.
 
 ## The code
@@ -374,8 +395,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** Sixteen tiny programs going in, one
-comparison's two readings, and the lines printed:
+What flows through it:
 
 ::: code-group
 
@@ -456,17 +476,16 @@ lasair has your problem reversed: OCaml's `Int64` compares as signed, so lasair 
 ## Check your understanding
 
 ::: check
-**r0 holds −1, all 64 bits set, and r1 holds 1. Does `branch_lt_u r0, r1` jump?**
+**Why does the PVM have both `branch_lt_u` and `branch_lt_s`?**
 
-- [ ] Yes: −1 is less than 1
-  > No: that's `branch_lt_s`. Read unsigned, the same bits are 2^64 − 1, the biggest
-  > number there is.
-- [x] No: read unsigned, r0 is 2^64 − 1, which isn't less than 1
-  > Yes: same bits, two readings. `branch_lt_s` jumps on these registers, and
-  > `branch_lt_u` falls through.
-- [ ] It panics: a register can't hold −1
-  > No: it can, as 64 set bits. Whether they mean −1 or 2^64 − 1 is up to the instruction
-  > reading them.
+- [ ] `_s` is for 32-bit numbers and `_u` for 64-bit ones
+  > No: both compare all 64 bits. The letter says how the bits are read, not how many.
+- [x] A register doesn't say whether its bits are signed, so the instruction has to
+  > Yes: 64 set bits are −1 read signed and 2^64 − 1 read unsigned. Against 1,
+  > `branch_lt_s` jumps and `branch_lt_u` falls through. Same bits, two readings.
+- [ ] A register can't hold a negative number, so `_s` converts it first
+  > No: it holds −1 as 64 set bits, and nothing is converted. Whether they mean −1 or
+  > 2^64 − 1 is up to the instruction reading them.
 
 **Why do `branch_eq` and `branch_ne` have no `_u` and `_s` twins?**
 
@@ -506,7 +525,5 @@ lasair has your problem reversed: OCaml's `Int64` compares as signed, so lasair 
 Every branch, and calls both ways. Your machine runs every instruction but eleven: ten
 that count and shuffle bits, and `ecalli`, the door out to the host. [Lesson 15.7](./07-bits-and-bytes.md)
 builds the ten.
-
-**Say it out loud.** The same 64 bits can be read signed or unsigned, so branches come in both. A function call is a jump that leaves the way back in a register.
 
 Next: [15.7 Bits and bytes](./07-bits-and-bytes.md)

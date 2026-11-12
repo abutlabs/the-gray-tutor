@@ -49,8 +49,10 @@ test("the check questions: 2^64 − 1 + 2 is 1, and typed inputs read signed, un
   assert.equal(parse("seven"), null);
 });
 
-test("lesson 15.5 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.5 places the widget once, at the top, and the corners send the reader back to it", () => {
   const at = raw.indexOf("<AluCorners />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<AluCorners />"), "placed once");
-  assert.ok(at > raw.indexOf("otherwise the destination keeps what it had.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("otherwise the destination keeps what it had."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

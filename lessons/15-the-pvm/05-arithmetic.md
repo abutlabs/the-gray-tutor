@@ -1,9 +1,33 @@
 # Arithmetic
 
-The PVM computes with 72 instructions: add, subtract, multiply, divide, shift, rotate,
-compare, pick. Most come twice, in 32 and 64 bits, with a register or a constant as the
-second input. Each is one line in the Gray Paper and one line in your client. The lines
-are easy; the corners are where the fun is.
+**In one sentence:** the PVM's arithmetic is 72 instructions that never crash: numbers
+wrap around, and even dividing by zero has one fixed answer.
+
+Pick an operation and two numbers, and read the result as 64 bits, as hex and as a signed
+number. Then try the corners: divide by zero, or add 1 to the biggest signed 32-bit number.
+
+<a id="try-it"></a>
+
+<AluCorners />
+
+## The idea
+
+A pocket calculator shows an error when you divide by zero. A JAM validator can't. Every
+validator runs the same program and must get the same result, so "error" is not good
+enough: every sum needs one answer. On the PVM, arithmetic never crashes, and every corner
+has a fixed result.
+
+A register holds 64 bits, like a car's odometer. Add past the top and the count rolls
+over and carries on. Divide by zero and you get all ones. The one division that doesn't
+fit, the most negative number by −1, has its answer written down too.
+
+The same bits can be read two ways: as a plain count, or as a signed number, where a set
+top bit means negative. Division has an instruction for each reading. Most instructions
+also come twice, in 32 and 64 bits, with a register or a constant as the second input.
+That is how add, subtract, multiply, divide, shift, rotate, compare and pick grow into 72.
+
+Each is one line in the Gray Paper and one line in your client. The lines are easy. The
+corners are where the fun is.
 
 ## What the Gray Paper says
 
@@ -179,7 +203,7 @@ $$
 
 :::
 
-In plain words: registers hold 64 bits, and everything is modulo 2^64. The corners that
+Registers hold 64 bits, and everything is modulo 2^64. The corners that
 catch people:
 
 - **32-bit instructions** work on the low 32 bits, and **sign-extend** the result back
@@ -203,9 +227,7 @@ catch people:
 - **`cmov`** moves a value only if a condition register is zero (`iz`) or not (`nz`),
   otherwise the destination keeps what it had.
 
-Try the corners, or numbers of your own:
-
-<AluCorners />
+Each corner is a preset [at the top](#try-it). Try them, then numbers of your own.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Any instruction** and pick `div_u_64` from the list. In the edit box change `.reg r8 = 0x10` to `.reg r8 = 0`, press **Assemble and reset**, then **Step**: dividing by zero gives −1, every bit set, and the machine carries on.
 
@@ -311,8 +333,8 @@ test("every arithmetic instruction in the GP's tables has an operation: 72 of th
 ```
 
 Each test runs one instruction and looks at r2. The last test is the safety net: it
-walks all 72 arithmetic opcodes of [lesson 15.2](./02-instructions.md)'s table and checks each has an
-operation, so none can be forgotten.
+walks all 72 arithmetic opcodes of [lesson 15.2](./02-instructions.md)'s table and checks that each has an
+operation. None can be forgotten.
 
 ## The code
 
@@ -423,10 +445,10 @@ export function operationOf(name: string): { operation: string; swapped: boolean
 }
 ```
 
-Every operation takes p and q plus `old`, the register being written (only `cmov` looks
+Every operation takes p and q, plus `old`, the register being written (only `cmov` looks
 at it). `bigint` never overflows, so the wrap-around is explicit: `mod` brings a result
 back into 64 bits, `ext32` into 32, sign-extended. One trap: bigint's `%` keeps the sign
-of its left side, so `-7n % 2n` is `-1n`. Wrong for wrapping, which is why `mod` adds n
+of its left side, so `-7n % 2n` is `-1n`. That is wrong for wrapping, so `mod` adds n
 and takes `%` again:
 
 ```ts
@@ -445,7 +467,7 @@ it directly:
 ```
 
 −7 rem 2 is −1, and `u64` writes it into the register as 2^64 − 1. The line before covers
-−2^63 rem −1, whose division would overflow, which the Gray Paper makes 0; a remainder
+−2^63 rem −1, whose division would overflow: the Gray Paper makes it 0. A remainder
 by 0 is the number itself.
 
 `operationOf` maps the immediate and alt names onto the three-register ones, so one
@@ -594,8 +616,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** A one-instruction program going in,
-the bits it leaves in r2, and the line printed. Here is the −7 ÷ 2 case:
+What flows through it, for the −7 ÷ 2 case:
 
 ::: code-group
 
@@ -669,17 +690,16 @@ of the job free.
 ## Check your understanding
 
 ::: check
-**`add_32` of 2^31 − 1 and 1. What lands in the register?**
+**A 32-bit instruction writes a 64-bit register. What goes into the upper 32 bits?**
 
-- [ ] 0x0000000080000000, 2^31
-  > No: those are the right low 32 bits, but a 32-bit result is sign-extended to 64. Its
-  > top bit is 1, so the upper half fills with `ff`.
-- [x] 0xffffffff80000000, −2^31
-  > Yes: the low 32 bits are `80000000`, negative as a signed 32-bit number, so the 32
-  > bits above become `ffffffff`.
-- [ ] 0, because the sum overflowed 32 bits
-  > No: 2^31 still fits in 32 bits; it only reaches the sign bit. Wrapping to 0 takes
-  > 2^32.
+- [ ] Zeros
+  > No: that would be zero extension. `add_32` of 2^31 − 1 and 1 would then leave 2^31,
+  > and it leaves −2^31.
+- [x] Copies of the result's top bit: the 32-bit result is sign-extended
+  > Yes: `add_32` of 2^31 − 1 and 1 has the low 32 bits `80000000`, negative as a signed
+  > 32-bit number, so the 32 bits above become `ffffffff`.
+- [ ] Whatever the register held before
+  > No: the result is extended to all 64 bits, so nothing of the old value is left.
 
 **`add_64` of 2^64 − 1 and 2?**
 
@@ -690,15 +710,15 @@ of the job free.
 - [x] 1
   > Yes: 2^64 + 1, modulo 2^64, is 1. The count rolls over like a car's odometer.
 
-**`div_u_64` divides 5 by 0. What happens?**
+**A program divides by zero. What does the PVM do, and why?**
 
-- [x] The answer is 2^64 − 1, all ones, and the program carries on
-  > Yes: the Gray Paper gives division by zero an answer instead of a crash. The
-  > remainder by 0, `rem_u_64`, gives back the 5.
-- [ ] The machine panics
+- [ ] It panics: there is no right answer to give
   > No: no arithmetic instruction panics. Division by zero has its answer in the table.
-- [ ] The answer is 0
+- [ ] It gives 0, and carries on
   > No: the Gray Paper picks all ones, 0xffffffffffffffff, not 0.
+- [x] It gives 2^64 − 1, all ones, and carries on: a fixed answer, so every validator gets the same result
+  > Yes: the Gray Paper gives division by zero an answer instead of a crash. The
+  > remainder by 0 gives back the dividend.
 
 **`div_s_64` of −7 and 2?**
 
@@ -715,7 +735,5 @@ of the job free.
 
 All 72 arithmetic and logic instructions, every corner of the Gray Paper's tables tested.
 [Lesson 15.6](./06-branches-and-calls.md) adds the rest of the branches, and calls.
-
-**Say it out loud.** PVM arithmetic never crashes: numbers wrap, and dividing by zero has a fixed answer, so every validator gets the same result.
 
 Next: [15.6 Branches and calls](./06-branches-and-calls.md)
