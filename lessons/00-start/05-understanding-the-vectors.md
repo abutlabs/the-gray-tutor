@@ -1,21 +1,31 @@
 # Understanding the vectors
 
-Everything you build in this tutorial is graded by one folder: `vectors/`, the official
-test vectors. Before you write a line of the client, this lesson opens that folder and
-looks at one vector of each kind. By the end you can open any file in it, say what question it
-asks and what answer it expects, and name the file of your client that will answer it,
-and the lesson that writes it. Nothing here is code to type: it is a map of the road
-ahead, so each later part has a place to land.
+**In one sentence:** the test vectors are questions with their answers written down in
+advance, and each kind of question is answered by one file of your client.
 
-## New words
+## The idea
 
-- **Vector family.** A folder of vectors that all test one rule. *Example:*
-  `stf/disputes` holds 29 tiny vectors, all about disputes.
-- **Pre-state and post-state.** The state before a step, and the state a correct client
-  must have after it. *Example:* a disputes vector's `pre_state` has an empty list of
-  bad reports, and its `post_state` has one.
-- **Round trip.** Changing something into another form and back, and getting exactly
-  what you started with. *Example:* a work item to bytes and back to the same work item.
+How do you know your client is right? You ask the folder that grades it: `vectors/`, the
+official test vectors. A client is built in layers, so the vectors ask three kinds of
+question.
+
+Some ask about bytes. Here is a value, and here are its bytes: get from each to the other.
+There and back is a [*round trip*](../glossary.md#round-trip).
+
+Some ask about one rule. Here is the state before, the
+[*pre-state*](../glossary.md#pre-state), and an input: say what the state is after, the
+[*post-state*](../glossary.md#post-state). A folder of vectors that all test one rule is
+a [*vector family*](../glossary.md#vector-family).
+
+And some ask everything at once: here is a whole state and a real block.
+
+The habit to take away: a vector's question is the arguments of one function, and its
+answer is what that function must return. So reading the folder tells you which functions
+to write.
+
+This lesson opens one vector of each kind, and names the file of your client that will
+answer it and the lesson that writes it. Nothing here is code to type. It is a map of the
+road ahead, so each later part has a place to land.
 
 ## The kinds of vector
 
@@ -41,10 +51,9 @@ to the same next one. A codec can, because bytes and value are the same thing in
 spellings. So a codec vector is checked both ways, and a transition vector one way.
 
 The tour below takes one vector from each of the first three classes, then looks at the
-rest, and shows the file
-in your client that will answer it. Those files don't exist yet. Each preview says which
-lesson writes it, and shows only what goes in and what comes out, because the rule
-inside is that lesson's job.
+rest. For each it shows the file in your client that will answer it. Those files don't
+exist yet. Each preview says which lesson writes it, and shows only what goes in and what
+comes out: the rule inside is that lesson's job.
 
 ## Codec: one value, two spellings
 
@@ -76,8 +85,8 @@ and the start of the `.bin`, in bytes, field by field:
 
 Your client checks it in two directions, and both must hold: the `.bin` decodes to the
 `.json`'s value, and that value encodes back to exactly the `.bin`. The file that does
-it is a codec. A *codec* is one object that knows how to write a value as bytes and read
-it back, so the one description of a work item serves both directions.
+it is a codec: one object that knows how to write a value as bytes and read it back. So
+one description of a work item serves both directions.
 
 What you'll write, and where:
 
@@ -114,7 +123,7 @@ rule must say `bad_signature`, and the state must stay as it was. A vector that 
 `ok` instead lists the new state: the new `psi`, and `rho` with the judged reports
 cleared.
 
-Your client has to be *all* of the vector's answer: the same error, or the same `ok` and
+Your client has to give *all* of the vector's answer: the same error, or the same `ok` and
 the same state afterwards. Getting the error right and the state wrong is a failing
 vector.
 
@@ -160,9 +169,9 @@ only the `config` argument changes.
 ## Traces: all the rules at once
 
 A trace is a recorded run of real blocks, one JSON file per block. `traces/fallback/` is
-a run of 100 blocks on the tiny chain. Each file has a `pre_state`, a `block` (a header and
-its extrinsic) and a `post_state`; the states are lists of key and value pairs, the
-*whole* state this time, not five named parts:
+a run of 100 blocks on the tiny chain. Each file has a `pre_state`, a `block` (a header
+and its extrinsic) and a `post_state`. The states are lists of key and value pairs: the
+*whole* state this time, not five named parts.
 
 ```text
 pre_state   state_root: one hash that fingerprints the whole state
@@ -195,13 +204,13 @@ export function importBlock(
 ```
 
 `importBlock` is where the nine functions above meet. It calls them in an order that
-respects what each one needs: the same `disputesError` that answered the vector in the last
-section answers it again, now inside a block. So an STF vector isn't a separate chore. It
-is the test of one piece that block import will later call, run alone while it's easy to
-see.
+respects what each one needs. The same `disputesError` that answered the vector in the
+last section answers it again, now inside a block. So an STF vector isn't a separate
+chore. It is the test of one piece that block import will later call, run alone while
+it's easy to see.
 
-What is that order, and which pieces don't need each other? [Lesson 0.6](./06-how-a-block-is-imported.md)
-draws it as a timeline.
+What is that order, and which pieces don't need each other?
+[Lesson 0.6](./06-how-a-block-is-imported.md) draws it as a timeline.
 
 ## Is a pre-state something you'd see in the wild?
 
@@ -252,10 +261,10 @@ Two things to watch for in them:
   so each rule can be checked alone.
 
 So the progression of the chain is what `traces/` checks, block after block with the
-whole state, and in [Part 20](../20-facing-the-fuzzer/index.md) the fuzzer, which has no
-vectors at all: it sends your client a starting state, then blocks, and compares the state
-root you answer with after each one. The nine `stf/` families check the rules that
-progression is made of, one at a time.
+whole state. In [Part 20](../20-facing-the-fuzzer/index.md) the fuzzer checks it too, and
+it has no vectors at all: it sends your client a starting state, then blocks, and
+compares the state root you answer with after each one. The nine `stf/` families check
+the rules that progression is made of, one at a time.
 
 ## The rest of the folder
 
@@ -283,8 +292,7 @@ and your client builds it from the length. (They are checked by `stateRoot` in l
 **`erasure/`** holds 12 vectors, six data sizes at each of the two sizes. Erasure
 coding is how validators split a work package's data into *shards*, one per validator, so
 that the data can be rebuilt from only some of the shards (the Gray Paper's erasure coding
-appendix). Each
-vector is a `data` and the list of `shards` it must give:
+appendix). Each vector is a `data` and the list of `shards` it must give:
 
 ```text
 tiny   ec-100   data: 100 bytes     shards: 6 of 34 bytes     (one per tiny validator)
@@ -313,32 +321,36 @@ vectors' authors write the binary, and a script turns each `.bin` into the reada
 `.json` beside it. Three kinds of file take part:
 
 1. **The shape: an `.asn` file.** ASN.1 is a notation for describing the shape of data.
-   `lib/jam-types.asn` is the dictionary of every shared type, and its `WorkItem` lists
-   the fields of the work item you just met, in the same order as its bytes:
-   `service`, `code-hash`, `refine-gas-limit`, `accumulate-gas-limit`, `export-count`,
-   `payload`, `import-segments`, and so on. Each family adds a small `.asn` of its own: the
-   disputes one defines its `State` (psi, rho, tau, kappa, lambda), its `Input`, its
-   `OutputData` (the offenders mark) and its list of error codes. The two `-const.asn`
-   files hold the numbers that make tiny and full differ: 6 and 1,023 validators,
-   2 and 341 cores, epochs of 12 and 600 slots, a bitfield of 1 and 43 bytes.
+   `lib/jam-types.asn` is the dictionary of every shared type. Its `WorkItem` lists the
+   fields of the work item you just met, in the same order as its bytes: `service`,
+   `code-hash`, `refine-gas-limit`, `accumulate-gas-limit`, `export-count`, `payload`,
+   `import-segments`, and so on. Each family adds a small `.asn` of its own: the disputes
+   one defines its `State` (psi, rho, tau, kappa, lambda), its `Input`, its `OutputData`
+   (the offenders mark) and its list of error codes. The two `-const.asn` files hold the
+   numbers that make tiny and full differ: 6 and 1,023 validators, 2 and 341 cores,
+   epochs of 12 and 600 slots, a bitfield of 1 and 43 bytes.
 2. **The converter: `convert.py` and `bin_to_json.py`.** Each folder's `convert.py` says
    which shape each file has (a trace file is a `pre_state`, a `block` and a `post_state`;
    a state is a `state_root` and a list of `keyvals`) and calls `convert_group`, in
    `lib/bin_to_json.py`. That reads each `.bin` with the `jam_types` Python library, for
-   the tiny or the full spec, and writes the `.json` next to it. One detail matters for
-   you: the `.bin` of an STF vector holds a *number* for an error, and the converter
-   turns it into the name you read in `output`, such as `bad_signature`. The Gray Paper
-   doesn't specify these codes, and the schema says to feel free to ignore their value, so
-   the names are the vectors' own. This tutorial compares them anyway, because they are
-   what tells a vector's refusal apart from another.
+   the tiny or the full spec, and writes the `.json` next to it.
+
+   One detail matters for you. The `.bin` of an STF vector holds a *number* for an error,
+   and the converter turns it into the name you read in `output`, such as `bad_signature`.
+   The Gray Paper doesn't specify these codes, and the schema says to feel free to ignore
+   their value, so the names are the vectors' own. This tutorial compares them anyway,
+   because they are what tells a vector's refusal apart from another.
 3. **The checker: `validate.py` and `validate_asn1.py`.** To prove a `.json` is faithful
-   to its schema, the checker rewrites it for ASN.1 (`snake_case` names become
-   `kebab-case`, `0x` prefixes go), decodes it against the schema with its size limits
-   checked (a `shards` list must have exactly `validators-count` entries), encodes it
-   back, and checks that the result is the text it started from: a round trip, like your
-   codec's. It finds the shape to use from the file's name, `work_item.json` being a
-   `WorkItem` (a trailing number, as in `header_0.json`, is dropped), unless the schema
-   names a `TestCase`, as the erasure schema does.
+   to its schema, the checker does a round trip, like your codec's:
+   - it rewrites the `.json` for ASN.1 (`snake_case` names become `kebab-case`, `0x`
+     prefixes go);
+   - it decodes that against the schema, with its size limits checked (a `shards` list
+     must have exactly `validators-count` entries);
+   - it encodes it back, and checks that the result is the text it started from.
+
+   It finds the shape to use from the file's name, `work_item.json` being a `WorkItem` (a
+   trailing number, as in `header_0.json`, is dropped), unless the schema names a
+   `TestCase`, as the erasure schema does.
 
 `trie/merkle.py` and `shuffle/main.py` are a different kind of script: they *generate*
 `trie.json` and `shuffle_tests.json` from a plain Python version of the Gray Paper's rule.
@@ -379,17 +391,18 @@ count. Your client starts near zero and climbs with every part.
 ## Check your understanding
 
 ::: check
-**A codec vector has a `.bin` and a `.json`. How is it checked?**
+**Why is a codec vector checked both ways, and a state transition vector only forward?**
 
-- [ ] The `.json` is run through the codec, and the output compared with the `.bin`, and that's all
-  > No: that is one direction. An encoder could pass that and still fail to read bytes
-  > back.
-- [x] The `.bin` decodes to the `.json`'s value, and that value encodes back to exactly the `.bin`
-  > Yes: both directions must hold, so the codec is a true round trip.
-- [ ] The `.bin` is the question and the `.json` is a hint
-  > No: they are the same value in two spellings. Neither is the answer to the other.
+- [ ] Because the codec vectors are the older ones
+  > No: age has nothing to do with it. The two ask different kinds of question.
+- [ ] A transition could be checked backwards too, but it would take too long
+  > No: it can't be run backwards at all. Many different states lead to the same next
+  > one.
+- [x] Bytes and value are one thing in two spellings; a transition can't be run backwards
+  > Yes: so the `.bin` must decode to the `.json`'s value, and that value must encode back
+  > to exactly the `.bin`. A transition has one direction to check.
 
-**A disputes vector's `output` is `{"err": "bad_signature"}`. What must your client do?**
+**A disputes vector's `output` is `{"err": "bad_signature"}`. What must your client do to pass it?**
 
 - [ ] Return `bad_signature` and compute the new state anyway
   > No: a refused input leaves the state as it was. The `post_state` equals the
@@ -399,15 +412,37 @@ count. Your client starts near zero and climbs with every part.
 - [ ] Return the new state, and ignore the error name
   > No: the vector wants this error, and the error is part of the answer.
 
+**What does the `pre_state` of an `stf/` vector hold?**
+
+- [x] A slice: only the parts of the state this one rule reads or writes
+  > Yes: that is what makes the vector small enough to read. Only `traces/` hold the whole
+  > state.
+- [ ] The whole state of the chain before the block
+  > No: that is a trace. A disputes vector's `pre_state` has five named parts.
+- [ ] Nothing: an STF vector is an input and an answer
+  > No: that is `codec/`, `trie/` and `shuffle/`. A rule reads the state, so its vector
+  > must give some.
+
+**On a running chain, nobody hands your client the post-state. What checks it?**
+
+- [ ] Nothing: a client trusts its own answer
+  > No: the next block checks it.
+- [ ] The test vectors, which the client reads as it runs
+  > No: vectors are examples written down in advance. A running client holds one state,
+  > and the blocks keep coming.
+- [x] The next block: its header carries the root of the state after the block before it
+  > Yes: that is `parent_state_root`. A trace uses it too: its `pre_state` must have the
+  > root that its block's header promises.
+
 **Why does a trace come after the `stf/` families in the tutorial?**
 
 - [ ] Traces are about a different part of the Gray Paper
   > No: a trace tests the same rules, together.
-- [ ] Traces are smaller, so they are easier
-  > No: a trace is a whole block with a whole state, so it needs everything at once.
 - [x] A trace applies all the rules to one block, so it needs each rule already working
   > Yes: block import calls the nine STF functions. Each was tested alone first, so
   > a failing trace points at the one that broke.
+- [ ] Traces are smaller, so they are easier
+  > No: a trace is a whole block with a whole state, so it needs everything at once.
 :::
 
 ## What you have
