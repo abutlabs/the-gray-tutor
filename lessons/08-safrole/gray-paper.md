@@ -47,10 +47,15 @@ $$
 A."
 
 **In plain words.** γ is Safrole's own part of the state, one record of four fields, like
-an object with four keys: γ_P, the validators who become active at the next epoch; γ_Z,
-the ring root of their Bandersnatch keys; γ_S, who seals each slot of this epoch; and γ_A,
-the ticket lottery for the next epoch. Safrole also changes τ, η, κ and λ, and reads ι,
-but those belong to the whole state, not to γ.
+an object with four keys:
+
+- γ_P, the validators who become active at the next epoch;
+- γ_Z, the ring root of their Bandersnatch keys;
+- γ_S, who seals each slot of this epoch;
+- γ_A, the ticket lottery for the next epoch.
+
+Safrole also changes τ, η, κ and λ, and reads ι. Those belong to the whole state, not
+to γ.
 
 **On a real value.** The vectors name the four fields `gamma_k`, `gamma_z`, `gamma_s` and
 `gamma_a`. In the state they are one component, C(4), and after block 48 of the `safrole`
@@ -65,7 +70,7 @@ C(4)                 2,625 bytes
 ```
 
 **In your client.** The `Safrole` type and `safroleStep` in `src/safrole.ts`, written in
-[8.5](./05-one-step-of-safrole.md#the-code), hold and change all four; `SafroleState`
+[8.5](./05-one-step-of-safrole.md#the-code), hold and change all four. `SafroleState`
 reads C(4) whole ([8.9](./09-seals.md#the-code)).
 
 ## (6.4) to (6.6): the ring root, the lottery, the sealers, and a ticket
@@ -214,8 +219,8 @@ in V. V is defined as the set of 3c, such that c is in N from 2 to C plus 1."
 **In plain words.** The four validator sets have one type: a list of validator key sets
 (𝕂, each 336 bytes, in (6.9)). ι is the staging set, γ_P the pending set, κ the active
 set, λ the previous one. (6.8) says how long such a list may be: 3 times a number from 2
-up to, not including, C + 1. So a multiple of 3, from 6 to 3C. Three, because validators
-are dealt out to the cores in threes, each core's guarantors.
+up to, not including, C + 1. So a multiple of 3, from 6 to 3C. Why three? Validators are
+dealt out to the cores in threes, each core's guarantors.
 
 **On a real value.**
 
@@ -342,7 +347,7 @@ queue:
 3. **γ′_P = Φ(ι)**: the staging set becomes pending, through Φ;
 4. **γ′_Z = z**: a new ring root, made from the new γ′_P's Bandersnatch keys, in order.
 
-Φ, (6.15), is the bouncer: it goes through the list and replaces each validator whose
+Φ, (6.15), is the bouncer. It goes through the list and replaces each validator whose
 Ed25519 key is among the offenders, ψ′_O, with 336 zero bytes. The place is kept, so
 everyone else keeps their index. ι itself doesn't move: only a privileged service changes
 it. In any other block, nothing moves.
@@ -436,8 +441,8 @@ nothing, in the context X E and Y of H sub S. X E is the string jam entropy; X F
 fallback seal; X T, jam ticket seal."
 
 **In plain words.** Every header carries two Bandersnatch VRF signatures by its author,
-H_A (the Bandersnatch key of validator H_I in κ′, from
-[(5.10)](../04-blocks/06-the-header.md#eq-5-10)). A signature here has a key (under the
+H_A. That is the Bandersnatch key of validator H_I in κ′, from
+[(5.10)](../04-blocks/06-the-header.md#eq-5-10). A signature here has a key (under the
 V), a message (above it) and a context (in the angle brackets). First find i, this slot's
 entry in the sealers: γ′_S at the slot, wrapped round E, so at the phase.
 
@@ -448,13 +453,13 @@ entry in the sealers: γ′_S at the slot, wrapped round E, so at the phase.
 2. **(6.17), a fallback slot.** The entry is a key, and it must be the author's own. The
    seal signs ℰ_U(H) in the context X_F ⌢ η′₃.
 3. **(6.18), the entropy source.** H_V signs nothing, in the context X_E ⌢ the seal's
-   output. Its output is what (6.23) stirs into η₀: nobody, the author included, could
+   output. Its output is what (6.23) stirs into η₀. Nobody, the author included, could
    pick it, since the seal fixed it first.
 4. **(6.19) to (6.21)** are the three contexts' fixed bytes: `jam_entropy`,
-   `jam_fallback_seal`, `jam_ticket_seal`. The `$` only marks them as text; it isn't one of
-   the bytes.
+   `jam_fallback_seal`, `jam_ticket_seal`. The `$` only marks them as text. It isn't one
+   of the bytes.
 
-T is a flag for later rules, 1 for a ticket-sealed block: when choosing which chain to
+T is a flag for later rules, 1 for a ticket-sealed block. When choosing which chain to
 build on, §19 counts the ticket-sealed blocks, since a ticket's seal is the more secure.
 
 **On a real value.** Block 48 of the `safrole` trace, sealed by a ticket:
@@ -510,7 +515,7 @@ of H sub V."
 
 **In plain words.** Every block, the accumulator η₀ takes in fresh randomness: the output
 of the header's entropy source, H_V, 32 bytes nobody could steer. Join the old η₀ and that
-output, 64 bytes, and hash them with Blake2b; the 32 bytes that come out are the new η₀.
+output, 64 bytes, and hash them with Blake2b. The 32 bytes that come out are the new η₀.
 Hashing the old value in means one block can't wipe out what the blocks before it added.
 
 **On a real value.** Block 1 of the `safrole` trace:
@@ -607,7 +612,7 @@ Z        s₀ s₁₁ s₁ s₁₀ s₂ s₉ s₃ s₈ s₄ s₇ s₅ s₆
 γ′_S     00e5 ff0a 015d ff03 2016 f4aa 420c e12c 4c82 d96b 5af4 d6fe
 ```
 
-Two vectors that hold a full lottery and still fall back: `skip-epoch-tail-1` goes from
+Two vectors hold a full lottery and still fall back. `skip-epoch-tail-1` goes from
 slot 45 (m = 9) to 48, so m ≥ Y fails: no block crossed the close, and the winners were
 never announced. `skip-epochs-1` goes from slot 10 to 46, epoch 0 to 3, so e′ = e + 1
 fails.
@@ -659,8 +664,8 @@ inverse of the first 4 bytes of the hash of r concatenated with E-4 of i, wrappe
 4. take that validator of k, wrapping round the list's length (mod 6 on tiny), and keep
    its Bandersnatch key.
 
-(6.25) calls it with r = η′₂, randomness two epochs old, and k = κ′, the new active set:
-both fixed before anyone could aim at a slot.
+(6.25) calls it with r = η′₂, randomness two epochs old, and k = κ′, the new active set.
+Both were fixed before anyone could aim at a slot.
 
 **On a real value.** `enact-epoch-change-with-no-tickets-4`: r = η′₂ = `ee15 5ace …`, and
 κ′ = `ff71 dee6 9326 0746 151e 2105`.
@@ -819,7 +824,7 @@ m prime is less than Y; 0 otherwise."
 
 - **e**, the attempt, below n. n = ⌈2E / |γ′_P|⌉ is how many tickets each validator may
   enter in an epoch: enough for the validators to fill the lottery twice over.
-- **p**, a 784-byte ring proof: made by one of the keys in the ring γ′_Z, without saying
+- **p**, a 784-byte ring proof. One of the keys in the ring γ′_Z made it, without saying
   which, for the input X_T ⌢ η′₂ ⌢ e. η′₂ is randomness fixed before the epoch began, so
   nobody could have chosen it to favor their tickets.
 
@@ -835,7 +840,7 @@ proof input   "jam_ticket_seal" (15 bytes) ⌢ η′₂ (32) ⌢ e (1 byte) = 48
 
 `publish-tickets-no-mark-1` enters a ticket with attempt 4: not below n = 4, so
 `bad_ticket_attempt`. `publish-tickets-no-mark-7` is at slot 10, so m′ = 10 is not below
-Y = 10 and the cap is 0; it brings one ticket, so `unexpected_ticket`.
+Y = 10 and the cap is 0. It brings one ticket, so `unexpected_ticket`.
 
 **In your client.** `attemptsAllowed` (n) and `safroleError` in `src/safrole.ts`, written
 in [8.7](./07-entering-tickets.md#the-code); `ticketInput` and `ringProofsHold`, in
@@ -896,7 +901,7 @@ $$
 for each i in order from E sub T." And: "n equals n sorted by x's y, no repeats. The set of
 x's y for each x in n shares nothing with the set of x's y for each x in gamma A."
 
-**In plain words.** (6.32) turns each entered ticket into a ticket of the lottery: its id
+**In plain words.** (6.32) turns each entered ticket into a ticket of the lottery. Its id
 y is the output of its ring proof, (G.5), and its attempt e is kept. (6.33) says the block
 must list them already sorted by id, with no id twice: the list must equal itself sorted,
 duplicates removed. (6.34) says none of them may be in the lottery already. A block that
@@ -970,7 +975,7 @@ gamma A prime."
 
 **In plain words.** The new lottery is the new tickets together with the old ones (none
 at a new epoch: a new lottery starts empty), sorted by id, cut to the best E. (6.36) adds
-that every new ticket must survive the cut: a ticket too poor to make the lottery is a
+that every new ticket must survive the cut. A ticket too poor to make the lottery is a
 waste of space, and a block that brings one is invalid.
 
 **On a real value.** `publish-tickets-no-mark-6`, three in, three new:
@@ -1026,9 +1031,11 @@ true. Y of s is defined as the output of the signature, its first 32 bytes."
 
 **In plain words.** (G.1) defines a signature by what checks: the valid ones are the
 96-byte strings that `verify` accepts for this key, context and message. The paper leaves
-`verify` to the Bandersnatch VRF specification it cites; your client calls a library for
-it. (G.2) names the part that makes this a VRF: every valid signature carries an output,
-32 bytes that depend only on the key and the context. The signer can't choose them, yet
+`verify` to the Bandersnatch VRF specification it cites. Your client calls a library for
+it.
+
+(G.2) names the part that makes this a VRF. Every valid signature carries an output: 32
+bytes that depend only on the key and the context. The signer can't choose them, yet
 anyone can check them. In the library JAM uses, ark-vrf, the output is a hash of the
 signature's first 32 bytes, a point on the curve.
 
@@ -1096,12 +1103,12 @@ And a proof's output, from `publish-tickets-no-mark-6`: the 784-byte proof start
 
 Safrole's state is four fields: the next validators, their ring root, this epoch's sealers
 and the lottery (6.3 to 6.6). Validator sets are lists of 336-byte key sets, a multiple of
-3 long (6.7 to 6.13), and at each new epoch they move along one, offenders zeroed and a new
+3 long (6.7 to 6.13). At each new epoch they move along one, offenders zeroed and a new
 ring root made (6.14, 6.15). Every block's seal is its author's VRF signature, matching the
-slot's ticket or key (6.16, 6.17), and its entropy source signs the seal's output (6.18),
+slot's ticket or key (6.16, 6.17). Its entropy source signs the seal's output (6.18),
 which every block hashes into η₀ (6.23). A new epoch is sealed by the lottery's winners,
-outside in, if the lottery closed full just before, and by fallback keys drawn from η′₂
-otherwise (6.25 to 6.27). The first block of an epoch announces the next validators, and
+outside in, if the lottery closed full just before. Otherwise it is sealed by fallback
+keys drawn from η′₂ (6.25 to 6.27). The first block of an epoch announces the next validators, and
 the block that closes a full lottery announces the winners (6.28, 6.29). While the lottery
 is open a block may enter up to K anonymous tickets, sorted, new, and good enough to stay
 among the best E (6.30 to 6.36). Underneath, a VRF signature or ring proof is whatever
