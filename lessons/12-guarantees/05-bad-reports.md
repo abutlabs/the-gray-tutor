@@ -1,22 +1,36 @@
 # Bad reports
 
-[Lesson 12.4](./04-bad-guarantees.md) checked who vouched for each report, and when. Now the report itself: a
-sensible size? Built against a block the chain really had, as it really was? Leaning on
-work that exists, naming real services with the right code? New, or a package the chain
-has seen? With these rules and 12.4's, your client agrees with every reports vector.
+**In one sentence:** a report is accepted only if it is a sensible size, was built on a
+block the chain remembers, leans on work the chain knows, names real services, and is
+new.
 
-## New words
+One report, to break. Anchor it on a block nobody remembers, change a detail of its
+context, or raise its gas, and see which rule refuses it.
 
-- **Report anchor.** The recent block a report was built against: its hash, slot, state
-  root and belt root, all in the report's context. *Example:* a report anchored on a
-  block the chain doesn't remember is refused.
-- **Segment-root lookup.** A report's list of the work-packages whose exported segments it
-  imported, each with the root of those segments. *Example:* "package A, segments root R".
-- **Pipeline.** Every package the chain is already dealing with: accumulated recently,
-  waiting in the ready queue, or pending on a core. The vectors hand these over as
-  `known_packages`. *Example:* a package in the pipeline can't be reported again.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<ReportAnchor />
+
+## The idea
+
+[Lesson 12.4](./04-bad-guarantees.md) checked who vouched for each report, and when. The
+right three signatures say nothing about the report itself. What could be wrong with it?
+
+The guarantors built the report in-core, looking at a recent block. The chain wasn't
+there. So it compares the report's story with what it remembers, and asks five things:
+
+- **A sensible size?** Not too many results, not too much output, not too much gas.
+- **Built against a block the chain really had, as it really was?** The report names
+  that block: its [*report anchor*](../glossary.md#report-anchor).
+- **Leaning on work that exists?** Its prerequisites and its
+  [*segment-root lookups*](../glossary.md#segment-root-lookup) must name packages the
+  chain knows.
+- **Naming real services, with the right code?**
+- **New?** A package the chain is already dealing with, one in its
+  [*pipeline*](../glossary.md#pipeline), can't be reported again.
+
+This lesson writes those down as ten rules. With them and
+[lesson 12.4](./04-bad-guarantees.md)'s, your client agrees with every reports vector.
 
 ## What the Gray Paper says
 
@@ -376,8 +390,8 @@ $$
 
 :::
 
-In plain words, the limits above and §11.4.1 (*Contextual Validity of Reports*) make ten
-rules and fourteen checks, in two groups.
+The limits above and §11.4.1 (*Contextual Validity of Reports*) make ten rules and
+fourteen checks, in two groups.
 
 **The report on its own:**
 
@@ -405,18 +419,28 @@ rules and fourteen checks, in two groups.
     code hash (`bad_code_hash`), and asks for at least the service's minimum gas
     (`service_item_gas_too_low`).
 
-<ReportAnchor />
+Three words in those rules:
 
-Rule 8 and the first half of rule 9 are one rule in the Gray Paper: every prerequisite and
-every looked-up package must be known. The second half, the right segments root, is a
-rule of its own, the equation after it. The vectors give a looked-up package that isn't
-known its own name too, `segment_root_lookup_invalid`, so your client checks rules 8 and 9
-separately.
+- **The anchor** (rules 6 and 7) is the recent block the report was built against: its
+  hash, slot, state root and belt root, all in the report's context.
+- **A lookup** (rule 9) is one entry of the report's segment-root lookup: a work-package
+  whose exported segments it imported, with the root of those segments.
+- **The pipeline** (rule 5) is every package the chain is already dealing with:
+  accumulated recently, waiting in the ready queue, or pending on a core. The vectors
+  hand these over as `known_packages`.
 
-Two more rules this lesson leaves out: the report's *lookup* anchor must be at most L slots
-old, and must be one of the last L blocks' headers. Checking the second needs the header
-chain itself, which no state holds, and no vector tests either. They wait in
+Rule 8 and the first half of rule 9 are one rule in the Gray Paper: every prerequisite
+and every looked-up package must be known. The second half, the right segments root, is
+a rule of its own, the equation after it. The vectors give a looked-up package that
+isn't known its own name too, `segment_root_lookup_invalid`, so your client checks rules
+8 and 9 separately.
+
+This lesson leaves two more rules out. The report's *lookup* anchor must be at most L
+slots old, and must be one of the last L blocks' headers. Checking the second needs the
+header chain itself, which no state holds, and no vector tests either. They wait in
 [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md).
+
+Break the rules one at a time on [the report at the top](#try-it).
 
 ## The tests
 
@@ -479,8 +503,8 @@ for (const config of [TINY, FULL]) {
 ```
 
 The last test is the whole reports step: [lesson 12.4](./04-bad-guarantees.md)'s rules first, then these. Every
-reports vector, tiny and full, must come out exactly as the vector says, accepted or
-refused for the very same reason. The services come straight from the JSON: a report
+reports vector, tiny and full, must come out exactly as the vector says: accepted, or
+refused for the very same reason. The services come straight from the JSON. A report
 only needs a service's code hash and minimum gas, and [Part 14](../14-services/index.md) builds the full service
 account later.
 
@@ -614,9 +638,10 @@ export function reportError(
 }
 ```
 
-Fourteen checks, in the order above. `rootOf` looks a package up first in this block, then in
-the recent blocks, and that one helper serves rules 8 and 9: a prerequisite needs any root,
-a lookup the right one. The four limits get names, so the numbers say what they are.
+Fourteen checks, in the order above. `rootOf` looks a package up first in this block,
+then in the recent blocks. That one helper serves rules 8 and 9: a prerequisite needs any
+root, a lookup the right one. The four limits get names, so the numbers say what they
+are.
 
 **Run**
 
@@ -743,10 +768,10 @@ bad_code_hash-1: bad_code_hash
 
 :::
 
-The first report names an anchor block that isn't one of the eight β remembers, so it was
+The first report names an anchor block that isn't one of the eight β remembers: it was
 built on a chain this one doesn't know. The second passes every context rule but says it
-ran service 42's code `0x7a3a6a6011…`, while the state has `0x6470fd2198…`. Either way the
-line agrees with the vector, so no "the vector says" follows it.
+ran service 42's code `0x7a3a6a6011…`, while the state has `0x6470fd2198…`. Either way
+the line agrees with the vector, so no "the vector says" follows it.
 
 **Run**
 
@@ -781,9 +806,9 @@ all of them. `npm run check-guarantees full` says the same of the full ones. The
 ## The scoreboard
 
 Every rule the reports vectors check, your client checks. Run them whole: the block
-refused for the vector's reason, or accepted, and then ρ′ with the new reports on their
-cores, and the output, the reporters 𝐆 and the reported packages. The rest of a reports
-vector's state is only read, or so it looks:
+refused for the vector's reason, or accepted. An accepted block is checked further: ρ′
+with the new reports on their cores, and the output, the reporters 𝐆 and the reported
+packages. The rest of a reports vector's state is only read, or so it looks:
 
 **Add to** `test/families.ts`
 
@@ -908,7 +933,10 @@ stf/reports              62 of 92
 
 :::
 
-*Run whole* means every rule on a report is checked, and a vector that should be refused only counts when it is refused for its own reason: here core 3 on tiny, which has only cores 0 and 1. The row's `62 of 92` is the 62 refusals; the other 30 vectors are accepted, and wait for the statistics.
+*Run whole* means every rule on a report is checked, and a vector that should be refused
+only counts when it is refused for its own reason: here core 3 on tiny, which has only
+cores 0 and 1. The row's `62 of 92` is the 62 refusals. The other 30 vectors are
+accepted, and wait for the statistics.
 
 **Run**
 
@@ -951,11 +979,11 @@ trie                       1 of 1  ✔
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=scoreboard-1791939267270
 ```
 
-62 of 92: every refused block, and not one accepted block. The board says why. A block
-that seats reports also counts work for the statistics, each core's and each service's,
-and the vector's state holds those counts too: `cores_statistics changed`. Your client
-doesn't keep statistics yet. Every part it does make matches; the accepted 30 cross the
-line in [lesson 18.2](../18-statistics/02-what-cores-and-services-did.md), when it does.
+62 of 92: every refused block, and not one accepted block. The board says why:
+`cores_statistics changed`. A block that seats reports also counts work for the
+statistics, each core's and each service's, and the vector's state holds those counts
+too. Your client doesn't keep statistics yet. Every part it does make matches. The
+accepted 30 cross the line in [lesson 18.2](../18-statistics/02-what-cores-and-services-did.md), when it does.
 
 > [!TIP] Milestone
 > **Every bad report refused.** All 62 refusals in the reports vectors, tiny
@@ -986,20 +1014,32 @@ the same block, which is how a gap like this can sit unnoticed.
 
 - [ ] Accepted: the anchor is recent, and that's what matters
   > No: it must match the block too, as the block really was.
-- [x] Refused, `bad_state_root`
-  > Yes: rule 7. Same state root, belt root and slot as the recent block it names.
 - [ ] Refused, `anchor_not_recent`
   > No: the anchor is found among the recent blocks. It's its details that are wrong.
+- [x] Refused, `bad_state_root`
+  > Yes: rule 7. Same state root, belt root and slot as the recent block it names.
+
+**Why does the chain check a report's anchor at all?**
+
+- [x] To know the report was built against a block this chain really had, as it really was
+  > Yes: an anchor none of the recent blocks matches means the report was built on a
+  > chain this one doesn't know.
+- [ ] To find the guarantors who signed it
+  > No: the signers answer to the guarantee's slot and the assignments
+  > ([lesson 12.4](./04-bad-guarantees.md)). The anchor is about the report's context.
+- [ ] To run the report's work again against that block
+  > No: these rules run nothing. They compare what the report says with what the chain
+  > remembers.
 
 **A package was reported two blocks ago. A guarantee reports it again. What happens?**
 
 - [ ] Accepted, if new guarantors sign it
   > No: who signs doesn't matter. The package isn't new.
-- [ ] Accepted, once the first report has been accumulated
-  > No: a package accumulated recently is in the pipeline, and refused too.
 - [x] Refused, `duplicate_package`
   > Yes: rule 5. It's in the recent blocks' reported packages, kept for exactly this
   > ([lesson 9.2](../09-recent-history/02-recent-blocks.md)).
+- [ ] Accepted, once the first report has been accumulated
+  > No: a package accumulated recently is in the pipeline, and refused too.
 
 **A report looks up segments from package A, reported in this same block. Is the lookup's segments root checked?**
 
@@ -1007,8 +1047,7 @@ the same block, which is how a gap like this can sit unnoticed.
   > Yes: the Gray Paper's lookup map is this block's packages and the recent ones'.
   > `rootOf` looks here first.
 - [ ] No: a package in the same block can't be checked yet
-  > No: its root is right there, in that report's `package_spec`. That's the gap
-  > lasair's harness leaves.
+  > No: its root is right there, in that report's `package_spec`.
 - [ ] Refused: a lookup may only name a package from an earlier block
   > No: this block's packages count, for prerequisites and lookups both.
 
@@ -1016,17 +1055,19 @@ the same block, which is how a gap like this can sit unnoticed.
 
 - [ ] Accepted: each is under 10,000,000
   > No: G_A limits the results together, not each one.
-- [x] Refused, `work_report_gas_too_high`: 11,000,000 is over G_A
-  > Yes: rule 4. All of a report's results together get at most 10,000,000.
 - [ ] Accepted, if each meets its service's minimum gas
   > No: that's a floor, rule 10. G_A is a ceiling, and this report is over it.
+- [x] Refused, `work_report_gas_too_high`: 11,000,000 is over G_A
+  > Yes: rule 4. All of a report's results together get at most 10,000,000.
 :::
 
 ## What you have
 
-The whole reports step, checked: thirteen checks on the guarantees, fourteen on the reports,
-and every reports vector accepted or refused exactly as it should be. The refused 62 pass
-whole; the accepted 30 wait for the statistics. [Part 12](./index.md) is done.
+The whole reports step, checked: thirteen checks on the guarantees, fourteen on the
+reports, and every reports vector accepted or refused exactly as it should be. The
+refused 62 pass whole. The accepted 30 wait for the statistics. [Part 12](./index.md) is
+done.
+
 One rule leaned on something you haven't built: [lesson 12.4](./04-bad-guarantees.md)'s authorizer pools.
 [Part 13](../13-authorization/index.md) keeps them moving, block by block.
 

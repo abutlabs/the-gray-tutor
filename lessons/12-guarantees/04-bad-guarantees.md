@@ -1,21 +1,36 @@
 # Bad guarantees
 
+**In one sentence:** a guarantee is checked before it is believed: its shape, who signed
+it and when, and whether its core can take the report.
+
+Two of the rules, to try. Set the block's slot and the guarantee's, and see when a
+guarantee is too old. Change how many validators there are, and see which cores are
+active.
+
+<a id="try-it"></a>
+
+<GuaranteeWindow />
+
+## The idea
+
 A guarantee is a promise with signatures on it: "we, the validators on this core, vouch
-for this report". Lessons [12.1](./01-who-guarantees-what.md) to [12.3](./03-onto-the-cores.md) believed every one. A real block can carry one
-signed by the wrong validators, too long ago, by someone banned, or aimed at a busy core.
-This lesson writes down the rules a guarantee must keep; [lesson 12.5](./05-bad-reports.md) checks the
-reports themselves.
+for this report". Lessons [12.1](./01-who-guarantees-what.md) to
+[12.3](./03-onto-the-cores.md) believed every one. Should the chain?
 
-## New words
+No. A real block can carry a guarantee signed by the wrong validators, made too long ago,
+signed by someone banned, or aimed at a busy core.
 
-- **Authorizer pool.** The names (32-byte hashes) of the authorizers a core accepts right
-  now, up to 8 of them ([lesson 13.1](../13-authorization/01-the-authorizer-pools.md)'s α). An authorizer is the gatekeeper the core's
-  guarantors ran before refining: a PVM program plus its settings, named by one hash;
-  [Part 13's page](../13-authorization/index.md) tells its story. *Example:* a report whose
-  authorizer isn't in its core's pool is refused.
+So the chain does what a ticket inspector does. Is this a proper ticket? Is it yours, and
+for today? Is the seat free? The chain asks the same three kinds of question:
 
-It's in the [glossary](../glossary.md), with *rotation* and *active core*, the words from
-[lesson 12.1](./01-who-guarantees-what.md) the rules below lean on.
+- **Its shape.** The guarantees come in order, each with enough signatures.
+- **Who signed it, and when.** The signers were dealt this core, in this rotation or the
+  last, and none of them is banned.
+- **The core it goes on.** The core is free, and the report's authorizer is in the core's
+  [*authorizer pool*](../glossary.md#authorizer-pool).
+
+This lesson writes those questions down as thirteen rules, each with the name the test
+vectors give it. [Lesson 12.5](./05-bad-reports.md) checks the reports themselves.
 
 ## What the Gray Paper says
 
@@ -154,7 +169,7 @@ $$
 
 :::
 
-In plain words, §11.4 (*Work Report Guarantees*) makes thirteen rules, in three groups.
+§11.4 (*Work Report Guarantees*) makes thirteen rules, in three groups.
 
 **The guarantee's shape:**
 
@@ -182,18 +197,28 @@ In plain words, §11.4 (*Work Report Guarantees*) makes thirteen rules, in three
     (`core_engaged`)
 13. Its authorizer is in the core's pool. (`core_unauthorized`)
 
-Rule 2 has a twist the Gray Paper spells out: a core that isn't active now is refused even
-if the guarantee cites a slot from the rotation before, when it *was* active. And rule 7
-in symbols is R(⌊τ′/R⌋ − 1) ≤ slot ≤ τ′. On tiny, in a block at slot 13 (the rotation of
-slots 12 to 15), a guarantee from slot 8 is fine and one from slot 7 is too old.
+**Rule 2 has a twist** the Gray Paper spells out. A core that isn't active now is
+refused, even if the guarantee cites a slot from the rotation before, when it *was*
+active. On full, with κ′ shrunk to 6 validators, an active core is below |κ′|/3 = 2: a
+guarantee for core 340 is refused, whatever slot it cites.
 
-<GuaranteeWindow />
+**Rule 7 in symbols** is R(⌊τ′/R⌋ − 1) ≤ slot ≤ τ′. On tiny, in a block at slot 13 (the
+rotation of slots 12 to 15), that is R(⌊13/4⌋ − 1) = 8 ≤ slot ≤ 13. A guarantee from slot
+8 is fine and one from slot 7 is too old.
+
+**Rule 13's pool** is the names (32-byte hashes) of the authorizers a core accepts right
+now, up to 8 of them ([lesson 13.1](../13-authorization/01-the-authorizer-pools.md)'s α).
+An authorizer is the gatekeeper the core's guarantors ran before refining: a PVM program
+plus its settings, named by one hash. [Part 13's page](../13-authorization/index.md)
+tells its story.
+
+Try rules 2 and 7 on [the window at the top](#try-it).
 
 ## The tests
 
-The vectors keep the pools too, so the test vector type grows a field. A pool is just a
-list of hashes, one list per core, so the test reads them straight from the JSON ([Part
-13](../13-authorization/index.md) gives them a codec of their own):
+The vectors keep the pools too, so the test vector type grows a field. A pool is a list
+of hashes, one list per core, so the test reads them straight from the JSON
+([Part 13](../13-authorization/index.md) gives them a codec of their own):
 
 **Replace in** `test/guarantors.test.ts`
 
@@ -318,9 +343,10 @@ test at test/guarantors.test.ts:177:1
 ```
 
 Thirty-one reds: the offender test, and the thirty vectors that break a guarantee rule,
-fourteen tiny and sixteen full (full has two that tiny can't, below). Each one reads like the first: the vector names a rule (`-`), and the
-stub, passing everything, says `null` (`+`). The vectors refused for their *reports*
-stay green, since this lesson's rules have nothing to say about them.
+fourteen tiny and sixteen full (full has two that tiny can't, below). Each one reads like
+the first: the vector names a rule (`-`), and the stub, passing everything, says `null`
+(`+`). The vectors refused for their *reports* stay green: this lesson's rules have
+nothing to say about them.
 
 ## The code
 
@@ -384,9 +410,9 @@ export function guaranteeError(
 }
 ```
 
-Thirteen rules, thirteen lines at the end, in the order above, each built from a helper
-that asks one question about one guarantee. `assigned` picks M or M* for a guarantee, the
-way [lesson 12.1](./01-who-guarantees-what.md)'s `assignmentFor` does.
+Thirteen rules, thirteen lines at the end, in the order above. Each is built from a
+helper that asks one question about one guarantee. `assigned` picks M or M* for a
+guarantee, the way [lesson 12.1](./01-who-guarantees-what.md)'s `assignmentFor` does.
 
 **Run**
 
@@ -479,9 +505,9 @@ banned_validator_guarantee-1: banned_validator (the vector: banned_validator)
 
 :::
 
-One refusal is pure range: a core number tiny doesn't have. The other needs the
-state: the guarantee's shape is perfect, but one signer's key sits in ψ_O, and an
-offender's signature counts for nothing.
+One refusal is pure range: a core number tiny doesn't have. The other needs the state.
+The guarantee's shape is perfect, but one signer's key sits in ψ_O, and an offender's
+signature counts for nothing.
 
 **Run**
 
@@ -508,15 +534,22 @@ core_engaged-1: core_engaged (the vector: core_engaged)
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=guarantee-check-1791734622303
 ```
 
-Wherever the rules refuse a guarantee, the vector agrees. Where the guarantees pass but the
-vector refuses the block, the reason is in the report itself: [lesson 12.5](./05-bad-reports.md)'s job. The full
-vectors have four that tiny can't have, where the validator set has shrunk from 1,023 to
-6. `npm run check-guarantees full` shows two refused: a guarantee for core 340,
-active last rotation but not now (`bad_core_index`), and one signed this rotation by
-validators 16, 450 and 1014, when only 6 exist (`bad_validator_index`). And two
-accepted: one from the last rotation, signed by validators 24, 578 and 603 of the old
-set, and one signed by validators 1, 4 and 5 of the new. The *Guarantee checks* panel, on
-**4 · Checks**, keeps the list.
+Wherever the rules refuse a guarantee, the vector agrees. Where the guarantees pass but
+the vector refuses the block, the reason is in the report itself:
+[lesson 12.5](./05-bad-reports.md)'s job.
+
+The full vectors have four that tiny can't have, where the validator set has shrunk from
+1,023 to 6. `npm run check-guarantees full` shows them:
+
+- **Refused:** a guarantee for core 340, active last rotation but not now
+  (`bad_core_index`).
+- **Refused:** one signed this rotation by validators 16, 450 and 1014, when only 6 exist
+  (`bad_validator_index`).
+- **Accepted:** one from the last rotation, signed by validators 24, 578 and 603 of the
+  old set.
+- **Accepted:** one signed by validators 1, 4 and 5 of the new.
+
+The *Guarantee checks* panel, on **4 · Checks**, keeps the list.
 
 ![Guarantee checks panel](./images/04-guarantee-checks.png)
 
@@ -540,26 +573,27 @@ each signer's key up in the offenders list, where your client spots the blank th
 ## Check your understanding
 
 ::: check
-**On tiny (R = 4), a block is at slot 13. Which guarantee slots are accepted?**
+**How old may a guarantee be when its block arrives?**
 
-- [ ] 12 and 13: this rotation only
-  > No: the last rotation counts too, slots 8 to 11.
-- [x] 8 to 13
-  > Yes: R(⌊13/4⌋ − 1) = 8 ≤ slot ≤ 13. This rotation or the last, and not the future.
-- [ ] 9 to 13: no more than R slots back
-  > No: rotations count whole. Slot 8 is in the last rotation, 8 to 11, so it counts.
-- [ ] 8 to 15: the whole of this rotation and the last
-  > No: a guarantee can't come from after its block. Slots 14 and 15 are
-  > `future_report_slot`.
+- [ ] No more than R slots old
+  > No: rotations count whole. On tiny at slot 13, slot 8 is five slots back and still
+  > counts: it is in the last rotation, slots 8 to 11.
+- [x] From this rotation or the last one, and never from after its block
+  > Yes: R(⌊τ′/R⌋ − 1) ≤ slot ≤ τ′. A later slot is `future_report_slot`, an earlier one
+  > `report_epoch_before_last`.
+- [ ] From this rotation only
+  > No: the last rotation counts too. The work takes time to reach a block
+  > ([lesson 12.1](./01-who-guarantees-what.md)).
 
-**On full, κ′ has shrunk to 6 validators. A guarantee for core 340 cites a slot in the last rotation, when core 340 was active. What happens?**
+**The validator set has shrunk, and a core that was active last rotation isn't now. A guarantee for it cites a slot from last rotation. What happens?**
 
-- [ ] Accepted: the last rotation's assignment applies, and core 340 was active then
+- [ ] Accepted: the last rotation's assignment applies, and the core was active then
   > No: the Gray Paper spells this out. The core must be active *now*.
-- [x] Refused, `bad_core_index`: an active core is below |κ′|/3 = 2
-  > Yes: 6 validators keep only cores 0 and 1 active, whatever the slot cited.
 - [ ] Refused, `wrong_assignment`
   > No: it never gets that far. Rule 2, the core, comes first.
+- [x] Refused, `bad_core_index`: the core must be active in this block
+  > Yes: with 6 validators only cores 0 and 1 are active, whatever the slot cited. That
+  > is the full vectors' core 340.
 
 **Why must a report's erasure shards be exactly |κ′|?**
 
@@ -571,14 +605,27 @@ each signer's key up in the offenders list, where your client spots the blank th
 - [ ] It's how many cores there are
   > No: cores and validators differ. Tiny has 2 cores and 6 validators.
 
-**In `wrong_assignment-1`, κ′'s validator 2 signs a real signature for core 0 this rotation, but it's assigned to core 1. What happens?**
+**A validator signs a guarantee for a core it isn't assigned to. Its signature is real. What happens?**
 
 - [ ] Accepted: the signature is real
   > No: a real signature from the wrong guarantor still doesn't count.
+- [x] Refused, `wrong_assignment`
+  > Yes: rule 9. Every signer must be assigned to the report's core. In
+  > `wrong_assignment-1`, κ′'s validator 2 signs for core 0 while it sits on core 1.
 - [ ] Refused, `bad_signature`
   > No: the signature checks out. It's the seat that's wrong.
-- [x] Refused, `wrong_assignment`
-  > Yes: rule 9. Every signer must be assigned to the report's core.
+
+**Why must a report's authorizer be in its core's pool?**
+
+- [ ] The pool holds the keys that check the guarantors' signatures
+  > No: those keys are the assignment's ([lesson 12.2](./02-signed-and-counted.md)). The pool holds authorizers'
+  > hashes.
+- [x] The pool is the authorizers the core accepts right now, and the chain checks only the name
+  > Yes: the guarantors ran the authorizer before refining. The chain looks for its
+  > hash in the pool, and refuses the guarantee as `core_unauthorized` if it isn't there.
+- [ ] So that the chain can run the authorizer again when it imports the block
+  > No: the authorizer is a program the core's guarantors ran. Rule 13 only looks its
+  > hash up.
 :::
 
 ## What you have

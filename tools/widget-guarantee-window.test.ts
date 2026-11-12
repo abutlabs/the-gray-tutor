@@ -42,8 +42,10 @@ test("active cores are ⌊|κ′|/3⌋, capped at C: 6 validators keep cores 0 a
   assert.match(text, /an active core is below \|κ′\|\/3 = 2/);
 });
 
-test("lesson 12.4 places the widget once, in What the Gray Paper says after the window paragraph", () => {
+test("lesson 12.4 places the widget once, at the top, and the window paragraph sends the reader back to it", () => {
   const at = raw.indexOf("<GuaranteeWindow />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<GuaranteeWindow />"), "placed once");
-  assert.ok(at > raw.indexOf("one from slot 7 is too old.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("one from slot 7 is too old."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

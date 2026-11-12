@@ -40,8 +40,10 @@ test("the recent blocks are lesson 9.2's eight, slots 42 to 49", () => {
   assert.equal(RECENT.at(-1)!.header_hash, "0x7c7ee195…");
 });
 
-test("lesson 12.5 places the widget once, in What the Gray Paper says after the rules", () => {
+test("lesson 12.5 places the widget once, at the top, and the text after the rules sends the reader back to it", () => {
   const at = raw.indexOf("<ReportAnchor />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<ReportAnchor />"), "placed once");
-  assert.ok(at > raw.indexOf("(`service_item_gas_too_low`).") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("(`service_item_gas_too_low`)."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });
