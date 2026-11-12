@@ -72,10 +72,10 @@ of pairs, a service id and an H."
 - **(7.3)** β_B is the belt: a list whose places hold a 32-byte peak or nothing (the ? after
   ℍ). Its length grows by one place per binary digit of the block count.
 - **(7.4)** θ is a list of (service, hash) pairs: what services handed back when their work
-  was accumulated. It isn't part of β; §7 types it because the belt is made from it
+  was accumulated. It isn't part of β. §7 types it because the belt is made from it
   ((7.6) below), and §12 fills it.
 
-ℍ means 32 bytes, usually a hash. The paper writes the fields h, s, b, t; the vectors and
+ℍ means 32 bytes, usually a hash. The paper writes the fields h, s, b, t. The vectors and
 the state's bytes put b before s (`header_hash`, `beefy_root`, `state_root`), as
 Appendix D's C(3) does. Same fields, another order.
 
@@ -128,11 +128,11 @@ $$
 **Read it aloud.** "Beta-H dagger is defined as beta-H, except that beta-H dagger at the
 length of beta-H minus one, its s, equals the header's R."
 
-**In plain words.** Take the list as it is and change one field: the newest entry's
-(index |β_H| − 1, the last one) state root becomes this block's 𝐇_R, the parent's state
+**In plain words.** Take the list as it is and change one field. The newest entry's
+state root (index |β_H| − 1, the last one) becomes this block's 𝐇_R, the parent's state
 root, which the header carries. A block can't know its own state root when it is
-recorded, since the root is computed from the state *after* the block; the next block
-knows it, so the next block writes it in. The dagger † marks a value partway through the
+recorded: the root is computed from the state *after* the block. The next block knows
+it, so the next block writes it in. The dagger † marks a value partway through the
 block: β_H† is the list after this fix and before the new entry joins. Guarantees are
 checked against β_H† ([12.5](../12-guarantees/05-bad-reports.md)), so a package anchored
 on the parent block sees its real state root.
@@ -282,9 +282,9 @@ $$
 bold b maps to E of: length-prefixed, the sequence of maybe x, for each x of b, in
 order."
 
-**In plain words.** How a belt is written as bytes in the state: its number of places
-first (the ↕ prefix, a compact natural), then each place in order, as an optional value:
-the byte `00` for ∅, or `01` followed by the 32-byte peak (the ¿ is that maybe
+**In plain words.** How a belt is written as bytes in the state. Its number of places
+comes first (the ↕ prefix, a compact natural). Then each place in order, as an optional
+value: the byte `00` for ∅, or `01` followed by the 32-byte peak (the ¿ is that maybe
 encoding, [lesson 4.5](../04-blocks/05-maybe-and-exactly-n.md)).
 
 **On a real value.** The belt after `progress_blocks_history-4`, [0xa983…, ∅, ∅, 0x658b…],
@@ -351,7 +351,7 @@ peaks that exist, smallest mountain first. Then:
 - **more**: Keccak-256 of the four bytes `peak`, then the super-peak of all but the last
   peak, then the last peak. The fold climbs from the smallest mountain to the biggest.
 
-`$peak` is the paper's way to write the ASCII bytes `peak`; the `$` is not hashed. The
+`$peak` is the paper's way to write the ASCII bytes `peak`. The `$` is not hashed. The
 label keeps a super-peak's input, 4 + 32 + 32 = 68 bytes, from ever being the 64 bytes of
 a merge in (E.8).
 
@@ -490,7 +490,7 @@ guarantees extrinsic."
 **In plain words.** The block's own entry joins the list, after the fix of (7.5):
 
 - **h**: the Blake2b hash of this block's header.
-- **s**: the zero hash, ℍ₀, 32 zero bytes, because the state root isn't known yet; the
+- **s**: the zero hash, ℍ₀, 32 zero bytes, because the state root isn't known yet. The
   next block's (7.5) fills it in. The paper's own word for it: "inaccurate but safe".
 - **b**: the super-peak, (E.10), of the belt *after* this block's append, (7.7).
 - **t**: this block's timeslot, 𝐇_T.
@@ -522,9 +522,9 @@ block's guarantees through `reportedPackages` in `src/cores.ts`
 ## Say it in one breath
 
 The state remembers the last 8 blocks, each by its header hash, state root, belt
-super-peak, slot and reported packages, and keeps a belt of every block's accumulation
-outputs (7.1 to 7.4). Each block first writes its parent's state root into the newest
-entry (7.5), then rolls its accumulation outputs into one Keccak root and appends it to
-the belt, merging equal mountains like a binary carry (7.6, 7.7, E.8), then adds its own
-entry with a zero state root and the belt's new super-peak, keeping the newest 8 (7.8,
-E.10). The belt is stored as its places, each a peak or nothing (E.9).
+super-peak, slot and reported packages. Beside them it keeps a belt of every block's
+accumulation outputs (7.1 to 7.4). Each block first writes its parent's state root into
+the newest entry (7.5). Then it rolls its accumulation outputs into one Keccak root and
+appends it to the belt, merging equal mountains like a binary carry (7.6, 7.7, E.8). Then
+it adds its own entry, with a zero state root and the belt's new super-peak, and keeps
+the newest 8 (7.8, E.10). The belt is stored as its places, each a peak or nothing (E.9).

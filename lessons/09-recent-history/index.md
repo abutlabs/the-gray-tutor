@@ -1,19 +1,20 @@
 # Part 9 · Recent history
 
-A block carries no memory of its own, so the state keeps one: the last few blocks' hashes,
-their state roots, the work they reported, and a running commitment to every
-accumulation output, built so other chains can read it. Guarantors lean on this history to
-show their work is anchored in a real, recent block. This part builds it.
+**In one sentence:** a block carries no memory of its own, so the state keeps one for it:
+the last eight blocks, and a running commitment to everything services have ever handed
+back.
+
+Guarantors lean on this history to show their work is anchored in a real, recent block.
+The commitment is built so other chains can read it. This part builds both.
 
 By the end of this part your client keeps the chain's short-term memory, the last eight
 blocks, up to date block by block, with the mountain belt of accumulation outputs.
 
 ## The big picture
 
-A block carries no memory of its own. To check a report the chain needs to remember two
-things about the recent past: which blocks really happened, so a package can be anchored
-on one, and which packages were already reported, so none is reported twice. The paper
-opens §7 with exactly that:
+To check a report, the chain needs to remember two things about the recent past. Which
+blocks really happened, so a package can be anchored on one. And which packages were
+already reported, so none is reported twice. The paper opens §7 with exactly that:
 
 ::: gray-paper 7 1-1
 
@@ -35,19 +36,19 @@ The life of one entry, on the history vectors' slot 8 block:
 1. **The block arrives**, with its header hash `0xad68…`, its parent's state root
    `0xa6aa…` in the header, and one package reported. On the chain, every validator.
 2. **The last entry learns its state root.** Slot 7's entry was stored with 32 zero bytes
-   for its state root, since nobody knew it yet; now `0xa6aa…` is written in.
+   for its state root, since nobody knew it yet. Now `0xa6aa…` is written in.
 3. **The belt grows by one.** This block's accumulation outputs, rolled into one root
-   `0xa983…`, are appended; the belt's new super-peak is `0xebdb…`
+   `0xa983…`, are appended. The belt's new super-peak is `0xebdb…`
    ([9.1](./01-the-mountain-belt.md)).
 4. **The new entry joins**: header hash, zero state root, super-peak `0xebdb…`, slot 8,
    the package. Nine entries is one too many, so the oldest, slot 0's, is dropped
    ([9.2](./02-recent-blocks.md)).
 5. **Later blocks read it.** A guarantee that names slot 8 as its anchor must give the
-   same header hash, state root and super-peak; a package reported here may not be
+   same header hash, state root and super-peak. A package reported here may not be
    reported again while the entry is remembered.
 
 If you build web services: the entries are a server's short list of recent request ids,
-kept to refuse a replay; the belt is an append-only audit log whose running hash anyone
+kept to refuse a replay. The belt is an append-only audit log whose running hash anyone
 can check without keeping the log.
 
 **Builds on** [Part 4 · Blocks](../04-blocks/index.md) and [Part 5 · Hashing and
@@ -193,7 +194,7 @@ appended, keeping the last H: the entry's h is the hash of this header, its s th
 hash, its b the super-peak of the new belt, its t this header's timeslot, and its p each
 guaranteed report's package hash mapped to its segment root." The question mark in
 ℍ? means a place may be empty, which is how a belt looks between merges. A block's own
-state root isn't known when the block is made, so its entry gets the zero hash and the
+state root isn't known when the block is made. So its entry gets the zero hash, and the
 *next* block fills it in, as (7.5) says: that is β_H†.
 
 **Test yourself:** [Ch. 7 Recent History](https://abutlabs.github.io/jam-learning/lasair/exam.html?chapter=ch07-recent-history),
