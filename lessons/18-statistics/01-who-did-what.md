@@ -1,23 +1,36 @@
 # Who did what
 
-Validators do the chain's work: they make blocks, vouch for work-reports, and confirm they
-hold their share of the data. JAM doesn't pay them itself; it keeps a tally of who did
-what, so that whoever pays (Polkadot's staking system, in the Gray Paper's picture) can see
-who earned it. This lesson keeps that tally, and checks it against every statistics test
-vector, tiny and full.
+**In one sentence:** JAM keeps a tally of what each validator did, epoch by epoch, so that
+whoever pays the validators can see who earned it.
 
-## New words
+This block is the first of a new epoch. Step through it, and watch where each count
+lands.
 
-- **Validator statistics.** A tally of each validator's work: blocks made, tickets and
-  preimages put into blocks (and the preimages' bytes), guarantees (the blocks it signed a
-  guarantee in, once a block however many it signed), assurances made. *Example:* validator 1: 1 block, 2 tickets, 3 preimages of 51 bytes, 1 guarantee,
-  0 assurances.
-- **Author.** The validator that made a block; the header names it by its index.
-  *Example:* `author_index: 1`.
-- **Reporters.** Every validator who signed a guarantee in a block, each counted once.
-  *Example:* two guarantees, signed by validators 0 and 1 and by 2 and 3: four reporters.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<EpochTallies />
+
+## The idea
+
+Validators do the chain's work. They make blocks, vouch for work-reports, and confirm
+they hold their share of the data. Who pays them for it?
+
+Not JAM. JAM keeps the timesheet, and someone else does the paying: Polkadot's staking
+system, in the Gray Paper's picture. The timesheet is the
+[*validator statistics*](../glossary.md#validator-statistics): six counts for each
+validator.
+
+Each block adds to it. The block's [*author*](../glossary.md#author), the validator
+that made it, gets one more block, and the tickets and preimages it put in. Each of its
+[*reporters*](../glossary.md#reporters), the validators who signed a guarantee in it,
+gets one more guarantee. Each validator who assured gets one more assurance.
+
+There are two sheets: one for the epoch in progress, and the finished one from the epoch
+before. When an epoch turns, the sheet in progress becomes the finished one, and a
+fresh one begins.
+
+This lesson keeps that tally, and checks it against every statistics test vector, tiny
+and full.
 
 ## What the Gray Paper says
 
@@ -159,9 +172,9 @@ $$
 
 :::
 
-In plain words: the chain keeps two tallies, one for the epoch in progress and the
-finished one from the epoch before, each with one record of six counts per validator.
-Each block moves them on in three steps, one formula each, (13.4) to (13.6):
+The chain keeps two tallies, one for the epoch in progress and the finished one from the
+epoch before, each with one record of six counts per validator. Each block moves them on
+in three steps, one formula each, (13.4) to (13.6):
 
 1. **Assurances count first.** Every validator who made an assurance in the block gets one
    more. They count towards the epoch the block's parent was in.
@@ -171,14 +184,12 @@ Each block moves them on in three steps, one formula each, (13.4) to (13.6):
 3. **Then the rest.** The author gets one more block, plus as many tickets and preimages
    (and preimage bytes) as the block carries. Every reporter gets one more guarantee.
 
-The three steps on a real epoch's turn:
-
-<EpochTallies />
+Those are the three steps of [the block at the top](#try-it), a real epoch's turn.
 
 Why track only these? They're the work the chain can see for itself. Voting on finality
 and auditing happen off the chain, so these tallies can't hold them. For those, the Gray
-Paper has validators vote on each other's efforts, and a median is taken ([the part's
-page](./index.md#the-big-picture) quotes it).
+Paper has validators vote on each other's efforts, and a median is taken
+([the part's page](./index.md#the-big-picture) quotes it).
 
 When you read the Gray Paper, these are the same things:
 
@@ -194,9 +205,9 @@ When you read the Gray Paper, these are the same things:
 ## The tests
 
 Every statistics vector is one block's tallies, before and after. Running one is a job
-for the scoreboard too, so the runner goes in `test/families.ts`, and the tests use it:
-the tallies before the block, yours after it, and the vector's after it. Its size comes
-from the vector's folder.
+for the scoreboard too, so the runner goes in `test/families.ts`, and the tests use it.
+It takes the tallies before the block, yours after it, and the vector's after it. Its
+size comes from the vector's folder.
 
 **Add to** `test/families.ts`
 
@@ -372,7 +383,7 @@ compare with them. `reporters` and `signerKeys` come from [lesson 12.2](../12-gu
 > **The simple road.** The guarantee count looks the guarantors' keys up in κ′. The Gray
 > Paper's reporters 𝐆 come from the guarantee checks instead, and a guarantee from the
 > last rotation is signed with that rotation's keys, which can be λ's. The statistics
-> vectors only use κ′, so this is fine for now; when [Part 19](../19-block-import/index.md) puts the block
+> vectors only use κ′, so this is fine for now. When [Part 19](../19-block-import/index.md) puts the block
 > together, 𝐆 should come straight from [lesson 12.2](../12-guarantees/02-signed-and-counted.md)'s step. The [hardening
 > pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) does that.
 
@@ -492,11 +503,11 @@ validator 1: fresh → 1 2 3 51 1 0
 
 :::
 
-Slot 123455 to 123456 crosses an epoch boundary (12
-slots an epoch on tiny), so every row starts `fresh`. The author, validator 1, collects
-the block, both tickets and all three preimages — 51 bytes between them — plus the
-guarantee it co-signed; validators 0, 2 and 3 each get their guarantee; and the two
-assurances change nothing here, because assurances land in the epoch being closed.
+Slot 123455 to 123456 crosses an epoch boundary (12 slots an epoch on tiny), so every
+row starts `fresh`. The author, validator 1, collects the block, both tickets and all
+three preimages, 51 bytes between them, plus the guarantee it co-signed. Validators 0, 2
+and 3 each get their guarantee. The two assurances change nothing here, because
+assurances land in the epoch being closed.
 
 **Run**
 
@@ -658,15 +669,16 @@ the head of the Safrole state. Then the author's block is counted, in the fresh 
 - [ ] Neither: an epoch's first block drops its assurances
   > No: the test finds validator 0's assurances one higher in the closed tally.
 
-**Same block: its author, validator 1, made it. Where does its block count?**
+**JAM tallies what validators do. Who uses the tally, and for what?**
 
-- [x] In the fresh tally: blocks 1
-  > Yes: the author's block, tickets and preimages are counted after the page turns, so
-  > they open the new epoch's tally.
-- [ ] In the tally that just closed, next to the assurances
-  > No: only the assurances count before the page turns.
-- [ ] In both
-  > No: every piece of work counts once, in one tally.
+- [ ] JAM itself, to pay each validator at the end of the epoch
+  > No: JAM pays nobody. It only keeps the score.
+- [x] Whoever pays the validators, to see who earned it
+  > Yes: in the Gray Paper's picture that is Polkadot's staking system. The chain keeps
+  > the timesheet, and someone else does the paying.
+- [ ] The block author, to choose whose assurances to include
+  > No: nothing in a block's rules reads the tally. It is written each block, for
+  > readers outside.
 
 **A block has two guarantees, one signed by validators 0 and 1, the other by 1 and 2. How many does validator 1 gain?**
 
@@ -701,9 +713,9 @@ the head of the Safrole state. Then the author's block is counted, in the fresh 
 ## What you have
 
 Every validator's tally, kept the Gray Paper's way, and matching every statistics vector,
-whole.
-Validators aren't the only ones who work: [lesson 18.2](./02-what-cores-and-services-did.md) scores the cores and the
-services, block by block.
+whole. Validators aren't the only ones who work.
+[Lesson 18.2](./02-what-cores-and-services-did.md) scores the cores and the services,
+block by block.
 
 **Say it out loud.** JAM pays nobody itself. It tallies what each validator did, epoch by epoch, so whoever pays can see who earned it.
 

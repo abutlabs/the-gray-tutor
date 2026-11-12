@@ -26,8 +26,10 @@ test("the test and the run: core 0 is 12345 + 4104 × 4 with 5 assurances; core 
   assert.deepEqual([available(5), available(4)], [true, false]);
 });
 
-test("lesson 18.2 places the widget once, after the D(c) example", () => {
+test("lesson 18.2 places the widget once, at the top, and the D(c) example sends the reader back to it", () => {
   const at = raw.indexOf("<CoreLoad />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<CoreLoad />"));
-  assert.ok(at > raw.indexOf("Three segments: ⌈3.046875⌉ = 4.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("Three segments: ⌈3.046875⌉ = 4."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

@@ -45,8 +45,10 @@ test("with no epoch change, everything lands in one tally", () => {
   assert.deepEqual(end.last, steps()[0].last);
 });
 
-test("lesson 18.1 places the widget once, before why", () => {
+test("lesson 18.1 places the widget once, at the top, and the three steps send the reader back to it before why", () => {
   const at = raw.indexOf("<EpochTallies />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<EpochTallies />"));
-  assert.ok(at > raw.indexOf("Every reporter gets one more guarantee.") && at < raw.indexOf("Why track only these?"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("Every reporter gets one more guarantee."));
+  assert.ok(back > 0 && back < raw.indexOf("Why track only these?"));
 });

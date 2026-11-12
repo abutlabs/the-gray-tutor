@@ -1,28 +1,38 @@
 # What cores and services did
 
-[Lesson 18.1](./01-who-did-what.md) kept score for validators, epoch by epoch. Cores and services get a scorecard
-too, but a short-lived one: it covers a single block, and the next block starts again
-from zero. This lesson builds both cards and checks them against every reports and
-preimages test vector.
+**In one sentence:** every block fills in a scorecard for each core and for each service
+that did something, and the next block starts them again from zero.
 
-## New words
+Two cores, six validators. Choose who assures each core and how many segments its report
+exported, and watch each core's popularity and load.
 
-- **Core statistics.** One block's scorecard for each core: the work in the reports it
-  took on, the bytes it now has to keep available, and how many assurances named it.
-  *Example:* core 0 took on one report: 821 gas, and a 17180-byte bundle.
-- **Service statistics.** One block's scorecard for each service that did something: its
-  share of that work, the preimages provided for it, and its accumulation. *Example:*
-  service 42: 2 digests refined, 1518 gas.
-- **Data load.** The bytes a core's newly available reports ask the validators to keep:
-  each report's bundle, plus every segment it exported, plus their proof pages.
-  *Example:* a 12345-byte bundle with 3 segments: 12345 + 4 × 4104 = 28761 bytes.
-- **Popularity.** How many of the block's assurances say "I hold my piece" of a core's
-  data. *Example:* 4 of 6 validators assure core 1: popularity 4, even though 4 isn't
-  enough to make its report available.
+<a id="try-it"></a>
 
-Two words this lesson leans on: a **bundle** is a work-package together with everything
-needed to refine it, and a **segment** is a 4104-byte piece of data a work-item exports
-for later packages to import. All of them are in the [glossary](../glossary.md).
+<CoreLoad />
+
+## The idea
+
+[Lesson 18.1](./01-who-did-what.md) kept score for validators, epoch by epoch. What did
+the cores do, and the services? They get a scorecard too, but a short-lived one. It
+covers a single block, like a shop's till roll for one day. Anyone who wants totals can
+add up the blocks.
+
+A core's card, its [*core statistics*](../glossary.md#core-statistics), has three parts:
+
+- the work in the reports it took on;
+- the bytes it now has to keep available, its [*data load*](../glossary.md#data-load);
+- how many of the block's assurances named it, its
+  [*popularity*](../glossary.md#popularity).
+
+A service's card, its [*service statistics*](../glossary.md#service-statistics), has
+three too: its share of that work, the preimages provided for it, and its accumulation.
+
+Two words this lesson leans on. A [*bundle*](../glossary.md#bundle) is a work-package
+together with everything needed to refine it. A [*segment*](../glossary.md#segment) is a
+4104-byte piece of data a work-item exports, for later packages to import.
+
+This lesson builds both cards, and checks them against every reports and preimages test
+vector.
 
 ## What the Gray Paper says
 
@@ -231,30 +241,32 @@ $$
 
 :::
 
-In plain words: unlike the validators' tallies, these two last one block each: nothing
-carries over from the block before. The Gray Paper doesn't say why. A guess: they show one block's load, and anyone who wants totals can add up the
-blocks.
+Unlike the validators' tallies, these two last one block each: nothing carries over from
+the block before. The Gray Paper doesn't say why. A guess: they show one block's load,
+and anyone who wants totals can add up the blocks.
 
 **Each core's card** is filled from three places:
 
-1. **The work it took on.** Every report this block's guarantees put on the core ([lesson
-   12.3](../12-guarantees/03-onto-the-cores.md)): add up its digests' imports, exports, gas and extrinsics (how many, and their
-   bytes), and its bundle's length. A work-item's *extrinsics* are data blobs sent along
-   with it for refine to read; nothing to do with the block's extrinsic.
+1. **The work it took on.** Every report this block's guarantees put on the core
+   ([lesson 12.3](../12-guarantees/03-onto-the-cores.md)): add up its digests' imports,
+   exports, gas and extrinsics (how many, and their bytes), and its bundle's length. A
+   work-item's *extrinsics* are data blobs sent along with it for refine to read. They
+   have nothing to do with the block's extrinsic.
 2. **Its data load.** Every report of the core's that became available in this block
-   ([lesson 11.1](../11-assurances/01-available.md)): its bundle's length, plus 4104 bytes for every segment it exported,
-   plus one more segment for every 64 of them, rounded up. That last one is a *proof
-   page*: hashes that let anyone check later that a segment is the real one.
+   ([lesson 11.1](../11-assurances/01-available.md)): its bundle's length, plus 4104
+   bytes for every segment it exported, plus one more segment for every 64 of them,
+   rounded up. That last one is a *proof page*: hashes that let anyone check later that
+   a segment is the real one.
 3. **Its popularity.** How many of the block's assurances have the core's bit set.
 
 **Each service's card** is filled from three places as well:
 
 1. **Its share of the work.** Every digest for the service in the reports taken on: how
    many, their gas, imports, extrinsics and exports.
-2. **Its provisions.** The preimages provided for it in this block ([lesson 14.1](../14-services/01-providing-preimages.md)): how
-   many, and their bytes.
-3. **Its accumulation.** [Lesson 17.1](../17-accumulation/01-a-blocks-accumulation.md)'s (count, transfers, gas), or zeros if it didn't
-   accumulate.
+2. **Its provisions.** The preimages provided for it in this block
+   ([lesson 14.1](../14-services/01-providing-preimages.md)): how many, and their bytes.
+3. **Its accumulation.** [Lesson 17.1](../17-accumulation/01-a-blocks-accumulation.md)'s
+   (count, transfers, gas), or zeros if it didn't accumulate.
 
 A service gets a card only if it appears in at least one of the three.
 
@@ -276,7 +288,8 @@ The data load is
 with W_G = 4104. Why 65/64? For n segments, n · 65/64 = n + n/64: the segments
 themselves, and a proof page for every 64. Three segments: ⌈3.046875⌉ = 4.
 
-<CoreLoad />
+That is the sum [at the top](#try-it): try 64 segments, then 65, and watch a second
+proof page appear.
 
 ## The tests
 
@@ -583,8 +596,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The two reports'
-refine loads going in, the tallies the program adds up, its terminal lines:
+**What flows through it.** The two reports' refine loads going in, the tallies the
+program adds up, its terminal lines:
 
 ::: code-group
 
@@ -704,9 +717,10 @@ import** dashboard, one line per card.
 
 ## The scoreboard
 
-In [lesson 12.5](../12-guarantees/05-bad-reports.md) the scoreboard turned away every accepted reports vector, and in
-[lesson 14.1](../14-services/01-providing-preimages.md) four preimages vectors, all for the same reason: the vectors' statistics
-changed and your client's didn't. Now it keeps them. Both checks learn to compare them:
+In [lesson 12.5](../12-guarantees/05-bad-reports.md) the scoreboard turned away every
+accepted reports vector, and in [lesson 14.1](../14-services/01-providing-preimages.md)
+four preimages vectors, all for the same reason: the vectors' statistics changed and
+your client's didn't. Now it keeps them. Both checks learn to compare them:
 
 **Add to** `test/families.ts`
 
@@ -907,7 +921,7 @@ classic way to write ⌈x/64⌉ when you only have integers. Try it: 3 segments,
 ## Check your understanding
 
 ::: check
-**A validator's tally lasts an epoch. How long does a core's or a service's last?**
+**A validator's tally lasts an epoch. How long does a core's or a service's card last?**
 
 - [ ] An epoch too, with a last epoch's copy
   > No: only the validators get two tallies that last an epoch.
@@ -960,8 +974,9 @@ classic way to write ⌈x/64⌉ when you only have integers. Try it: 3 segments,
 All three scorecards: each validator's for the epoch ([lesson 18.1](./01-who-did-what.md)), and each core's
 and each service's for the block. Every state-transition family is on the scoreboard now,
 every vector in it passing whole but the ten preimages refusals. [Part 18](./index.md) is
-done. Every part so far built one piece of a block's state transition on its own;
-[Part 19](../19-block-import/index.md) starts putting them together, with the order the Gray Paper asks for.
+done. Every part so far built one piece of a block's state transition on its own.
+[Part 19](../19-block-import/index.md) starts putting them together, in the order the
+Gray Paper asks for.
 
 **Say it out loud.** Validators' tallies last an epoch; cores' and services' last one block. A core's popularity counts assurances even when there aren't enough yet.
 
