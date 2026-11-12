@@ -4,7 +4,7 @@
 and the map pages quote, explained. Nine blocks: the state transition, the state's seventeen
 parts, a balance, the PVM with its gas and memory, and a timeslot. §4's block and dependency
 graph are in [Part 19's appendix](../19-block-import/gray-paper.md). Each formula: its key,
-then read aloud, in plain words, on a real value, in your client. Notation: [Reading the
+then read aloud, what it means, on a real value, in your client. Notation: [Reading the
 Gray Paper](../reading-the-gray-paper.md).
 
 ## (4.1): one block, one step
@@ -34,10 +34,9 @@ $$
 
 **Read it aloud.** "Sigma prime is defined as upsilon of sigma and B."
 
-**In plain words.** The state after a block is a function of two things only: the state
+**What it means.** The state after a block is a function of two things only: the state
 before it and the block. Nothing else goes in: not the time a node imports it, not any
-node's own view.
-That is why every correct client gets the same answer, byte for byte.
+node's own view. That is why every correct client gets the same answer, byte for byte.
 
 **On a real value.** The `safrole` trace's first block, slot 1:
 
@@ -92,12 +91,12 @@ $$
 **Read it aloud.** "Sigma is defined as the tuple alpha, beta, theta, gamma, delta, eta,
 iota, kappa, lambda, rho, tau, phi, chi, psi, pi, omega, xi."
 
-**In plain words.** The state is a record of seventeen fields, each a Greek letter. One
+**What it means.** The state is a record of seventeen fields, each a Greek letter. One
 word each: pools, recent blocks, last outputs, Safrole, services, entropy, next
 validators, current validators, last validators, pending reports, time, queues,
 privileges, judgments, statistics, ready queue, accumulated. Sixteen are stored under a
-key each, C(1) to C(16), in another order; δ, the services, is stored as one record per
-service plus one entry per thing it keeps.
+key each, C(1) to C(16), in another order. The other, δ, the services, is stored as one
+record per service plus one entry per thing it keeps.
 
 **On a real value.** The `safrole` trace's state before its first block, as it's stored:
 
@@ -139,7 +138,7 @@ $$
 
 **Read it aloud.** "N sub B is defined as N sub two to the sixty-four."
 
-**In plain words.** A balance is a whole number of the smallest unit, from 0 up to
+**What it means.** A balance is a whole number of the smallest unit, from 0 up to
 2⁶⁴ − 1: a u64. It can't be negative, and it can't be larger.
 
 **On a real value.** Service 0 in the `safrole` trace holds the largest balance (4.21)
@@ -205,8 +204,8 @@ $$
 of 13 N sub R and an M, to: halt, panic or out of gas, or fault or host call with an N sub
 R; then an N sub R, an N sub G, a true-or-false, a sequence of 13 N sub R and an M."
 
-**In plain words.** The PVM as a function: in go the program, the instruction counter,
-the gas, a flag, the 13 registers and the memory; out come how it stopped and the same
+**What it means.** The PVM as a function. In go the program, the instruction counter,
+the gas, a flag, the 13 registers and the memory. Out come how it stopped, and the same
 five things after the run. A fault comes back with the address it touched, a host call
 with which host function it asked for. The flag says whether the current basic block's
 gas has been paid.
@@ -251,8 +250,8 @@ $$
 up to two to the sixty-three; N sub G is defined as N sub two to the sixty-four; N sub R is
 defined as N sub two to the sixty-four."
 
-**In plain words.** Gas and a register's value are both u64s. Z_G is gas with a sign, an
-i64, which the paper uses inside the PVM's definition where a subtraction could go below
+**What it means.** Gas and a register's value are both u64s. Z_G is gas with a sign, an
+i64. The paper uses it inside the PVM's definition, where a subtraction could go below
 zero.
 
 **On a real value.** On full, refine may spend 5,000,000,000 gas on a package: it fits in
@@ -297,7 +296,7 @@ $$
 and a, a sequence of p items, each W, R or nothing; where p is two to the thirty-two over
 Z sub P. Z sub P is two to the twelve."
 
-**In plain words.** Memory is 2³² bytes, and beside them one access mark per 4,096-byte
+**What it means.** Memory is 2³² bytes, and beside them one access mark per 4,096-byte
 page: writable, read-only, or not there at all.
 
 **On a real value.**
@@ -343,7 +342,7 @@ $$
 **Read it aloud.** "V sub mu is defined as the set of i such that mu's access at the
 floor of i over Z sub P is not nothing. V sub mu star is the set of i such that it is W."
 
-**In plain words.** An address may be read if its page is there at all, and written only
+**What it means.** An address may be read if its page is there at all, and written only
 if its page is marked W. Which page an address is on is the address divided by 4,096,
 rounded down.
 
@@ -383,7 +382,7 @@ $$
 
 **Read it aloud.** "N sub T is defined as N sub two to the thirty-two."
 
-**In plain words.** A slot number is a u32: 0 to 4,294,967,295, one every six seconds from
+**What it means.** A slot number is a u32: 0 to 4,294,967,295, one every six seconds from
 the JAM Common Era.
 
 **On a real value.**
@@ -401,6 +400,6 @@ four bytes in every header ([4.6](../04-blocks/06-the-header.md)).
 
 The state after a block is a function of the state before it and the block, nothing else
 (4.1). The state is seventeen named parts (4.4). Balances are u64s (4.21). The PVM takes a
-program, counter, gas, flag, 13 registers and memory, and says how it stopped (4.22), with
-gas and registers as u64s (4.23), memory as 2³² bytes in 4,096-byte pages marked
-writable, read-only or absent (4.24) to (4.27). A slot is a u32 (4.28).
+program, counter, gas, flag, 13 registers and memory, and says how it stopped (4.22). Gas
+and registers are u64s (4.23). Memory is 2³² bytes in 4,096-byte pages marked writable,
+read-only or absent (4.24) to (4.27). A slot is a u32 (4.28).
