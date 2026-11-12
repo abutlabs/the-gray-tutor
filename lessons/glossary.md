@@ -1,8 +1,10 @@
 # Glossary
 
-Every word this tutorial uses that a newcomer might not know, in plain English first,
-with a small example. Where the Gray Paper (the GP, JAM's specification) has a symbol for
-it, the symbol comes next, and the link at the end goes to the lesson that builds it.
+**In one sentence:** every word this tutorial uses that a newcomer might not know, in
+plain English first, with a small example.
+
+Where the Gray Paper (the GP, JAM's specification) has a symbol for a word, the symbol
+comes next. The link at the end goes to the lesson that builds it.
 
 You don't need to read this page first. Come back whenever a word stops you. The groups go
 from the most everyday words to the most JAM-specific ones.
@@ -14,8 +16,8 @@ symbols](./symbols.md), with how to say each one, what it means, and where it's 
 
 ## Synonyms
 
-One thing in JAM often answers to three names — the Gray Paper's symbol, this tutorial's
-plain word, and the test vectors' field: the super-peak M_R *is* the `beefy_root`, a work
+One thing in JAM often answers to three names: the Gray Paper's symbol, this tutorial's
+plain word, and the test vectors' field. The super-peak M_R *is* the `beefy_root`. A work
 digest *is* the vectors' work result. The symbols page gathers every such group:
 [one thing, several names](./symbols.md#synonyms).
 
@@ -596,8 +598,8 @@ it in-core on a package and its token before refining; on the chain, its hash mu
 the core's pool. *Example:* the same code with another public key in its configuration is
 another authorizer. ([13.1](./13-authorization/01-the-authorizer-pools.md))
 
-**Authorization token and trace.** The two blobs round an authorizer: the *token* travels
-in the package, the argument that it may use the core (a signature, say); the *trace* is
+**Authorization token and trace.** The two blobs round an authorizer. The *token* travels
+in the package: the argument that it may use the core (a signature, say). The *trace* is
 what the authorizer's code produced when it said yes, kept in the report as `auth_output`.
 Both are opaque to the chain: only the authorizer's code reads them. *Example:* token
 `0x0102030405`, trace `0x`. ([13.1](./13-authorization/01-the-authorizer-pools.md))

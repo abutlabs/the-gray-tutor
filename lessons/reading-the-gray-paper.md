@@ -1,12 +1,14 @@
 # Reading the Gray Paper
 
+**In one sentence:** how to read a page of the Gray Paper: where things are, what a
+letter's typeface tells you, the six shapes a definition takes, and thirteen of its lines
+read aloud.
+
 Optional, and no code. The tutorial taught you JAM in its own words and your client's
-names. The [Gray Paper](https://graypaper.com/) says the same things in equations, and an
-interview, a review or a bug report will have the paper open, not this site. This page
-is how to read a page of it: where things are, what a letter's typeface tells you before
-you know what the letter means, the six shapes a definition takes, and thirteen of its
-lines read aloud, one symbol at a time. Every line is quoted from version 0.8.0, and so is
-the paper's own key to its notation, §3, each part beside what it explains here.
+names. The [Gray Paper](https://graypaper.com/) says the same things in equations. An
+interview, a review or a bug report will have the paper open, not this site. Every line
+here is quoted from version 0.8.0. So is the paper's own key to its notation, §3, each
+part beside what it explains here.
 
 Every Part page from [3](./03-work-and-reports/index.md) on ends with *In the Gray Paper*:
 the sections to open and that Part's one defining line. This page is what those sections
@@ -1172,9 +1174,9 @@ $$
 instruction counter, a gas amount, a flag, thirteen registers and a memory, and gives
 back how it stopped, the counter, the gas, the flag, the registers and the memory." The
 × in the output joins a reason with a number: a fault comes with the address that caused
-it, a host call with its index. The paper draws the five ways to stop as small pictures,
+it, a host call with its index. The paper draws the five ways to stop as small pictures:
 a black square for halt, a lightning bolt for panic, ∞ for out of gas, an upside-down F
-for a fault and ħ for a host call, and says which is which right under Ψ's definition. The
+for a fault and ħ for a host call. It says which is which right under Ψ's definition. The
 flag is new in 0.8.0: whether the current basic block's gas has been charged
 ([15.3](./15-the-pvm/03-the-machine.md)).
 
@@ -1287,8 +1289,14 @@ under a minute and they are what an interviewer listens for.
    an authorizer, (11.32), "its hash must be in its core's pool," and (8.2), how the pool
    turns over.
 
-The same four steps answer "what is a work-report" (§11.1, its tuple, made in-core, checked
-on the chain, (11.32) again), "what is a service" (§9, 𝔸, lives on the chain, runs in-core
-for refine and on the chain for accumulate, (12.17)), and "what is the state" ((4.4), the
-seventeen letters, kept on every validator, Appendix D for its root). Practice them on the
-[Part pages](./index.md): each ends with the sections, the names and the line.
+The same four steps answer three more questions:
+
+- **What is a work-report?** §11.1; its tuple; made in-core, checked on the chain;
+  (11.32) again.
+- **What is a service?** §9; 𝔸; lives on the chain, runs in-core for refine and on the
+  chain for accumulate; (12.17).
+- **What is the state?** (4.4); the seventeen letters; kept on every validator; Appendix
+  D for its root.
+
+Practice them on the [Part pages](./index.md): each ends with the sections, the names and
+the line.

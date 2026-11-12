@@ -1,11 +1,13 @@
 # Cryptography we use
 
-Your client is TypeScript you write yourself, with one exception: cryptography. A hash, a
-signature or a VRF is a published standard that's easy to get subtly wrong: one wrong byte
-and every check fails, or worse, a check passes that shouldn't. So for these, and only
-these, your client calls open-source libraries written by specialists. This page lists
-them: what each does, where JAM uses it, which library does it, and the lesson that brings
-it in.
+**In one sentence:** the one part of your client you don't write yourself: its hashes,
+signatures and VRFs come from open-source libraries.
+
+A hash, a signature or a VRF is a published standard that's easy to get subtly wrong: one
+wrong byte and every check fails, or worse, a check passes that shouldn't. So for these,
+and only these, your client calls libraries written by specialists. This page lists them:
+what each does, where JAM uses it, which library does it, and the lesson that brings it
+in.
 
 Tap an algorithm to light the bytes of a real block it made, or holds the keys of. The
 block is the tiny test vector's, from [Part 4](./04-blocks/index.md); its three ring proofs alone are
@@ -91,9 +93,9 @@ their client, typeberry. It wraps ark-vrf, the Rust library behind the specifica
 Gray Paper cites, as WebAssembly and native code, so it runs in Node.
 
 Why trust the two without an audit? ark-vrf is written by one of the specification's two
-authors, who also makes the official test vectors, so a client that disagrees with it fails
-them; and your client checks the wrapper the same way, against every vector its tickets
-and seals appear in. Passing vectors shows agreement, not safety: the right bar for a
+authors, who also makes the official test vectors. A client that disagrees with it fails
+them. Your client checks the wrapper the same way, against every vector its tickets and
+seals appear in. Passing vectors shows agreement, not safety: the right bar for a
 client you learn from, not enough on its own for one that holds real value.
 
 <details>
@@ -451,8 +453,8 @@ $$
 :::
 
 **(H.7) and (H.8), read aloud.** "x to the 16 plus x to the 5 plus x cubed plus x squared
-plus 1." "F sub 2 to the 16 is defined as F-2 of x over that polynomial." **In plain
-words.** Each two-byte word is a number in a finite field of 65,536 values: a set where
+plus 1." "F sub 2 to the 16 is defined as F-2 of x over that polynomial." **What it
+means.** Each two-byte word is a number in a finite field of 65,536 values: a set where
 adding is XOR, multiplying is defined so that every value but 0 can be divided by, and
 nothing ever overflows past 16 bits. The polynomial is the rule that folds a product back
 into 16 bits; as bits it is `1 0000 0000 0010 1101`, 0x1002D. **On a value.** In this field

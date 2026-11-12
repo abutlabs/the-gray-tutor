@@ -1,11 +1,12 @@
 # The Gray Paper's own story
 
-Optional, and no code. Before its first rule and after its last, the Gray Paper tells a
-story: what JAM is for, what came before it and why that wasn't enough, how fast it
-might be, and what is still left to do. This page quotes that story whole, the Abstract,
-§1, §2 and §20 to §22, with a few words of ours before each part. Read it as you'd read
-the "why" section of a design doc: the arguments are the authors', and where they reach
-past what the rules show, this page says so.
+**In one sentence:** the parts of the Gray Paper that aren't rules, quoted whole: what JAM
+is for, what came before it, how fast it might be, and what is still left to do.
+
+Optional, and no code. The story sits before the paper's first rule and after its last:
+the Abstract, §1, §2 and §20 to §22. Each part here has a few words of ours before it.
+Read it as you'd read the "why" section of a design doc: the arguments are the authors',
+and where they reach past what the rules show, this page says so.
 
 ## What JAM is, in one breath
 
@@ -33,11 +34,12 @@ draws the split.
 
 ## Why it exists
 
-§1.1 says where JAM comes from: it is meant to be what Polkadot becomes, and its name comes
-from the last two steps of collect, refine, join, accumulate, the path every piece of work takes. §1.2
-says what it wants: five goals, of which the first two (can't be stopped, can run any
-program) are taken for granted, and the next two, fast and coherent, pull against each
-other.
+§1.1 says where JAM comes from. It is meant to be what Polkadot becomes. Its name comes
+from the last two steps of collect, refine, join, accumulate: the path every piece of work
+takes.
+
+§1.2 says what it wants: five goals. The first two (can't be stopped, can run any
+program) are taken for granted. The next two, fast and coherent, pull against each other.
 
 ::: gray-paper 1.1
 
@@ -79,7 +81,7 @@ other.
 
 Coherent means one part of the state can see and react to another right away, as one
 contract calling another does on Ethereum. §1.3's argument: the more state a system holds,
-the further apart its pieces sit, and the longer news takes to travel between them, so a
+the further apart its pieces sit, and the longer news takes to travel between them. So a
 big system drifts out of step with itself.
 
 If you build web services, you've met this. One database is coherent: a transaction sees
@@ -365,8 +367,8 @@ before the numbers:
 :::
 
 §20.1 ends with a picture of one core: a CPU core at a quarter to half
-speed for six seconds, 2 MB/s of input and output, 2 GB of memory, producing at most 48 KB;
-then that result gets 10 ms with the whole chain state. That is refine, then accumulate.
+speed for six seconds, 2 MB/s of input and output, 2 GB of memory, producing at most 48 KB.
+Then that result gets 10 ms with the whole chain state. That is refine, then accumulate.
 
 ::: gray-paper 20.2
 
@@ -462,8 +464,8 @@ then that result gets 10 ms with the whole chain state. That is refine, then acc
 
 §21 sums up in one name: collect, refine, join, accumulate. The paper defines the
 on-chain half, join and accumulate, which is the half your client builds. §21.1 lists what
-is still open, and it is worth knowing when someone asks what JAM can't do yet: how fast
-it really is, synchronous calls between services, a networking protocol.
+is still open. It is worth knowing when someone asks what JAM can't do yet: how fast it
+really is, synchronous calls between services, a networking protocol.
 
 ::: gray-paper 21
 

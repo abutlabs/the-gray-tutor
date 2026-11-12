@@ -1,10 +1,12 @@
 # What runs where
 
-Optional, and no code. If you are comfortable passing JSON between services, but this
-tutorial is your first time down at the level of bytes, this page is the map to keep
-open. JAM has three places where things happen, about a dozen kinds of object that pass
-between them, and two kinds of code. Every lesson is about one object in one place.
-Nothing here needs to stick yet: each piece comes back in its own lesson, linked.
+**In one sentence:** JAM does its work in three places, off the chain, in-core and on the
+chain, and every lesson is about one object in one of them.
+
+Optional, and no code. If you are comfortable passing JSON between services, but new to
+bytes, keep this page open as the map. JAM has three places where things happen, about a
+dozen kinds of object that pass between them, and two kinds of code. Nothing here needs to
+stick yet: each piece comes back in its own lesson, linked.
 
 ## Three places
 
@@ -50,12 +52,17 @@ The paper draws the same split in §4.9, and names the two models:
 
 On Ethereum every node runs every transaction, so the network can do no
 more than one node can. JAM lets a few validators do each piece of work, in-core, and
-makes that safe in stages (the paper says three, then names four): the guarantors stake their reputation on a report, the
-assurers keep its data where anyone can fetch it, the auditors redo it, and if they
-disagree, the judges settle it on the chain. In-core work can only use what it's handed
-(its code, its inputs, the preimages it looks up), so anyone can redo it later. The
-lookup anchor is the block whose state those lookups saw. The four stages are §15 to
-§17, quoted [at the end of this page](#off-the-chain-in-the-gray-paper).
+makes that safe in stages. The paper says three, then names four:
+
+1. the guarantors stake their reputation on a report;
+2. the assurers keep its data where anyone can fetch it;
+3. the auditors redo it;
+4. if they disagree, the judges settle it on the chain.
+
+In-core work can only use what it's handed (its code, its inputs, the preimages it looks
+up), so anyone can redo it later. The lookup anchor is the block whose state those lookups
+saw. The four stages are §15 to §17, quoted
+[at the end of this page](#off-the-chain-in-the-gray-paper).
 
 ## The objects, and what each is made from
 
@@ -283,9 +290,9 @@ $$
 
 The PVM is a stripped-down RISC-V, the instruction set many real CPUs use,
 so ordinary compilers can target it. A run takes a program, 13 registers of 64 bits, a
-memory of 2³² bytes in 4,096-byte pages, and a gas budget, and stops in one of five ways:
-done, a trap, out of gas, a touch of memory it may not, or a call to the host, which does
-something on its behalf and lets it carry on. Gas is the PVM's meter: each step costs some,
+memory of 2³² bytes in 4,096-byte pages, and a gas budget. It stops in one of five ways:
+done, a trap, out of gas, a touch of memory it may not, or a call to the host. The host
+does something on the program's behalf and lets it carry on. Gas is the PVM's meter: each step costs some,
 so a run can't go on for ever, and its time stays roughly in proportion to its gas.
 [Part 15](./15-the-pvm/index.md) builds it.
 
@@ -467,8 +474,8 @@ lookup l and the number of validators v. The guarantor picks c, l and v itself, 
 pick the ones the chain will accept. **On a real value.** On tiny, v = 6: one chunk for
 each validator, so a report's `erasure_shards` is 6 ([3.3](./03-work-and-reports/03-a-work-report.md)).
 
-**(15.2), read it aloud.** "l is X sub G followed by H of the encoded r." **In plain
-words.** What a guarantor signs: the 13 bytes `jam_guarantee` (the paper writes them with
+**(15.2), read it aloud.** "l is X sub G followed by H of the encoded r." **What it
+means.** What a guarantor signs: the 13 bytes `jam_guarantee` (the paper writes them with
 a `$` in front, which is notation, not a byte), then the 32-byte hash of the encoded
 report: 45 bytes. It is the message [12.2](./12-guarantees/02-signed-and-counted.md)
 checks every guarantee's signatures against.
@@ -1007,8 +1014,8 @@ available is.
 
 A validator won't vote a block final until it is audited, and won't build
 on a chain that accumulates a report a third of the validators call invalid. A block author
-who sees a no vote can gather the votes into a verdict for the disputes extrinsic, and
-that is where your client meets all of this: [Part 10](./10-disputes/index.md) checks the
+who sees a no vote can gather the votes into a verdict for the disputes extrinsic. That
+is where your client meets all of this: [Part 10](./10-disputes/index.md) checks the
 verdict, and the report is taken off its core before it can be accumulated.
 
 ### BEEFY, §18
@@ -1145,9 +1152,9 @@ ticket rather than by the fallback key. T, the header's "is ticketed" flag, is 1
 the final block; one has 5 ticketed blocks since, the other 4 ticketed and 1 fallback.
 m = 5 against 4: the first is best.
 
-The rest: a GRANDPA vote is on the best block's header *and* the state root
-after it, so a node can't vote before it has imported the block, and two votes on the same
-block with different roots count as votes for different blocks.
+The rest: a GRANDPA vote is on the best block's header *and* the state root after it. So
+a node can't vote before it has imported the block, and two votes on the same block with
+different roots count as votes for different blocks.
 
 Ready to see it move? [JAM at a glance](./jam-at-a-glance.md) plays a real network in
 slow motion. Ready to build? [Start here](./index.md).

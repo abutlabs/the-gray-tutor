@@ -2,10 +2,11 @@
 
 <AlbertChalkboard />
 
-The Gray Paper writes its rules in equations. This page is the key to it: every symbol the
-tutorial uses, how to say it out loud, what it means, an example, where the Gray Paper
-defines it, and where it shows up. Every formula in a lesson has a small key under it that
-links here.
+**In one sentence:** the key to the Gray Paper's equations: every symbol the tutorial
+uses, how to say it out loud and what it means.
+
+Each entry also has an example, where the Gray Paper defines the symbol, and where it
+shows up. Every formula in a lesson has a small key under it that links here.
 
 You don't need to read this page first. Come back whenever a symbol stops you.
 
@@ -125,11 +126,12 @@ not knowing makes you look lost in a room that does — the super-peak *is* the
 | — | | a judgement | a vote; a verdict with a third voting valid is **wonky**, a split | [10.1](./10-disputes/01-votes-and-verdicts.md) |
 | — | | the pipeline | the report vectors' `known_packages` | [12.5](./12-guarantees/05-bad-reports.md) |
 
-And two traps that look like synonyms but aren't: a block's *extrinsic* (its five-part
-contents) and a work-item's *extrinsics* (data blobs for refine) are different things
-([4.1](./04-blocks/01-tickets-and-preimages.md)), and n (one validator's ticket attempts
-for an epoch) is not K (the most tickets one block may carry)
-([8.7](./08-safrole/07-entering-tickets.md)).
+And two traps that look like synonyms but aren't:
+
+- a block's *extrinsic* (its five-part contents) and a work-item's *extrinsics* (data
+  blobs for refine) are different things ([4.1](./04-blocks/01-tickets-and-preimages.md));
+- n (one validator's ticket attempts for an epoch) is not K (the most tickets one block
+  may carry) ([8.7](./08-safrole/07-entering-tickets.md)).
 
 ## The whole chain
 
@@ -530,9 +532,9 @@ it borrows (hashing, signing, encoding).
 :::
 
 Then the values: what a block carries, the state's letters, the PVM's parts, the
-constants, the gas costs of the host calls, and the signing contexts, the short strings
-signed with every message so that a signature made for one purpose can't be reused for
-another.
+constants, the gas costs of the host calls, and the signing contexts. A signing context
+is a short string signed with every message, so that a signature made for one purpose
+can't be reused for another.
 
 ::: gray-paper I.4.1
 

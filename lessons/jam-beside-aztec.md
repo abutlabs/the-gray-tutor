@@ -1,8 +1,11 @@
 # JAM beside Aztec
 
+**In one sentence:** JAM can run Aztec's private transfers as a service, and doing so
+is neither cheaper nor faster.
+
 Optional, and no code: a comparison, not a lesson. [Aztec](https://aztec.network/) is a
 privacy network on Ethereum where users prove their own transactions and the network only
-checks the proofs. This page asks one question: could JAM run Aztec's private transfers as
+checks the [*proofs*](./glossary.md#zero-knowledge-proof). This page asks one question: could JAM run Aztec's private transfers as
 a service? In October 2026 we built one to find out,
 [aztec-on-jam](https://github.com/abutlabs/aztec-on-jam), and ran it on
 six-validator test networks of lasair, of PolkaJam, and of both.
@@ -15,56 +18,16 @@ put it in one place; [open challenges](#open-challenges) lists what isn't solved
 
 Numbers are as of October 2026 and will date.
 
-## New words
-
-- **Rollup.** A chain that does its work elsewhere and posts the result, with enough data
-  to check it, to another chain. *Example:* Aztec posts to Ethereum.
-- **Sequencer.** Aztec's name for a validator: a staked machine that proposes blocks and
-  signs for others'. *Example:* 200,000 AZTEC to run one.
-- **Committee.** The few validators drawn to check blocks for a while, out of the many who
-  are staked. *Example:* 48 of Aztec's 3,000 or so, for 38 minutes.
-- **Prover.** A machine that turns a batch of finished work into a zero-knowledge proof.
-  *Example:* Aztec's provers hold no stake.
-- **Zero-knowledge proof.** A small piece of data that shows a computation was done right,
-  without redoing it and without showing its inputs. *Example:* a proof that a transfer
-  balanced, with the amount hidden.
-- **Client-side proving.** The user's own device makes the proof. *Example:* a phone
-  proving its own payment before sending it.
-- **Auditor.** In JAM, a validator drawn to re-run a work-report once its data is
-  available, and to vote against it if it's wrong. *Example:* about 30 auditors per report.
-- **Stake and slashing.** Money a validator locks to take part, and loses some of for
-  provable misbehaviour. *Example:* 2,000 AZTEC for a missed duty.
-- **Noir.** Aztec's language for writing what a zero-knowledge proof proves, with Rust's
-  look and privacy as the default. *Example:* a transfer circuit of a few dozen lines.
-- **PXE.** Aztec's private execution environment: the library on the user's device that
-  holds keys and notes, runs private functions and proves them. *Example:* a wallet's PXE
-  proving a payment in 2.5 seconds on a laptop.
-- **Shield and unshield.** Moving value from a public account into a private one, and back
-  out. *Example:* `zk.money`'s three buttons: shield, send, unshield.
-- **Note.** A private coin: its owner's key, an amount and a random number, hashed
-  together. The chain sees only the hash. *Example:* a note of 40 for B.
-- **Nullifier.** A second hash of a note that only its owner can make, published when the
-  note is spent, so it can't be spent twice. *Example:* a transfer spends two notes and
-  publishes two nullifiers.
-- **Sealed note.** A note's contents encrypted to its receiver and kept on chain, so the
-  receiver finds it by trying their key on every one. *Example:* 88 bytes a note.
-- **Kernel circuit.** Aztec's protocol circuits that wrap every private call, so the
-  network sees note hashes and nullifiers, not which function ran. *Example:* a token
-  transfer whose fee is sponsored is 6 circuits folded into one proof.
-
-All fifteen are in the [glossary](./glossary.md), with JAM's own words: validator, core,
-guarantor, assurance, refine and accumulate.
-
 ## The two networks in one table
 
 | | Aztec, Alpha V5 | JAM, Gray Paper 0.8.0 |
 | --- | --- | --- |
-| What it is | A *rollup* on Ethereum, which finalises it | Its own chain, finalised by its own validators (GRANDPA) |
-| Who runs it | 3,000 to 4,000 *sequencers*, 200,000 AZTEC each | 1,023 validators, all alike |
-| Who checks a block | A *committee* of 48 drawn each epoch; 33 must sign | Everyone: each validator holds a piece of every core's data and audits about 10 reports a slot |
+| What it is | A [*rollup*](./glossary.md#rollup) on Ethereum, which finalises it | Its own chain, finalised by its own validators (GRANDPA) |
+| Who runs it | 3,000 to 4,000 [*sequencers*](./glossary.md#sequencer), 200,000 AZTEC each | 1,023 validators, all alike |
+| Who checks a block | A [*committee*](./glossary.md#committee) of 48 drawn each epoch; 33 must sign | Everyone: each validator holds a piece of every core's data and audits about 10 reports a slot |
 | A slot, an epoch | 72 s; 32 slots, 38 min 24 s | 6 s; 600 slots, one hour |
-| Where the heavy work runs | On users' devices (private functions) and on *provers* (the proof of an epoch) | On cores: 3 guarantors run each package, then about 30 *auditors* run it again |
-| Smallest validator | 8 cores, 8 GB, 1 TB NVMe, 25 Mbit/s, plus the stake | Assumed 16 cores, 64 GB, 8 TB, 0.5 Gbit/s; stake not in the paper |
+| Where the heavy work runs | On users' devices (private functions) and on [*provers*](./glossary.md#prover) (the proof of an epoch) | On cores: 3 guarantors run each package, then about 30 [*auditors*](./glossary.md#auditor) run it again |
+| Smallest validator | 8 cores, 8 GB, 1 TB NVMe, 25 Mbit/s, plus the [*stake*](./glossary.md#stake) | Assumed 16 cores, 64 GB, 8 TB, 0.5 Gbit/s; stake not in the paper |
 | Heaviest machine | A prover agent: 32 cores, 128 GB, no stake | The same validator |
 | What a user needs | A phone or browser that can make a proof | Nothing special: anyone may build a work-package |
 | Written down where | Aztec's operator docs and L2BEAT | §20 of the Gray Paper, *Discussion* |
@@ -82,7 +45,7 @@ vote (§19). Both are what a validator does beside importing blocks.
 ## Why one validator is cheap and the other isn't
 
 Aztec's validator never does the expensive work. Users run their private functions on
-their own devices and prove them (*client-side proving*, with a proving system called
+their own devices and prove them ([*client-side proving*](./glossary.md#client-side-proving), with a proving system called
 CHONK built for phones and browsers). Unstaked provers, 32 cores and 128 GB each, turn an
 epoch's blocks into one proof for Ethereum, due within 1 hour 16 minutes. The committee
 re-runs the public functions, checks the private proofs in milliseconds, and signs. When
@@ -117,16 +80,16 @@ upgrades it).
 
 ## What we built: one payment, five steps
 
-`zk.money`'s three moves, shield, send and unshield, as two JAM services: a public token
+`zk.money`'s three moves, [*shield*](./glossary.md#shield), send and [*unshield*](./glossary.md#unshield), as two JAM services: a public token
 service and a privacy service. Here is A paying B 40 in private, with the numbers we
 measured.
 
-1. **A proves, in a browser tab.** A Noir circuit says: the two *notes* A spends are in the
-   note tree, their *nullifiers* are not yet in the nullifier tree, the two new notes add
+1. **A proves, in a browser tab.** A [*Noir*](./glossary.md#noir) circuit says: the two [*notes*](./glossary.md#note) A spends are in the
+   note tree, their [*nullifiers*](./glossary.md#nullifier) are not yet in the nullifier tree, the two new notes add
    up to the same amount, and here are the trees' new roots. Barretenberg, Aztec's prover,
    turns that into an 8,768-byte proof in 1.0 s on a laptop's browser.
 2. **A builder submits it.** One work-package, one item: the public inputs, the proof and
-   the two *sealed notes*.
+   the two [*sealed notes*](./glossary.md#sealed-note).
 
    ```text
    c0 01            the public inputs' length, 448, as a u16: 2 bytes
@@ -162,7 +125,7 @@ withdrawals are public, as `zk.money`'s were.
 
 | Question | Our answer | Why | Its price |
 | --- | --- | --- | --- |
-| Whose circuit? | Our own Noir transfer, built to Aztec's shapes: notes, nullifiers, a sorted nullifier tree, both trees 40 deep | Aztec's own *kernel circuit* proofs cost more to check than a package holds ([below](#open-challenges)) | Aztec's contracts and its PXE don't run on it |
+| Whose circuit? | Our own Noir transfer, built to Aztec's shapes: notes, nullifiers, a sorted nullifier tree, both trees 40 deep | Aztec's own [*kernel circuit*](./glossary.md#kernel-circuit) proofs cost more to check than a package holds ([below](#open-challenges)) | Aztec's contracts and its [*PXE*](./glossary.md#pxe) don't run on it |
 | Which proof system? | UltraHonk, Aztec's own, checked by zkVerify's open-source Rust verifier | It compiles to the PVM unchanged, and Noir proves to it by default | We pin a change to it not yet accepted upstream, for the prover version we use |
 | Who updates the trees? | The proof: the circuit computes both trees' new roots | Accumulate only compares and stores, so it never hashes a tree | Every prover needs the trees' current paths, which grow with the chain |
 | Where do notes live? | In the service's storage, sealed to the receiver and bound into the proof by a hash | A receiver finds a payment from the chain alone | Each wallet tries every note; storage costs by the byte |

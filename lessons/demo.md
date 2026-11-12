@@ -1,8 +1,10 @@
 # Demo
 
-Your finished client, shown in ten minutes: six commands, each one a script your client
-has by the end of the tutorial, so there's nothing to look up and no path to type. Each
-step says what to point at, and links the lesson that built it, for the questions.
+**In one sentence:** your finished client, shown in ten minutes with six commands.
+
+Each command is a script your client has by the end of the tutorial, so there's nothing
+to look up and no path to type. Each step says what to point at, and links the lesson
+that built it, for the questions.
 
 ## Before you start
 
