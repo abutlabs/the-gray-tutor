@@ -1,28 +1,41 @@
 # Votes and verdicts
 
-Back in [lesson 4.4](../04-blocks/04-disputes.md) you decoded disputes: trials held right in the blocks. Now your client
-gets to be the court clerk. When validators challenge a work-report, two thirds of them
-plus one vote on it, and every vote is signed. The voting happened off the chain, by
-validators who re-ran the work; the block carries the signed votes, and the clerk, every
-validator, checks them on the chain. The clerk's job: check every signature,
-count the votes, and record the verdict, *good*, *bad* or *wonky*, in the state for
-good. This lesson is that clerk.
+**In one sentence:** when validators challenge a work-report, more than two thirds of them
+sign a vote on it, and your client checks the signatures, counts the votes and records the
+verdict: good, bad or wonky.
 
-## New words
+Here is a verdict on the tiny network: six judges, five votes, all saying valid. Make the
+report bad, then wonky. Then try 3 valid out of 5, a split that means nothing.
 
-- **Judgement.** One validator's signed vote, valid or invalid, on a work-report. The
-  state keeps the verdicts' results as its past judgements, ψ. *Example:* a verdict on
-  tiny carries 5 judgements.
-- **Judges.** The validators whose votes a verdict carries: this epoch's (κ) if the
-  verdict's age is this epoch, last epoch's (λ) if it's the one before. *Example:* on
-  tiny, 6 judges, so a verdict needs ⌊2·6/3⌋ + 1 = 5 votes.
-- **Verdict age.** The epoch a verdict's votes were cast in. Only this epoch or the last
-  one will do. *Example:* in epoch 3, ages 3 and 2 are fine, age 1 isn't.
-- **Vote split.** How many of a verdict's votes say "valid". Only three splits mean
-  anything: all of them (good), none (bad), or a third of the judges (wonky).
-  *Example:* on tiny, 5, 0 or 2.
+<a id="try-it"></a>
 
-All four are in the [glossary](../glossary.md).
+<VerdictVotes />
+
+## The idea
+
+Some validators say a work-report is wrong. How does the chain settle it?
+
+Not by running the work again. That happens off the chain: validators re-run the work,
+and each signs a vote, a [*judgement*](../glossary.md#judgement), saying valid or invalid.
+The signed votes are gathered into a verdict, and a block carries it.
+
+Your client is the court clerk. For each verdict it does three things:
+
+1. Check every signature against the right [*judges*](../glossary.md#judges).
+2. Count the votes that say valid. That count is the [*vote split*](../glossary.md#vote-split).
+3. File the result in the state, for good.
+
+Only three counts mean anything. Picture a batch of food and a team of inspectors.
+
+- **Good.** More than two thirds pass it. It ships, and the ones who cried poison get a
+  black mark.
+- **Bad.** As many find poison. It's binned, any of it already sold is recalled, and the
+  cooks who signed it off are fired.
+- **Wonky.** A real split. Binned and recalled all the same, because you don't serve food
+  you can't vouch for. Nobody is fired, because nobody is proven to have lied.
+
+[Lesson 4.4](../04-blocks/04-disputes.md) decoded disputes. This lesson builds the clerk:
+the signature check, the count and the record.
 
 ## What the Gray Paper says
 
@@ -136,17 +149,19 @@ $$
 
 :::
 
-In plain words, §10.2 says this, from the top.
+§10.2, from the top.
 
 **What a block carries.** The disputes extrinsic 𝐄_D is three lists: verdicts 𝐄_V (at
 most N_V = 16), culprits 𝐄_C and faults 𝐄_F (at most N_O = 16 each). A verdict is a
-report's hash r, an epoch index a, and its judgments 𝐣, each a vote v (⊤ valid or ⊥
-invalid), a validator index i and an Ed25519 signature s. Culprits and faults are the
+report's hash r, an epoch index a, and its judgments 𝐣. Each judgment is a vote v (⊤ valid
+or ⊥ invalid), a validator index i and an Ed25519 signature s. Culprits and faults are the
 [next lesson](./02-culprits-and-faults.md)'s.
 
-**Who votes.** A verdict's `age`, its *verdict age*, names an epoch: this one or the one
-before. Its *judges* are κ, the current validators, if the age is the current epoch, and
-λ, the previous ones, otherwise. That rule is K.
+**Who votes.** A verdict's `age`, its [*verdict age*](../glossary.md#verdict-age), names
+the epoch its votes were cast in. Only this epoch or the one before will do: in epoch 3,
+ages 3 and 2 are fine, age 1 isn't. The judges are κ, the current validators, if the age
+is the current epoch, and λ, the previous ones, otherwise. That rule is K. On tiny that is
+6 judges, so a verdict needs ⌊2·6/3⌋ + 1 = 5 votes.
 
 **What a vote signs.** Ed25519 ([lesson 5.3](../05-hashing-and-signatures/03-signatures.md)), over a prefix and the report's hash:
 `$jam_valid` for "this report is good", `$jam_invalid` for "it isn't". The `$` is
@@ -202,31 +217,36 @@ $$
 :::
 
 **What it decides.** A verdict never carries a vote from every judge: it carries exactly
-⌊2·|K|/3⌋ + 1 of them, a supermajority — 5 of tiny's 6 judges, 683 of full's 1,023.
-Count how many of those carried votes say "valid". That count, t, is the *vote split*,
-and only three splits mean anything:
+⌊2·|K|/3⌋ + 1 of them, a supermajority: 5 of tiny's 6 judges, 683 of full's 1,023.
+Count the carried votes that say "valid". That count, t, is the vote split, and only
+three splits mean anything (on tiny, 5, 0 or 2):
 
 | the votes saying "valid" | on tiny | on full | the report is |
 | --- | --- | --- | --- |
-| all of them: t = ⌊2·\|K\|/3⌋ + 1 | 5 of 5 | 683 of 683 | **good** — a supermajority swears it's right |
-| none: t = 0 | 0 of 5 | 0 of 683 | **bad** — the same supermajority, swearing it's wrong |
-| a third of the judges say "valid", the rest of the carried votes "invalid": t = ⌊\|K\|/3⌋ | 2 of 5 | 341 of 683 | **wonky** — a genuine split, nobody can tell |
+| all of them: t = ⌊2·\|K\|/3⌋ + 1 | 5 of 5 | 683 of 683 | **good**: a supermajority swears it's right |
+| none: t = 0 | 0 of 5 | 0 of 683 | **bad**: the same supermajority, swearing it's wrong |
+| a third of the judges say "valid", the rest of the carried votes "invalid": t = ⌊\|K\|/3⌋ | 2 of 5 | 341 of 683 | **wonky**: a genuine split, nobody can tell |
 | anything else | 1, 3 or 4 of 5 | any other count | no verdict at all: the block is refused, as [lesson 10.4](./04-bad-verdicts.md)'s `bad_vote_split` |
 
-And a middling split — 200 of the 683 swearing the report is bad? It never reaches this
-table. A judgement isn't an opinion: a judge votes after re-running the report's work on
-the same data (*auditing*, in the [glossary](../glossary.md) — your client never audits,
-it only checks verdicts), and that computation is deterministic, so honest judges all
-come out the same door. The verdict is the *proof* an accuser assembles from the signed
-judgements afterwards: to write **good** they must present ⌊2·|K|/3⌋ + 1 signatures
-saying "valid" — and *exactly* that many, never more: all 6 of 6 is refused too
-(`bad_votes_count`), because a sixth signature proves nothing five haven't already put
-beyond challenge, and a fixed count gives every verdict exactly one shape on the wire; to write **bad**, that many saying "invalid" — which is what the
-0-of-683 row is, every carried vote an "invalid" one; to write **wonky**, exactly a
-third saying "valid", evidence of a true split. If the signatures to complete one of
-those three patterns don't exist, no verdict can be written at all, and the chain
-records nothing — there are no tiers, only proven right, proven wrong, and a proven
-stalemate.
+What about a middling split, 200 of the 683 swearing the report is bad? It never reaches
+this table. A judgement isn't an opinion. A judge votes after re-running the report's work
+on the same data. (That is the work of an [*auditor*](../glossary.md#auditor). Your client
+never audits: it only checks verdicts.) The computation is deterministic, so honest judges
+all come out the same door.
+
+The verdict is the *proof* an accuser assembles from the signed judgements afterwards:
+
+- **Good:** ⌊2·|K|/3⌋ + 1 signatures saying "valid", and *exactly* that many. All 6 of 6
+  is refused too (`bad_votes_count`). A sixth signature proves nothing five haven't
+  already put beyond challenge, and a fixed count gives every verdict exactly one shape on
+  the wire.
+- **Bad:** that many saying "invalid". That is the 0-of-683 row: every carried vote is an
+  "invalid" one.
+- **Wonky:** exactly a third saying "valid", evidence of a true split.
+
+If the signatures to complete one of those three patterns don't exist, no verdict can be
+written at all, and the chain records nothing. There are no tiers: only proven right,
+proven wrong, and a proven stalemate.
 
 **What each one does next.** The Gray Paper calls the three splits "the decision
 thresholds for our three possible actions". On trial is one work-report, one core's work,
@@ -237,12 +257,6 @@ and the verdict decides three things about it:
 | **good** | stays on its core | kept | whoever signed "invalid" (faults) |
 | **bad** | taken off its core | abandoned | its guarantors (culprits), and whoever signed "valid" (faults) |
 | **wonky** | taken off its core | abandoned | nobody |
-
-Picture a batch of food and a team of inspectors. A supermajority pass it: it ships, and
-the ones who cried poison get a black mark. A supermajority find poison: it's binned, any
-of it already sold is recalled, and the cooks who signed it off are fired. A real split:
-binned and recalled all the same, because you don't serve food you can't vouch for, but
-nobody is fired, because nobody is proven to have lied. That third row is wonky.
 
 Why exactly ⌊|K|/3⌋ saying "valid"? Look at the other side: the rest of the carried votes,
 3 of tiny's 6 judges and 342 of full's 1,023, say "invalid". That's more than a third,
@@ -255,18 +269,18 @@ and two rules turn on that line:
   any chain that accumulated a report at least a third of the validators judge invalid.
   They build on an earlier block instead, one from before the report went in.
 
-So wonky is the proof that the report can't be accepted, without the proof that anyone
-lied. The Gray Paper doesn't say what causes an honest split. One likely cause is a bug:
-two clients computing the same work differently, each judge voting honestly on what their
-own client says. Fining a third of the network for a bug would be a disaster, so nobody is
-fined. Stopping such bugs before they reach a network is what the fuzzer is for, in
-[part 20](../20-facing-the-fuzzer/index.md).
+So wonky proves the report can't be accepted, without proving that anyone lied. The Gray
+Paper doesn't say what causes an honest split. One likely cause is a bug: two clients
+computing the same work differently, each judge voting honestly on what their own client
+says. Fining a third of the network for a bug would be a disaster, so nobody is fined.
+Stopping such bugs before they reach a network is what the fuzzer is for, in
+[Part 20](../20-facing-the-fuzzer/index.md).
 
-**Not a rejected block.** None of the three rejects the block that carries the verdict:
-that block is accepted, and its verdict is the evidence. What a bad or wonky verdict
-removes is the report and, if it was already accumulated, the earlier block that took it
-and every block built on that. A block is refused only when its verdict is malformed: the
-wrong number of votes, or a split that isn't in the table ([lesson 10.4](./04-bad-verdicts.md)).
+**Not a rejected block.** None of the three rejects the block that carries the verdict.
+That block is accepted, and its verdict is the evidence. A bad or wonky verdict removes
+the report and, if it was already accumulated, the earlier block that took it and every
+block built on that. A block is refused only when its verdict is malformed: the wrong
+number of votes, or a split that isn't in the table ([lesson 10.4](./04-bad-verdicts.md)).
 
 ::: gray-paper 10.1
 
@@ -355,13 +369,11 @@ $$
 bad and wonky, plus the offenders' keys ([next lesson](./02-culprits-and-faults.md)). Each verdict's report joins the
 set of its outcome. Sets in the state are kept sorted.
 
-Try it on tiny: six judges, and a verdict of five votes. It starts as the first test below
-does, all five saying valid, with judge 5 left out. Make the report bad, then wonky. Then
-try a split the table doesn't have, 3 valid out of 5: the chain refuses the whole block,
-as [lesson 10.4](./04-bad-verdicts.md) will make your client do. Full has 1,023 judges and 683 votes, so
-there you set the counts:
-
-<VerdictVotes />
+Try each split on [the verdict at the top](#try-it). It starts as the first test below
+does, all five saying valid, with judge 5 left out. Set 3 valid out of 5, a split the
+table doesn't have, and the chain refuses the whole block, as
+[lesson 10.4](./04-bad-verdicts.md) will make your client do. Full has 1,023 judges and
+683 votes, so there you set the counts.
 
 ## The tests
 
@@ -465,10 +477,10 @@ test("a forged vote is caught", () => {
 });
 ```
 
-`verdictWith` builds a fake verdict with blank signatures: plenty for testing the count.
+`verdictWith` builds a fake verdict with blank signatures: enough to test the count.
 The signatures get their own test, on tiny only. A full verdict has 683 votes, and
-checking the 7,500-odd votes of the full vectors it would cover would take your test run
-from about three seconds to about ten.
+checking the 7,500-odd votes of the full vectors would take your test run from about
+three seconds to about ten.
 
 ## The code
 
@@ -561,10 +573,9 @@ row by row:
   if (valid === 0) return "bad";
   return "wonky"; // ⌊judges / 3⌋ said "valid": no side won
 ```
-
 It takes the *judges'* number, not always V: a verdict from the previous epoch is counted
-against λ's size. `recordVerdicts` copies ψ with `{ ...before }`, then rebuilds each set, sorted.
-The sort compares hex strings, which sort in the same order as the bytes they spell.
+against λ's size. `recordVerdicts` copies ψ with `{ ...before }`, then rebuilds each set,
+sorted. The sort compares hex strings, which sort in the same order as the bytes they spell.
 
 **Run**
 
@@ -637,9 +648,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** Don't run it blind: one run has three faces — the vector
-JSON going in, the structures the code computes from it, and the lines the terminal
-prints. Here are all three for the vector's first verdict; tab across them:
+**What flows through it**, for the vector's first verdict:
 
 ::: code-group
 
@@ -674,12 +683,17 @@ report 0x11da6d1f…: 5 of 5 say valid, judged by κ
 
 :::
 
-Read the input left to right: `target` is the accused report's hash — the first word of
-the output. `age` 0 with `pre_state.tau` at 0 is the same epoch, so the judges are κ.
-Each of the 5 votes is one judge's judgement: `vote`, true for "valid"; `index`, which
-judge cast it — 0 to 4, judge 5 is the one left out; `signature`, that judge's Ed25519
-over the prefix and the target, what `votesSigned` checks. The vector's second verdict
-is the same shape with every `vote` false: the 0-of-5 the output tab calls bad.
+`target` is the accused report's hash, the first word of the output. `age` 0 with
+`pre_state.tau` at 0 is the same epoch, so the judges are κ. Each of the 5 votes is one
+judge's judgement:
+
+- `vote`: true for "valid".
+- `index`: which judge cast it. Here 0 to 4: judge 5 is the one left out.
+- `signature`: that judge's Ed25519 signature over the prefix and the target, which
+  `votesSigned` checks.
+
+The vector's second verdict has the same shape with every `vote` false: the 0-of-5 the
+output calls bad.
 
 **Run**
 
@@ -697,12 +711,15 @@ report 0x7b0aa173…: 0 of 5 say valid, judged by κ
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=verdicts-1791731881564
 ```
 
-Two trials in one block: one report cleared, one condemned. Now try
-`progress_with_bad_signatures-1.json`: `every vote signed by its judge: false`, a forged
-vote. Then `progress_with_verdict_signatures_from_previous_set-1.json`, judged by λ. And
-that report's hash, `0x0e5751c0…`, should ring a bell: it's the Blake2b of no bytes at
-all, from [lesson 5.1](../05-hashing-and-signatures/01-hashes.md). Test vectors need report hashes from somewhere! The *Verdicts*
-panel, on the **4 · Checks** dashboard (where [Part 10](./index.md)'s panels are), has every trial.
+Two trials in one block: one report cleared, one condemned. Now try two more:
+
+- `progress_with_bad_signatures-1.json` prints `every vote signed by its judge: false`: a
+  forged vote.
+- `progress_with_verdict_signatures_from_previous_set-1.json` is judged by λ. Its report's
+  hash, `0x0e5751c0…`, should ring a bell: it's the Blake2b of no bytes at all, from
+  [lesson 5.1](../05-hashing-and-signatures/01-hashes.md). Test vectors need report hashes from somewhere!
+
+The *Verdicts* panel, on the **4 · Checks** dashboard (where [Part 10](./index.md)'s panels are), has every trial.
 
 ![Verdicts panel](./images/01-verdicts.png)
 
@@ -729,25 +746,41 @@ part of a rule the vectors never exercise is a part you have to read the Gray Pa
 ## Check your understanding
 
 ::: check
-**On tiny, 6 judges. A verdict's 5 votes include 2 that say valid. What is the report?**
+**A work-report is challenged. Who decides whether its work was right, and where?**
 
-- [ ] Bad, since most votes say invalid
-  > No: bad needs zero valid votes. A majority against isn't enough.
-- [x] Wonky
-  > Yes: 2 is ⌊6/3⌋, a third of the judges, the wonky row. Nobody can tell.
-- [ ] Refused: 2 isn't a split the table has
-  > No: 2 is exactly the wonky split. 3 valid would be refused.
+- [ ] Every validator, on the chain: each re-runs the report's work when the block arrives
+  > No: the chain never re-runs the work. On the chain, every validator checks the
+  > signatures and counts the votes, and that is all your client does.
+- [x] The judges, off the chain: each re-runs the work and signs a vote, and a block carries the signed votes
+  > Yes: the judging is done before the block exists. The verdict is the proof of how it
+  > went, and every validator checks that proof.
+- [ ] The author of the block that carries the verdict
+  > No: the author only carries signed votes. Without the signatures of two thirds of the
+  > judges plus one, there is no verdict to carry.
+
+**Why does a verdict carry exactly two thirds of the judges plus one, never a vote more?**
+
+- [x] That many signatures already put it beyond challenge, and a fixed count gives every verdict one shape
+  > Yes: one more signature proves nothing the others haven't. One more or one fewer, and
+  > the block is refused.
+- [ ] The judges left out didn't vote
+  > No: a judge left out may well have voted. The verdict carries the votes that prove
+  > it, not every vote cast.
+- [ ] It is only the least a verdict needs: any count above it is accepted too
+  > No: the count is exact. A verdict with a vote from every judge is refused, as one
+  > with too few is.
 
 **A report is judged wonky. What happens to it, and who is punished?**
 
 - [ ] It stays on its core, since nobody proved it wrong
-  > No: 3 of the 6 judges said invalid, more than a third, so it can never be proven good.
-- [x] It's taken off its core, any chain that accumulated it is dropped, and nobody is punished
-  > Yes: treated as bad for the chain's sake, but nobody is proven to have lied.
+  > No: more than a third of the judges said invalid, so it can never be proven good.
 - [ ] It's taken off its core, and its guarantors are punished
   > No: culprits need a bad verdict. A wonky one punishes nobody.
+- [x] It's taken off its core, any chain that accumulated it is dropped, and nobody is punished
+  > Yes: treated as bad for the chain's sake, but nobody is proven to have lied. An honest
+  > split may be a bug, and a bug shouldn't fine a third of the network.
 
-**A block carries a wonky verdict. Is that block refused?**
+**A block carries a bad verdict. Is that block refused?**
 
 - [ ] Yes: anything short of a good verdict rejects the block
   > No: the verdict is evidence, and evidence of the right shape is accepted.
@@ -758,33 +791,13 @@ part of a rule the vectors never exercise is a part you have to read the Gray Pa
   > No: the block carrying the verdict is fine either way. An *earlier* block that
   > accumulated the report is the one dropped.
 
-**On full, why does a good verdict need exactly 683 valid votes?**
-
-- [x] It's ⌊2 · 1,023/3⌋ + 1 = 682 + 1: more than two thirds of the 1,023 judges
-  > Yes: two thirds plus one. And since a verdict carries exactly that many votes, good
-  > means every vote in it says valid.
-- [ ] It's two thirds of 1,023, rounded up
-  > No: two thirds of 1,023 is exactly 682. 683 is one more.
-- [ ] Every one of the 1,023 validators must say valid
-  > No: a verdict carries only 683 votes, not 1,023.
-
-**A verdict's age is the epoch before this one. Whose keys check its votes, and how many judges count?**
-
-- [ ] κ's, since κ is the validator set now
-  > No: K picks κ only when the age is this epoch. Otherwise it's λ.
-- [ ] λ's keys, but the count is always against V
-  > No: the count is against |K|, the judges' own number. The validator set can change
-  > size between epochs.
-- [x] λ's keys, and the count is against λ's size
-  > Yes: the judges are λ, so two thirds plus one of λ, and λ's keys sign the votes.
-
 **Why does a vote sign `jam_valid` or `jam_invalid` before the report's hash, not the hash alone?**
 
-- [ ] A longer message makes the signature harder to forge
-  > No: an Ed25519 signature is 64 bytes, and as strong, whatever it signs.
 - [x] So a "valid" signature can't be passed off as an "invalid" one
   > Yes: the prefix is part of the message. Same judge, same report, but the two votes
   > sign different bytes.
+- [ ] A longer message makes the signature harder to forge
+  > No: an Ed25519 signature is 64 bytes, and as strong, whatever it signs.
 - [ ] To say which epoch the vote was cast in
   > No: the epoch is the verdict's age, a separate field. The prefix says only which way
   > the vote went.

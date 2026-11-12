@@ -195,7 +195,7 @@ test("Part 9's belt and history are its lessons'", () => {
 });
 
 test("Part 10's vote splits, rules and vectors are its lessons'", () => {
-  assert.ok(textOf("10.1").includes("*Example:* on tiny, 5, 0 or 2."));
+  assert.ok(textOf("10.1").includes("three splits mean anything (on tiny, 5, 0 or 2)"));
   assert.equal(card(10, "count").example, `tiny, 6 judges: ${needed(6)}, 0 or ${6 / 3} valid votes`);
   assert.ok(textOf("10.4").includes("seven rules"));
   assert.ok(textOf("10.5").includes("all 60 passing whole"));
