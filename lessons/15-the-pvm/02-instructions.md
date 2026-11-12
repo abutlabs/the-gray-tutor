@@ -1,9 +1,32 @@
 # Instructions
 
-[Lesson 15.1](./01-the-program-blob.md) found 39,849 instructions in a real service's code, as opcode numbers.
-Now your client *reads* each one: its name and its arguments, which registers it uses,
-which numbers it carries, where it jumps. That's a disassembler, and by the end you're
-reading real JAM service code the way a computer does.
+**In one sentence:** an instruction is one opcode byte and then its arguments, laid out in
+one of 13 ways, and it ends where the bitmask says the next one begins.
+
+Here are nine bytes of code. Tap a byte to see its instruction read, piece by piece. Then
+change a byte and watch a number change its sign, or a jump miss.
+
+<a id="try-it"></a>
+
+<DecodeInstruction />
+
+## The idea
+
+[Lesson 15.1](./01-the-program-blob.md) found 39,849 instructions in a real service's
+code, as opcode numbers. A number is not much to go on. What does the instruction work on?
+Where does it end?
+
+Think of a paper form. The opcode says which form you hold, and the form says which boxes
+follow: which of the machine's 13 registers to use, a number to carry, a place to jump.
+The PVM has 139 instructions and only 13 forms. So reading one is two steps: look up the
+opcode's form, then fill its boxes from the bytes that follow.
+
+The trick is the length. No instruction says how long it is. It ends where the bitmask
+says the next one starts, and the bytes left over are its number. A small number takes one
+byte, a big one four. No byte at all means zero.
+
+A program that reads code back this way is a disassembler. This lesson builds one, and by
+the end you read real JAM service code the way the machine does.
 
 ## What the Gray Paper says
 
@@ -71,7 +94,7 @@ $$
 
 :::
 
-In plain words: **skip(ı)** is the distance from an opcode to the next one, minus one,
+**skip(ı)** is the distance from an opcode to the next one, minus one,
 never over 24. An instruction ends where the next begins, and the bitmask k of [lesson
 15.1](./01-the-program-blob.md) is how you find the next. ζ is the code with zeros added
 forever after it, so reading past the end never fails: it reads 0, which is `trap`.
@@ -170,16 +193,16 @@ $$
 
 :::
 
-In plain words: a register holds 64 bits, and the same bits can be read two ways. Z_n
+A register holds 64 bits, and the same bits can be read two ways. Z_n
 reads n bytes as a *signed* number (0xff is −1), and Z_n⁻¹ turns it back. X_n stretches an
 n-byte immediate to 64 bits, copying its top bit into all the bytes above: 0xff becomes
 2^64 − 1, which is −1 read signed. (B_n and its reverse list a number's bits, lowest or
 highest first; [lesson 15.7](./07-bits-and-bytes.md) counts with them.)
 
-And A.5, where the tables start, says how long the arguments are, ℓ, then opens each table
-with its **layout**, the one line that says where each register and number sits. The
-tables themselves come in the lessons that run their instructions; here are the twelve
-layouts:
+A.5, where the tables start, says how long the arguments are, ℓ. Then it opens each table
+with its **layout**: the one line that says where each register and number sits. This is
+the form of the idea above. The tables themselves come in the lessons that run their
+instructions. Here are the twelve layouts:
 
 ::: gray-paper A.5
 
@@ -508,7 +531,7 @@ $$
 
 :::
 
-In plain words: 139 instructions, in 13 groups (A.5.1 has no arguments, so no layout).
+That makes 139 instructions, in 13 groups (A.5.1 has no arguments, so no layout).
 Each group shares one **layout**, the way its arguments sit in the bytes after the opcode:
 
 | Layout | Opcodes | Arguments |
@@ -543,7 +566,9 @@ The rules for reading them, in brief:
   back is a negative number.
 - `load_imm_64` is the one exception: its 8 bytes are read as they are, nothing to extend.
 
-<DecodeInstruction />
+Try the rules on [the nine bytes at the top](#try-it). Change `load_imm`'s byte from
+`0xff` to `0x7f`: its top bit is clear now, so the number is 127, not −1. Change the
+jump's offset from `0xfd` to `0xfe`: the jump lands on byte 4, in the middle of `add_64`.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Numbers inside instructions** and read the bytes at the end of each line in the Code panel. `load_imm r10, 0` has no bytes for its number at all: a missing byte reads as zero.
 
@@ -603,10 +628,11 @@ test("the bootstrap service: 39,849 instructions, all known, every jump on targe
 });
 ```
 
-The second test is a three-instruction program you could write on a napkin. The third
-walks the whole real program by `next`, decoding every instruction, and checks every
-jump and branch: 4,767 of them, each landing exactly on the start of an instruction.
-Get the sign of an offset wrong, or its length, and they'd land in the middle of one.
+The second test is a three-instruction program you could write on a napkin: the one
+[at the top](#try-it). The third walks the whole real program by `next`, decoding every
+instruction, and checks every jump and branch: 4,767 of them, each landing exactly on the
+start of an instruction. Get an offset's sign wrong, or its length, and they'd land in the
+middle of one.
 
 ## The code
 
@@ -842,9 +868,8 @@ export function decodeInstruction(program: Program, i: number): Instruction {
 
 `decodeInstruction` is one big `switch` over the layouts, each case a line of the Gray
 Paper. `low` and `high` are the two register halves of byte ı + 1. `imm` reads and
-sign-extends, `offset` reads, makes signed and adds ı. Reading past the end of the code
-gives zeros (`?? 0`), just like the Gray Paper's ζ, which pads the code with zeros
-forever.
+sign-extends. `offset` reads, makes signed and adds ı. Reading past the end of the code
+gives zeros (`?? 0`), like the Gray Paper's ζ.
 
 **Run**
 
@@ -921,8 +946,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The raw code bytes going in, the
-instruction decoded from them, and the lines printed:
+What flows through it:
 
 ::: code-group
 
@@ -1040,15 +1064,15 @@ runs, where yours works out the target straight away.
   > Yes: so skip(0) is 2, one byte for the register and one left for the immediate. An
   > instruction ends where the next begins.
 
-**`add_64` names three registers. Which one does it write?**
+**A program's last instruction is cut short: its bytes would run past the end of the code. What does the machine read there?**
 
-- [ ] The first one named
-  > No: the first two are the inputs.
-- [x] The third: the first two are added, and the sum goes into the third
-  > Yes: two registers share one byte, four bits each, as the inputs; the next byte names
-  > the register written.
-- [ ] Whichever is lowest numbered
-  > No: the order the registers are named in decides, not their numbers.
+- [ ] Nothing: the read fails, and the program is refused before it runs
+  > No: no read ever fails. The code counts as followed by zeros forever, so every read
+  > has an answer.
+- [ ] The code again from byte 0: reads wrap round
+  > No: past the end there are only zeros, not the start of the code.
+- [x] Zeros: the code counts as followed by zeros forever, and opcode 0 is `trap`
+  > Yes: that is the Gray Paper's ζ. A program that runs off its own end meets a `trap`.
 :::
 
 ## What you have
@@ -1056,7 +1080,5 @@ runs, where yours works out the target straight away.
 A disassembler: any JAM service's code, read instruction by instruction, every
 argument decoded and every jump checked against the real thing. Reading a program isn't
 running it: [lesson 15.3](./03-the-machine.md) builds the machine that steps through one.
-
-**Say it out loud.** 139 instructions in 13 layouts. An instruction's length isn't written anywhere: the bitmask says where the next one starts.
 
 Next: [15.3 The machine](./03-the-machine.md)

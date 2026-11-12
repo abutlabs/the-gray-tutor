@@ -233,7 +233,7 @@ test("Part 14's preimages are 14.1's", () => {
 test("Part 15's machine is its lessons'", () => {
   const index = readFileSync(join(LESSONS, "15-the-pvm", "index.md"), "utf8").replace(/\s+/g, " ");
   assert.ok(index.includes(`${PVM.instructions} instructions`), "the PVM's instructions");
-  assert.ok(textOf("15.3").includes(`One of the PVM's ${PVM.registers} little 64-bit boxes for numbers, named r0 to r12.`));
+  assert.ok(textOf("15.3").includes(`the PVM has ${PVM.registers} [*registers*](../glossary.md#register), each a box that holds one 64-bit number`));
   assert.ok(textOf("15.4").includes(`pages of ${PVM.page.toLocaleString("en-US")}`));
   assert.ok(lessonCode("15.5").includes(`${PVM.arithmetic} of them`));
 });

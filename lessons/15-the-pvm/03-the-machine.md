@@ -1,21 +1,35 @@
 # The machine
 
-Time to switch it on. Lessons [15.1](./01-the-program-blob.md) and [15.2](./02-instructions.md) read a program; this one *runs* one. The PVM
-is a small, very strict computer: thirteen 64-bit registers, an instruction counter,
-and a rulebook for each instruction. This lesson builds the machine and teaches it its
-first seventeen instructions, enough to run a loop. Memory comes [next lesson](./04-memory.md), and gas
-at the end of the part ([lessons 15.9](./09-what-instructions-cost.md) to 15.11).
+**In one sentence:** the PVM is thirteen boxes for numbers and a finger on the program,
+and it runs one instruction at a time until the program finishes or crashes.
 
-## New words
+Here are three tiny programs. Press **step** and watch the counter move and a register
+light up. One program finishes well and two crash: find the instruction that does it.
 
-- **Register.** One of the PVM's 13 little 64-bit boxes for numbers, named r0 to r12.
-  Instructions work on registers. *Example:* `add_64` adds two registers into a third.
-- **Basic block.** A run of instructions with one way in, its first instruction, and one
-  way out, a jump or branch (or a stop) at its end. *Example:* a loop's body.
-- **Halt and panic.** The ways a program stops on its own: halt is finishing on purpose,
-  panic is a crash. *Example:* jumping to an address that starts no basic block panics.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<PvmStepper />
+
+## The idea
+
+Lessons [15.1](./01-the-program-blob.md) and [15.2](./02-instructions.md) read a program.
+This one runs it. What does a computer need, to run a list of instructions?
+
+Very little. It needs somewhere to keep the numbers it is working on: the PVM has
+13 [*registers*](../glossary.md#register), each a box that holds one 64-bit number. And it
+needs to know where it is in the program: one counter, like a finger on a recipe. To take
+a step, do the instruction under the finger, then move the finger to the next one. That is
+the whole machine.
+
+A jump moves the finger somewhere else, and here the machine is strict. The code is cut
+into [*basic blocks*](../glossary.md#basic-block): runs of instructions with one way in,
+at the top, and one way out, at the bottom. A jump may land only on the top of a block.
+Anywhere else, and the machine [*panics*](../glossary.md#panic): a crash. A program that
+finishes on purpose [*halts*](../glossary.md#halt), by jumping to one special address.
+
+This lesson builds the machine and its first seventeen instructions, enough to run a
+loop. Memory comes [next lesson](./04-memory.md), and gas at the end of the Part
+(lessons [15.9](./09-what-instructions-cost.md) to [15.11](./11-the-gas-meter.md)).
 
 ## What the Gray Paper says
 
@@ -134,14 +148,12 @@ $$
 
 :::
 
-In plain words:
-
-**The state**: ı, the instruction counter, and φ, thirteen *registers* of 64 bits each. (A
+**The state**: ı, the instruction counter (the finger), and φ, thirteen *registers* of 64 bits each. (A
 curly phi: the straight ϕ of [lesson 6.2](../06-state-and-merklization/02-state-keys.md) is the authorizer queue. Memory comes in [lesson 15.4](./04-memory.md),
 the gas counter and its flag in [lesson 15.11](./11-the-gas-meter.md).)
 
-Why thirteen? A Gray Paper footnote says it: RISC-V has 16, but compiled code uses 13, since
-two are reserved for the operating system and one is fixed at zero. To the machine they're
+Why thirteen? A Gray Paper footnote says it: RISC-V has 16, but compiled code uses 13.
+Two are reserved for the operating system and one is fixed at zero. To the machine they're
 all alike. Only a program's start ([lesson 15.8](./08-a-real-program.md)) and the host calls ([Part 16](../16-host-calls/index.md)) give some of
 them a job: r0 the way back, r1 the stack, r7 and up the arguments.
 
@@ -222,7 +234,7 @@ $$
 
 :::
 
-In plain words, a *basic block* starts at 0, and right after every *terminator*:
+A *basic block* starts at 0, and right after every *terminator*:
 `trap`, `fallthrough`, jumps and branches. Apart from `trap` and `fallthrough`, these are
 the instructions that can send ı somewhere other than the next instruction. ϖ is the set
 of block starts, and 𝔏(ı) the start of the block ı is in ([lesson
@@ -269,7 +281,7 @@ $$
 
 :::
 
-In plain words, **one step, Ψ₁**: run the instruction at ı. Unless it says otherwise, an
+**One step, Ψ₁**: run the instruction at ı. Unless it says otherwise, an
 instruction moves ı on to the next one, ı + 1 + skip(ı), changes no register or memory,
 and the step ends with ε = ▸, carry on. A step can also end with *halt* (finished well)
 or *panic* (finished badly).
@@ -364,7 +376,7 @@ $$
 
 :::
 
-In plain words, the rule that matters: **a jump or branch may only land at the start of a
+The rule that matters: **a jump or branch may only land at the start of a
 basic block**, or the machine panics. A branch checks *both* places it might go, its
 target and the next instruction, whether it's taken or not.
 
@@ -420,14 +432,12 @@ This lesson's instructions, from the tables: `trap` (panic), `fallthrough`, `jum
 `and`, `or`, `xor`, `branch_eq`, `branch_ne`, `branch_eq_imm` and `branch_ne_imm`.
 Arithmetic wraps around at 2^64.
 
-Below, step three tiny programs from this lesson's tests. The loop adds 10 + 9 + … + 1
-into r2: watch ı move on by 1 + skip(ı), the register each instruction writes light up,
-and ε stay ▸ until the return halts the machine. The loop without its `fallthrough`, and
-a jump into the middle, both panic. Find the instruction that does it, and why. Each line's
-first number is its opcode in decimal, as the Gray Paper's table numbers it (51 is
-`load_imm`); the bytes after it are hex, as in the code below.
-
-<PvmStepper />
+Now step the three programs [at the top](#try-it) again. They are this lesson's tests.
+The loop adds 10 + 9 + … + 1 into r2: ı moves on by 1 + skip(ı), and ε stays ▸ until the
+return halts the machine. The loop without its `fallthrough`, and a jump into the middle,
+both panic: each lands where no basic block starts. Each line's first number is its opcode
+in decimal, as the Gray Paper's table numbers it (51 is `load_imm`). The bytes after it
+are hex, as in the code below.
 
 **Try it in the [playground](../pvm-playground.md).** Press **A branch and a loop**, then **Step** until the loop comes round. Then open **Edit this program**, delete the `fallthrough` line, press **Assemble and reset**, and press **Run**: the branch panics.
 
@@ -481,9 +491,9 @@ test("trap panics; jump_ind to anything else than the halt address, without a ta
 });
 ```
 
-The `SUM` program is seven instructions you can read from the comments, and [lesson
+`SUM` is seven instructions you can read from the comments, and [lesson
 15.2](./02-instructions.md)'s layouts tell you each byte. `0x32` packs two registers, r2 and r3. `0xff` is −1,
-sign-extended. `0xfa` is −6, the jump back. Look at the `fallthrough` at 5: it does
+sign-extended. `0xfa` is −6, the jump back. Look at the `fallthrough` at 5. It does
 nothing but end a basic block, so that 6, where the loop starts, *begins* one. Without
 it the branch back to 6 would panic.
 
@@ -649,16 +659,19 @@ export function run(m: Machine): Exit {
 }
 ```
 
-The machine is a plain object that `step` *changes*. Most of your client works on values
-it doesn't change, but a machine is exactly something that changes as it runs (like
-[lesson 2.3](../02-codec/03-writer-and-reader.md)'s `Writer` and `Reader`, which move along as they go). `step` decodes
-the instruction ([lesson 15.2](./02-instructions.md)), moves ı on, and then offers it to each *family* of
-instructions in turn. This lesson has one family, `basics`; later lessons add more to
-`FAMILIES` without touching `step`. Inside a family, each instruction can override the
-move: a jump sets ı itself, a halt or panic stops. Each register's meaning depends on
-the layout, as [lesson 15.2](./02-instructions.md)'s comments said: `add_64` writes its *third* register, and
-`add_imm_64` its *first*. Instructions not built yet throw an `Error`, which is your
-bug, not the program's: a panic is the program's fault, a thrown `Error` is yours.
+Four things to notice:
+
+- **The machine is a plain object that `step` changes.** Most of your client works on
+  values it doesn't change, but a machine is exactly a thing that changes as it runs, like
+  the `Writer` and `Reader` of [lesson 2.3](../02-codec/03-writer-and-reader.md).
+- **`step`** decodes the instruction ([lesson 15.2](./02-instructions.md)), moves ı on, and
+  offers it to each *family* of instructions in turn. This lesson has one family,
+  `basics`. Later lessons add more to `FAMILIES` without touching `step`. Inside a family,
+  an instruction can override the move: a jump sets ı itself, a halt or panic stops.
+- **The layout says which register is written**, as [lesson 15.2](./02-instructions.md)'s
+  comments said: `add_64` writes its *third* register, `add_imm_64` its *first*.
+- **An instruction not built yet throws an `Error`.** A panic is the program's fault. A
+  thrown `Error` is yours.
 
 > [!NOTE]
 > **The simple road.** `step` moves ı on *before* running the instruction, so a jump that
@@ -739,8 +752,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The program going in (no file this
-time: it's written in the bin itself), the machine mid-loop, and the lines printed:
+What flows through it (no file goes in this time: the program is written in the bin
+itself):
 
 ::: code-group
 
@@ -840,17 +853,25 @@ read. `logand … 0xFFFFFFFFL` is the `mod 2^32`.
   > No: the branch can't go back even once. It's checked, and fails, the first time it
   > runs.
 
-**`add_imm_64 r3 = r3 + (−1)` adds the immediate 2^64 − 1 to 10. Why does r3 become 9?**
+**A sum is too big for a 64-bit register. What does the PVM do?**
 
-- [x] Registers hold 64 bits, so 10 + 2^64 − 1 wraps round to 9
-  > Yes: the sum is 2^64 + 9, and only the 64 bits below 2^64 are kept. Adding all ones
-  > takes 1 away.
-- [ ] The PVM spots the minus sign and subtracts instead
-  > No: `add_imm_64` only ever adds. The wrap-around at 2^64 is what makes the add work
-  > out as taking 1 away.
-- [ ] The sum overflowed, and the PVM put the old value back, less one
-  > No: overflow is never an error on the PVM, and nothing is put back. Arithmetic simply
-  > wraps around at 2^64.
+- [ ] It panics: overflow is a crash
+  > No: overflow is never an error on the PVM. A panic is for a `trap` or a bad jump.
+- [ ] It keeps the biggest number a register can hold
+  > No: nothing is capped. The sum wraps around.
+- [x] It keeps the low 64 bits: arithmetic wraps around at 2^64
+  > Yes: that is how adding 2^64 − 1, all ones, takes 1 away. `SUM` counts r3 down from 10
+  > that way, with `add_imm_64` and −1.
+
+**The machine stops for a page fault or a host call, and ı stays on the instruction that stopped it. Why?**
+
+- [ ] So the program can be run again from its start
+  > No: a restart would want ı at the beginning. It stays where the stop happened.
+- [x] So whoever runs the machine can fix things and carry on from that instruction
+  > Yes: these stops are not the end of the run. After a halt or a panic there is nothing
+  > to carry on, and ı comes back as 0.
+- [ ] To tell the service where its program crashed
+  > No: these are not crashes. A crash is a panic, and then ı comes back as 0.
 
 **Why does `SUM` stop with halt when it jumps through r0?**
 
@@ -879,7 +900,5 @@ read. `logand … 0xFFFFFFFFL` is the `mod 2^32`.
 A running PVM: registers, an instruction counter, seventeen instructions, basic blocks,
 and the two ways a program ends. Everything so far lives in registers, and a real
 program needs more room than 13 numbers: [lesson 15.4](./04-memory.md) gives the machine memory.
-
-**Say it out loud.** The PVM is 13 registers and a counter, running one instruction at a time. Jumps may only land on the start of a basic block, and a program ends by jumping to the halt address.
 
 Next: [15.4 Memory](./04-memory.md)

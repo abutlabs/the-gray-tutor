@@ -51,8 +51,10 @@ test("editing the immediate to 7f gives 127; an offset of fe lands at 4, mid-ins
   assert.deepEqual([jump.offset!.signed, jump.offset!.target, jump.offset!.lands], [-2n, 4, false]);
 });
 
-test("lesson 15.2 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.2 places the widget once, at the top, and the reading rules send the reader back to it", () => {
   const at = raw.indexOf("<DecodeInstruction />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<DecodeInstruction />"), "placed once");
-  assert.ok(at > raw.indexOf("so a jump\n  back is a negative number.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("so a jump\n  back is a negative number."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

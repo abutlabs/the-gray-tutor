@@ -1,25 +1,39 @@
 # The program blob
 
-[Part 15](./index.md) is the *PVM*, the Polkadot Virtual Machine: the little computer inside every
-JAM node that runs services' code, and authorizers' too. It runs in two places: in-core, on
-three guarantors, for an authorizer and for refine; and on the chain, on every validator,
-for accumulate. Your client only ever does the second, but it's the same machine. First it
-has to *unpack* the code. A service's code arrives
-as one long preimage ([lesson 14.1](../14-services/01-providing-preimages.md)); inside, like nesting dolls, are a label, a memory
-layout, and the program the PVM steps through. This lesson opens the dolls on a real
-service's real code.
+**In one sentence:** a service's code arrives as one long run of bytes, packed in layers
+like nesting dolls: a label, a memory layout, and the program itself, with a map that says
+where each instruction starts.
 
-## New words
+Here is a whole program in eight bytes. Tap a byte to see which part it belongs to, then
+flip a bit of the last one and watch the jump miss.
 
-- **PVM.** The Polkadot Virtual Machine: a small, made-up computer, based on RISC-V, that
-  runs every service's code exactly the same way on every validator. *Example:* a
-  service's accumulate code, run in every block that has work for it.
-- **Instruction and opcode.** An instruction is one small step (add, load, jump...); its
-  opcode is the number that says which. *Example:* opcode 200 is `add_64`.
-- **Program blob.** A service's code as bytes: the instructions, a bitmask saying where
-  each starts, and a jump table. *Example:* the 149,274-byte blob inside service 0's code.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<BlobLayers />
+
+## The idea
+
+[Part 15](./index.md) builds the [*PVM*](../glossary.md#pvm), the Polkadot Virtual Machine:
+the small computer inside every JAM node that runs services' code, and authorizers' too.
+It runs in two places. In-core, three guarantors run it for an authorizer and for refine.
+On the chain, every validator runs it for accumulate. Your client only ever does the
+second, but it is the same machine.
+
+Before it can run anything, the machine has to find the program. A service's code arrives
+as one long preimage ([lesson 14.1](../14-services/01-providing-preimages.md)), and the
+program is the smallest of a set of nesting dolls.
+
+1. The outer doll is a label, for people: a name, a version, a licence.
+2. Inside it is a memory layout: the data the program starts with, and the room it asks for.
+3. Inside that is the [*program blob*](../glossary.md#program-blob): the
+   [*instructions*](../glossary.md#instruction), one small step each (add, load, jump),
+   each opening with its [*opcode*](../glossary.md#opcode), the number that says which step.
+
+One problem is left. Instructions are not all the same length, so a byte in the middle of
+one can pass for the start of another. The blob settles it with a map: one bit for every
+byte of code, set where an instruction starts.
+
+This lesson opens the dolls on a real service's real code.
 
 ## What the Gray Paper says
 
@@ -111,8 +125,8 @@ $$
 
 :::
 
-In plain words, the first line of (A.42) is the layout, and the function Y (App. A.7)
-unpacks it: c holds what the program's memory starts with. Four sizes,
+The first line of (A.42) is the memory layout, the middle doll, and the function Y
+(App. A.7) unpacks it: c holds what the program's memory starts with. Four sizes,
 ℰ₃(|o|) ⌢ ℰ₃(|w|) ⌢ ℰ₂(z) ⌢ ℰ₃(s), then the data they size:
 
 - o, **read-only data** the program may read;
@@ -138,7 +152,7 @@ them out.
 
 :::
 
-In plain words, the blob is ℰ(|j|) ⌢ ℰ₁(z) ⌢ ℰ(|c|), then the three parts the paper names
+The blob, the smallest doll, is ℰ(|j|) ⌢ ℰ₁(z) ⌢ ℰ(|c|), then the three parts the paper names
 (the function that cuts them apart, deblob, is [(A.2)](./03-the-machine.md#eq-A-2),
 quoted in [lesson 15.3](./03-the-machine.md) beside the machine it serves):
 
@@ -149,14 +163,16 @@ quoted in [lesson 15.3](./03-the-machine.md) beside the machine it serves):
   opcode from an argument. Bits are packed least significant first, like [lesson 11.1](../11-assurances/01-available.md)'s
   bitfields.
 
-<BlobLayers />
+[The eight bytes at the top](#try-it) are such a blob: one jump target, byte 2, three
+bytes of code, and a bitmask that marks bytes 0 and 2. Flip bit 2 of the bitmask and the
+jump lands mid-instruction. Under them, the real service's layers are drawn to scale.
 
 **Try it in the [playground](../pvm-playground.md).** Press **A real service: bootstrap's accumulate**. The Code panel lists this lesson's 39,849 instructions, and the Memory panel shows the read-only data unpacked into pages.
 
 ## The tests
 
-The tests need the trace's service code, and later lessons will too, so a helper finds
-it, next to the other vector readers:
+The tests need the trace's service code, and so will later lessons. A helper finds it,
+next to the other vector readers:
 
 **Add to** `test/vectors.ts`
 
@@ -229,10 +245,10 @@ The first test builds a blob by hand, eight bytes you can read:
 05         k: 0000 0101, bits 0 and 2 set: bytes 0 and 2 start an instruction
 ```
 
-One jump to byte 2, three bytes of code, and a bitmask that marks bytes 0 and 2 as
-instructions. The others unpack the code of the trace's service 0, the 159,322-byte
-preimage from [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md), and check that every layer fits *exactly*: no bytes left over
-at the end of the preimage, every jump landing on an instruction.
+They are the blob [at the top](#try-it). The other tests unpack the code of the trace's
+service 0, the 159,322-byte preimage from [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md), and check that every layer fits
+*exactly*: no bytes left over at the end of the preimage, every jump landing on an
+instruction.
 
 ## The code
 
@@ -291,7 +307,7 @@ export function startsInstruction(program: Program, i: number): boolean {
 }
 ```
 
-The PVM gets a folder of its own, `src/pvm/`, since several files are coming. All of
+The PVM gets a folder of its own, `src/pvm/`: several files are coming. All of
 this is [lesson 2.3](../02-codec/03-writer-and-reader.md)'s `Reader`: `fixed(3)` for ℰ₃, `natural()` for ℰ, `bytes(n)` for the
 data. `startsInstruction` reuses [lesson 11.1](../11-assurances/01-available.md)'s `bitAt`: the same packing, so the same
 function.
@@ -382,8 +398,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The state entry holding the code, the
-layers the program peels from it, and the lines it prints:
+What flows through it:
 
 ::: code-group
 
@@ -419,8 +434,8 @@ the code preimage: 159322 bytes
 :::
 
 The value opens with the metadata's length, 80, and a few bytes later comes
-`jam-bootstrap-service` in ASCII. Everything the output lists is sliced from that one state
-entry, layer by layer, down to the bitmask that says where instructions start.
+`jam-bootstrap-service` in ASCII. Every line of the output is sliced from that one state
+entry, layer by layer, down to the bitmask.
 
 **Run**
 
@@ -502,16 +517,26 @@ above); your `deblob` shows the shape.
   > Yes: an argument byte can hold any value, opcode numbers included. Only the bitmask
   > says which bytes start an instruction.
 
-**The bootstrap service has 128,413 bytes of code, 39,849 instructions, and a 16,052-byte bitmask. Where does 16,052 come from?**
+**Who runs a service's code, and where?**
 
-- [x] One bit per byte of code: 128,413 ÷ 8, rounded up
-  > Yes: 128,413 ÷ 8 is 16,051.6, and the last, part-filled byte makes 16,052.
-- [ ] One bit per instruction
-  > No: that would be 39,849 ÷ 8, about 4,982 bytes. Every byte of code gets a bit,
-  > whether it starts an instruction or not.
-- [ ] The blob writes its length in front of it, like the code's
-  > No: only the jump table's count and the code's length are written. The bitmask's
-  > length follows from the code's.
+- [ ] Only the validator that authors the block
+  > No: on the chain every validator runs accumulate, and each must get the same result.
+- [ ] The service, on machines of its own, which send the chain the result
+  > No: JAM's nodes run the code themselves, in the PVM. That is what the machine is for.
+- [x] A core's three guarantors, in-core, for an authorizer and for refine; every validator, on the chain, for accumulate
+  > Yes: it is the same machine in both places. Your client only ever does the second.
+
+**The bitmask's length is written nowhere in the blob. How does a client know it?**
+
+- [x] It is one bit per byte of code, so the code's length gives it: divide by 8 and round up
+  > Yes: every byte of code gets a bit, whether it starts an instruction or not. The
+  > bootstrap service's 128,413 bytes of code make 16,052 bytes of bitmask.
+- [ ] It is one bit per instruction, so the client counts the instructions first
+  > No: the instructions can't be counted without the bitmask. It has a bit for every
+  > byte of code.
+- [ ] The bitmask runs to the end of the preimage, whatever is left
+  > No: the blob has a length of its own in front of it, ℰ₄(|p|). The bitmask's follows
+  > from the code's.
 
 **The code preimage starts with 80 bytes of metadata, `jam-bootstrap-service` among them. What does the PVM do with them?**
 
@@ -530,7 +555,5 @@ above); your `deblob` shows the shape.
 A real service's code, unpacked down to its instructions: metadata, memory layout, jump
 table, code and bitmask, every byte accounted for. So far they're only opcode numbers,
 though: [lesson 15.2](./02-instructions.md) reads each one, name and arguments.
-
-**Say it out loud.** A service's code is a preimage in layers: a label, a memory layout, and the program, with a bitmask saying where each instruction starts.
 
 Next: [15.2 Instructions](./02-instructions.md)

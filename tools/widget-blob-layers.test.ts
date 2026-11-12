@@ -40,8 +40,10 @@ test("the real layers are the run's: 159,322 → 80 + 9,904 + 48 + 149,274 → 1
   assert.equal(BLOB_PARTS.sizes, 6, "ℰ(1601) in two bytes, ℰ₁(3), ℰ(128413) in three");
 });
 
-test("lesson 15.1 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.1 places the widget once, at the top, and the blob's three parts send the reader back to it", () => {
   const at = raw.indexOf("<BlobLayers />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<BlobLayers />"), "placed once");
-  assert.ok(at > raw.indexOf("bitfields.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("bitfields."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });
