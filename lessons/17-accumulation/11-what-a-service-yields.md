@@ -1,30 +1,39 @@
 # What a service yields
 
+**In one sentence:** a service can end its run by handing the chain a hash, and each
+block commits to all of those hashes with one root, so other chains can check it.
+
+Here is a list of items and the one hash that stands for them all. Change how many items
+there are, and watch how the list is split and hashed.
+
+<a id="try-it"></a>
+
+<WellBalanced />
+
+## The idea
+
 JAM wants other chains to be able to check what happened on it, without running a JAM
-client. So a service can end its run by handing the chain a hash, its *yield*: a 32-byte
-summary of whatever it wants the outside world to trust. Every block gathers its
-services' yields, sorts them, and commits to them with one Merkle root, built with
-Keccak, the hash Ethereum uses. By the end of this lesson your client builds that root,
-and checks it against every accumulate vector's output.
+client. What can a chain that doesn't run JAM check against?
 
-## New words
+Something small. A service can end its run by handing the chain a hash, its
+[*yield*](../glossary.md#yield): a 32-byte summary of whatever it wants the outside world
+to trust.
 
-- **Yield.** The hash a run hands the chain as its accumulation output: set by the
-  `yield` host call, or by halting with a 32-byte output. *Example:* service 1 yields
-  `0xb8fe9f7f…` in `work_for_ejected_service-3`.
-- **Accumulation outputs.** θ′. A block's yields, each with the service that yielded it,
-  sorted by service, then by hash. *Example:* one output, (service 1, `0xb8fe…`).
-- **Well-balanced Merkle root.** M_B. One hash for a list of items: split the list in
-  half (the first half rounded up), take each half's root, and hash the two together
-  with the word "node" in front. One item alone is simply hashed. *Example:* the root of
-  two items a and b is Keccak("node" ⌢ a ⌢ b).
+Every block gathers its services' yields, each with the service that yielded it, and
+sorts them. Those are the block's
+[*accumulation outputs*](../glossary.md#accumulation-outputs). Then it boils them down to
+one hash, the way a knockout tournament finds one winner: split the list in half, find
+each half's hash, and hash the two together. That one hash is a
+[*well-balanced Merkle root*](../glossary.md#well-balanced-merkle-root). It is built with
+Keccak, the hash Ethereum uses.
 
-All three are in the [glossary](../glossary.md).
+By the end of this lesson your client builds that root, and checks it against every
+accumulate vector's output.
 
 ## What the Gray Paper says
 
 `yield` is host call 26 (Appendix B.7, Ω_♉). It costs 98 gas, reads 32 bytes at φ₇
-(unreadable: panic), and makes them the run's yield; φ₇ = `OK`. A second yield replaces
+(unreadable: panic), and makes them the run's yield. φ₇ = `OK`. A second yield replaces
 the first.
 
 The yield is part of what a run leaves behind, so it collapses like the rest
@@ -73,9 +82,9 @@ $$
 
 :::
 
-In plain words, a 𝐁 is a set of pairs (service, 32-byte hash), so a pair can be in it only
-once and has no order; a 𝐔 is a list of pairs (service, gas), in order, one per run. With
-them, the block (§12 and §7) goes:
+A 𝐁 is a set of pairs (service, 32-byte hash): a pair can be in it only once, and has no
+order. A 𝐔 is a list of pairs (service, gas), in order, one per run. With them, the block
+(§12 and §7) goes:
 
 1. **Each round** collects b, the pairs (service, its yield) of the runs that yielded.
 2. **The block** gathers every round's pairs into one set: a pair counts once.
@@ -83,13 +92,17 @@ them, the block (§12 and §7) goes:
 4. **The root** is M_B of those encodings, with Keccak. [Part 9](../09-recent-history/index.md)'s belt appends it, as
    `accumulate_root` ([lesson 9.2](../09-recent-history/02-recent-blocks.md)).
 
+M_B is the well-balanced Merkle root. Split the list in half (the first half rounded up),
+take each half's root, and hash the two together with the word "node" in front. One item
+alone is simply hashed. The root of two items a and b is Keccak("node" ⌢ a ⌢ b).
+
 One honest note: the Gray Paper turns the set into a list without saying in which order,
 and the order changes the root. The test vectors and lasair sort by service, then by hash,
 and so does your client.
 
 ![M_B over three items: split as two and one; the left pair hashed under "node", then the root hashes "node", that, and the third item](./images/11-well-balanced.svg)
 
-<WellBalanced />
+[The root at the top](#try-it) is this picture, for as many items as you like.
 
 ## The tests
 
@@ -772,7 +785,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** A new report for service 1, and one for service 2 that has been
-waiting on it in the queue:
+waiting on it in the queue.
 
 ::: code-group
 
@@ -813,7 +826,7 @@ service 1: 1 digest(s), 0 transfer(s), 183402 gas
 
 :::
 
-Service 2's report has waited for service 1's package, `0xd54f…`; it arrives, so both
+Service 2's report has waited for service 1's package, `0xd54f…`. It arrives, so both
 go in one round. Service 1's run yields `0xb8fe9f7f…`, the only output. One item alone is
 simply hashed: Keccak-256 of `01 00 00 00` (service 1 in four bytes) and the 32-byte hash
 is `0x16776227…`, the vector's `output.ok` exactly.
@@ -878,6 +891,17 @@ service must break on the hash.
 ## Check your understanding
 
 ::: check
+**What is a service's yield for?**
+
+- [ ] To keep its result in its own account, for its next run
+  > No: that is what storage is for. A yield is handed to the chain, and the block
+  > commits to it.
+- [ ] To pay for the gas its run used
+  > No: a yield is a hash, not money. A run is paid for in gas, before it starts.
+- [x] To give the outside world a hash to trust: the block commits to every yield with one root
+  > Yes: other chains can check what happened on JAM against that root, without
+  > running a JAM client.
+
 **All but one of the accumulate vectors so far have 32 zero bytes as their output root. Why?**
 
 - [ ] Keccak of nothing is 32 zero bytes
@@ -924,10 +948,9 @@ service must break on the hash.
 ## What you have
 
 Yields, collapsed like everything else a run leaves, gathered per block, sorted, and
-committed to with a Keccak Merkle root that matches every accumulate vector's output.
-Fifty-seven official vectors pass as whole blocks. Services can hand things to each other
-too, not only money: [lesson 17.12](./12-providing-a-preimage.md) delivers a preimage a service asked for.
-
-**Say it out loud.** A service can end by handing the chain a hash, and each block commits to them all in one Keccak Merkle root, so other chains can check it.
+committed to with a Keccak Merkle root that matches every accumulate vector's output. Other
+chains can check that root without running JAM. Fifty-seven official vectors pass as whole
+blocks. Services can hand things to each other too, not only money:
+[lesson 17.12](./12-providing-a-preimage.md) delivers a preimage a service asked for.
 
 Next: [17.12 Providing a preimage](./12-providing-a-preimage.md)

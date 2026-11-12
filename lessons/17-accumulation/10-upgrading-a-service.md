@@ -1,17 +1,38 @@
 # Upgrading a service
 
+**In one sentence:** a service can replace its own code by naming the new code's hash,
+and from its next run on, that is the code that runs.
+
+Here is the vector's own service record. Upgrade right away and ask for the next run, or
+solicit the new code first: one road runs `0xc0f2…`, the other stalls the service.
+
+<a id="try-it"></a>
+
+<UpgradeSwap />
+
+## The idea
+
 Code isn't forever. A service can swap its own code for new code, the way an app updates
-itself: it names the new code by its hash, and from the next run on, that's what runs.
+itself. But who checks the new code, and what if it isn't there?
+
+Nobody checks, because nothing is installed. A service's account doesn't hold its code.
+It holds the code's hash, and each run finds the code by that hash among the service's
+preimages. So an [*upgrade*](../glossary.md#upgrade) is one small change: the service
+writes a new hash into its own account. It is like changing the label on a pigeonhole:
+the next run looks where the label now points.
+
+Two things follow.
+
+- The run that upgrades carries on with the old code. The new code runs from the next
+  run on.
+- If the service doesn't hold the new code yet, the next run finds nothing, and the
+  service can't run at all until it does.
+
+No privilege is needed and nothing can be refused: a service changes only itself.
+Getting the new code in place first is the service's job, not the chain's.
+
 This lesson builds the `upgrade` host call. It's the simplest of the five calls still
 missing, and one more official vector passes whole.
-
-## New words
-
-- **Upgrade.** A service replacing its own code hash, and its least gas per item and per
-  memo ([lesson 14.2](../14-services/02-the-service-account.md)), with new ones. *Example:* service 0's code hash goes from
-  `0xdd0e…` to `0xc0f2…`, and its least gases from 10 and 10 to 123 and 456.
-
-It's in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
@@ -19,19 +40,18 @@ It's in the [glossary](../glossary.md).
 
 1. **Read.** The new code hash is the 32 bytes at φ₇. Unreadable: panic.
 2. **Change.** The service's own code hash becomes those 32 bytes, its least gas per item
-   φ₈, and per memo φ₉. φ₇ = `OK`.
+   φ₈, and per memo φ₉ ([lesson 14.2](../14-services/02-the-service-account.md)). φ₇ = `OK`.
 
 That's all. No privilege is needed and nothing can be refused: a service may change only
-itself, so it may always do so. The new code doesn't run now. Code is found by its hash
-among the service's preimages ([lesson 17.1](./01-a-blocks-accumulation.md)), so the next run looks for the new hash, and if
+itself, so it may always do so.
+
+The new code doesn't run now. Code is found by its hash among the service's preimages
+([lesson 17.1](./01-a-blocks-accumulation.md)), so the next run looks for the new hash. If
 the service doesn't hold that preimage yet, it can't run at all until it does. Upgrading
 safely (asking for the new code first, with `solicit`) is the service's job, not the
 chain's.
 
-Walk both roads with the vector's own record. Upgrade right away and ask for the next run,
-or solicit the new code first — one road runs `0xc0f2…`, the other stalls the service:
-
-<UpgradeSwap />
+Walk both roads on [the record at the top](#try-it).
 
 ## The tests
 
@@ -242,7 +262,7 @@ reported 573 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ## Watch it
 
 **What flows through it.** Service 0's work carries its new code's hash and two new least
-gases:
+gases.
 
 ::: code-group
 
@@ -282,7 +302,7 @@ the test vector says: 139939
 
 :::
 
-The service's code puts the new hash in memory and the two gases in φ₈ and φ₉, and `upgrade`
+The service's code puts the new hash in memory and the two gases in φ₈ and φ₉. `upgrade`
 swaps all three into its record: `0xc0f2…`, 123 and 456 where `0xdd0e…`, 10 and 10 were, as in
 the vector's state after the block.
 
@@ -374,10 +394,9 @@ and that's the one that counts. Comments don't fail tests.
 
 ## What you have
 
-A service that can rewrite itself. Fifty-six official vectors pass as whole blocks. A
+A service that can rewrite itself, with no one's permission. If it doesn't hold the new
+code yet, it can't run until it does. Fifty-six official vectors pass as whole blocks. A
 service can also hand the chain a hash at the end of its run, for other chains to check:
 [lesson 17.11](./11-what-a-service-yields.md) builds `yield`.
-
-**Say it out loud.** A service can replace its own code with no one's permission. If it doesn't hold the new code yet, it can't run until it does.
 
 Next: [17.11 What a service yields](./11-what-a-service-yields.md)

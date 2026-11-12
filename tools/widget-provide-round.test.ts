@@ -35,6 +35,8 @@ test("the hash, the run's HUH and OK, and the test's [] → [44] with \"preimage
 
 test("lesson 17.12 places the widget once, after step 4", () => {
   const at = raw.indexOf("<ProvideRound />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<ProvideRound />"));
-  assert.ok(at > raw.indexOf("Any other is dropped, quietly.") && at < raw.indexOf("Why wait for the end of the round?"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<ProvideRound />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("Any other is dropped, quietly."));
+  assert.ok(back > 0 && back < raw.indexOf("Why wait for the end of the round?"));
 });

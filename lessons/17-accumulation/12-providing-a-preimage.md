@@ -1,19 +1,34 @@
 # Providing a preimage
 
-A service that wants some data asks for it by hash and length ([lesson 14.1](../14-services/01-providing-preimages.md)), and
-usually waits for someone to bring it in a block's preimages extrinsic. But another
-service may already hold those bytes. With the `provide` host call it can hand them over
-directly, during accumulation. By the end of this lesson your client delivers them, and the
-two `provide_preimage` vectors pass whole.
+**In one sentence:** one service can hand another a preimage it is waiting for, during
+accumulation, and the bytes are delivered at the end of the round.
 
-## New words
+Here is a round with a service waiting for some bytes. Pick a run and who it provides
+to, press *provide*, then end the round and see what is delivered and what is dropped.
 
-- **Provide.** One service handing another (or itself) a preimage it has asked for.
-  *Example:* service 0 gives service 1729 the 8 bytes "preimage".
-- **Provision.** 𝐩. A preimage provided during a run, waiting to be delivered: the
-  service it's for, and the bytes. *Example:* (1729, "preimage").
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md).
+<ProvideRound />
+
+## The idea
+
+A service that wants some data asks for it by hash and length
+([lesson 14.1](../14-services/01-providing-preimages.md)). Usually it waits for someone to
+bring the bytes in a block's preimages extrinsic. But what if another service already
+holds them?
+
+Then it can hand them over itself, while it accumulates. To
+[*provide*](../glossary.md#provide) is for one service to give another, or itself, a
+preimage it has asked for.
+
+There is a catch. Every run in a round starts from the same accounts, and nobody writes
+in an account that isn't theirs. So the bytes aren't put in the receiver's account during
+the run. They are left at the door, as a [*provision*](../glossary.md#provision): a note
+of who the bytes are for, and the bytes. When the round is over, each provision is
+delivered, if the service is still there and still waiting. Any other is dropped.
+
+By the end of this lesson your client delivers them, and the two `provide_preimage`
+vectors pass whole.
 
 ## What the Gray Paper says
 
@@ -93,13 +108,13 @@ $$
 
 :::
 
-In plain words, the last step:
+The last step:
 
 4. **Deliver.** Each provision whose service still exists and still waits for it (its
    request is still `[]`) is stored: the bytes join the service's preimages, and the request
    becomes `[τ′]`, provided in this block's slot. Any other is dropped, quietly.
 
-<ProvideRound />
+Try it on [the round at the top](#try-it).
 
 Why wait for the end of the round? Every run in a round starts from the same accounts, and
 a provision changes an account the giver doesn't own. Delivering them afterwards keeps the
@@ -107,7 +122,7 @@ runs independent, as transfers ([lesson 17.4](./04-rounds.md)) do.
 
 One honest note. Where the Gray Paper's collapse C keeps the provisions of a halt with a
 32-byte output, it writes them as coming from X and Y together. Every other case takes one
-side, and every other part of that same halt is X's, so read it as X: a halt keeps
+side, and every other part of that same halt is X's. So read it as X: a halt keeps
 everything its run did.
 
 ## The tests
@@ -215,7 +230,7 @@ npm test
 ...
 ```
 
-Red where it counts: in both vectors and the new test, service 0's call 27 gets `WHAT`, so
+Red where it counts. In both vectors and the new test, service 0's call 27 gets `WHAT`, so
 it carries on down another path and uses the wrong gas. (The fourth failure is
 `test/host.test.ts`, which can't load until `provide` exists.)
 
@@ -555,7 +570,7 @@ reported 581 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ## Watch it
 
 **What flows through it.** Two vectors, one difference: whom service 0 provides the bytes to.
-The first, with service 1729's waiting request; the second is the same but for one id:
+The first, with service 1729's waiting request. The second is the same but for one id.
 
 ::: code-group
 
@@ -662,7 +677,7 @@ needs none. The request becomes `[input.ai_slot]`, the block's slot.
 ## Check your understanding
 
 ::: check
-**In `provide_preimage-1`, service 0 provides the 8 bytes "preimage" to itself, and gets `HUH`. Why?**
+**A service provides some bytes to itself, and gets `HUH`. In `provide_preimage-1`, service 0 does just that. Why?**
 
 - [ ] A service can't provide a preimage to itself
   > No: it can. φ₇ = 2^64 − 1 means "this service", and the lesson's first test does
@@ -673,15 +688,15 @@ needs none. The request becomes `[input.ai_slot]`, the block's slot.
 - [ ] 8 bytes is too short to be a preimage
   > No: any length below 2^32 will do. The same 8 bytes reach 1729 in the next vector.
 
-**In `provide_preimage-2`, service 0 provides them to service 1729, which asked. When does 1729 have them?**
+**Service 0 provides bytes to a service that asked for them, and gets `OK`. When does that service have them?**
 
 - [ ] As soon as `provide` answers `OK`
   > No: nothing is delivered then. The provision only joins the run's 𝐩.
 - [ ] In a later block, through the preimages extrinsic
   > No: that's the other way in, and it isn't needed here.
 - [x] At the end of the round, after the accounts are merged
-  > Yes: then 1729's preimage is stored, and its request reads `[44]`, this block's
-  > slot.
+  > Yes: in `provide_preimage-2`, 1729's preimage is stored then, and its request
+  > reads `[44]`, this block's slot.
 
 **Why does a provision wait for the end of the round?**
 
@@ -709,9 +724,8 @@ needs none. The request becomes `[input.ai_slot]`, the block's slot.
 ## What you have
 
 Preimages handed from service to service, kept or dropped by a checkpoint, and delivered
-at the end of the round. Fifty-nine official vectors pass as whole blocks. The last four
-need the two privileged calls still missing: [lesson 17.13](./13-blessing-and-designating.md) builds `bless` and `designate`.
-
-**Say it out loud.** One service can hand another a preimage it's waiting for. It's delivered at the end of the round, so runs stay independent.
+at the end of the round, so the runs stay independent. Fifty-nine official vectors pass
+as whole blocks. The last four need the two privileged calls still missing:
+[lesson 17.13](./13-blessing-and-designating.md) builds `bless` and `designate`.
 
 Next: [17.13 Blessing and designating](./13-blessing-and-designating.md)

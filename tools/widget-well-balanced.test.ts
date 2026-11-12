@@ -35,6 +35,8 @@ test("the vector's root is 0x16776227…, as the run prints it", { skip: !exists
 
 test("lesson 17.11 places the widget once, under the figure", () => {
   const at = raw.indexOf("<WellBalanced />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<WellBalanced />"));
-  assert.ok(at > raw.indexOf("(./images/11-well-balanced.svg)") && at < raw.indexOf("## The tests"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<WellBalanced />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("(./images/11-well-balanced.svg)"));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });
