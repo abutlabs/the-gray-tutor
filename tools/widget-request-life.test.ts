@@ -44,8 +44,10 @@ test("the check: [3, 9] forgotten at 40 is HUH; at 42 it goes, deposit and all; 
   assert.deepEqual([reforgotten.answer, reforgotten.state.history], ["OK", [50, 50]], "y = 9 < 50 − 32 = 18: [x, y, w] becomes [w, t]");
 });
 
-test("lesson 16.9 places the widget once, after D", () => {
+test("lesson 16.9 places the widget once, at the top, and D sends the reader back to it", () => {
   const at = raw.indexOf("<RequestLife />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<RequestLife />"));
-  assert.ok(at > raw.indexOf("so accumulation's host needs to know it now.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("so accumulation's host needs to know it now."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

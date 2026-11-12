@@ -40,8 +40,10 @@ test("the values are the vector's report and digest, where vectors/ is downloade
   });
 });
 
-test("lesson 16.7 places the widget once, after the encoding", () => {
+test("lesson 16.7 places the widget once, at the top, and the encoding sends the reader back to it", () => {
   const at = raw.indexOf("<OperandParcel />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<OperandParcel />"));
-  assert.ok(at > raw.indexOf("which start with a 1") && at < raw.indexOf("**Δ₁**"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("which start with a 1"));
+  assert.ok(back > 0 && back < raw.indexOf("**Δ₁**"));
 });

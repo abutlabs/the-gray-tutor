@@ -60,9 +60,13 @@ test("the window clamps as fetch's does, and φ₇ is the full length either way
   assert.deepEqual([nothing.l, nothing.r7, nothing.gas], [0, "10", 600]);
 });
 
-test("the lesson shows the widget before its tests", () => {
+test("lesson 16.8 places the widget once, at the top, and lookup's rule sends the reader back to it", () => {
   assert.match(raw, /<LookupCall \/>/);
-  assert.ok(raw.indexOf("<LookupCall />") < raw.indexOf("## The tests"));
+  const at = raw.indexOf("<LookupCall />");
+  assert.ok(at === raw.lastIndexOf("<LookupCall />"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("Anyone\nholding the data could check it against the hash."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
   assert.match(raw.replace(/\s+/g, " "), /its bytes spell "preimage"/);
   assert.match(raw.replace(/\s+/g, " "), /charged before the preimage is even found/);
 });

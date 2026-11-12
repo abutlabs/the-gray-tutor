@@ -1,9 +1,31 @@
 # Lookup
 
-A service's code, and any other blob it wants the chain to keep, is a *preimage*: data filed
-under its own hash. [Lesson 14.1](../14-services/01-providing-preimages.md) put them into the state when a block provided them, and
-[lesson 14.2](../14-services/02-the-service-account.md) counted what they cost. This lesson lets a running service read them, any
-service's, with `lookup`.
+**In one sentence:** `lookup` hands a running service the data behind a hash, from its own
+preimages or any other service's.
+
+Here are two real preimages. Pick whose to look in, which hash, and which bytes you want,
+and watch the host's reply and the gas.
+
+<a id="try-it"></a>
+
+<LookupCall />
+
+## The idea
+
+A service's code, and any other blob it wants the chain to keep, is a
+[*preimage*](../glossary.md#preimage): data filed under its own hash. [Lesson 14.1](../14-services/01-providing-preimages.md) put them into the state when a block provided them, and
+[lesson 14.2](../14-services/02-the-service-account.md) counted what they cost. But a running service can't read the state. How
+does it get one of those blobs back?
+
+It asks the host, with `lookup`: here is a hash, give me the data behind it. The host
+looks, and copies the data into the service's memory, the way `fetch` copies an item. If
+the data isn't there, the host says so.
+
+A service may look in another service's preimages too. Isn't that prying? No: a preimage
+is public by nature. Anyone holding the data could check it against the hash. It is a
+library where every book is shelved under its own fingerprint, and anyone may read.
+
+This lesson builds `lookup`, and two more official vectors join the list.
 
 ## What the Gray Paper says
 
@@ -18,13 +40,11 @@ plus 248 per KiB asked for. The paper's row, in B.5's table, is explained in
 Reading another service's preimages is fine: preimages are public by nature. Anyone
 holding the data could check it against the hash.
 
-Three questions in one call, answered on real values: the test's "hello, JAM" under
-service 0, and the 8-byte blob service 1729 keeps in the `lookup_foreign_preimage` vector
-(its bytes spell "preimage"). Pick whose, which hash, and the window, and watch φ₇ and the
-gas answer. The gas is for the bytes *asked for*, and it's charged before the preimage is
-even found:
-
-<LookupCall />
+[The widget at the top](#try-it) asks three questions in one call, on real values: the
+test's "hello, JAM" under service 0, and the 8-byte blob service 1729 keeps in the
+`lookup_foreign_preimage` vector (its bytes spell "preimage"). Pick whose, which hash, and
+the window, and watch φ₇ and the gas answer. The gas is for the bytes *asked for*, and it's
+charged before the preimage is even found.
 
 ## The tests
 
@@ -235,7 +255,7 @@ Ten services in nine official vectors now match them.
 
 ## Watch it
 
-**What flows through it.** A new vector: service 0 asks for a preimage that belongs to
+What flows through it is a new vector: service 0 asks for a preimage that belongs to
 another service. What it's handed, the one `lookup` it makes, and the lines it prints:
 
 ::: code-group
@@ -340,24 +360,34 @@ every account into the context, which keeps it to one `Map` lookup.
 ::: check
 **`write` can only change the service's own storage. Why may `lookup` read another service's preimages?**
 
+- [ ] Reading is cheaper than writing, so it's allowed more freely
+  > No: price has nothing to do with it. What matters is that preimages are no secret.
 - [x] Preimages are public by nature: anyone holding the data could check it against its hash
   > Yes: there's nothing secret to protect. In `lookup_foreign_preimage`, service 0 reads
   > another service's preimage and matches the vector.
-- [ ] Reading is cheaper than writing, so it's allowed more freely
-  > No: price has nothing to do with it. What matters is that preimages are no secret.
 - [ ] It can't: a lookup in another service's preimages always gets NONE
   > No: φ₇ names whose preimages to look in, any service. NONE means that service, or
   > that preimage, isn't there.
 
-**The test asks for up to 100 bytes, and "hello, JAM" is 10. Why does it cost 600 + 25?**
+**What is a preimage, and how did it get into the state?**
 
-- [ ] 248 gas per KiB of the 10 bytes found, rounded up
-  > No: that would be ⌈2,480 / 1,024⌉ = 3. The price is set before the preimage is even
-  > found.
-- [x] 248 gas per KiB of the 100 bytes asked for, rounded up: ⌈24,800 / 1,024⌉ = 25
-  > Yes: like `fetch`, `lookup` charges for what's asked for, φ₁₁, first.
-- [ ] A flat 25 for reading the hash from memory
-  > No: the 25 grows with the bytes asked for. The flat part is the 600.
+- [ ] A value the service stored with `write`, under a key it chose
+  > No: that is storage. A preimage has no chosen key: its hash is its name.
+- [ ] The hash of a service's code, kept in its record
+  > No: that is the code hash. The preimage is the data behind a hash, the code itself
+  > for one.
+- [x] Data filed under its own hash, a service's code among them, put into the state when a block provided it
+  > Yes: [lesson 14.1](../14-services/01-providing-preimages.md) put them there. `lookup` only reads.
+
+**A service asks for up to 100 bytes of a preimage that turns out to be 10 bytes long. Which size does it pay for?**
+
+- [x] The 100 asked for: the price is charged before the preimage is even found
+  > Yes: like `fetch`, `lookup` charges for what's asked for, φ₁₁, first: 600, plus 248
+  > per KiB, rounded up, 25 here.
+- [ ] The 10 found: it pays for what it gets
+  > No: that would be 3, not 25. The price is set before the host knows what it will find.
+- [ ] Neither: `lookup` is a flat 600
+  > No: the flat part is the 600. The rest grows with the bytes asked for.
 
 **The hash is readable, but the service keeps no preimage for it. What happens?**
 
@@ -375,7 +405,5 @@ every account into the context, which keeps it to one `Map` lookup.
 Services that can read any preimage on the chain, and ten services in nine official
 accumulate vectors matching them. Reading a preimage needs someone to have asked for it first:
 [lesson 16.9](./09-asking-for-preimages.md) lets a service ask.
-
-**Say it out loud.** Preimages are public: any service can read another's, because anyone with the data can check it against its hash.
 
 Next: [16.9 Asking for preimages](./09-asking-for-preimages.md)

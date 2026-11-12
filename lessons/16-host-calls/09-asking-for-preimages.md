@@ -1,10 +1,31 @@
 # Asking for preimages
 
+**In one sentence:** a service gets the chain to keep a piece of data by asking for it by
+hash and length, can check how the asking is going, and can give it up, paying deposit
+for as long as the request lasts.
+
+Here is one request. Walk it through its life: ask, provide, forget, wait, ask again, and
+watch its history change at each step.
+
+<a id="try-it"></a>
+
+<RequestLife />
+
+## The idea
+
 [Lesson 16.8](./08-lookup.md)'s `lookup` reads the preimages a service already has. But how does a preimage
-get there? The service *asks* for it. It files a request: "I want the data whose hash is
-h, z bytes long". Later a block provides it ([lesson 14.1](../14-services/01-providing-preimages.md)), and later still the service may
-let it go. This lesson gives a running service the three host calls for that: `solicit`
-to ask, `query` to see how the asking is going, and `forget` to give up.
+get there? The service *asks* for it.
+
+It files a [*request*](../glossary.md#request): "I want the data with this hash, this
+many bytes long". It is like ordering a book by its catalogue number. Later a block
+provides the data ([lesson 14.1](../14-services/01-providing-preimages.md)). Later still the service may let it go.
+
+The chain keeps a short history for each request: when it was provided, when it was
+forgotten, when it was asked for again. So a preimage has a life: asked for, provided,
+forgotten, and after a waiting period, gone. A request holds deposit while it lasts.
+
+A running service steers that life with three host calls: `solicit` to ask, `query` to
+see how the asking is going, and `forget` to give up. This lesson builds all three.
 
 ## What the Gray Paper says
 
@@ -47,7 +68,7 @@ $$
 
 :::
 
-In plain words: every host call of accumulation follows the same rule as the general ones,
+Every host call of accumulation follows the same rule as the general ones,
 now with the pair of contexts (𝐱, 𝐲): pay first; too little gas, and nothing changes;
 whatever a call doesn't mention stays as it was. The three calls of this lesson are rows
 23 to 25 of B.7's table, each explained in
@@ -82,9 +103,7 @@ Then:
 D is the expunge period, `expunge_period` in the config: 32 slots on tiny. t is the slot of
 the block, so accumulation's host needs to know it now.
 
-Walk one request through its life:
-
-<RequestLife />
+[The widget at the top](#try-it) walks one request through this life, slot by slot.
 
 ## The tests
 
@@ -471,7 +490,7 @@ storage, requests, items and bytes, all as the vectors leave them.
 
 ## Watch it
 
-**What flows through it.** Service 0 is handed a hash and a length, and asks for the
+What flows through it: service 0 is handed a hash and a length, and asks for the
 preimage with that length. What goes in, its `solicit`, and the lines it prints:
 
 ::: code-group
@@ -551,35 +570,37 @@ with `unsigned_compare`; your `bigint` values just compare.
 ## Check your understanding
 
 ::: check
-**Service 0 solicits a 100-byte preimage at slot 7. What is the request's history now?**
+**A service solicits a preimage for the first time. What does the chain hold for it right after?**
 
-- [x] [], asked for and not provided, and the footprint grows by 2 items and 81 + 100 bytes
-  > Yes: a new request has no slots. The deposit is paid from the moment it's asked for.
-- [ ] [7]
-  > No: [7] would mean provided at slot 7. Asking isn't providing.
-- [ ] The preimage itself, 100 bytes
+- [x] A request with an empty history, asked for and not provided, and its deposit counted from that moment
+  > Yes: a new request has no slots. The footprint grows by 2 items and 81 + z bytes as
+  > soon as it's asked for.
+- [ ] A request marked provided at the block's slot
+  > No: asking isn't providing. A slot in the history would mean the data had arrived.
+- [ ] The preimage itself
   > No: nothing is provided yet. A block will provide it later, if someone sends it.
 
-**A request is [3], provided at slot 3. The service forgets it at slot 9. What happens?**
+**A service forgets a preimage that has been provided. Is it gone?**
 
-- [ ] It goes, preimage and all
+- [ ] Yes: the request, the preimage and the deposit go at once
   > No: only a request never provided, or one forgotten long ago, goes. A provided one is
   > first marked forgotten.
-- [x] It becomes [3, 9], and `query` gives φ₇ = 2 + 3 × 2^32 and φ₈ = 9
-  > Yes: provided at 3, forgotten at 9. `query` packs the count, 2, with the first slot
-  > above it, and the second slot in φ₈.
-- [ ] HUH: a provided preimage can't be forgotten
+- [x] Not yet: it is marked forgotten at this slot, and goes only if it is forgotten again more than D slots later
+  > Yes: [3] forgotten at slot 9 becomes [3, 9]. It goes only if y < t − D. On tiny, where
+  > D is 32, a second `forget` at slot 40 is HUH: 40 − 32 = 8. At slot 42, 9 < 10, and it would go.
+- [ ] No, and it never can be: a provided preimage can't be forgotten
   > No: it can. HUH is for a request in no state to be forgotten, like one forgotten too
   > recently.
 
-**A request is [3, 9]. On tiny, where D is 32, the service forgets it again at slot 40. What happens?**
+**Who provides the data a service asked for?**
 
-- [x] HUH: it was forgotten at 9, and 9 isn't more than 32 slots before 40
-  > Yes: it goes only if y < t − D, and 40 − 32 = 8. At slot 42, 9 < 10, and it would go.
-- [ ] It goes, with its preimage and its deposit
-  > No: not yet. A forgotten preimage has to wait more than D slots first.
-- [ ] It becomes [3, 9, 40]
-  > No: that's `solicit`, asking for it again.
+- [ ] The service, which hands the bytes to `solicit`
+  > No: `solicit` takes a hash and a length, and files the request. No data comes with it.
+- [ ] The host, which finds the data while it answers the call
+  > No: the host only changes the request's history. The answer is OK, HUH or FULL.
+- [x] A block, later, as [lesson 14.1](../14-services/01-providing-preimages.md) built
+  > Yes: asking and providing are two steps. Until a block provides it, the request's
+  > history stays empty.
 
 **`solicit` gets a length of 2^32, and a hash it can't read. What happens?**
 
@@ -591,6 +612,17 @@ with `unsigned_compare`; your `bigint` values just compare.
   > Gray Paper says HUH.
 - [ ] FULL: no balance could pay for 2^32 bytes
   > No: the deposit is never worked out. The length alone is HUH.
+
+**A service asks again for a preimage it had forgotten. Why does that cost no more deposit?**
+
+- [x] The forgotten request never left the footprint, so its deposit is already counted
+  > Yes: a request holds deposit while it lasts, forgotten or not. It is given back only
+  > when the request goes.
+- [ ] The deposit was returned at `forget`, and a second asking is free
+  > No: marking a request forgotten returns nothing. The deposit goes with the request,
+  > more than D slots later.
+- [ ] Deposit is charged for storage, and requests aren't counted
+  > No: a request takes deposit: 2 items, and 81 + z bytes.
 :::
 
 ## What you have
@@ -600,7 +632,5 @@ while it lasts. Thirteen services in twelve official vectors matching, and [Part
 stretch is done ([Part 17](../17-accumulation/index.md) adds the ones that act on other services). So
 far every report in a block is accumulated at once, in one go. [Part 17](../17-accumulation/index.md) is about
 which reports go when, and what a service's actions do to the others.
-
-**Say it out loud.** A preimage has a life: asked for, provided, forgotten, and after a waiting period, gone. A request holds deposit while it lasts.
 
 Next: [Part 17 · Accumulation](../17-accumulation/index.md)

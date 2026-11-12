@@ -1,23 +1,35 @@
 # A service's inputs
 
-[Lesson 16.2](./02-fetch.md)'s `fetch` hands a service its inputs, items 14 and 15. So far every service
-got none. But a service accumulates *because* work came in for it: the block's
-work-reports carry the results of its work-items, refined on the cores. This lesson turns
-those reports into the service's inputs, and with them, the matches the earlier lessons
+**In one sentence:** a service's inputs are made from the block's work-reports, one for
+each result that names the service, and that is how work done on the cores reaches its
+code on the chain.
+
+Here is service 1729's one real input. Go through it part by part, and see which parts
+come from the report and which from the result itself.
+
+<a id="try-it"></a>
+
+<OperandParcel />
+
+## The idea
+
+A service accumulates *because* work came in for it. The work was done elsewhere: its
+work-items were refined on the cores, and the block's work-reports carry the results. So
+how does a result on a report reach the service's code?
+
+As a parcel. For each result that names the service, the host makes up one
+[*operand*](../glossary.md#operand): the result, with a slip that says which package it
+came from, who authorized it, and how much gas it brings. A report with two results for
+one service gives that service two operands. The service collects them with
+[lesson 16.2](./02-fetch.md)'s `fetch`. So far every service got none.
+
+The gas comes the same way: a service runs on the gas of the results that name it. A few
+have a privilege on top. An [*always-accumulate service*](../glossary.md#always-accumulate-service)
+accumulates in every block, on a fixed amount of free gas, whether or not work came in for it.
+
+This lesson turns the reports into inputs. With them, the matches the earlier lessons
 could only describe become tests: eight services in seven vectors, each to the unit of
 gas and the byte of storage.
-
-## New words
-
-- **Operand.** U. What accumulation learns of one work-digest: the package, its exports
-  root, the authorizer and its trace, the payload's hash, the gas and the result. An
-  input that starts with a 0. *Example:* a report with two digests for one service gives
-  that service two operands.
-- **Always-accumulate service.** χ_Z. A service that accumulates in every block, on a
-  fixed amount of free gas, whether or not work came in for it. *Example:* in the
-  `always_accumulate` vectors, service 1729 runs with 100,000 free gas.
-
-Both are in the [glossary](../glossary.md).
 
 ## What the Gray Paper says
 
@@ -36,9 +48,7 @@ a compact natural, the result as [lesson 3.2](../03-work-and-reports/02-work-dig
 and the trace with its length. The leading 0 says "operand": a service's inputs can also
 be transfers, which start with a 1 ([lesson 17.4](../17-accumulation/04-rounds.md)).
 
-Service 1729's one real operand, part by part:
-
-<OperandParcel />
+[The parcel at the top](#try-it) is service 1729's one real operand, part by part.
 
 **Δ₁** (§12) gathers service s's share of a block: an operand for each digest that names
 s, report by report, in order (transfers would come first). Its gas is its free gas (the
@@ -315,8 +325,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The vector's first report
-going in, the arguments the program assembles for service 1729, and its terminal lines:
+What flows through it:
 
 ::: code-group
 
@@ -417,15 +426,17 @@ one field at a time.
 - [ ] It's the digest's number in its report
   > No: a report's second digest gives an operand that starts with 0 too.
 
-**In `same_round_storage_isolation-1`, service 1729 runs on 200,000 gas. Where does that come from?**
+**What gas does a service's accumulation run on?**
 
-- [ ] Its free gas as an always-accumulate service
-  > No: that vector gives no service free gas. Its `always_acc` list is empty.
-- [x] The gas of its one digest: free gas, none here, plus each digest's gas
-  > Yes: one report names 1729, with 200,000 gas. That's all of it.
-- [ ] A fixed amount every accumulation gets
+- [x] Its free gas, if it is an always-accumulate service, plus the gas of every digest that names it
+  > Yes: in `same_round_storage_isolation-1` one report names 1729, with 200,000 gas, and
+  > no service has free gas. That's all of it.
+- [ ] A fixed amount, the same for every accumulation
   > No: in `always_accumulate-1`, the same service runs on 100,000, all free gas, with no
   > reports at all.
+- [ ] Whatever the service's balance can pay for
+  > No: the gas comes with the work, digest by digest, or from the always-accumulate
+  > privilege.
 
 **A report has two digests for service 42 and one for service 7. How many operands does 42 get from it?**
 
@@ -439,13 +450,24 @@ one field at a time.
 
 **1729 and 1730 accumulate in the same round. 1729 writes "last". Does 1730 see it?**
 
-- [x] No: each starts from the same accounts, with its own X and Y
-  > Yes: 1730 ends with only its own "fread" key, as the vector says.
 - [ ] Yes: 1729's write is in the state before 1730 runs
   > No: in the same round, neither sees the other's changes.
+- [x] No: each starts from the same accounts, with its own X and Y
+  > Yes: 1730 ends with only its own "fread" key, as the vector says.
 - [ ] Only if 1729 made a checkpoint first
   > No: a checkpoint is about one service's own run. It never shares anything with
   > another service.
+
+**An operand carries a result. Where was the work behind it done?**
+
+- [ ] On the chain, by every validator, just before the service accumulates
+  > No: accumulation only receives the result. The operand carries the payload's hash, the
+  > gas and the result, and the work itself was done earlier.
+- [ ] By the service's accumulate code, which runs the work-item when it fetches it
+  > No: accumulate is handed results. It doesn't run work-items.
+- [x] On the cores, where the work-item was refined; the report brought the result to the chain
+  > Yes: the block's work-reports carry the results of the service's work-items, refined
+  > on the cores. Operands are how refine's results reach accumulate.
 :::
 
 ## What you have
@@ -453,7 +475,5 @@ one field at a time.
 A service's inputs, built from a block's reports, and eight services in seven official
 accumulate vectors matching them, gas and storage. Many of the other vectors' services ask for preimages next:
 [lesson 16.8](./08-lookup.md) lets them read one.
-
-**Say it out loud.** A service's inputs are operands, one for each work digest that names it. That's how refine's results reach accumulate.
 
 Next: [16.8 Lookup](./08-lookup.md)
