@@ -52,7 +52,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ $$
 
 </details>
 
-→ [(4.2), (4.3) in plain words](./gray-paper.md#ex-4-2)
+→ [(4.2), (4.3) explained](./gray-paper.md#ex-4-2)
 
 <a id="gp-4-1-p3"></a>The header is a collection of metadata primarily concerned with cryptographic references to the blockchain ancestors and the operands and result of the present transition. As an immutable known *a priori*, it is assumed to be available throughout the functional components of block transition. The extrinsic data is split into its several portions:
 

@@ -132,7 +132,7 @@ r,
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -186,7 +186,7 @@ $$
 
 </details>
 
-→ [(12.18) in plain words](./gray-paper.md#ex-12-18)
+→ [(12.18) explained](./gray-paper.md#ex-12-18)
 
 :::
 
@@ -224,7 +224,7 @@ t_{d} = s
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -237,7 +237,7 @@ $$
 
 </details>
 
-→ [(12.27), (12.28) in plain words](./gray-paper.md#ex-12-27)
+→ [(12.27), (12.28) explained](./gray-paper.md#ex-12-27)
 
 <a id="gp-12-3-p5"></a>The second intermediate state $\delta^\ddagger$ may then be defined with the last-accumulation record being updated for all accumulated services:
 
@@ -253,7 +253,7 @@ a &\text{otherwise}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -264,7 +264,7 @@ $$
 
 </details>
 
-→ [(12.29), (12.30) in plain words](./gray-paper.md#ex-12-29)
+→ [(12.29), (12.30) explained](./gray-paper.md#ex-12-29)
 
 :::
 

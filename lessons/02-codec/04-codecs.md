@@ -48,7 +48,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ $$
 
 </details>
 
-→ [(C.1) in plain words](./gray-paper.md#ex-C-1)
+→ [(C.1) explained](./gray-paper.md#ex-C-1)
 
 <a id="gp-C-1-1-p3"></a>We also define the serialization of an octet-sequence as itself:
 
@@ -71,7 +71,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -80,7 +80,7 @@ $$
 
 </details>
 
-→ [(C.2) in plain words](./gray-paper.md#ex-C-2)
+→ [(C.2) explained](./gray-paper.md#ex-C-2)
 
 :::
 
@@ -107,7 +107,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ $$
 
 </details>
 
-→ [(C.7) in plain words](./gray-paper.md#ex-C-7)
+→ [(C.7) explained](./gray-paper.md#ex-C-7)
 
 :::
 

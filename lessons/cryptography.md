@@ -132,7 +132,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -161,7 +161,7 @@ $$
 :::
 
 **(H.1), read it aloud.** "D of v is defined as the largest d below v over 3 plus 2 such
-that W sub G mod 2d is 0." **In plain words.** D(v) is how many chunks it takes to rebuild:
+that W sub G mod 2d is 0." **What it means.** D(v) is how many chunks it takes to rebuild:
 about a third of v, and no more than v/3 + 1, chosen so that a 4,104-byte segment (W_G)
 divides into whole rows of D two-byte words, with no padding. **On a real value.**
 
@@ -196,7 +196,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -217,7 +217,7 @@ $$
 **(H.2) and (H.3), read aloud.** "For every n and k: split n of d, a blob of k times n
 bytes, is a sequence of k blobs of n bytes: d from 0, n of them; d from n, n of them; and
 so on to d from k − 1 times n. join of c, k blobs of n bytes, is c-0 joined to c-1 joined to
-the rest." **In plain words.** split_n cuts a blob into equal n-byte slices; join glues
+the rest." **What it means.** split_n cuts a blob into equal n-byte slices; join glues
 slices back. **On a value.** split₂ of the six bytes `61 5d 17 00 00 00` is
 [`615d`, `1700`, `0000`], and join of that is the six bytes again.
 
@@ -238,7 +238,7 @@ $$
 :::
 
 **(H.4), read it aloud.** "The transpose of the sequence of rows x-0 and x-1 is the
-sequence of columns." **In plain words.** Rows become columns, as in a spreadsheet:
+sequence of columns." **What it means.** Rows become columns, as in a spreadsheet:
 [[a, b, c], [d, e, f]] becomes [[a, d], [b, e], [c, f]]. The code needs it twice: once to
 line the data up word by word, once to hand each validator its column.
 
@@ -259,7 +259,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -278,7 +278,7 @@ $$
 **(H.5), read it aloud.** "C sub k, for v validators, takes a blob of 2k times D of v
 bytes to a sequence of v blobs of 2k bytes: d goes to join, for each, of the transpose of
 the sequence of C of p, for each p in order in the transpose of split₂, for each, of
-split 2k of d." **In plain words**, inside out:
+split 2k of d." **What it means**, inside out:
 
 1. split_{2k}(d): cut the data into D(v) slices of 2k bytes.
 2. split₂ on each: cut every slice into k two-byte words.
@@ -329,7 +329,7 @@ p \in \mathbb{N}_{k}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -350,7 +350,7 @@ $$
 blob of 2k bytes and an index below v, to a blob of 2k times D of v bytes: c goes to the
 encoding of the blobs sorted by index, when the indices are exactly 0 to D of v minus 1;
 otherwise, the join of joins of the transpose of, for each word position p below k, R of
-the set of each chunk's word p with its index." **In plain words.** Given D(v) chunks and
+the set of each chunk's word p with its index." **What it means.** Given D(v) chunks and
 which validator each came from: if they happen to be chunks 0 to D(v) − 1, the original
 slices, just glue them in order. Otherwise rebuild word position by word position, with ℛ,
 and glue the result. **On a real value.** From `ec-3`, chunks 0, 1 and 2 are `615d`, `1700`
@@ -381,7 +381,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -437,7 +437,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -459,7 +459,7 @@ into 16 bits; as bits it is `1 0000 0000 0010 1101`, 0x1002D. **On a value.** In
 1 + 1 = 0, since 1 XOR 1 = 0, and `615d` + `1700` = `765d`, byte by byte.
 
 **(H.9) and (H.10), read aloud.** "m-i is the tuple of its bits, m-i-0 to m-i-15." "i tilde
-is the sum over j from 0 to 15 of i-j times v-j." **In plain words.** A word is 16 bits,
+is the sum over j from 0 to 15 of i-j times v-j." **What it means.** A word is 16 bits,
 lowest first, and the paper reads each bit as a weight on one of the 16 basis values v₀ to
 v₁₅ in the table: a change of coordinates that makes the fast algorithm work. A validator's
 index becomes a field value the same way. **On a value.** Validator 5 is binary `101`, bits
@@ -484,7 +484,7 @@ p (\widetilde{d-1}) = \widetilde{m_{d-1}}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -513,7 +513,7 @@ $$
 
 **(H.11) and (H.12), read aloud.** "p of 0 tilde is m-0 tilde, p of 1 tilde is m-1 tilde, and
 so on to p of d − 1 tilde." "r-d tilde is defined as p of d tilde, and so on to r-v−1
-tilde." **In plain words.** Draw the one curve, a polynomial of degree below d, through
+tilde." **What it means.** Draw the one curve, a polynomial of degree below d, through
 the d message words, then read the curve at the other validators' points. Any d points
 pin the curve down again, so any d chunks rebuild the message: the same idea as Shamir's
 secret sharing, which [3.3](./03-work-and-reports/03-a-work-report.md) compares. **On a

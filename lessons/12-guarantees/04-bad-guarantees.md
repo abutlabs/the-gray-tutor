@@ -49,7 +49,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ $$
 
 </details>
 
-→ [(11.25), (11.26) in plain words](./gray-paper.md#ex-11-25)
+→ [(11.25), (11.26) explained](./gray-paper.md#ex-11-25)
 
 <a id="gp-11-4-p5"></a>Credentials must be ordered by their validator index:
 
@@ -77,7 +77,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ $$
 
 </details>
 
-→ [(11.27) in plain words](./gray-paper.md#ex-11-27)
+→ [(11.27) explained](./gray-paper.md#ex-11-27)
 
 :::
 
@@ -107,7 +107,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ $$
 
 </details>
 
-→ [(11.30) in plain words](./gray-paper.md#ex-11-30)
+→ [(11.30) explained](./gray-paper.md#ex-11-30)
 
 <a id="gp-11-4-p12"></a>The total number of <abbr class="gp-term" title="cut into one piece per validator, so that any third of the pieces rebuild the whole">erasure-coded</abbr> chunks for each report must match the number of active validators:
 
@@ -129,7 +129,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -140,7 +140,7 @@ $$
 
 </details>
 
-→ [(11.31) in plain words](./gray-paper.md#ex-11-31)
+→ [(11.31) explained](./gray-paper.md#ex-11-31)
 
 <a id="gp-11-4-p14"></a>No guarantees may be placed on cores which already have availability assignments. A guarantee is valid only if the report's authorizer hash is present in the authorizer pool of the core on which the work is reported. Formally:
 
@@ -153,7 +153,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -165,7 +165,7 @@ $$
 
 </details>
 
-→ [(11.32) in plain words](./gray-paper.md#ex-11-32)
+→ [(11.32) explained](./gray-paper.md#ex-11-32)
 
 :::
 

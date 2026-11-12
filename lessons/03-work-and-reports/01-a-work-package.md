@@ -52,7 +52,7 @@ u\in \mathbb{H}_{},\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ $$
 
 </details>
 
-→ [(14.2) in plain words](./gray-paper.md#ex-14-2)
+→ [(14.2) explained](./gray-paper.md#ex-14-2)
 
 <a id="gp-14-3-p3"></a>A work item includes: $s$ the identifier of the service to which it relates, the code hash of the service at the time of reporting $c$ (whose preimage must be available from the perspective of the lookup anchor block), a payload blob $\mathbf{y}$, gas limits for Refinement and Accumulation $g$ &amp; $a$, and the three elements of its manifest, a sequence of imported data segments $\mathbf{i}$ which identify a prior exported segment through an index and the identity of an exporting work-package, $\mathbf{x}$, a sequence of extrinsic data hashes and lengths and $e$ the number of data segments exported by this work item.
 
@@ -97,7 +97,7 @@ e\in \mathbb{N}, \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ $$
 
 </details>
 
-→ [(14.3) in plain words](./gray-paper.md#ex-14-3)
+→ [(14.3) explained](./gray-paper.md#ex-14-3)
 
 :::
 
@@ -145,7 +145,7 @@ l&\in \mathbb{H}_{}\,,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -160,7 +160,7 @@ $$
 
 </details>
 
-→ [(11.4) in plain words](./gray-paper.md#ex-11-4)
+→ [(11.4) explained](./gray-paper.md#ex-11-4)
 
 :::
 
@@ -184,7 +184,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -203,7 +203,7 @@ $$
 
 </details>
 
-→ [(14.11) in plain words](./gray-paper.md#ex-14-11)
+→ [(14.11) explained](./gray-paper.md#ex-14-11)
 
 <a id="gp-14-3-p18"></a>(The historical lookup function, $\Lambda$, is defined in equation [9.7](../14-services/01-providing-preimages.md#eq-9-7).)
 

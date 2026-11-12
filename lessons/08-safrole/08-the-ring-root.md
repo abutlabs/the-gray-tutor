@@ -51,7 +51,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ $$
 
 </details>
 
-→ [(6.4) in plain words](./gray-paper.md#ex-6-4)
+→ [(6.4) explained](./gray-paper.md#ex-6-4)
 
 :::
 
@@ -83,7 +83,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ $$
 
 </details>
 
-→ [(G.3), (G.4), (G.5) in plain words](./gray-paper.md#ex-G-3)
+→ [(G.3), (G.4), (G.5) explained](./gray-paper.md#ex-G-3)
 
 <a id="gp-G-p6"></a>Note that in the case a key $\overset{\backsim}{\mathbb{H}_{}}$ has no corresponding Bandersnatch point when constructing the ring, then the Bandersnatch *<abbr class="gp-term" title="a fixed curve point that stands in, in a ring, for a key that is not a valid point">padding point</abbr>* as stated by [Hosseini and Galassi 2024](https://github.com/davxy/bandersnatch-vrfs-spec/blob/main/specification.pdf) should be substituted.
 

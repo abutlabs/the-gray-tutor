@@ -67,7 +67,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -80,7 +80,7 @@ $$
 
 </details>
 
-→ [(B.17) in plain words](./gray-paper.md#ex-B-17)
+→ [(B.17) explained](./gray-paper.md#ex-B-17)
 
 <a id="gp-B-5-p8"></a>With base cost $c$, total gas is $c + \mathcal{G}(L, \ell)$. The host-call table below uses this formula for all memory-sized terms.
 

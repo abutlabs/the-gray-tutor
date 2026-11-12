@@ -122,7 +122,7 @@ s\in \bar{\mathbb{V}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -162,7 +162,7 @@ c \mathrel{\unicode{x2B40}} \mathbb{N}_{\mathsf{C}},\;
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |

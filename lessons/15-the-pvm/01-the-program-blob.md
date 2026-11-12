@@ -66,7 +66,7 @@ Y\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ $$
 
 </details>
 
-→ [(A.41) in plain words](./gray-paper.md#ex-A-41)
+→ [(A.41) explained](./gray-paper.md#ex-A-41)
 
 <a id="gp-A-7-p4"></a>With conditions:
 
@@ -102,7 +102,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -121,7 +121,7 @@ $$
 
 </details>
 
-→ [(A.42), (A.43), (A.44), (A.45) in plain words](./gray-paper.md#ex-A-42)
+→ [(A.42), (A.43), (A.44), (A.45) explained](./gray-paper.md#ex-A-42)
 
 :::
 

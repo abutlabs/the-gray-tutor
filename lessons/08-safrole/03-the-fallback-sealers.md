@@ -53,7 +53,7 @@ i \in \mathbb{N}_{\mathsf{E}}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ $$
 
 </details>
 
-→ [(6.27) in plain words](./gray-paper.md#ex-6-27)
+→ [(6.27) explained](./gray-paper.md#ex-6-27)
 
 :::
 

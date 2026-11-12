@@ -47,7 +47,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ $$
 
 </details>
 
-→ [(C.3) in plain words](./gray-paper.md#ex-C-3)
+→ [(C.3) explained](./gray-paper.md#ex-C-3)
 
 <a id="gp-C-1-1-p7"></a>Passing multiple arguments to the <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> functions is equivalent to passing a tuple of those arguments. Formally:
 
@@ -69,7 +69,7 @@ $$
 \end{align}
 $$
 
-→ [(C.4) in plain words](./gray-paper.md#ex-C-4)
+→ [(C.4) explained](./gray-paper.md#ex-C-4)
 
 :::
 

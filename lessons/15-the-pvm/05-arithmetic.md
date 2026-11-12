@@ -155,7 +155,7 @@ a &\text{if } b = 0\\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -171,7 +171,7 @@ $$
 
 </details>
 
-→ [(A.36) in plain words](./gray-paper.md#ex-A-36)
+→ [(A.36) explained](./gray-paper.md#ex-A-36)
 
 <a id="gp-A-5-13-p5"></a>Division operations always round their result towards zero. Formally:
 
@@ -189,7 +189,7 @@ x &\mapsto \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -199,7 +199,7 @@ $$
 
 </details>
 
-→ [(A.37) in plain words](./gray-paper.md#ex-A-37)
+→ [(A.37) explained](./gray-paper.md#ex-A-37)
 
 :::
 

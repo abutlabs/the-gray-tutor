@@ -58,7 +58,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ $$
 
 </details>
 
-→ [(A.9) in plain words](./gray-paper.md#ex-A-9)
+→ [(A.9) explained](./gray-paper.md#ex-A-9)
 
 :::
 

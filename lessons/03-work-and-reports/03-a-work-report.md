@@ -102,7 +102,7 @@ g\in \mathbb{N}_G
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -131,7 +131,7 @@ $$
 
 </details>
 
-→ [(11.2) in plain words](./gray-paper.md#ex-11-2)
+→ [(11.2) explained](./gray-paper.md#ex-11-2)
 
 :::
 
@@ -156,7 +156,7 @@ n\in \mathbb{N}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -172,7 +172,7 @@ $$
 
 </details>
 
-→ [(11.5) in plain words](./gray-paper.md#ex-11-5)
+→ [(11.5) explained](./gray-paper.md#ex-11-5)
 
 <a id="gp-11-1-3-p3"></a>The *erasure-root* ($u$) is the root of a binary Merkle tree whose leaves are the $v$ chunks produced by erasure-coding the <abbr class="gp-term" title="a package with everything needed to redo its work, as auditors fetch it">work-package bundle</abbr> and exported segments. As one chunk is distributed to each assurer, the number of chunks must equal the size of the assuring validator set. The erasure-root functions as a <abbr class="gp-term" title="a short hash that stands for some data, so the data can be checked against it later">commitment</abbr> to all data required for the auditing of the report and for use by later work-packages should they need to retrieve any data yielded. It is thus used by assurers to verify the correctness of data they have been sent by guarantors, and it is later verified as correct by auditors. It is discussed fully in section [14](./index.md#gp-14-1-p1).
 

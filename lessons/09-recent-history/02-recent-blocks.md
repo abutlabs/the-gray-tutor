@@ -52,7 +52,7 @@ t\in \mathbb{N}_T,
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ $$
 
 </details>
 
-→ [(7.1), (7.2), (7.3), (7.4) in plain words](./gray-paper.md#ex-7-1)
+→ [(7.1), (7.2), (7.3), (7.4) explained](./gray-paper.md#ex-7-1)
 
 <a id="gp-7-p3"></a>For each recent block, we retain its header hash, its state root, its accumulation-result MMB and the corresponding work-package hashes of each item reported (which is no more than the total number of cores, $\mathsf{C} = 341$).
 
@@ -93,7 +93,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ $$
 
 </details>
 
-→ [(7.5) in plain words](./gray-paper.md#ex-7-5)
+→ [(7.5) explained](./gray-paper.md#ex-7-5)
 
 :::
 
@@ -140,7 +140,7 @@ g \in \mathbf{E}_G
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -162,7 +162,7 @@ $$
 
 </details>
 
-→ [(7.8) in plain words](./gray-paper.md#ex-7-8)
+→ [(7.8) explained](./gray-paper.md#ex-7-8)
 
 <a id="gp-7-p10"></a>The new state-trie root is the zero hash, $\mathbb{H}_{0}$, which is inaccurate but safe since $\beta'$ is not utilized except to define the next block's $\beta^\dagger$, which contains a corrected value for this, as per equation [7.5](#eq-7-5).
 

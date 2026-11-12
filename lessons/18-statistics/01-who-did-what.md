@@ -58,7 +58,7 @@ a\in \mathbb{N}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ $$
 
 </details>
 
-→ [(13.1), (13.2), (13.3) in plain words](./gray-paper.md#ex-13-1)
+→ [(13.1), (13.2), (13.3) explained](./gray-paper.md#ex-13-1)
 
 <a id="gp-13-1-p5"></a>The six validator statistics we track are:
 
@@ -142,7 +142,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -166,7 +166,7 @@ $$
 
 </details>
 
-→ [(13.4), (13.5), (13.6) in plain words](./gray-paper.md#ex-13-4)
+→ [(13.4), (13.5), (13.6) explained](./gray-paper.md#ex-13-4)
 
 <a id="gp-13-1-p9"></a>Note that $\mathbf{G}$ is the *Reporters* set, as defined in equation [11.28](../12-guarantees/02-signed-and-counted.md#eq-11-28).
 

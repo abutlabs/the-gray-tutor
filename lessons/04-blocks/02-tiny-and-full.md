@@ -61,7 +61,7 @@ b_{i} \cdot 2^i
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ $$
 
 </details>
 
-→ [(C.9) in plain words](./gray-paper.md#ex-C-9)
+→ [(C.9) explained](./gray-paper.md#ex-C-9)
 
 :::
 

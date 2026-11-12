@@ -74,7 +74,7 @@ P(R(\mathbf{r}, n, \emptyset), H(\mathbf{r}_{n} \frown l), n + 1, H) &\text{othe
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -97,7 +97,7 @@ $$
 
 </details>
 
-→ [(E.8) in plain words](./gray-paper.md#ex-E-8)
+→ [(E.8) explained](./gray-paper.md#ex-E-8)
 
 :::
 
@@ -160,7 +160,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -174,7 +174,7 @@ $$
 
 </details>
 
-→ [(E.9) in plain words](./gray-paper.md#ex-E-9)
+→ [(E.9) explained](./gray-paper.md#ex-E-9)
 
 <a id="gp-E-2-p8"></a>We define the MMR super-peak function as $\mathcal{M}_R$:
 
@@ -194,7 +194,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -207,7 +207,7 @@ $$
 
 </details>
 
-→ [(E.10) in plain words](./gray-paper.md#ex-E-10)
+→ [(E.10) explained](./gray-paper.md#ex-E-10)
 
 :::
 
@@ -271,7 +271,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -284,7 +284,7 @@ $$
 
 </details>
 
-→ [(7.6), (7.7) in plain words](./gray-paper.md#ex-7-6)
+→ [(7.6), (7.7) explained](./gray-paper.md#ex-7-6)
 
 :::
 

@@ -53,7 +53,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ $$
 
 </details>
 
-→ [(5.1) in plain words](./gray-paper.md#ex-5-1)
+→ [(5.1) explained](./gray-paper.md#ex-5-1)
 
 :::
 
@@ -113,7 +113,7 @@ P\left(\mathbf{H}\right)_{T} < \mathbf{H}_{T}\ \wedge\ \mathbf{H}_{T}\cdot\maths
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -128,7 +128,7 @@ $$
 
 </details>
 
-→ [(5.8) in plain words](./gray-paper.md#ex-5-8)
+→ [(5.8) explained](./gray-paper.md#ex-5-8)
 
 <a id="gp-5-p13"></a>Blocks considered invalid by this rule may become valid as $\mathcal{T}$ advances.
 
@@ -157,7 +157,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -169,7 +169,7 @@ $$
 
 </details>
 
-→ [(5.10) in plain words](./gray-paper.md#ex-5-10)
+→ [(5.10) explained](./gray-paper.md#ex-5-10)
 
 :::
 
@@ -196,7 +196,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -212,7 +212,7 @@ $$
 
 </details>
 
-→ [(5.11) in plain words](./gray-paper.md#ex-5-11)
+→ [(5.11) explained](./gray-paper.md#ex-5-11)
 
 <a id="gp-5-1-p3"></a>The terms are fully defined in sections [6.6](../08-safrole/05-one-step-of-safrole.md#gp-6-6-p1) and [10](../10-disputes/index.md#gp-10-p1).
 

@@ -55,7 +55,7 @@ x &\mapsto \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ $$
 
 </details>
 
-→ [(C.5) in plain words](./gray-paper.md#ex-C-5)
+→ [(C.5) explained](./gray-paper.md#ex-C-5)
 
 :::
 

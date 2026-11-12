@@ -62,7 +62,7 @@ U \equiv \left[\!\left[\!\left\lgroup\mathbb{N}_S, \mathbb{N}_G\right\rgroup\!\r
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ $$
 
 </details>
 
-→ [(12.16) in plain words](./gray-paper.md#ex-12-16)
+→ [(12.16) explained](./gray-paper.md#ex-12-16)
 
 :::
 

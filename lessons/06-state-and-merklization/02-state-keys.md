@@ -51,7 +51,7 @@ i \in \mathbb{N}_{2^{8}} &\mapsto \left[i, 0, 0, \dots\right] \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ $$
 
 </details>
 
-→ [(D.1) in plain words](./gray-paper.md#ex-D-1)
+→ [(D.1) explained](./gray-paper.md#ex-D-1)
 
 :::
 

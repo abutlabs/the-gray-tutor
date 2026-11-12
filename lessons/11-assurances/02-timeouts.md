@@ -50,7 +50,7 @@ p &\text{otherwise}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ $$
 
 </details>
 
-→ [(11.18) in plain words](./gray-paper.md#ex-11-18)
+→ [(11.18) explained](./gray-paper.md#ex-11-18)
 
 <a id="gp-11-2-2-p5"></a>Note that all items are cleared when the size of the active validator key set $\kappa$ changes. Items cleared in this way can be viewed as having timed out early.
 

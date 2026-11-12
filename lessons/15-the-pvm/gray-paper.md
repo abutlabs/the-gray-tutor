@@ -1,4 +1,4 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 15](./index.md)'s appendix: every formula of Appendix A, *Polkadot Virtual Machine*,
 explained. That is 65 numbered equations in 54 blocks, thirteen tables of instructions and
@@ -13,7 +13,7 @@ one of prices. They say:
 
 The real values come from two places. One is the bootstrap service, service 0 of the
 fallback trace, whose code [lesson 15.1](./01-the-program-blob.md) unpacks. The other is
-the lessons' own small programs. Each formula: its key, then read aloud, in plain words, on
+the lessons' own small programs. Each formula: its key, then read aloud, what it means, on
 a real value, in your client. Notation:
 [Reading the Gray Paper](../reading-the-gray-paper.md).
 
@@ -72,7 +72,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -141,7 +141,7 @@ not in T; v-blob at the next instruction if v-inst holds at i; and false otherwi
 of c, k, i says: k is as long as c, i is inside it, bit i of k is 1, and byte i of c is an
 opcode in U."
 
-**In plain words.** Ψ is a loop around one step, Ψ₁. It runs a step, and if the step says
+**What it means.** Ψ is a loop around one step, Ψ₁. It runs a step, and if the step says
 carry on (▸), runs again from where the step left the machine. Any other exit stops the
 loop, and what comes back depends on why:
 
@@ -217,7 +217,7 @@ i &\mapsto \min(24,\ j \in \mathbb{N} : \left(\mathbf{k} \frown \left[1, 1, \dot
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -240,7 +240,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -255,7 +255,7 @@ $$
 of 24 and the j for which, in k followed by ones forever, the entry at i plus 1 plus j is
 1." (A.4): "zeta is defined as c followed by zeros forever."
 
-**In plain words.** The code is just bytes, and nothing in an instruction says how long it
+**What it means.** The code is just bytes, and nothing in an instruction says how long it
 is. The bitmask does. skip(ı) counts the bytes after the opcode at ı until the next byte
 whose bit is 1, so the next instruction starts at ı + 1 + skip(ı). The ones added after 𝐤
 make the last instruction end at the end of the code. The 24 is a cap, so a broken
@@ -291,7 +291,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -318,7 +318,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -336,7 +336,7 @@ all of that, kept only where it is also an n whose bit in k is 1 and whose byte 
 U." (A.6): "L takes a counter and gives a counter: i maps to the largest j in curly pi that is
 at most i."
 
-**In plain words.** A basic block starts at 0, and just after every terminator: a `trap`, a
+**What it means.** A basic block starts at 0, and just after every terminator: a `trap`, a
 `fallthrough`, a jump or a branch (the list before (A.5)). The intersection at the end
 drops a "start" that isn't really an instruction, such as the one just past the code's last
 instruction. ϖ is the set of those starts, and only they may be jumped to ((A.20) to
@@ -385,7 +385,7 @@ continue, or a fault or host call with a number; and a counter, gas, the flag, t
 registers and a memory. Psi one of all those maps to epsilon star, i star, rho star, rho
 tilde star, phi star and mu star."
 
-**In plain words.** One step's type, and a promise: the starred values are the step's
+**What it means.** One step's type, and a promise: the starred values are the step's
 final answer, and the next five formulas build them:
 
 - (A.8) pays for the block;
@@ -423,7 +423,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -438,7 +438,7 @@ $$
 if rho tilde is true; otherwise, continue, rho less the gas cost of the block that i is
 in, and true, if rho is at least that cost; otherwise, out of gas, rho, and false."
 
-**In plain words.** Gas is paid a whole basic block at a time, before any of it runs.
+**What it means.** Gas is paid a whole basic block at a time, before any of it runs.
 Three cases, in order:
 
 1. The block is already paid for (ϱ̃ is true): nothing to pay.
@@ -481,7 +481,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -504,7 +504,7 @@ mod 2^32, is below 2^16; otherwise, a fault, times Z sub P times the floor of th
 x, mod 2^32, over Z sub P. Where x is the set of the x that are in r with x mod 2^32 not
 readable in mu, or in w with x mod 2^32 not writable in mu."
 
-**In plain words.** 𝐫 and 𝐰 are the addresses the instruction would read and write. 𝐱 is
+**What it means.** 𝐫 and 𝐰 are the addresses the instruction would read and write. 𝐱 is
 the bad ones: read where reading isn't allowed, or written where writing isn't. No bad
 ones, carry on. Otherwise the lowest bad one decides, its address wrapped round at 2^32:
 
@@ -542,7 +542,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -565,7 +565,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -581,7 +581,7 @@ epsilon mu is not continue; otherwise epsilon, i prime, phi prime and mu prime."
 "Rho tilde star is false when rho tilde prime is false, or when the opcode at i is in T and
 epsilon star is continue or a host call; true otherwise."
 
-**In plain words.** A step has three verdicts, and (A.10) takes the first that isn't
+**What it means.** A step has three verdicts, and (A.10) takes the first that isn't
 "carry on": the gas's, then memory's, then the instruction's own. The first two leave ı,
 the registers and the memory exactly as they were. That is why a paused machine can be
 resumed. (A.11) turns the flag off after a terminator that carried on. The machine is about
@@ -626,7 +626,7 @@ $$
 **Read it aloud.** "Epsilon is continue, i prime is i plus 1 plus skip of i, phi prime is
 phi, and mu prime is mu, except as indicated."
 
-**In plain words.** The default every row of the tables starts from: carry on, move to the
+**What it means.** The default every row of the tables starts from: carry on, move to the
 next instruction, change nothing. A row only says what's different. So `add_64`'s row
 says only which register changes, and `jump`'s only where ı goes.
 
@@ -680,7 +680,7 @@ x &\mapsto \mathbf{y}: \forall i \in \mathbb{N}_{8n} : \mathbf{y}[8n - 1 - i] \L
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -711,7 +711,7 @@ rounded down, is odd." (A.16): "B sub n inverse maps bits x to the sum, over i, 
 times 2 to the i." (A.17) and (A.18): "the same, with the bits the other way round: bit 8n
 minus 1 minus i."
 
-**In plain words.** A register is 64 bits, and the same bits mean different numbers
+**What it means.** A register is 64 bits, and the same bits mean different numbers
 depending on who reads them. Z_n reads n bytes as a signed number: if the top bit is set,
 the number is negative, 2^{8n} below what it looks like. Z_n⁻¹ goes back. B_n lists the
 bits, the lowest first (bit 0 is the 1s place). The reversed B lists them the highest
@@ -748,7 +748,7 @@ x &\mapsto x + \left\lfloor\frac{x}{2^{8n-1}}\right\rfloor(2^{64}-2^{8n})
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -762,7 +762,7 @@ $$
 gives a register's value: x maps to x, plus x over 2 to the 8n minus 1 rounded down, times
 2 to the 64 minus 2 to the 8n."
 
-**In plain words.** "x over 2^{8n−1}, rounded down" is the top bit of the n bytes: 0 or 1.
+**What it means.** "x over 2^{8n−1}, rounded down" is the top bit of the n bytes: 0 or 1.
 If it's 0, X adds nothing. If it's 1, X adds 2^64 − 2^{8n}, which is every bit above the n
 bytes set to 1. So the number keeps its meaning when read signed: an immediate of 1 byte,
 `f7`, is −9, and stretched to 64 bits it is still −9. That lets an instruction carry small
@@ -794,7 +794,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -819,7 +819,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -843,7 +843,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -863,7 +863,7 @@ and i, when a is 2 to the 32 minus 2 to the 16; panic and i, when a is 0, or a i
 than the length of j times Z sub A, or a mod Z sub A is not 0, or entry a over Z sub A
 minus 1 of j is not in curly pi; otherwise continue, and that entry."
 
-**In plain words.** Three ways to move ı somewhere new, used by the tables' rows:
+**What it means.** Three ways to move ı somewhere new, used by the tables' rows:
 
 - **`sjump`**, a static jump: the target b must start a basic block, or panic.
 - **`branch`**, a jump on a condition C: *both* places it could go must start a block,
@@ -906,7 +906,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -918,7 +918,7 @@ $$
 
 **Read it aloud.** "ell is defined as skip of i."
 
-**In plain words.** ℓ is the number of bytes after the opcode: everything up to the next
+**What it means.** ℓ is the number of bytes after the opcode: everything up to the next
 instruction. Every table's layout below splits those ℓ bytes into registers and numbers.
 
 **On a real value.** `load_imm_jump` at 92,098, bytes `50 20 fe 09 65 7b`: the next
@@ -933,7 +933,7 @@ after its opcode. Each table but the first opens with one formula, its layout, q
 [lesson 15.2](./02-instructions.md#what-the-gray-paper-says). Then it lists its
 instructions, one row each: the opcode, the name, and what changes, its mutations, against
 the default of (A.12). The rows are quoted in the lessons that run them. Below, there is
-one heading for each table: its layout read aloud, then a few rows read in plain words and
+one heading for each table: its layout read aloud, then a few rows explained and
 run on real registers. Three rules hold in every layout:
 
 - **A register is half a byte.** The byte after the opcode, ζ_{ı+1}, holds one register
@@ -951,7 +951,7 @@ run on real registers. Three rules hold in every layout:
 
 This table has no layout formula, since there's nothing to read after the opcode.
 
-**In plain words.** Three rows:
+**What it means.** Three rows:
 
 - `trap` (0) panics: ε = ↯.
 - `fallthrough` (1) does nothing but end a basic block, by an `sjump` to the next
@@ -983,7 +983,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -999,7 +999,7 @@ $$
 **Read it aloud.** "Let l X be the least of 4 and ell; nu X is defined as X sub l X of the
 l X bytes from i plus 1, decoded."
 
-**In plain words.** One number, in the bytes after the opcode, up to 4 of them. The one row
+**What it means.** One number, in the bytes after the opcode, up to 4 of them. The one row
 is `ecalli` (10): the step ends with ε = ħ × ν_X, a host call, and ν_X says which.
 
 **On a real value.** The `ecalli` at 121,489 that the bootstrap service reaches first
@@ -1030,7 +1030,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1043,7 +1043,7 @@ $$
 **Read it aloud.** "Let r A be the least of 12 and byte i plus 1 mod 16; phi prime A is phi
 prime at r A; nu X is the 8 bytes from i plus 2, decoded."
 
-**In plain words.** The one way to put a whole 64-bit number in a register: a register in
+**What it means.** The one way to put a whole 64-bit number in a register: a register in
 the byte after the opcode, then exactly 8 bytes. They fill the register as they are, so
 there is no X here. The one row, `load_imm_64` (20), is φ′_A = ν_X.
 
@@ -1083,7 +1083,7 @@ $$
 of the l X bytes from i plus 2. Let l Y be the least of 4 and the greater of 0 and ell less
 l X less 1, and nu Y be X sub l Y of the l Y bytes from i plus 2 plus l X."
 
-**In plain words.** Two numbers and no register. The byte after the opcode holds only the
+**What it means.** Two numbers and no register. The byte after the opcode holds only the
 first number's length. The first number follows, and the second takes whatever is left.
 The rows, 30 to 33, are `store_imm_u8` to `store_imm_u64`: write ν_Y's low 1, 2, 4 or 8
 bytes, little-endian, at address ν_X.
@@ -1126,7 +1126,7 @@ $$
 **Read it aloud.** "Let l X be the least of 4 and ell; nu X is defined as i plus Z sub l X
 of the l X bytes from i plus 1, decoded."
 
-**In plain words.** One offset, read signed and added to ı: ν_X is where to go. The one
+**What it means.** One offset, read signed and added to ı: ν_X is where to go. The one
 row, `jump` (40), is `sjump`(ν_X).
 
 **On a real value.** The bootstrap code's two front doors ([lesson
@@ -1166,7 +1166,7 @@ $$
 prime A the register r A before and after. Let l X be the least of 4 and the greater of 0
 and ell less 1; nu X is X sub l X of the l X bytes from i plus 2."
 
-**In plain words.** A register, then a number. The rows, 50 to 62:
+**What it means.** A register, then a number. The rows, 50 to 62:
 
 - `jump_ind` (50): `djump`((φ_A + ν_X) mod 2^32), a jump through the table ((A.22)).
 - `load_imm` (51): φ′_A = ν_X.
@@ -1217,7 +1217,7 @@ least of 4 and byte i plus 1 over 16, rounded down, mod 8; nu X is X sub l X of 
 bytes from i plus 2. Let l Y be the least of 4 and the greater of 0 and ell less l X less
 1; nu Y is X sub l Y of the l Y bytes after."
 
-**In plain words.** The byte after the opcode is shared: its low half is a register, its
+**What it means.** The byte after the opcode is shared: its low half is a register, its
 high half the first number's length. The rows, 70 to 73, are `store_imm_ind_u8` to
 `_u64`: write ν_Y's low bytes at φ_A + ν_X. That is a constant stored through a register,
 such as zeroing a variable on the stack.
@@ -1263,7 +1263,7 @@ $$
 its high half, and nu X. Let l Y be the least of 4 and the greater of 0 and ell less l X
 less 1; nu Y is i plus Z sub l Y of the l Y bytes after."
 
-**In plain words.** As A.5.7, but the second number is an offset, so ν_Y is a place in the
+**What it means.** As A.5.7, but the second number is an offset, so ν_Y is a place in the
 code. The rows, 80 to 90:
 
 - `load_imm_jump` (80): φ′_A = ν_X and `sjump`(ν_Y), a function call. ν_X is the way back,
@@ -1316,7 +1316,7 @@ $$
 of 12 and byte i plus 1 over 16, rounded down; phi D, phi prime D, phi A and phi prime A
 are those registers, before and after."
 
-**In plain words.** One byte, two registers: D, the one written, in the low half, and A,
+**What it means.** One byte, two registers: D, the one written, in the low half, and A,
 the one read, in the high half. Every row, 100 to 110, makes φ′_D from φ_A alone:
 
 - `move_reg` copies it;
@@ -1369,7 +1369,7 @@ of 12 and byte i plus 1 over 16, rounded down, each with its register before and
 Let l X be the least of 4 and the greater of 0 and ell less 1; nu X is X sub l X of the l X
 bytes from i plus 2."
 
-**In plain words.** The biggest table, 120 to 161. Two registers in one byte, then a
+**What it means.** The biggest table, 120 to 161. Two registers in one byte, then a
 number. The first eleven rows are loads and stores through a register, at address
 φ_B + ν_X: `store_ind_…` write φ_A there, `load_ind_…` read into φ′_A. The rest are
 arithmetic with a constant, φ′_A from φ_B and ν_X:
@@ -1426,7 +1426,7 @@ $$
 of 12 and byte i plus 1 over 16, rounded down. Let l X be the least of 4 and the greater of
 0 and ell less 1; nu X is i plus Z sub l X of the l X bytes from i plus 2."
 
-**In plain words.** Two registers to compare, and where to go. The rows, 170 to 175, are
+**What it means.** Two registers to compare, and where to go. The rows, 170 to 175, are
 branch(ν_X, φ_A compared with φ_B): `eq`, `ne`, and `lt` and `ge` unsigned and signed.
 There's no `le` or `gt` with two registers: swap them and use `ge` or `lt`.
 
@@ -1474,7 +1474,7 @@ the least of 4 and byte i plus 2 mod 8; nu X is X sub l X of the l X bytes from 
 Let l Y be the least of 4 and the greater of 0 and ell less l X less 2; nu Y is X sub l Y
 of the l Y bytes after."
 
-**In plain words.** Two registers, then a byte for the first number's length, then two
+**What it means.** Two registers, then a byte for the first number's length, then two
 numbers. The one row, `load_imm_jump_ind` (180), is a call through a register: φ′_A = ν_X,
 the way back, and `djump`((φ_B + ν_Y) mod 2^32). φ_B is read before φ_A changes. That
 matters when they are the same register.
@@ -1534,7 +1534,7 @@ a &\text{if } b = 0\\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1560,7 +1560,7 @@ x &\mapsto \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1578,7 +1578,7 @@ gives one: a and b map to a, when b is 0; otherwise the sign of a, times the siz
 the size of b." (A.37): "rtz takes a number and gives an integer: x maps to x rounded up
 when x is below 0, and x rounded down otherwise."
 
-**In plain words.** Two inputs, φ_A and φ_B, and an output, φ′_D. The rows, 190 to 230,
+**What it means.** Two inputs, φ_A and φ_B, and an output, φ′_D. The rows, 190 to 230,
 are the arithmetic of a real CPU:
 
 - add, subtract, multiply, divide and remainder, in 32 and 64 bits, signed and unsigned;
@@ -1651,7 +1651,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1676,7 +1676,7 @@ panic, halt or out of gas: give that back, with i prime and the double-primed va
 "Omega of X is the type of a function from a number, gas, registers, memory and an X to:
 continue, halt, panic or out of gas, with gas, registers, memory and an X."
 
-**In plain words.** Ψ stops on every host call and waits. Ψ_H is the loop that answers
+**What it means.** Ψ stops on every host call and waits. Ψ_H is the loop that answers
 them. It hands each call to the host's function f, with x, the host's own context (for
 accumulation, the accounts as the service changes them). If f says carry on, the machine
 carries on after the `ecalli`, from its next instruction. If f says stop, so does Ψ_H. So
@@ -1716,7 +1716,7 @@ Y\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1740,7 +1740,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1763,7 +1763,7 @@ of x be Z sub P times x over Z sub P, rounded up, and Z of x be Z sub Z times x 
 Z, rounded up." (A.45): "Five Z sub Z, plus Z of the size of o, plus Z of the size of w plus
 z pages, plus Z of s, plus Z sub I, is at most 2 to the 32."
 
-**In plain words.** A standard program 𝔧 is a PVM blob with a memory plan in front:
+**What it means.** A standard program 𝔧 is a PVM blob with a memory plan in front:
 
 - o, data the program may only read;
 - w, data it may read and write, with z pages of zeroed heap after it;
@@ -1842,7 +1842,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1884,7 +1884,7 @@ a; zero, read only, to the end of a's pages; and otherwise zero, with no access.
 less 2 Z sub Z less Z sub I, when i is 1; 2 to the 32 less Z sub Z less Z sub I, when i is 7;
 the size of a, when i is 8; and 0 otherwise."
 
-**In plain words.** The memory a program wakes up in, from the bottom:
+**What it means.** The memory a program wakes up in, from the bottom:
 
 1. nothing in the first zone;
 2. o, read only, one zone up, padded with zeros to a whole page;
@@ -1952,7 +1952,7 @@ R(\varrho, \Psi_H(\mathfrak{p}, \imath, \varrho, \varphi, {\mu}, f, \mathbf{x}))
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1972,7 +1972,7 @@ bytes, and x prime, when epsilon is halt and those bytes are readable; u, an emp
 x prime, when it halted but they aren't; and u, panic and x prime otherwise. And u is the
 gas given less the greater of the gas left and 0."
 
-**In plain words.** The one door the rest of the paper uses: Is-Authorized, refine and
+**What it means.** The one door the rest of the paper uses: Is-Authorized, refine and
 accumulate all call Ψ_M (Appendix B). It lays the program out with Y, runs it with the
 host's f through Ψ_H from ı, and turns how it ended into an answer:
 
@@ -2016,7 +2016,7 @@ t\in \mathbb{E},
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2050,7 +2050,7 @@ t\in \mathbb{E}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2079,7 +2079,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2106,7 +2106,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2140,7 +2140,7 @@ where c is in E, and for each kind k, c k is a k with it b k." (A.53): "For all 
 and for less, more, at most or at least: a compared with b is defined as: that comparison
 holds for every kind k."
 
-**In plain words.** The gas model prices a block by imagining a small CPU running it. Its
+**What it means.** The gas model prices a block by imagining a small CPU running it. Its
 state is 𝕊:
 
 - ı, the next instruction to decode (∅ once the block's terminator is decoded);
@@ -2201,7 +2201,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2218,7 +2218,7 @@ $$
 natural: c, k, i maps to the greater of x final's c less 3, and 1. Where x final is X of c,
 k and x initial, and x initial is: i, 0, 4, 5, (4, 4, 4, 1, 1), and an empty buffer."
 
-**In plain words.** A block's gas is the cycles the model CPU takes to run it, from a
+**What it means.** A block's gas is the cycles the model CPU takes to run it, from a
 standing start until every instruction has retired. Take off 3, the pipeline's own
 overhead, and never go below 1. The CPU starts at the block's first instruction, at
 cycle 0, with nothing in its buffer. It has 4 decode slots, 5 starts, 4 ALUs, 4 load
@@ -2256,7 +2256,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2276,7 +2276,7 @@ nothing and x may start more this cycle; otherwise x itself, when x's i is nothi
 is 0; otherwise X again, after X triple prime. Where l is how many entries of x's buffer,
 in order, aren't retired."
 
-**In plain words.** A CPU in a loop. Each turn does the first of four things that it can:
+**What it means.** A CPU in a loop. Each turn does the first of four things that it can:
 
 1. **Decode** the next instruction (X′), if there is one, there are slots for it this
    cycle, and fewer than 32 entries are live.
@@ -2351,7 +2351,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2401,7 +2401,7 @@ p &= \left\{\,i \;\middle\vert\;  i \in \mathbb{N}_{\left\vert{\mathbf{x}_{\math
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2425,7 +2425,7 @@ every entry's registers; the new r is what the instruction writes, c its cycles,
 units, and p every entry whose registers meet what it reads; and x prime's buffer is r with
 a new entry on the end: DEC, c, p, r, t."
 
-**In plain words.** Decoding puts an instruction in the buffer, and works out what it must
+**What it means.** Decoding puts an instruction in the buffer, and works out what it must
 wait for: every entry still making a register it reads. Then it takes over the registers it
 writes, so a later reader waits on it, not on an older writer. Decoding a terminator ends
 the block: ı becomes ∅. `move_reg` is special, as on a real CPU: it never enters the buffer
@@ -2474,7 +2474,7 @@ n &= \mathfrak{S}(\mathbf{x})\\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2511,7 +2511,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2527,7 +2527,7 @@ state and gives a natural or nothing: nothing when s is empty, else the least of
 is the set of j among the buffer's indices whose entry is WAIT, needs no more units than are
 free, and every entry k it waits on has 0 cycles left."
 
-**In plain words.** S finds the oldest entry that can start now: decoded and waiting, its
+**What it means.** S finds the oldest entry that can start now: decoded and waiting, its
 inputs made, its units free. X″ starts it: it holds its units and begins counting down.
 
 **On a real value.** Cycle 2 of the block at 92,078. The add (entry 0) has run its 1
@@ -2583,7 +2583,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -2599,7 +2599,7 @@ every entry j, its state becomes: nothing, if every entry up to and including j 
 nothing; WAIT, if it was DEC; FIN, if it was EXE with 0 cycles left; and otherwise stays.
 Its cycles drop by 1 if it is EXE with more than 0 left, and otherwise stay."
 
-**In plain words.** A cycle passes. The front end gets its 4 slots and 5 starts back, every
+**What it means.** A cycle passes. The front end gets its 4 slots and 5 starts back, every
 running instruction counts down one, and one finishing now hands its units back. Then the
 states move on: decoded becomes waiting, run out becomes finished, and finished entries
 retire. They retire only in order, once everything before them has.
@@ -2672,7 +2672,7 @@ reads and those it writes share one; b otherwise." (A.63): "P sub S of a, b, c, 
 when phi A is phi D; b otherwise; where phi A and phi D come from decoding the instruction
 at i."
 
-**In plain words.** Some rows of the price list have two decode costs, and these pick one.
+**What it means.** Some rows of the price list have two decode costs, and these pick one.
 𝔓 picks the cheaper a when the instruction writes a register it also reads. Picture a CPU
 whose add always overwrites one of its inputs, so aiming at a third register costs an extra
 copy. 𝔓_S, for shifts and rotations by a register, picks a only when the output is the
@@ -2742,7 +2742,7 @@ and gives a natural: c and i map to 1, when the instruction after this one or th
 its target is unlikely or trap; 20 otherwise. Where c means zeta, and i target is where the
 branch goes."
 
-**In plain words.** A load or a store takes 𝔪 = 25 cycles. That is a stand-in: a comment in
+**What it means.** A load or a store takes 𝔪 = 25 cycles. That is a stand-in: a comment in
 the paper's source calls it temporary, until memory and paging are priced properly. A
 branch takes 20 cycles, the price of a CPU guessing wrong. The exception is when either
 way it can go starts with `unlikely` or `trap`: then a CPU would guess right, and it
@@ -2766,7 +2766,7 @@ This table has no formula of its own. It is a row for every instruction, with it
 č, its decode slots ď, and the units x̌ it needs, one column for each kind: A, L, S, M
 and D. A.9's š, ř, č, ď and x̌ read it.
 
-**In plain words.** Read a row left to right: how long, how much decoding, which parts of
+**What it means.** Read a row left to right: how long, how much decoding, which parts of
 the CPU. The rows come in families that share a price:
 
 - simple arithmetic: 1 cycle and an ALU, its `_32` forms 2;

@@ -67,7 +67,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ $$
 
 </details>
 
-→ [(4.28) in plain words](./gray-paper.md#ex-4-28)
+→ [(4.28) explained](./gray-paper.md#ex-4-28)
 
 <a id="gp-4-8-p6"></a>This implies that the lifespan of the proposed protocol takes us to mid-August of the year 2840, which with the current course that humanity is on should be ample.
 

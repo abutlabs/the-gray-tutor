@@ -1,8 +1,8 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 13](./index.md)'s appendix: every formula of §8, *Authorization*, explained. Three,
 (8.1) to (8.3): all the chain does about authorization. Each formula: its key, then read
-aloud, in plain words, on a real value, in your client. Notation: [Reading the Gray
+aloud, what it means, on a real value, in your client. Notation: [Reading the Gray
 Paper](../reading-the-gray-paper.md).
 
 ## (8.1): what a pool and a queue are
@@ -18,7 +18,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ $$
 **Read it aloud.** "Alpha is in: a sequence of C things, each a sequence of at most O
 hashes. Phi is in: a sequence of C things, each a sequence of exactly Q hashes."
 
-**In plain words.** This is a type line, a schema, not a rule: it says what shape the two
+**What it means.** This is a type line, a schema, not a rule: it says what shape the two
 pieces of state have, the way a JSON schema says a field is an array. α holds one list per
 core, and each list holds up to O = 8 authorizer hashes: the authorizers that core accepts
 right now. ϕ holds one list per core too, and each holds exactly Q = 80 hashes: the line
@@ -74,7 +74,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ the last O. F of c is defined as: alpha at c without its first copy of the autho
 g's report, if there exists a guarantee g in the guarantees extrinsic whose report's core
 is c; otherwise, alpha at c."
 
-**In plain words.** Every block, for each core, three things happen in this order:
+**What it means.** Every block, for each core, three things happen in this order:
 
 1. **(8.3), one out.** If this block guarantees a report on the core, the report's
    authorizer leaves the pool: it has been used. The ⟜ sign takes out the *leftmost* copy

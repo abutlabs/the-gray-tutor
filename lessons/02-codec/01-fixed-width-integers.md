@@ -56,7 +56,7 @@ x &\mapsto \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ $$
 
 </details>
 
-→ [(C.12) in plain words](./gray-paper.md#ex-C-12)
+→ [(C.12) explained](./gray-paper.md#ex-C-12)
 
 <a id="gp-C-1-7-p3"></a>For non-natural arguments, $\mathcal{E}_{l \in \mathbb{N}}$ corresponds to the definitions of $\mathcal{E}_{}$, except that recursive elements are made as $\mathcal{E}_{l}$ rather than $\mathcal{E}_{}$. Thus:
 
@@ -91,7 +91,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -99,7 +99,7 @@ $$
 
 </details>
 
-→ [(C.13), (C.14), (C.15) in plain words](./gray-paper.md#ex-C-13)
+→ [(C.13), (C.14), (C.15) explained](./gray-paper.md#ex-C-13)
 
 <a id="gp-C-1-7-p5"></a>And so on.
 

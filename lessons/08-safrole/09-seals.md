@@ -72,7 +72,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -106,7 +106,7 @@ $$
 
 </details>
 
-→ [(6.16), (6.17), (6.18), (6.19), (6.20), (6.21) in plain words](./gray-paper.md#ex-6-16)
+→ [(6.16), (6.17), (6.18), (6.19), (6.20), (6.21) explained](./gray-paper.md#ex-6-16)
 
 <a id="gp-6-4-p3"></a>Sealing using the ticket is of greater security, and we utilize this knowledge when determining a candidate block on which to extend the chain, detailed in section [19](../what-runs-where.md#gp-19-p1). We thus note that the block was sealed under the regular security with the boolean marker $\mathbf{T}$. We define this only for the purpose of ease of later specification.
 

@@ -46,7 +46,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ $$
 
 </details>
 
-→ [(6.23) in plain words](./gray-paper.md#ex-6-23)
+→ [(6.23) explained](./gray-paper.md#ex-6-23)
 
 :::
 

@@ -227,9 +227,9 @@ draws in MathJax, and every symbol of a quoted formula is explained.
 - **Words.** A word of the paper's prose a newcomer can't know (*coretime*, *exogenous
   call*) goes in `tools/glosses/terms.ts`: underlined where a page first quotes it, its
   meaning on hover or tap, and a pop-up note on a Kindle.
-- **A Part's appendix**, `NN-part/gray-paper.md` (*13.A The formulas, in plain words*), takes
+- **A Part's appendix**, `NN-part/gray-paper.md` (*13.A The formulas, explained*), takes
   every formula the Part quotes, explained: the formula again
-  (`gray-paper-eq`), then **Read it aloud**, **In plain words**, **On a real value** (a
+  (`gray-paper-eq`), then **Read it aloud**, **What it means**, **On a real value** (a
   vector's real values, worked one step at a time) and **In your client**, ending with
   *Say it in one breath*. A quoted formula links to its explanation there.
   [13.A](lessons/13-authorization/gray-paper.md) is the model.

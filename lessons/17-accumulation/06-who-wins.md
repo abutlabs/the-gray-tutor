@@ -50,7 +50,7 @@ a &\text{otherwise}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -58,7 +58,7 @@ $$
 
 </details>
 
-→ [(12.19) in plain words](./gray-paper.md#ex-12-19)
+→ [(12.19) explained](./gray-paper.md#ex-12-19)
 
 <a id="gp-12-2-p17"></a>
 

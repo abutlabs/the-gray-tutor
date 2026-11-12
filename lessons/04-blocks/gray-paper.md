@@ -1,4 +1,4 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 4](./index.md)'s appendix: every formula this part quotes, explained. There are
 eight blocks, from three places:
@@ -10,7 +10,7 @@ eight blocks, from three places:
 The last block, *Block Serialization*, holds (C.16) to (C.37), so each group of its lines
 gets a heading. The rest of Appendix C is in [2.A](../02-codec/gray-paper.md).
 
-Each formula: its key, then read aloud, in plain words, on a real value, in your client.
+Each formula: its key, then read aloud, what it means, on a real value, in your client.
 The real values are the codec vectors (`vectors/codec/tiny`) and the `fallback` trace.
 Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
@@ -27,7 +27,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -48,7 +48,7 @@ $$
 **Read it aloud.** "B is defined as the tuple of H and E. E is defined as the tuple of E
 sub T, E sub D, E sub P, E sub A and E sub G."
 
-**In plain words.** A block is two things. The header is the few hundred bytes every node
+**What it means.** A block is two things. The header is the few hundred bytes every node
 reads first. The extrinsic is the data the block brings in from outside the chain, in five
 bags: tickets, disputes, preimages, assurances and guarantees. These two lines name the
 parts and nothing more. Appendix C's (C.16) decides the byte order, which is not this one.
@@ -80,7 +80,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ $$
 **Read it aloud.** "H is defined as the tuple of H sub P, H sub R, H sub X, H sub T, H sub
 E, H sub W, H sub O, H sub I, H sub V and H sub S."
 
-**In plain words.** The header's ten fields, by their letters: the parent's hash (P), the
+**What it means.** The header's ten fields, by their letters: the parent's hash (P), the
 prior state root (R), the extrinsic hash (X), the timeslot (T), the epoch mark (E), the
 winning-tickets mark (W), the offenders mark (O), the author's index (I), the VRF
 signature (V) and the seal (S). Like (4.3), this is a list of names. Appendix C's (C.23)
@@ -140,7 +140,7 @@ P\left(\mathbf{H}\right)_{T} < \mathbf{H}_{T}\ \wedge\ \mathbf{H}_{T}\cdot\maths
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -160,7 +160,7 @@ $$
 **Read it aloud.** "H sub T is in N sub T; the parent of H's T is less than H sub T, and H
 sub T times P is at most T," the last T being the wall clock.
 
-**In plain words.** Two rules for a header's slot.
+**What it means.** Two rules for a header's slot.
 
 - It comes after its parent's slot. The chain only moves forward in time: a slot may be
   skipped, never repeated.
@@ -197,7 +197,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ $$
 **Read it aloud.** "H sub I is in N sub the size of kappa prime; H sub A is defined as
 kappa prime at H sub I, its b."
 
-**In plain words.** The header names its author by a number: a position in κ′, this
+**What it means.** The header names its author by a number: a position in κ′, this
 epoch's validators after the block. That is 0 to 5 on tiny, 0 to 1,022 on full. H_A, the
 author's Bandersnatch key, is the b part (the first 32 bytes) of that validator's entry.
 It is looked up, never written: two bytes in the header stand for a 32-byte key.
@@ -246,7 +246,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -268,7 +268,7 @@ $$
 pairs of an H tilde and an H bar; or nothing. H sub W is in: a sequence of exactly E
 tickets, or nothing. H sub O is in: a sequence of H bars."
 
-**In plain words.** The types of the three markers.
+**What it means.** The types of the three markers.
 
 - **The epoch mark**, when there is one, holds two 32-byte entropy hashes and the next
   epoch's validators. Each validator is a Bandersnatch key and an Ed25519 key, and there
@@ -310,7 +310,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -323,7 +323,7 @@ $$
 
 **Read it aloud.** "Maybe x is defined as: 0, if x is nothing; otherwise, the tuple 1, x."
 
-**In plain words.** A value that may be missing gets one byte in front. It is 0 for
+**What it means.** A value that may be missing gets one byte in front. It is 0 for
 "nothing here", and nothing follows. Or it is 1, and then the value. The 0 and the 1 are
 naturals, so they are written as compact naturals, `00` and `01`. Without the byte, a
 reader could not tell "nothing" from the first byte of a value.
@@ -357,7 +357,7 @@ b_{i} \cdot 2^i
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -378,7 +378,7 @@ b is empty; otherwise, the sequence holding the sum, for i from 0 while i is bel
 smaller of 8 and the size of b, of b sub i times 2 to the i, concatenated with E of b from
 8 on."
 
-**In plain words.** Bits go eight to a byte. The first eight bits make the first byte:
+**What it means.** Bits go eight to a byte. The first eight bits make the first byte:
 bit 0 is worth 1, bit 1 worth 2, up to bit 7 worth 128. So the first bit is the byte's
 *lowest*. Then the same with the next eight, until none are left. A last byte with fewer
 than eight bits is padded with zeros at the top. Careful: the state trie of
@@ -576,7 +576,7 @@ i \in \mathbb{N}_{2^{15}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -668,7 +668,7 @@ Everything in them is built from [2.A](../02-codec/gray-paper.md)'s rules:
 **Read it aloud.** "E of B equals E of: H, E sub T of E sub T, E sub P of E sub P, E sub G
 of E sub G, E sub A of E sub A, E sub D of E sub D."
 
-**In plain words.** A block's bytes are its header's, then the five bags', in this order:
+**What it means.** A block's bytes are its header's, then the five bags', in this order:
 tickets, preimages, guarantees, assurances, disputes. That is not (4.3)'s order. The
 encoding's order is the one that counts on the wire.
 
@@ -697,7 +697,7 @@ in order. E sub D of v, c, f equals E of: up-down-arrow, the sequence of r, E su
 and up-down-arrow the sequence of v, E sub 2 of i, and s, for each judgment in j, for each
 verdict in v; up-down-arrow c; up-down-arrow f."
 
-**In plain words.** Every bag is a list with its length in front, and each line says how
+**What it means.** Every bag is a list with its length in front, and each line says how
 one item is written:
 
 - **a ticket** (C.17): its attempt in 1 byte, then its 784-byte proof;
@@ -732,7 +732,7 @@ of: H sub P, H sub R, H sub X, E sub 4 of H sub T, E sub E of H sub E, maybe H s
 sub 2 of H sub I, H sub V, up-down-arrow H sub O. E sub E of nothing equals E of 0. E sub
 E of eta zero, eta one, k, equals E of 1, eta zero, eta one, up-down-arrow k."
 
-**In plain words.** ℰ_U is the header without its seal: the bytes the author signs. The
+**What it means.** ℰ_U is the header without its seal: the bytes the author signs. The
 full header is those bytes and then the seal. The fields go in this order: three hashes,
 the slot in 4 bytes, the epoch mark, the tickets mark with ¿, the author in 2 bytes, the
 VRF signature, the offenders with their length.
@@ -775,7 +775,7 @@ c, E sub 8 of w sub g, E sub 8 of w sub a, E sub 2 of w sub e, up-down-arrow w s
 up-down-arrow I hash of w sub i, up-down-arrow the sequence of h and E sub 4 of i, for each
 in w sub x.
 
-**In plain words.** These are the structures of [Part 3](../03-work-and-reports/index.md)
+**What it means.** These are the structures of [Part 3](../03-work-and-reports/index.md)
 and [4.3](./03-guarantees.md): what a core computed, and what it reports. They are in this
 formula because a guarantee carries a whole work-report, so the block's bytes include
 them.
@@ -817,7 +817,7 @@ o, if o is bytes; 1 if o is infinity; 2 if it is a panic; 3, 4, 5 or 6 for the o
 errors. I of h and i is: h and E sub 2 of i, if h is a hash; r and E sub 2 of i plus 2 to
 the 15, if h is r boxed."
 
-**In plain words.** Five small ones:
+**What it means.** Five small ones:
 
 - **a ticket** (C.33): its 32-byte id, then its attempt in 1 byte. The header's tickets
   mark is a list of these.

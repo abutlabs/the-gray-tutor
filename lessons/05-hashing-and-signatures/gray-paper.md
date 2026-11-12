@@ -1,11 +1,11 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 5](./index.md)'s appendix: every formula this part quotes, explained. §3.8 names the
 hash and the signatures in sentences, which [5.1](./01-hashes.md#what-the-gray-paper-says)
 and [5.3](./03-signatures.md#what-the-gray-paper-says) cover. That leaves three formulas of
 §5: (5.2), the parent hash; (5.3), the ancestors; (5.4) to (5.7), the extrinsic hash. Real
-values: the `fallback` and `preimages` traces. Each formula: its key, then read aloud, in
-plain words, on a real value, in your client. Notation: [Reading the Gray
+values: the `fallback` and `preimages` traces. Each formula: its key, then read aloud, what
+it means, on a real value, in your client. Notation: [Reading the Gray
 Paper](../reading-the-gray-paper.md).
 
 ## (5.2): the parent hash
@@ -20,7 +20,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ $$
 **Read it aloud.** "H sub P is in H; H sub P is defined as the hash of the encoding of P of
 H," P of H being the parent of this header.
 
-**In plain words.** A header's `parent` field is the Blake2b hash of the parent block's
+**What it means.** A header's `parent` field is the Blake2b hash of the parent block's
 whole header, encoded by Appendix C. The seal is included: the hash covers every byte. So
 a block can't be moved, and an old header can't change by one bit, without every later
 block's `parent` going wrong. That is the chain.
@@ -69,7 +69,7 @@ h \in \mathbf{A} \Leftrightarrow h = \mathbf{H} \vee (\exists i \in \mathbf{A} :
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ $$
 **Read it aloud.** "h is in A exactly when h is H, or there exists an i in A such that h is
 the parent of i."
 
-**In plain words.** A, the ancestors, is the set of headers you reach from this one by
+**What it means.** A, the ancestors, is the set of headers you reach from this one by
 following `parent` back: this header, its parent, its parent's parent, and so on to
 genesis. The definition is recursive. A header is an ancestor if it is this one, or the
 parent of an ancestor. The paper's next sentence limits the work. A node keeps only the
@@ -136,7 +136,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -171,7 +171,7 @@ assurances, and E sub D of the disputes; and p is E of up-down-arrow, the sequen
 up-down-arrow, the sequence of the hash of r, E sub 4 of t, and up-down-arrow a, for each
 r, t and a in order in the guarantees."
 
-**In plain words.** The header's 32-byte promise of the extrinsic, in three steps.
+**What it means.** The header's 32-byte promise of the extrinsic, in three steps.
 (5.5) makes a: five byte strings, one per bag, in Appendix C's order. Three are the bags'
 own encodings. The other two, p and g from (5.6) and (5.7), are the preimages and the
 guarantees with their big part swapped for its hash: a preimage's data for ℋ(d), a

@@ -216,7 +216,7 @@ i \in \mathbb{N}_{2^{15}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -318,7 +318,7 @@ $$
 
 </details>
 
-→ [(C.16), (C.17), (C.18), (C.19), (C.20), (C.21), (C.22), (C.23), (C.24), (C.25), (C.26), (C.27), (C.28), (C.29), (C.30), (C.31), (C.32), (C.33), (C.34), (C.35), (C.36), (C.37) in plain words](./gray-paper.md#ex-C-16)
+→ [(C.16), (C.17), (C.18), (C.19), (C.20), (C.21), (C.22), (C.23), (C.24), (C.25), (C.26), (C.27), (C.28), (C.29), (C.30), (C.31), (C.32), (C.33), (C.34), (C.35), (C.36), (C.37) explained](./gray-paper.md#ex-C-16)
 
 <a id="gp-C-2-p3"></a>Note the use of $O$ above to succinctly encode the result of a work item and the slight transformations of e.g.  $\mathbf{E}_G$ and $\mathbf{E}_P$ to take account of the fact their inner tuples contain variable-length sequence terms $a$ and $p$ which need length discriminators.
 

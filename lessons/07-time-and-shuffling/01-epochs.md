@@ -49,7 +49,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ $$
 
 </details>
 
-→ [(6.1) in plain words](./gray-paper.md#ex-6-1)
+→ [(6.1) explained](./gray-paper.md#ex-6-1)
 
 <a id="gp-6-1-p3"></a>We track the slot index in state as $\tau$ in order that we are able to easily both identify a new epoch and determine the slot at which the prior block was authored. We denote $e$ as the prior's epoch index and $m$ as the prior's slot phase index within that epoch and $e'$ and $m'$ are the corresponding values for the present block:
 
@@ -75,7 +75,7 @@ e' \,\mathsf{R}\, m' = \frac{\tau'}{\mathsf{E}} \tag{6.2}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ $$
 
 </details>
 
-→ [(6.2) in plain words](./gray-paper.md#ex-6-2)
+→ [(6.2) explained](./gray-paper.md#ex-6-2)
 
 :::
 
@@ -120,7 +120,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -130,7 +130,7 @@ $$
 
 </details>
 
-→ [(6.22) in plain words](./gray-paper.md#ex-6-22)
+→ [(6.22) explained](./gray-paper.md#ex-6-22)
 
 :::
 
@@ -153,7 +153,7 @@ $$
 \end{align}
 $$
 
-→ [(6.24) in plain words](./gray-paper.md#ex-6-24)
+→ [(6.24) explained](./gray-paper.md#ex-6-24)
 
 :::
 

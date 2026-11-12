@@ -93,7 +93,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -140,7 +140,7 @@ $$
 
 </details>
 
-→ [(A.1), (A.2) in plain words](./gray-paper.md#ex-A-1)
+→ [(A.1), (A.2) explained](./gray-paper.md#ex-A-1)
 
 <a id="gp-A-1-p3"></a>The PVM exit reason $\varepsilon \in \left\{\,\blacksquare, \unicode{x21AF}, \infty\,\right\} \cup \left\{\,\unicode{x2132}, \hbar\,\right\} \times \mathbb{N}_R$ may be one of regular halt $\blacksquare$, panic $\unicode{x21AF}$ or out-of-gas $\infty$, or alternatively a host-call $\hbar$, in which the host-call identifier is associated, or page-fault $\unicode{x2132}$ in which case the address into RAM is associated.
 
@@ -191,7 +191,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -205,7 +205,7 @@ $$
 
 </details>
 
-→ [(A.5) in plain words](./gray-paper.md#ex-A-5)
+→ [(A.5) explained](./gray-paper.md#ex-A-5)
 
 <a id="gp-A-3-p5"></a>For convenience we will define function $\mathfrak{L}$ which represents the start of a <abbr class="gp-term" title="a run of instructions with one way in; a jump may only land at its start">basic block</abbr> for any $\imath$ within that basic block. Formally:
 
@@ -220,7 +220,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -230,7 +230,7 @@ $$
 
 </details>
 
-→ [(A.6) in plain words](./gray-paper.md#ex-A-6)
+→ [(A.6) explained](./gray-paper.md#ex-A-6)
 
 :::
 
@@ -259,7 +259,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.7) in plain words](./gray-paper.md#ex-A-7)
+→ [(A.7) explained](./gray-paper.md#ex-A-7)
 
 :::
 
@@ -277,7 +277,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.12) in plain words](./gray-paper.md#ex-A-12)
+→ [(A.12) explained](./gray-paper.md#ex-A-12)
 
 :::
 
@@ -305,7 +305,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -314,7 +314,7 @@ $$
 
 </details>
 
-→ [(A.20) in plain words](./gray-paper.md#ex-A-20)
+→ [(A.20) explained](./gray-paper.md#ex-A-20)
 
 <a id="gp-A-4-p20"></a>Similarly, conditional jumps are valid if and only if both branches point to the start of a basic block (regardless of whether a branch is taken), otherwise a panic occurs:
 
@@ -330,7 +330,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -339,7 +339,7 @@ $$
 
 </details>
 
-→ [(A.21) in plain words](./gray-paper.md#ex-A-21)
+→ [(A.21) explained](./gray-paper.md#ex-A-21)
 
 <a id="gp-A-4-p22"></a>Jumps whose next instruction is dynamically computed must use an address which may be indexed into the jump-table $\mathbf{j}$. Through a quirk of tooling<sup>1</sup>, we define the dynamic address required by the instructions as the jump table index incremented by one and then multiplied by our jump alignment factor $\mathsf{Z}_A = 2$.
 
@@ -359,7 +359,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -372,7 +372,7 @@ $$
 
 </details>
 
-→ [(A.22) in plain words](./gray-paper.md#ex-A-22)
+→ [(A.22) explained](./gray-paper.md#ex-A-22)
 
 :::
 

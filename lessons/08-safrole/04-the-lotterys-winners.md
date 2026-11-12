@@ -54,7 +54,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ $$
 
 </details>
 
-→ [(6.5) in plain words](./gray-paper.md#ex-6-5)
+→ [(6.5) explained](./gray-paper.md#ex-6-5)
 
 <a id="gp-6-2-p7"></a>Here, $\mathbb{T}$ is used to denote the set of *tickets*, a combination of a verifiably random <abbr class="gp-term" title="a ticket's 32-byte random id, the output of its ring proof; lower wins">ticket identifier</abbr> $y$ and the ticket's entry-index $e$:
 
@@ -84,7 +84,7 @@ e\in \mathbb{N}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -98,7 +98,7 @@ $$
 
 </details>
 
-→ [(6.6) in plain words](./gray-paper.md#ex-6-6)
+→ [(6.6) explained](./gray-paper.md#ex-6-6)
 
 :::
 
@@ -139,7 +139,7 @@ Z(\gamma_A) &\text{if } e' = e \wedge m < \mathsf{Y} \le m' \wedge \left\vert\ga
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -153,7 +153,7 @@ $$
 
 </details>
 
-→ [(6.29) in plain words](./gray-paper.md#ex-6-29)
+→ [(6.29) explained](./gray-paper.md#ex-6-29)
 
 :::
 
@@ -175,7 +175,7 @@ F(\eta'_2, \kappa') \!\!\!&\text{otherwise}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -185,7 +185,7 @@ $$
 
 </details>
 
-→ [(6.25) in plain words](./gray-paper.md#ex-6-25)
+→ [(6.25) explained](./gray-paper.md#ex-6-25)
 
 <a id="gp-6-5-p3"></a>Here, we use $Z$ as the outside-in sequencer function, defined as follows:
 
@@ -200,7 +200,7 @@ Z\colon\left\{ \,\begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -211,7 +211,7 @@ $$
 
 </details>
 
-→ [(6.26) in plain words](./gray-paper.md#ex-6-26)
+→ [(6.26) explained](./gray-paper.md#ex-6-26)
 
 :::
 

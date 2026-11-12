@@ -49,7 +49,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ $$
 
 </details>
 
-→ [(C.6) in plain words](./gray-paper.md#ex-C-6)
+→ [(C.6) explained](./gray-paper.md#ex-C-6)
 
 <a id="gp-C-1-2-p3"></a>Thus, conveniently, fixed length <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequences (e.g.  hashes $\mathbb{H}_{}$ and its variants) have an identity serialization.
 
@@ -124,7 +124,7 @@ k \in \mathcal{K}\left(d\right)
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -139,7 +139,7 @@ $$
 
 </details>
 
-→ [(C.10) in plain words](./gray-paper.md#ex-C-10)
+→ [(C.10) explained](./gray-paper.md#ex-C-10)
 
 :::
 
@@ -157,7 +157,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -165,7 +165,7 @@ $$
 
 </details>
 
-→ [(C.11) in plain words](./gray-paper.md#ex-C-11)
+→ [(C.11) explained](./gray-paper.md#ex-C-11)
 
 :::
 

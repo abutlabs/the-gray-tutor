@@ -3,13 +3,13 @@
 Optional, and no code. Before its first rule and after its last, the Gray Paper tells a
 story: what JAM is for, what came before it and why that wasn't enough, how fast it
 might be, and what is still left to do. This page quotes that story whole, the Abstract,
-§1, §2 and §20 to §22, with a few plain words before each part. Read it as you'd read
+§1, §2 and §20 to §22, with a few words of ours before each part. Read it as you'd read
 the "why" section of a design doc: the arguments are the authors', and where they reach
 past what the rules show, this page says so.
 
 ## What JAM is, in one breath
 
-The Abstract in plain words: JAM wants to be one shared computer, as Ethereum is, that
+The Abstract, in short: JAM wants to be one shared computer, as Ethereum is, that
 anyone can put a program on (a service), with the heavy work spread across many
 machines, as Polkadot does. The work is split in two: in-core, done by a few validators
 and checked later, and on the chain, done by every validator. You pay for time on a core,

@@ -1,10 +1,10 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 9](./index.md)'s appendix: every formula of §7, *Recent History*, and of Appendix E.2,
 *Merkle Mountain Ranges and Belts*, explained. Seven blocks: what the state remembers (7.1
 to 7.4), the blank filled in (7.5), the belt's append, bytes and super-peak (E.8 to E.10),
 what each block appends (7.6, 7.7), and the new entry (7.8). Each formula: its key, then
-read aloud, in plain words, on a real value, in your client. Notation: [Reading the Gray
+read aloud, what it means, on a real value, in your client. Notation: [Reading the Gray
 Paper](../reading-the-gray-paper.md).
 
 ## (7.1) to (7.4): what the state remembers
@@ -28,7 +28,7 @@ t\in \mathbb{N}_T,
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ of at most H tuples, each an h in H, an s in H, a b in H, a t in N-T, and a bold
 dictionary from H to H. Beta-B is in: a sequence of H-or-nothing. Theta is in: a sequence
 of pairs, a service id and an H."
 
-**In plain words.** Four type lines, a schema for one piece of state and one helper:
+**What it means.** Four type lines, a schema for one piece of state and one helper:
 
 - **(7.1)** β, the recent history, is two things side by side.
 - **(7.2)** β_H is a list of at most H = 8 entries, one per recent block, each a record of
@@ -111,7 +111,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -128,7 +128,7 @@ $$
 **Read it aloud.** "Beta-H dagger is defined as beta-H, except that beta-H dagger at the
 length of beta-H minus one, its s, equals the header's R."
 
-**In plain words.** Take the list as it is and change one field. The newest entry's
+**What it means.** Take the list as it is and change one field. The newest entry's
 state root (index |β_H| − 1, the last one) becomes this block's 𝐇_R, the parent's state
 root, which the header carries. A block can't know its own state root when it is
 recorded: the root is computed from the state *after* the block. The next block knows
@@ -182,7 +182,7 @@ P(R(\mathbf{r}, n, \emptyset), H(\mathbf{r}_{n} \frown l), n + 1, H) &\text{othe
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -209,7 +209,7 @@ is nothing; otherwise, P of: R of r, n, nothing; H of r at n joined with l; n pl
 and H. And R maps a sequence s, an index i and a value v to s prime, where s prime is s
 except that s prime at i is v."
 
-**In plain words.** 𝒜 appends the item l to the belt r, hashing with H, which for JAM's
+**What it means.** 𝒜 appends the item l to the belt r, hashing with H, which for JAM's
 belt is always Keccak-256. It hands the work to P, which walks the places from n = 0,
 carrying l. At each place, one of three cases:
 
@@ -263,7 +263,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -282,7 +282,7 @@ $$
 bold b maps to E of: length-prefixed, the sequence of maybe x, for each x of b, in
 order."
 
-**In plain words.** How a belt is written as bytes in the state. Its number of places
+**What it means.** How a belt is written as bytes in the state. Its number of places
 comes first (the ↕ prefix, a compact natural). Then each place in order, as an optional
 value: the byte `00` for ∅, or `01` followed by the 32-byte peak (the ¿ is that maybe
 encoding, [lesson 4.5](../04-blocks/05-maybe-and-exactly-n.md)).
@@ -323,7 +323,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -343,7 +343,7 @@ bold b maps to: the zero hash, if the length of h is zero; h zero, if the length
 one; otherwise, Keccak of: the string peak, joined with M sub R of h up to its last,
 joined with h's last; where h is every h in b, in order, that isn't nothing."
 
-**In plain words.** One hash for the whole belt. First drop the empty places: 𝐡 is the
+**What it means.** One hash for the whole belt. First drop the empty places: 𝐡 is the
 peaks that exist, smallest mountain first. Then:
 
 - **no peaks**: 32 zero bytes (ℍ₀);
@@ -385,7 +385,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -401,7 +401,7 @@ $$
 for each pair s, h of theta prime, in order. Beta-B prime is defined as A of: beta-B,
 M-B of bold s with Keccak, and Keccak."
 
-**In plain words.** Each block adds exactly one item to the belt, made from its
+**What it means.** Each block adds exactly one item to the belt, made from its
 accumulation outputs θ′:
 
 1. **(7.6)** Write each (service, hash) pair as bytes: the service id in 4 bytes,
@@ -461,7 +461,7 @@ g \in \mathbf{E}_G
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -487,7 +487,7 @@ T, and bold p; keeping the last H. Where bold p is the dictionary of: g's report
 availability spec's p, mapped to g's report's availability spec's e, for each g in the
 guarantees extrinsic."
 
-**In plain words.** The block's own entry joins the list, after the fix of (7.5):
+**What it means.** The block's own entry joins the list, after the fix of (7.5):
 
 - **h**: the Blake2b hash of this block's header.
 - **s**: the zero hash, ℍ₀, 32 zero bytes, because the state root isn't known yet. The

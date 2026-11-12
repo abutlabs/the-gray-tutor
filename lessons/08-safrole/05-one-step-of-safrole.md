@@ -58,7 +58,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ $$
 
 </details>
 
-→ [(6.3) in plain words](./gray-paper.md#ex-6-3)
+→ [(6.3) explained](./gray-paper.md#ex-6-3)
 
 :::
 
@@ -111,7 +111,7 @@ k \mathrel{\unicode{x2B40}} \gamma_P'
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -128,7 +128,7 @@ $$
 
 </details>
 
-→ [(6.28) in plain words](./gray-paper.md#ex-6-28)
+→ [(6.28) explained](./gray-paper.md#ex-6-28)
 
 :::
 

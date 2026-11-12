@@ -92,7 +92,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -134,7 +134,7 @@ $$
 
 </details>
 
-→ [(A.38), (A.39), (A.40) in plain words](./gray-paper.md#ex-A-38)
+→ [(A.38), (A.39), (A.40) explained](./gray-paper.md#ex-A-38)
 
 <a id="gp-A-6-p3"></a>As with $\Phi$, on exit the instruction counter references the instruction *which caused the exit* and the machine state is that prior to this instruction. Should the machine be invoked again using this instruction counter and code, then the same instruction which caused the exit would be executed on the proper (prior) machine state.
 
@@ -199,7 +199,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -222,7 +222,7 @@ $$
 
 </details>
 
-→ [(A.46) in plain words](./gray-paper.md#ex-A-46)
+→ [(A.46) explained](./gray-paper.md#ex-A-46)
 
 <a id="gp-A-7-p8"></a><a id="eq-A-47"></a>
 
@@ -238,7 +238,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -246,7 +246,7 @@ $$
 
 </details>
 
-→ [(A.47) in plain words](./gray-paper.md#ex-A-47)
+→ [(A.47) explained](./gray-paper.md#ex-A-47)
 
 :::
 
@@ -310,7 +310,7 @@ R(\varrho, \Psi_H(\mathfrak{p}, \imath, \varrho, \varphi, {\mu}, f, \mathbf{x}))
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -325,7 +325,7 @@ $$
 
 </details>
 
-→ [(A.48) in plain words](./gray-paper.md#ex-A-48)
+→ [(A.48) explained](./gray-paper.md#ex-A-48)
 
 <a id="gp-A-8-p3"></a>Note that the first tuple item is the amount of gas consumed by the operation, but never greater than the amount of gas provided for the operation.
 

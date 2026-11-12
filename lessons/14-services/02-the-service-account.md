@@ -44,7 +44,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -58,7 +58,7 @@ $$
 
 </details>
 
-→ [(9.1), (9.2) in plain words](./gray-paper.md#ex-9-1)
+→ [(9.1), (9.2) explained](./gray-paper.md#ex-9-1)
 
 <a id="gp-9-p4"></a>The service account is defined as the tuple of storage dictionary $\mathbf{s}$, preimage lookup dictionaries $\mathbf{p}$ and $\mathbf{l}$, code hash $c$, balance $b$ and gratis storage offset $f$, as well as the two code gas limits $g$ &amp; $m$. We also record certain usage characteristics concerning the account: the time slot at creation $r$, the time slot at the most recent accumulation $a$ and the parent service $p$. Formally:
 
@@ -82,7 +82,7 @@ p \in \mathbb{N}_S\\
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -108,7 +108,7 @@ $$
 
 </details>
 
-→ [(9.3) in plain words](./gray-paper.md#ex-9-3)
+→ [(9.3) explained](./gray-paper.md#ex-9-3)
 
 <a id="gp-9-p6"></a>Thus, the balance of the service of index $s$ would be denoted $\delta\left[s\right]_{b}$ and the storage item of key $\mathbf{k} \in \mathbb{B}_{}$ for that service is written $\delta\left[s\right]_{\mathbf{s}}\left[\mathbf{k}\right]$.
 
@@ -152,7 +152,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -165,7 +165,7 @@ $$
 
 </details>
 
-→ [(9.4) in plain words](./gray-paper.md#ex-9-4)
+→ [(9.4) explained](./gray-paper.md#ex-9-4)
 
 :::
 
@@ -221,7 +221,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -241,7 +241,7 @@ $$
 
 </details>
 
-→ [(9.8) in plain words](./gray-paper.md#ex-9-8)
+→ [(9.8) explained](./gray-paper.md#ex-9-8)
 
 :::
 

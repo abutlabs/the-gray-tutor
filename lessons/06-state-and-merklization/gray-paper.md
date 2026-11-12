@@ -1,11 +1,11 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 6](./index.md)'s appendix: every formula this part quotes, explained. How the state
 becomes one 32-byte root: (4.4) lists the state, (5.9) puts its root in every header, (D.1)
 and (D.2) cut it into keys and values, (D.3) to (D.6) hash those into a trie. Last comes
 Appendix E.1, the paper's other Merkle trees, which no lesson here builds. Real values: the
-`fallback` trace's genesis state, 21 entries. Each formula: its key, then read aloud, in
-plain words, on a real value, in your client. Notation: [Reading the Gray
+`fallback` trace's genesis state, 21 entries. Each formula: its key, then read aloud, what
+it means, on a real value, in your client. Notation: [Reading the Gray
 Paper](../reading-the-gray-paper.md).
 
 ## (4.4): the state's seventeen parts
@@ -20,7 +20,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ $$
 **Read it aloud.** "Sigma is defined as the tuple of alpha, beta, theta, gamma, delta, eta,
 iota, kappa, lambda, rho, tau, phi, chi, psi, pi, omega and xi."
 
-**In plain words.** The state is seventeen named parts, each a Greek letter, and nothing
+**What it means.** The state is seventeen named parts, each a Greek letter, and nothing
 else. Everything the chain remembers between blocks is in one of them. The order here is
 only a list. Appendix D numbers them differently, C(1) for α up to C(16) for θ. δ, the
 services, gets a key of its own for each service.
@@ -80,7 +80,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -96,7 +96,7 @@ $$
 
 **Read it aloud.** "H sub R is in H; H sub R is defined as M sigma of sigma."
 
-**In plain words.** A header's `parent_state_root` is the Merkle root of the state as it
+**What it means.** A header's `parent_state_root` is the Merkle root of the state as it
 was *before* this block, after its parent. One 32-byte value stands for every byte of the
 state: two nodes with the same root have the same state.
 
@@ -129,7 +129,7 @@ i \in \mathbb{N}_{2^{8}} &\mapsto \left[i, 0, 0, \dots\right] \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -154,7 +154,7 @@ zeros. i and s map to i, n zero, 0, n one, 0, n two, 0, n three, 0, then zeros, 
 sub 4 of s. s and h map to n zero, a zero, n one, a one, n two, a two, n three, a three,
 then a four up to a twenty-six, where n is E sub 4 of s and a is the hash of h."
 
-**In plain words.** Every key in the state is 31 bytes, made one of three ways. What you
+**What it means.** Every key in the state is 31 bytes, made one of three ways. What you
 hand C picks the way. A number alone makes a component's key: the number, then 30 zeros.
 A number and a service make a service's account key: 255, then the service's four bytes
 with a zero after each. A service and some bytes make the key of something the service
@@ -284,7 +284,7 @@ T(\sigma) \equiv \left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -350,7 +350,7 @@ per component, then, for every service s and its account a, "C of 255 and s maps
 encoding of 0, a's code hash, E sub 8 of its balance and four more numbers, E sub 4 of
 four more", and its storage, its preimages and its requests under C of s and their keys.
 
-**In plain words.** A table. On the left, a key from (D.1). On the right, the bytes
+**What it means.** A table. On the left, a key from (D.1). On the right, the bytes
 stored under it, an encoding by Appendix C's rules. Sixteen lines are the components, one
 entry each. The last four lines make many entries: one per service, and one per item a
 service keeps. An item is a storage value, a preimage, or a request for one (the times it
@@ -396,7 +396,7 @@ L&\colon\left\{ \begin{aligned}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -417,7 +417,7 @@ bytes and some bytes to 512 bits: k and v map to: the bits 1 and 0, then the bit
 if the size of v is at most 32; otherwise, the bits 1, 1 and six 0s, then the bits of k,
 then the bits of the hash of v."
 
-**In plain words.** Every node of the trie is exactly 64 bytes, and its first bit says
+**What it means.** Every node of the trie is exactly 64 bytes, and its first bit says
 which kind. A **branch** (D.3) is a 0, then its two children's hashes, the left one with its
 first bit dropped to make room. A **leaf** (D.4) is a 1, then a second bit. That bit is 0
 if the value fits in 32 bytes: then come its length, in the first byte's last six bits,
@@ -483,7 +483,7 @@ r &\text{if } b_0 = 1
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -504,7 +504,7 @@ the leaf of k and v, if d holds just the one pair k, v; otherwise, the hash of t
 of M of l and M of r, where every entry of d whose first bit is 0 goes into l, and every
 one whose first bit is 1 into r, each with that bit taken off."
 
-**In plain words.** (D.5) files every entry by its key's bits. (D.6) is the root of a set of
+**What it means.** (D.5) files every entry by its key's bits. (D.6) is the root of a set of
 entries: one recursive rule with three cases. No entries: 32 zero bytes. One entry: the
 hash of its leaf (D.4), wherever it sits. More than one: they split on their next bit, each
 half gets its own root the same way, and the two roots make a branch (D.3), whose hash is
@@ -566,7 +566,7 @@ H(\texttt{\$node} \frown N(\mathbf{v}_{\dots\left\lceil{}^{\left\vert\mathbf{v}\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -587,7 +587,7 @@ to an n-byte blob or a hash. v and H map to: the zero hash, if v is empty; v sub
 has one item; otherwise, H of: the bytes of node, then N of v up to the half, rounded up,
 then N of v from the half on."
 
-**In plain words.** A list's tree, built top down. No items is 32 zero bytes. One item is
+**What it means.** A list's tree, built top down. No items is 32 zero bytes. One item is
 that item itself, not hashed. More: split the list in two, the left half the bigger when
 it is odd, find each half's node the same way, and hash the word `node` with the two. The
 paper's next paragraph says why the word is there: it keeps a node's hash from ever being
@@ -635,7 +635,7 @@ T\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -658,7 +658,7 @@ than one item; otherwise, the empty sequence. Where P sub s of v and i is the fi
 v if whether i is in the first half equals s, else the second half; and P sub I of v and i
 is 0 if i is in the first half, else the size of the first half."
 
-**In plain words.** To prove that item i is in the list, give the item and, at every level
+**What it means.** To prove that item i is in the list, give the item and, at every level
 from the top down, the node of the half it is *not* in. P⊤ is the half holding i, P⊥ the
 other one, and P_I moves i to its place inside the half it is in. Whoever has the root can
 rebuild it from the item and those nodes, without the rest of the list.
@@ -695,7 +695,7 @@ N(\mathbf{v}, H) &\text{otherwise}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -714,7 +714,7 @@ $$
 **Read it aloud.** "M sub B is a function from a sequence of blobs and a hash function to a
 hash. v and H map to H of v sub 0, if v has one item; otherwise, N of v and H."
 
-**In plain words.** The well-balanced root is N, with one change: a list of one item is
+**What it means.** The well-balanced root is N, with one change: a list of one item is
 hashed, so the root is always a 32-byte hash, however short its one item. With no H given,
 the hash is Blake2b. Items are joined as they are, not hashed first, so it suits items not
 much bigger than a hash, as the paper says.
@@ -754,7 +754,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -778,7 +778,7 @@ and the size of v, minus x, or none. L sub x maps v, i and H to the sequence of 
 bytes of leaf then l, for each l in order in v, from 2 to the x times i, up to 2 to the x
 times i plus 2 to the x, or the end of v."
 
-**In plain words.** The constant-depth root first hashes every item and makes the list a
+**What it means.** The constant-depth root first hashes every item and makes the list a
 power of two long (C, in (E.7) below). Then it takes N of that, so every item sits at the
 same depth. Its proofs come by pages of 2^x items: L_x gives the page's hashed leaves, J_x
 the nodes beside the path from the root down to the page. Together they prove a whole page
@@ -834,7 +834,7 @@ sequence of hashes. v and H map to v prime, where the size of v prime is 2 to th
 log 2 of the larger of 1 and the size of v, and v prime at i is H of the bytes of leaf then
 v at i, if i is below the size of v, otherwise the zero hash."
 
-**In plain words.** Hash each item with the word `leaf` in front, then fill up with zero
+**What it means.** Hash each item with the word `leaf` in front, then fill up with zero
 hashes to the next power of two: 3 items become 4, 5 become 8. That is what keeps the tree's
 depth the same for every item.
 

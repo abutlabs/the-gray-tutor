@@ -60,7 +60,7 @@ y\in \mathbb{H}_{}\boldsymbol{?},
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -90,7 +90,7 @@ $$
 
 </details>
 
-→ [(B.7), (B.8) in plain words](./gray-paper.md#ex-B-7)
+→ [(B.7), (B.8) explained](./gray-paper.md#ex-B-7)
 
 <a id="gp-B-4-p4"></a>We define a convenience equivalence $\mathbf{x}_{\mathbf{s}}$ to easily denote the accumulating service account.
 
@@ -201,7 +201,7 @@ u,
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -261,7 +261,7 @@ $$
 
 </details>
 
-→ [(B.9), (B.10), (B.11), (B.12), (B.13) in plain words](./gray-paper.md#ex-B-9)
+→ [(B.9), (B.10), (B.11), (B.12), (B.13) explained](./gray-paper.md#ex-B-9)
 
 <a id="gp-B-4-p8"></a>The mutator $F$ governs how this context will alter for any given parameterization, and the collapse function $C$ selects one of the two dimensions of context depending on whether the virtual machine's halt was regular or exceptional.
 
@@ -280,7 +280,7 @@ i &\text{if } i \not\in \mathcal{K}\left(\mathbf{e}_{\mathbf{d}}\right) \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -288,7 +288,7 @@ $$
 
 </details>
 
-→ [(B.14) in plain words](./gray-paper.md#ex-B-14)
+→ [(B.14) explained](./gray-paper.md#ex-B-14)
 
 <a id="gp-B-4-p12"></a>NB In the highly unlikely event that a block executes to find that a single service index has inadvertently been attached to two different services, then the block is considered invalid. Since no service can predict the identifier sequence ahead of time, they cannot intentionally disadvantage the block author.
 

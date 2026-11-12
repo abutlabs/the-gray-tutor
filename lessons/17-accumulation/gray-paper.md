@@ -1,4 +1,4 @@
-# The formulas, in plain words
+# The formulas, explained
 
 This part's appendix: every formula of §12, *Accumulation*, and of §9.4, *Service
 Privileges*, explained. That is twenty-one blocks, more than any other part. [The part's
@@ -6,7 +6,7 @@ page](./index.md#the-big-picture) tells the story first, on one real block.
 
 The real values are the tiny vectors in `vectors/stf/accumulate/tiny/`: E = 12 slots an
 epoch, C = 2 cores, G_T = 20,000,000 and G_A = 10,000,000 gas. A hash is shown by its
-first two bytes. Each formula: its key, then read aloud, in plain words, on a real value,
+first two bytes. Each formula: its key, then read aloud, what it means, on a real value,
 in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (9.9) to (9.11): who holds which privilege
@@ -32,7 +32,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ $$
 Chi M, chi V and chi R are each a service id. Chi A is a sequence of C service ids. Chi Z
 is a dictionary from service id to gas."
 
-**In plain words.** A type line: the shape of the privileges, the state's list of who may
+**What it means.** A type line: the shape of the privileges, the state's list of who may
 do what. There are five. Three are held by one service each, one is held per core, and
 one is a list:
 
@@ -99,7 +99,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -124,7 +124,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -139,7 +139,7 @@ $$
 of every x in xi. Omega is a sequence of E sequences of pairs: a work-report and a set of
 hashes."
 
-**In plain words.** Two pieces of state, both one epoch long:
+**What it means.** Two pieces of state, both one epoch long:
 
 - **ξ, the history.** One set of work-package hashes for each of the last E blocks: what
   each accumulated. ξ with a brace over it, *ξ union*, is all of them in one set: "has this
@@ -180,7 +180,7 @@ D(r) &\equiv (r, \left\{\,(r_{\mathbf{c}})_{\mathbf{p}}\,\right\} \cup \mathcal{
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -211,7 +211,7 @@ the sequence of D of r, for r in order from R, such that the size of its prerequ
 above zero or its segment-root lookup isn't empty; and xi union. D of r is the pair: r, and
 the set of its prerequisites joined with the keys of its segment-root lookup."
 
-**In plain words.** The block's newly available reports 𝐑 split in two, keeping their
+**What it means.** The block's newly available reports 𝐑 split in two, keeping their
 order.
 
 - A report that waits for nothing goes straight into 𝐑!, to accumulate now.
@@ -257,7 +257,7 @@ E\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -289,7 +289,7 @@ Q\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -324,7 +324,7 @@ in x. Q maps a queue r to: the empty sequence when g is empty; otherwise g follo
 E of r and P of g, where g is every report r whose pair r, empty set is in the queue, in
 order. P maps a set of reports to the set of their package hashes."
 
-**In plain words.** Three small tools:
+**What it means.** Three small tools:
 
 - **E, edit.** Given the packages now done, take every done report out of the queue, and
   take the done packages out of what the rest wait for.
@@ -363,7 +363,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -381,7 +381,7 @@ $$
 followed by Q of q, where q is E of: omega from m on, all joined, followed by omega before
 m, all joined, followed by R Q; and P of R bang."
 
-**In plain words.** Everything that accumulates in this block, in order: first the reports
+**What it means.** Everything that accumulates in this block, in order: first the reports
 that wait for nothing, then whatever the queue can now let go. The queue is read round the
 ring starting at this block's slot m, so the oldest waiters come first. The new waiters
 𝐑^Q come at the end. Before unlocking, the packages in 𝐑! are struck off, since they are
@@ -434,7 +434,7 @@ g\in \mathbb{N}_G
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -462,7 +462,7 @@ $$
 hash; g, gas; t, a blob; and l, a blob or a work error. X is defined as the tuple of: s, a
 service id; d, a service id; a, a balance; m, a memo; and g, gas."
 
-**In plain words.** The two kinds of input a service's accumulate can get.
+**What it means.** The two kinds of input a service's accumulate can get.
 
 An *operand* 𝕌 is what it learns about one of its digests:
 
@@ -516,7 +516,7 @@ r\in \mathbb{N}_S \,,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -541,7 +541,7 @@ account; i, the validators' keys; q, a sequence of C sequences of Q hashes; m, a
 id; a, a sequence of C service ids; v, a service id; r, a service id; and z, a dictionary
 from service id to gas."
 
-**In plain words.** Everything accumulation may change, in one record:
+**What it means.** Everything accumulation may change, in one record:
 
 - the accounts;
 - the next validators' keys ι;
@@ -577,7 +577,7 @@ U \equiv \left[\!\left[\!\left\lgroup\mathbb{N}_S, \mathbb{N}_G\right\rgroup\!\r
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -591,7 +591,7 @@ $$
 **Read it aloud.** "B is defined as a set of pairs: a service id and a hash. U is defined
 as a sequence of pairs: a service id and gas."
 
-**In plain words.** Two shapes a round hands back. 𝐁 holds the *yields*: which service
+**What it means.** Two shapes a round hands back. 𝐁 holds the *yields*: which service
 handed the chain which 32-byte hash. It is a set, so a pair counts once and has no order.
 𝐔 holds the gas each run used, one pair per run, in order.
 
@@ -632,7 +632,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -664,7 +664,7 @@ are Delta star of e, t, the first i reports, and f; j, e prime, b, u, t dagger a
 plus of g star, t star, the reports after i, e star and no free services; and g star is g
 plus the new transfers' gas, minus the gas used."
 
-**In plain words.** A recursion, one level per round:
+**What it means.** A recursion, one level per round:
 
 1. **Take what fits.** As many reports as fit the gas g, counting the transfers' gas and
    the free gas first. That many is i.
@@ -782,7 +782,7 @@ r,
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -828,7 +828,7 @@ core c's assigner's run's q of c. n is, over every s, the accounts its run left,
 those of every other service at the start; m is, over every s, the ids at the start that
 its run's accounts no longer have. And R of o, a, b is b if a equals o, otherwise a."
 
-**In plain words.** One round, built on top of one-service runs Δ(s):
+**What it means.** One round, built on top of one-service runs Δ(s):
 
 1. **Who runs.** Every service with a digest, every free service, every service a transfer
    is for: 𝐬. Each runs once, from the *same* state 𝐞, never seeing the others.
@@ -904,7 +904,7 @@ Y &\colon\left\{ \begin{aligned}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -925,7 +925,7 @@ i is the sequence of tau prime, and d′ of s's preimage at the hash of i is i. 
 accounts, a service id and a blob to a boolean: d, s, i give whether d of s's request for
 the hash and length of i is the empty sequence, when s is a key of d; otherwise false."
 
-**In plain words.** Y asks "is this blob still wanted?" The service must exist, and its
+**What it means.** Y asks "is this blob still wanted?" The service must exist, and its
 request for exactly this hash and length must be `[]`: asked for and not yet given.
 
 I files every wanted blob. The bytes go in the service's preimages under their hash, and
@@ -968,7 +968,7 @@ u&\in \mathbb{N}_G,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1025,7 +1025,7 @@ d& \mathrel{\unicode{x2B40}} r_{\mathbf{d}},&\ d_{s} = s
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1046,7 +1046,7 @@ every digest for s. i T is every transfer to s, in order. i U is, for each diges
 in each report r, in order, the operand: its result, gas limit and payload hash from d;
 its trace, exports root, package hash and authorizer from r."
 
-**In plain words.** One service's run in a round.
+**What it means.** One service's run in a round.
 
 1. **Add up its gas:** its free gas, the gas of every transfer sent to it, and every
    digest's gas limit.
@@ -1114,7 +1114,7 @@ r\mathrel{\unicode{x2AF6}}\chi_R',
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1140,7 +1140,7 @@ plus of g, no transfers, R star, e and chi Z. Theta prime is the pairs s, h in b
 sequence. And the partial state e prime gives delta dagger, iota prime, phi prime and the
 new privileges."
 
-**In plain words.** The block's budget is G_T, or enough for one maximal report per core
+**What it means.** The block's budget is G_T, or enough for one maximal report per core
 plus every free service's gas, whichever is larger. The state's accounts, next validators,
 queues and privileges go in as one partial state. Δ+ runs every round on this block's 𝐑\*.
 What comes out:
@@ -1191,7 +1191,7 @@ t_{d} = s
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1208,7 +1208,7 @@ Where S of s is the tuple N of s, T of s, G of s; N of s is the count of digests
 the first n reports of R star; T of s is the count of transfers to s in t; and G of s is
 the sum of the gas u of every pair s, u in u."
 
-**In plain words.** For each service, three tallies over the whole block:
+**What it means.** For each service, three tallies over the whole block:
 
 - N, the digests it accumulated (only from reports that ran: the first n);
 - T, the transfers it received;
@@ -1246,7 +1246,7 @@ a &\text{otherwise}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1260,7 +1260,7 @@ $$
 each s maps to a in delta dagger, where a prime is a except that its a is tau prime, if s
 is a key of S; otherwise a."
 
-**In plain words.** Every service in the statistics, so every service that did anything,
+**What it means.** Every service in the statistics, so every service that did anything,
 gets its last-accumulation slot set to this block's slot. The rest are left alone.
 
 **On a real value.** `transfer_for_live_service-1`, slot 43:
@@ -1293,7 +1293,7 @@ E({\omega}^\circlearrowleft_{m - i}, \xi'_{\mathsf{E} - 1}) &\text{if } i \ge \t
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1310,7 +1310,7 @@ minus i, is: E of R Q and xi prime's newest, when i is zero; empty, when i is at
 below tau prime minus tau; and E of omega wrapped at m minus i and xi prime's newest, when i
 is at least tau prime minus tau."
 
-**In plain words.** The history slides one place: the oldest set drops off the front, and
+**What it means.** The history slides one place: the oldest set drops off the front, and
 the packages that accumulated in this block join at the end. The queue, read back from
 this block's list m:
 

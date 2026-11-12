@@ -70,7 +70,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ $$
 
 </details>
 
-→ [(5.4), (5.5), (5.6), (5.7) in plain words](./gray-paper.md#ex-5-4)
+→ [(5.4), (5.5), (5.6), (5.7) explained](./gray-paper.md#ex-5-4)
 
 :::
 

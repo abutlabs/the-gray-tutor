@@ -1,10 +1,10 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 14](./index.md)'s appendix: every formula of §9, *Service Accounts*, and of §12.4,
 *Preimage Integration*, explained. Nine: what an account is made of (9.1) to (9.3), where
 its code is (9.4), how refine looks a preimage up at a past slot (9.5) to (9.7), what its
 storage costs (9.8), and how a block hands preimages over (12.34) to (12.37). Each formula:
-its key, then read aloud, in plain words, on a real value, in your client. Notation:
+its key, then read aloud, what it means, on a real value, in your client. Notation:
 [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (9.1) and (9.2): a service id, and the accounts
@@ -20,7 +20,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -39,7 +39,7 @@ $$
 **Read it aloud.** "N sub S is defined as the 32-bit naturals. Delta is in: a dictionary
 from N sub S to A."
 
-**In plain words.** Two type lines. A service's id is a whole number that fits in 4
+**What it means.** Two type lines. A service's id is a whole number that fits in 4
 bytes, 0 to 4,294,967,295. δ, the service accounts, is a dictionary from those ids to
 accounts: look a service up by its id, get its account, or nothing if there is no such
 service. The paper calls it a partial mapping: most ids have no service.
@@ -80,7 +80,7 @@ p \in \mathbb{N}_S\\
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ p, in a dictionary from hashes to blobs; l, in a dictionary from a hash and a le
 sequence of at most 3 timeslots; f, in N sub B; c, in H; b, in N sub B; g, in N sub G; m,
 in N sub G; r, in N sub T; a, in N sub T; p, in N sub S."
 
-**In plain words.** An account is a record, the way an app's row is: three bags of entries
+**What it means.** An account is a record, the way an app's row is: three bags of entries
 and eight plain fields.
 
 1. **Three bags.** Storage 𝐬, whatever keys and values the service writes. Preimages 𝐩,
@@ -163,7 +163,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -182,7 +182,7 @@ $$
 the encoding of m with its length, then c, is a's preimage at a's code hash; otherwise,
 nothing and nothing."
 
-**In plain words.** The record holds only a hash, c. To find the code, look c up in the
+**What it means.** The record holds only a hash, c. To find the code, look c up in the
 account's own preimages. The bytes there are two blobs in a row. First the metadata 𝐦, a
 name and a version for people, with its length in front. Then the code 𝐜, the PVM
 program. If the preimage is missing, or its bytes don't split that way, the service has
@@ -217,7 +217,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -241,7 +241,7 @@ $$
 H T, and a hash; to a blob or nothing. Given a, t and the hash of p, it gives v, where v is
 either p or nothing."
 
-**In plain words.** Before saying how, the paper says what Λ promises. Ask it about a
+**What it means.** Before saying how, the paper says what Λ promises. Ask it about a
 service, a recent slot and a hash, and it answers with the very bytes whose hash that is,
 or with nothing. It never answers with other bytes. The slot must be within the last D
 slots, 32 on tiny and 19,200 on full, about 32 hours: the window in which a forgotten
@@ -268,7 +268,7 @@ h = \mathcal{H}\left(\mathbf{d}\right)\wedge
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -286,7 +286,7 @@ $$
 implies: h equals the hash of d, and the pair h, the size of d, is among the keys of a's
 requests."
 
-**In plain words.** Two rules that always hold, for every stored preimage. Its key is its
+**What it means.** Two rules that always hold, for every stored preimage. Its key is its
 own hash, so nobody can file other bytes under it. And it has a request for that hash and
 its exact length, so no preimage sits in an account that never asked for it. A client
 that keeps the second rule can find a preimage's history from the preimage alone.
@@ -332,7 +332,7 @@ x \le t < y \vee z \le t &\text{if } \left[x, y, z\right] = \mathbf{l} \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -351,7 +351,7 @@ otherwise nothing. Where I of l and t is: false, if l is empty; x at most t, if 
 x at most t and t less than y, if l is x, y; x at most t and t less than y, or z at most
 t, if l is x, y, z."
 
-**In plain words.** Λ needs two things: the bytes are still in the account, and the
+**What it means.** Λ needs two things: the bytes are still in the account, and the
 request's history says they were there at slot t. The helper I reads the history:
 
 | History | Available at slot t when |
@@ -402,7 +402,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -428,7 +428,7 @@ requests, of 81 plus z; plus the sum, over each key x and value y in a's storage
 plus the size of y plus the size of x. a sub t, a balance, is defined as the max of 0 and:
 B sub S, plus B sub I times a sub i, plus B sub L times a sub o, less a sub f."
 
-**In plain words.** What an account keeps, counted two ways, then priced.
+**What it means.** What an account keeps, counted two ways, then priced.
 
 1. **Items, i.** Each request counts 2, as if for the request and the preimage it
    brings. Each storage entry counts 1.
@@ -472,7 +472,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -489,7 +489,7 @@ $$
 **Read it aloud.** "E sub P is in: a sequence of tuples of a service id and a blob. E sub P
 equals itself, sorted and without repeats. For every s and d in E sub P: Y of delta, s, d."
 
-**In plain words.** Three rules about the block's preimages, each checked by every
+**What it means.** Three rules about the block's preimages, each checked by every
 validator:
 
 1. **(12.34), the shape.** A list of pairs: which service, and the bytes for it.
@@ -528,7 +528,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -542,7 +542,7 @@ $$
 
 **Read it aloud.** "Delta prime equals I of delta double dagger and E sub P."
 
-**In plain words.** The accounts after the block are the accounts after accumulation,
+**What it means.** The accounts after the block are the accounts after accumulation,
 δ‡, with I applied. For each preimage that is providable in δ‡, the data is filed in
 the service's preimages and its request's history becomes `[τ′]`. Why δ‡, not δ?
 Accumulation in this block may have removed the service or dropped the request. Then the

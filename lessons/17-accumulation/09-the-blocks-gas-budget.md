@@ -63,7 +63,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -100,7 +100,7 @@ $$
 
 </details>
 
-→ [(12.17) in plain words](./gray-paper.md#ex-12-17)
+→ [(12.17) explained](./gray-paper.md#ex-12-17)
 
 :::
 
@@ -149,7 +149,7 @@ r\mathrel{\unicode{x2AF6}}\chi_R',
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -183,7 +183,7 @@ $$
 
 </details>
 
-→ [(12.24), (12.25), (12.26) in plain words](./gray-paper.md#ex-12-24)
+→ [(12.24), (12.25), (12.26) explained](./gray-paper.md#ex-12-24)
 
 :::
 

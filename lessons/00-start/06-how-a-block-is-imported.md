@@ -192,7 +192,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -218,7 +218,7 @@ $$
 
 </details>
 
-→ [(4.4) in plain words](../06-state-and-merklization/gray-paper.md#ex-4-4)
+→ [(4.4) explained](../06-state-and-merklization/gray-paper.md#ex-4-4)
 
 <a id="gp-4-2-p3"></a>In summary, $\delta$ is the portion of state dealing with *services*, analogous in JAM to the Yellow Paper's (smart contract) *accounts*, the only state of the *YP*'s Ethereum. The identities of services which hold some privileged status are tracked in $\chi$.
 

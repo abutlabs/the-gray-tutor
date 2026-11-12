@@ -48,7 +48,7 @@ The paper draws the same split in §4.9, and names the two models:
 
 :::
 
-In plain words: on Ethereum every node runs every transaction, so the network can do no
+On Ethereum every node runs every transaction, so the network can do no
 more than one node can. JAM lets a few validators do each piece of work, in-core, and
 makes that safe in stages (the paper says three, then names four): the guarantors stake their reputation on a report, the
 assurers keep its data where anyone can fetch it, the auditors redo it, and if they
@@ -109,7 +109,7 @@ what happens when they do.
 
 :::
 
-In plain words: there are no user accounts with private keys, only services, each a
+There are no user accounts with private keys, only services, each a
 balance, code and storage. Data comes in from outside only through refine, which runs
 in-core and can take a lot in and boil it down to a small digest. Accumulate, on the
 chain, folds the digests into the service's state, and only it can move balances or call
@@ -153,7 +153,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -177,7 +177,7 @@ $$
 
 </details>
 
-→ [(4.22) in plain words](./00-start/gray-paper.md#ex-4-22)
+→ [(4.22) explained](./00-start/gray-paper.md#ex-4-22)
 
 <a id="gp-4-7-p5"></a>We refer to the time-proportional computational steps as *gas* (much like in the *YP*) and limit it to a 64-bit quantity. Within the context of the PVM, $\varrho \in \mathbb{N}_G$ is typically used to denote gas, but we may also use $\varrho \in \mathbb{Z}_G$ internally within the definition of the PVM where it may be convenient.
 
@@ -191,7 +191,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -202,7 +202,7 @@ $$
 
 </details>
 
-→ [(4.23) in plain words](./00-start/gray-paper.md#ex-4-23)
+→ [(4.23) explained](./00-start/gray-paper.md#ex-4-23)
 
 <a id="gp-4-7-p7"></a>It is left as a rather important implementation detail to ensure that the amount of time taken while computing the function $\Psi(\dots, \varrho, \dots)$ has a maximum computation time approximately proportional to the value of $\varrho$ regardless of other operands.
 
@@ -222,7 +222,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -235,7 +235,7 @@ $$
 
 </details>
 
-→ [(4.24), (4.25) in plain words](./00-start/gray-paper.md#ex-4-24)
+→ [(4.24), (4.25) explained](./00-start/gray-paper.md#ex-4-24)
 
 <a id="gp-4-7-p10"></a>The PVM assumes a simple pageable RAM of 32-bit addressable <abbr class="gp-term" title="bytes: 8 bits each">octets</abbr> situated in pages of $\mathsf{Z}_P = 4096$ octets where each page may be either immutable, mutable or inaccessible. The RAM definition $\mathbb{M}$ includes two components: a value $\mathbf{v}$ and access $\mathbf{a}$. If the component is unspecified while being subscripted then the value component may be assumed. Within the context of the virtual machine, $\mu \in \mathbb{M}$ is typically used to denote RAM.
 
@@ -248,7 +248,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -263,7 +263,7 @@ $$
 
 </details>
 
-→ [(4.26), (4.27) in plain words](./00-start/gray-paper.md#ex-4-26)
+→ [(4.26), (4.27) explained](./00-start/gray-paper.md#ex-4-26)
 
 <a id="gp-4-7-p12"></a>We define two sets of indices for the RAM $\mu$: $\mathbb{V}_{\mu}$ is the set of indices which may be read from; and $\mathbb{V}_{\mu}^*$ is the set of indices which may be written to.
 
@@ -281,7 +281,7 @@ $$
 
 :::
 
-In plain words: the PVM is a stripped-down RISC-V, the instruction set many real CPUs use,
+The PVM is a stripped-down RISC-V, the instruction set many real CPUs use,
 so ordinary compilers can target it. A run takes a program, 13 registers of 64 bits, a
 memory of 2³² bytes in 4,096-byte pages, and a gas budget, and stops in one of five ways:
 done, a trap, out of gas, a touch of memory it may not, or a call to the host, which does
@@ -309,7 +309,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -317,7 +317,7 @@ $$
 
 </details>
 
-→ [(4.21) in plain words](./00-start/gray-paper.md#ex-4-21)
+→ [(4.21) explained](./00-start/gray-paper.md#ex-4-21)
 
 <a id="gp-4-6-p4"></a>Though unimportant for the present work, we presume that there be a standard named denomination for $10^{9}$ tokens. This is different to both Ethereum (which uses a denomination of $10^{18}$), Polkadot (which uses a denomination of $10^{10}$) and Polkadot's experimental cousin Kusama (which uses $10^{12}$).
 
@@ -333,7 +333,7 @@ $$
 
 :::
 
-In plain words: a balance is a u64 count of the smallest unit, and the paper expects a
+A balance is a u64 count of the smallest unit, and the paper expects a
 named unit of 10⁹ of them, so no balance can pass about 18 billion of those named units. A service must
 keep a minimum balance that grows with what it stores: B_S just to exist, B_I for each
 item and B_L for each byte. §4.6 leaves their values open; Appendix I sets them to 100, 10
@@ -418,7 +418,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -438,7 +438,7 @@ l = \mathsf{X}_G \frown \mathcal{H}\left(\mathcal{E}_{}\left(\mathbf{r}\right)\r
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -461,7 +461,7 @@ $$
 
 :::
 
-**(15.1), read it aloud.** "r is Xi of p, c, l and v." **In plain words.** The report is
+**(15.1), read it aloud.** "r is Xi of p, c, l and v." **What it means.** The report is
 what Ξ, §14's work-report function, makes from the package p, the core c, the segment-root
 lookup l and the number of validators v. The guarantor picks c, l and v itself, and should
 pick the ones the chain will accept. **On a real value.** On tiny, v = 6: one chunk for
@@ -492,7 +492,7 @@ assurance says so.
 
 :::
 
-In plain words: a validator keeps two kinds of chunk for a report, one of the bundle,
+A validator keeps two kinds of chunk for a report, one of the bundle,
 needed only until the report is audited, and one of each segment it exports, kept for 28
 days so later packages can import them. It checks each against the report's erasure root
 with a Merkle proof before it says yes. [Part 11](./11-assurances/index.md) counts the
@@ -526,7 +526,7 @@ can't know whom to bribe.
 
 :::
 
-In plain words: each validator picks a few reports to audit by a lottery only it can run,
+Each validator picks a few reports to audit by a lottery only it can run,
 announces them, and votes. Every 8 seconds, a tranche, it checks whether everyone who
 announced has voted, and if someone hasn't (a no-show) or someone voted no, more
 validators join. All yes, and the report is audited. More than a third no, and the block
@@ -548,7 +548,7 @@ that holds it is abandoned.
 
 :::
 
-In plain words: an auditor rebuilds the package's bundle from enough chunks, checks each
+An auditor rebuilds the package's bundle from enough chunks, checks each
 part against the hashes the report quotes, and recomputes the report. Exported segments
 aren't rebuilt from chunks; refine makes them again.
 
@@ -576,7 +576,7 @@ c \mathrel{\unicode{x2B40}} \mathbb{N}_{{}^{\left\vert\kappa\right\vert}\!/_{3}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -601,7 +601,7 @@ $$
 **(17.1) and (17.2), read aloud.** "q is in the sequences of length |κ| over 3 of
 reports or nothing. q is defined as, for each core c in order below |κ| over 3: the report
 of the guarantee pending on core c, if it is in R, the reports just made available;
-otherwise nothing." **In plain words.** One slot per core, holding the report that just
+otherwise nothing." **What it means.** One slot per core, holding the report that just
 became available there, or empty. |κ|/3 is the core count: 1,023 / 3 = 341 on full, 6 / 3
 = 2 on tiny. **On a value.** A made-up tiny block where only core 0's report became
 available: q = [r₀, ∅].
@@ -627,7 +627,7 @@ s_{0} &\in \overset{\backsim}{\mathbb{V}}_{
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -652,7 +652,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -665,12 +665,12 @@ $$
 
 **(17.3) and (17.4), read aloud.** "s-zero is in the Bandersnatch signatures by my
 Bandersnatch key, in context X sub U followed by Y of the header's VRF signature, on the
-empty message. X sub U is the string jam_audit." **In plain words.** My own lottery
+empty message. X sub U is the string jam_audit." **What it means.** My own lottery
 ticket: a VRF output only I can make and anyone can check, seeded by this block's own
 randomness, so nobody could know it before the block.
 
 **(17.5), read it aloud.** "a-zero is the set of reports r in q shuffled by Y of s-zero,
-the first ten, where r is not nothing." **In plain words.** Shuffle the cores with my
+the first ten, where r is not nothing." **What it means.** Shuffle the cores with my
 ticket and audit whatever reports sit in the first ten. **On a real value.** On full, 1,023
 validators each take 10 of 341 cores, so each report gets about 1,023 × 10 / 341 = 30
 auditors in the first tranche: the 30 audits per report that §20 counts on.
@@ -689,7 +689,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -705,7 +705,7 @@ $$
 :::
 
 **(17.6), read it aloud.** "Using n equals the floor of: T minus P times the header's slot,
-over A." **In plain words.** n is the tranche: how many whole 8-second steps have passed
+over A." **What it means.** n is the tranche: how many whole 8-second steps have passed
 since the block's slot began. **On a value.** Made up: a block for slot 100 starts 600
 seconds into the era. At 617 seconds, n = ⌊(617 − 600) / 8⌋ = ⌊2.125⌋ = 2.
 
@@ -729,7 +729,7 @@ S &\equiv \bar{\mathbb{V}}_{\kappa\left[v\right]_{e}}\left\langle\mathsf{X}_I \m
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -745,7 +745,7 @@ $$
 **(17.7) to (17.9), read aloud.** "S is defined as the Ed25519 signatures by my Ed25519
 key on: X sub I, with n appended, then x sub n, then H of the header; where x sub n is the
 encoding of the set of, for each report in my tranche, its core in two bytes followed by
-the report's hash; and X sub I is jam_announce." **In plain words.** An announcement is a
+the report's hash; and X sub I is jam_announce." **What it means.** An announcement is a
 signed promise: "for this block, in tranche n, I will audit these cores' reports". The
 text above it says the promise binds, whatever happens next.
 
@@ -764,7 +764,7 @@ A_{n}: \mathbb{R} &\to \left\{\mkern-5mu\left[\,\mathbb{N}_{\left\vert\kappa\rig
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -785,7 +785,7 @@ $$
 :::
 
 **(17.10) to (17.12), read aloud.** "A sub n maps a report to a set of validator indices.
-J, with true or false below it, maps a report to a set of validator indices." **In plain words.** Three tallies
+J, with true or false below it, maps a report to a set of validator indices." **What it means.** Three tallies
 a validator keeps from what it hears: A_n, who should have audited each report by tranche
 n; J_⊤, who voted it valid; J_⊥, who voted it invalid. (17.11) is an empty line: in
 0.8.0 the source leaves a to-do there, and the PDF still numbers it.
@@ -809,7 +809,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -831,7 +831,7 @@ Bandersnatch signatures by my key, in context X sub U, then Y of the header's VR
 signature, then H of r with n appended, on the empty message. a sub n of r is: |κ| over
 256 F, times the first byte of Y of s sub n of r, is less than the size of A sub n minus
 one of r without J top of r. a sub n is the set of reports r in q, not nothing, for which
-a sub n of r holds." **In plain words.** For each report, count its no-shows: validators
+a sub n of r holds." **What it means.** For each report, count its no-shows: validators
 who promised in the last tranche and haven't voted valid. Draw a fresh random byte, 0 to
 255, for this report and tranche; join the audit if the byte, scaled, falls under the
 no-show count. The scale is set so that each no-show brings in about F = 2 new auditors.
@@ -862,7 +862,7 @@ M(\mathbf{r}, \mathbf{p}) &\text{if } \exists \mathbf{p} \in \mathbb{P}: B(\math
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -887,7 +887,7 @@ $$
 **(17.16), read it aloud.** "For every report r in my tranche n: e sub n of r holds exactly
 when: M of r and p, if there exists a package p whose bundle, made with r's segment-root
 lookup, is C of r; otherwise false. Where M of r and p is: r equals Xi of p, r's core, r's
-lookup, and r's shard count." **In plain words.** Rebuild the bundle from chunks; if it
+lookup, and r's shard count." **What it means.** Rebuild the bundle from chunks; if it
 decodes to a package, redo the work exactly as the guarantors should have, and compare the
 report you get with the one on the chain, byte for byte. Equal is valid. Anything else,
 including a bundle that won't decode, is invalid.
@@ -914,7 +914,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -928,7 +928,7 @@ $$
 :::
 
 **(17.17), read it aloud.** "j sub n is the set of, for each report r in my tranche, my
-Ed25519 signature on X sub e-n-of-r followed by H of r." **In plain words.** My votes:
+Ed25519 signature on X sub e-n-of-r followed by H of r." **What it means.** My votes:
 `jam_valid` or `jam_invalid`, then the report's hash, signed. These are the judgments a
 verdict collects ([10.1](./10-disputes/01-votes-and-verdicts.md)).
 
@@ -949,7 +949,7 @@ U(\mathbf{r}) &\Leftrightarrow \bigvee\,\left\{ \,\begin{aligned}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -971,7 +971,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -983,14 +983,14 @@ $$
 
 **(17.18), read it aloud.** "U of r holds exactly when either: J bottom of r is empty and
 there exists an n such that A sub n of r is a subset of J top of r; or the size of J top
-of r is more than two thirds of |κ|." **In plain words.** A report is audited when nobody
+of r is more than two thirds of |κ|." **What it means.** A report is audited when nobody
 voted no and, at some tranche, everyone who was meant to audit it voted yes; or when more
 than two thirds of all validators voted yes, whatever else happened. **On a value.** On
 full, the second way needs at least 683 yes votes: 683 is the smallest number above 2/3 ×
 1,023 = 682.
 
 **(17.19), read it aloud.** "U, the audit condition, holds exactly when for every report r
-in R, U of r holds." **In plain words.** A block is audited when every report it made
+in R, U of r holds." **What it means.** A block is audited when every report it made
 available is.
 
 ::: gray-paper 17.3 35-
@@ -1005,7 +1005,7 @@ available is.
 
 :::
 
-In plain words: a validator won't vote a block final until it is audited, and won't build
+A validator won't vote a block final until it is audited, and won't build
 on a chain that accumulates a report a third of the validators call invalid. A block author
 who sees a no vote can gather the votes into a verdict for the disputes extrinsic, and
 that is where your client meets all of this: [Part 10](./10-disputes/index.md) checks the
@@ -1034,7 +1034,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1050,7 +1050,7 @@ $$
 
 **(18.1) and (18.2), read aloud.** "F of v is defined as the BLS signature by validator v's
 BLS key on X sub B followed by the super-peak of the last entry of the recent history;
-X sub B is jam_beefy." **In plain words.** Validator v signs `jam_beefy` followed by the
+X sub B is jam_beefy." **What it means.** Validator v signs `jam_beefy` followed by the
 root of the belt of accumulation outputs, which [9.1](./09-recent-history/01-the-mountain-belt.md)
 builds and the last recent-history entry keeps. BLS signatures add up, so a bridge checks
 one aggregate instead of hundreds ([Cryptography we use](./cryptography.md#bls)).
@@ -1090,7 +1090,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1114,7 +1114,7 @@ m = \sum_{\mathbf{H}^A \in \mathbf{A}^{\flat}} \mathbf{T}^A \tag{19.4}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1134,18 +1134,18 @@ $$
 **(19.1) to (19.3), read aloud.** "The ancestors of the best header contain the final
 header. The best block's audit condition is true. There are no two headers A and B such
 that all of: A is not B, they have the same slot, A is an ancestor of the best header, and
-A is not an ancestor of the final one." **In plain words.** A candidate for the best block
+A is not an ancestor of the final one." **What it means.** A candidate for the best block
 builds on the final block, is audited, and has no slot since the final block where two
 different valid blocks were seen: a sign that someone sealed twice.
 
 **(19.4), read it aloud.** "m is the sum, over the best block's ancestors A, of T of A."
-**In plain words.** Among the candidates, pick the one with the most ancestors sealed by a
+**What it means.** Among the candidates, pick the one with the most ancestors sealed by a
 ticket rather than by the fallback key. T, the header's "is ticketed" flag, is 1 or 0
 ([8.9](./08-safrole/09-seals.md)). **On a value.** Made up: two forks share
 the final block; one has 5 ticketed blocks since, the other 4 ticketed and 1 fallback.
 m = 5 against 4: the first is best.
 
-In plain words, the rest: a GRANDPA vote is on the best block's header *and* the state root
+The rest: a GRANDPA vote is on the best block's header *and* the state root
 after it, so a node can't vote before it has imported the block, and two votes on the same
 block with different roots count as votes for different blocks.
 

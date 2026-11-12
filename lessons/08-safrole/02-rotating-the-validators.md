@@ -54,7 +54,7 @@ $$
 \end{gather}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ $$
 
 </details>
 
-→ [(6.7), (6.8) in plain words](./gray-paper.md#ex-6-7)
+→ [(6.7), (6.8) explained](./gray-paper.md#ex-6-7)
 
 <a id="gp-6-3-p3"></a>We must introduce $\mathbb{K}$, the set of validator key tuples. This is a combination of a set of cryptographic public keys and metadata which is an opaque <abbr class="gp-term" title="a byte: 8 bits">octet</abbr> sequence, but utilized to specify practical identifiers for the validator, not least a hardware address.
 
@@ -91,7 +91,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -111,7 +111,7 @@ $$
 
 </details>
 
-→ [(6.9), (6.10), (6.11), (6.12), (6.13) in plain words](./gray-paper.md#ex-6-9)
+→ [(6.9), (6.10), (6.11), (6.12), (6.13) explained](./gray-paper.md#ex-6-9)
 
 <a id="gp-6-3-p6"></a>With a new epoch under regular conditions, validator keys get rotated and the epoch's Bandersnatch ring root is updated into $\gamma_Z'$:
 
@@ -134,7 +134,7 @@ k \mathrel{\unicode{x2B40}} \mathbf{k}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -147,7 +147,7 @@ $$
 
 </details>
 
-→ [(6.14), (6.15) in plain words](./gray-paper.md#ex-6-14)
+→ [(6.14), (6.15) explained](./gray-paper.md#ex-6-14)
 
 <a id="gp-6-3-p8"></a>Note that on epoch changes the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> queued validator key sequence $\gamma_P'$ is defined such that incoming keys belonging to the offenders $\psi_O'$ are replaced with a <abbr class="gp-term" title="a validator key set of 336 zero bytes, which nobody can sign with">null key</abbr> containing only zeroes. The origin of the offenders is explained in section [10](../10-disputes/index.md#gp-10-p1).
 

@@ -57,7 +57,7 @@ t\in \mathbb{E},
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -82,7 +82,7 @@ $$
 
 </details>
 
-→ [(A.49) in plain words](./gray-paper.md#ex-A-49)
+→ [(A.49) explained](./gray-paper.md#ex-A-49)
 
 <a id="gp-A-9-p4"></a>A reorder buffer entry, of set $\mathbb{R}$, contains its current state $s$, the number of cycles left $c$, a set of reorder buffer indices considered its dependencies $p$, a set of clobbered registers $r$, and the execution units used $t$. Formally:
 
@@ -100,7 +100,7 @@ t\in \mathbb{E}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ $$
 
 </details>
 
-→ [(A.50) in plain words](./gray-paper.md#ex-A-50)
+→ [(A.50) explained](./gray-paper.md#ex-A-50)
 
 <a id="gp-A-9-p6"></a>A tuple of the set $\mathbb{E}$ maps each execution unit kind (${\text{A}, \text{L}, \text{S}, \text{M}, \text{D}}$) into a number:
 
@@ -131,7 +131,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -143,7 +143,7 @@ $$
 
 </details>
 
-→ [(A.51) in plain words](./gray-paper.md#ex-A-51)
+→ [(A.51) explained](./gray-paper.md#ex-A-51)
 
 <a id="gp-A-9-p8"></a>For convenience we define addition and subtraction of two tuples of the set $\mathbb{E}$ to be equivalent to the memberwise operation of the same kind; formally:
 
@@ -158,7 +158,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ $$
 
 </details>
 
-→ [(A.52) in plain words](./gray-paper.md#ex-A-52)
+→ [(A.52) explained](./gray-paper.md#ex-A-52)
 
 <a id="gp-A-9-p10"></a>Similarly, a comparison between two tuples of the set $\mathbb{E}$ is true if and only if the chosen comparison holds for all corresponding members:
 
@@ -183,7 +183,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -193,7 +193,7 @@ $$
 
 </details>
 
-→ [(A.53) in plain words](./gray-paper.md#ex-A-53)
+→ [(A.53) explained](./gray-paper.md#ex-A-53)
 
 :::
 
@@ -227,7 +227,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -246,7 +246,7 @@ $$
 
 </details>
 
-→ [(A.54) in plain words](./gray-paper.md#ex-A-54)
+→ [(A.54) explained](./gray-paper.md#ex-A-54)
 
 <a id="gp-A-9-p16"></a>The gas cost model simulation function $\mathfrak{X}$ is defined as follows:
 
@@ -267,7 +267,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -284,7 +284,7 @@ $$
 
 </details>
 
-→ [(A.55) in plain words](./gray-paper.md#ex-A-55)
+→ [(A.55) explained](./gray-paper.md#ex-A-55)
 
 <a id="gp-A-9-p18"></a>The state transition function $\mathfrak{X}'$ which decodes the instructions without triggering the virtual CPU pipeline simulation is defined as follows:
 
@@ -302,7 +302,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -310,7 +310,7 @@ $$
 
 </details>
 
-→ [(A.56) in plain words](./gray-paper.md#ex-A-56)
+→ [(A.56) explained](./gray-paper.md#ex-A-56)
 
 <a id="gp-A-9-p20"></a>The `move_reg` instruction is special-cased to be handled by the frontend of our virtual CPU, without being added to the reorder buffer:
 
@@ -344,7 +344,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -359,7 +359,7 @@ $$
 
 </details>
 
-→ [(A.57) in plain words](./gray-paper.md#ex-A-57)
+→ [(A.57) explained](./gray-paper.md#ex-A-57)
 
 <a id="gp-A-9-p22"></a>Every other instruction is fully decoded and added to the reorder buffer as follows:
 
@@ -396,7 +396,7 @@ p &= \left\{\,i \;\middle\vert\;  i \in \mathbb{N}_{\left\vert{\mathbf{x}_{\math
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -408,7 +408,7 @@ $$
 
 </details>
 
-→ [(A.58) in plain words](./gray-paper.md#ex-A-58)
+→ [(A.58) explained](./gray-paper.md#ex-A-58)
 
 <a id="gp-A-9-p24"></a>The state transition function $\mathfrak{X}''$ which starts the execution of the next pending instruction is defined as follows:
 
@@ -437,7 +437,7 @@ n &= \mathfrak{S}(\mathbf{x})\\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -445,7 +445,7 @@ $$
 
 </details>
 
-→ [(A.59) in plain words](./gray-paper.md#ex-A-59)
+→ [(A.59) explained](./gray-paper.md#ex-A-59)
 
 <a id="gp-A-9-p26"></a>The function $\mathfrak{S}$ which checks which instruction inside of the reorder buffer is ready to start executing (and whether such an instruction even exists) is defined as follows:
 
@@ -474,7 +474,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -483,7 +483,7 @@ $$
 
 </details>
 
-→ [(A.60) in plain words](./gray-paper.md#ex-A-60)
+→ [(A.60) explained](./gray-paper.md#ex-A-60)
 
 <a id="gp-A-9-p28"></a>The state transition function $\mathfrak{X}'''$ which simulates the rest of the virtual CPU pipeline is defined as follows:
 
@@ -523,7 +523,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -532,7 +532,7 @@ $$
 
 </details>
 
-→ [(A.61) in plain words](./gray-paper.md#ex-A-61)
+→ [(A.61) explained](./gray-paper.md#ex-A-61)
 
 :::
 

@@ -53,7 +53,7 @@ v \in \left\{\,\bot, \emptyset\,\right\} \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ $$
 
 </details>
 
-→ [(10.14) in plain words](./gray-paper.md#ex-10-14)
+→ [(10.14) explained](./gray-paper.md#ex-10-14)
 
 :::
 

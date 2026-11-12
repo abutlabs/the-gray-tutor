@@ -50,7 +50,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ $$
 
 </details>
 
-→ [(11.46) in plain words](./gray-paper.md#ex-11-46)
+→ [(11.46) explained](./gray-paper.md#ex-11-46)
 
 <a id="gp-11-5-p3"></a>It is worth noting that $\rho'\left[c\right]$ is always $\emptyset$ for $c \ge {}^{\left\vert\kappa'\right\vert}\!/_{3}$; this in particular ensures that we will never have more reports to audit than can safely be managed with the number of active validators.
 

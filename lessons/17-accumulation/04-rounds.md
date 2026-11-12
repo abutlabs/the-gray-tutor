@@ -101,7 +101,7 @@ u&\in \mathbb{N}_G,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -125,7 +125,7 @@ $$
 
 </details>
 
-→ [(12.22) in plain words](./gray-paper.md#ex-12-22)
+→ [(12.22) explained](./gray-paper.md#ex-12-22)
 
 <a id="gp-12-2-p23"></a><a id="eq-12-23"></a>
 
@@ -171,7 +171,7 @@ d& \mathrel{\unicode{x2B40}} r_{\mathbf{d}},&\ d_{s} = s
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -203,7 +203,7 @@ $$
 
 </details>
 
-→ [(12.23) in plain words](./gray-paper.md#ex-12-23)
+→ [(12.23) explained](./gray-paper.md#ex-12-23)
 
 <a id="gp-12-2-p24"></a>This draws upon $g$, the gas limit implied by the selected deferred-transfers, work-reports and gas-privileges.
 

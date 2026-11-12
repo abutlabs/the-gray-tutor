@@ -134,7 +134,7 @@ T(\sigma) \equiv \left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -211,7 +211,7 @@ $$
 
 </details>
 
-→ [(D.2) in plain words](./gray-paper.md#ex-D-2)
+→ [(D.2) explained](./gray-paper.md#ex-D-2)
 
 <a id="gp-D-1-p6"></a>Note that most rows describe a single mapping between a key derived from a natural and the serialization of a state component. However, the final four rows each define sets of mappings since these items act over all service accounts and in the case of the final three rows, the keys of a nested dictionary with the service.
 

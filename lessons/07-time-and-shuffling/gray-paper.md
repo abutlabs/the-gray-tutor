@@ -1,8 +1,8 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 7](./index.md)'s appendix: every formula this part quotes, explained. Six: (6.1) and
 (6.2) tell the time; (6.22) and (6.24) keep the entropy's history; (F.1) and (F.2), with
-(F.3), shuffle a list. Each formula: its key, then read aloud, in plain words, on a real
+(F.3), shuffle a list. Each formula: its key, then read aloud, what it means, on a real
 value, in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (6.1): the time is the header's slot
@@ -18,7 +18,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -35,7 +35,7 @@ $$
 
 **Read it aloud.** "Tau is in N sub T. Tau prime is defined as H sub T."
 
-**In plain words.** Two statements.
+**What it means.** Two statements.
 
 - A type: τ, the time in the state, is a timeslot, a whole number below 2³² (a u32).
 - The rule: after a block, τ′ is that block's own slot, the header's `slot` field,
@@ -69,7 +69,7 @@ e' \,\mathsf{R}\, m' = \frac{\tau'}{\mathsf{E}} \tag{6.2}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -84,7 +84,7 @@ $$
 **Read it aloud.** "Let e remainder m equal tau over E, and e prime remainder m prime
 equal tau prime over E."
 
-**In plain words.** The R writes the two answers of one whole-number division: the
+**What it means.** The R writes the two answers of one whole-number division: the
 quotient on its left, the remainder on its right. Divide a slot by E, the epoch's length.
 
 - The quotient, e, is the epoch.
@@ -120,7 +120,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -151,7 +151,7 @@ $$
 prime, eta three prime are defined as: eta zero, eta one, eta two, if e prime is greater
 than e; otherwise eta one, eta two, eta three."
 
-**In plain words.** (6.22) is a type line: η is exactly four 32-byte hashes, 128 bytes in
+**What it means.** (6.22) is a type line: η is exactly four 32-byte hashes, 128 bytes in
 all.
 
 - η₀ is the accumulator, stirred by every block (that's (6.23), in
@@ -195,7 +195,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -222,7 +222,7 @@ holding s at r zero mod l, concatenated with F of s prime up to l minus 1 and r 
 where s prime is s except that s prime at r zero mod l is s at l minus 1; otherwise the
 empty sequence."
 
-**In plain words.** The top line is the function's type. F takes a list s of l items (of
+**What it means.** The top line is the function's type. F takes a list s of l items (of
 any type T) and at least l numbers r. It gives back the same l items in a new order. The
 lines under it say how, as a recursion: a function that calls itself on a shorter list.
 
@@ -273,7 +273,7 @@ i \mathrel{\unicode{x2B40}} \mathbb{N}_{l}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -298,7 +298,7 @@ concatenated with E-4 of the floor of i over 8, bytes 4i mod 32, four of them. A
 T and l: F maps a sequence of l T's and a hash to a sequence of l T's: s and h map to F of
 s and Q sub l of h."
 
-**In plain words.** (F.2) makes the numbers the shuffle needs, l of them, from one 32-byte
+**What it means.** (F.2) makes the numbers the shuffle needs, l of them, from one 32-byte
 hash h. For number i:
 
 1. **the counter**: ⌊i / 8⌋, written as 4 bytes, little-endian. Numbers 0 to 7 use

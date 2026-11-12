@@ -48,7 +48,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -67,7 +67,7 @@ $$
 
 </details>
 
-→ [(12.34), (12.35), (12.36) in plain words](./gray-paper.md#ex-12-34)
+→ [(12.34), (12.35), (12.36) explained](./gray-paper.md#ex-12-34)
 
 <a id="gp-12-4-p3"></a>We disregard, without prejudice, any preimages which due to the effects of accumulation are no longer useful. We define $\delta'$ as the state after the integration of the still-relevant preimages:
 
@@ -79,7 +79,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -89,7 +89,7 @@ $$
 
 </details>
 
-→ [(12.37) in plain words](./gray-paper.md#ex-12-37)
+→ [(12.37) explained](./gray-paper.md#ex-12-37)
 
 :::
 
@@ -133,7 +133,7 @@ h = \mathcal{H}\left(\mathbf{d}\right)\wedge
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -149,7 +149,7 @@ $$
 
 </details>
 
-→ [(9.6) in plain words](./gray-paper.md#ex-9-6)
+→ [(9.6) explained](./gray-paper.md#ex-9-6)
 
 :::
 
@@ -216,7 +216,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -235,7 +235,7 @@ $$
 
 </details>
 
-→ [(9.5) in plain words](./gray-paper.md#ex-9-5)
+→ [(9.5) explained](./gray-paper.md#ex-9-5)
 
 <a id="gp-9-2-p8"></a>This function is defined shortly below in equation [9.7](#eq-9-7).
 
@@ -267,7 +267,7 @@ x \le t < y \vee z \le t &\text{if } \left[x, y, z\right] = \mathbf{l} \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -280,7 +280,7 @@ $$
 
 </details>
 
-→ [(9.7) in plain words](./gray-paper.md#ex-9-7)
+→ [(9.7) explained](./gray-paper.md#ex-9-7)
 
 :::
 

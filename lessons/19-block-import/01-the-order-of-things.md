@@ -67,7 +67,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ $$
 
 </details>
 
-→ [(4.5), (4.6), (4.7), (4.8), (4.9), (4.10), (4.11), (4.12), (4.13), (4.14), (4.15), (4.16), (4.17), (4.18), (4.19), (4.20) in plain words](./gray-paper.md#ex-4-5)
+→ [(4.5), (4.6), (4.7), (4.8), (4.9), (4.10), (4.11), (4.12), (4.13), (4.14), (4.15), (4.16), (4.17), (4.18), (4.19), (4.20) explained](./gray-paper.md#ex-4-5)
 
 <a id="gp-4-2-1-p3"></a>The only synchronous entanglements are visible through the intermediate components superscripted with a dagger and defined in equations [4.6](#eq-4-6), [4.12](#eq-4-12), [4.13](#eq-4-13), [4.14](#eq-4-14), [4.16](#eq-4-16), [4.17](#eq-4-17) and [4.18](#eq-4-18). The latter two mark a merge and join in the dependency graph and, concretely, imply that the availability extrinsic may be fully processed and accumulation of work happen before the preimage lookup extrinsic is folded into state.
 

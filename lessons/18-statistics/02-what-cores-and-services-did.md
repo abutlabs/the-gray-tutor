@@ -72,7 +72,7 @@ a&\in \left(\mathbb{N}, \mathbb{N}, \mathbb{N}_G\right)
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -100,7 +100,7 @@ $$
 
 </details>
 
-→ [(13.7), (13.8) in plain words](./gray-paper.md#ex-13-7)
+→ [(13.7), (13.8) explained](./gray-paper.md#ex-13-7)
 
 <a id="gp-13-2-p3"></a>The core statistics are updated using several intermediate values from across the overall state-transition function; $\mathbf{I}$, the incoming work-reports, as defined in [11.30](../12-guarantees/04-bad-guarantees.md#eq-11-30) and $\mathbf{R}$, the newly available work-reports, as defined in [11.17](../11-assurances/01-available.md#eq-11-17). We define the statistics as follows:
 
@@ -145,7 +145,7 @@ d&\mathrel{\unicode{x2AF6}} D(c)\,,\;
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ $$
 
 </details>
 
-→ [(13.9), (13.10), (13.11), (13.12) in plain words](./gray-paper.md#ex-13-9)
+→ [(13.9), (13.10), (13.11), (13.12) explained](./gray-paper.md#ex-13-9)
 
 <a id="gp-13-2-p5"></a>Finally, the service statistics are updated using the same intermediate values as the core statistics, but with a different set of calculations:
 
@@ -218,7 +218,7 @@ n\mathrel{\unicode{x2AF6}}1,
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -237,7 +237,7 @@ $$
 
 </details>
 
-→ [(13.13), (13.14), (13.15), (13.16), (13.17) in plain words](./gray-paper.md#ex-13-13)
+→ [(13.13), (13.14), (13.15), (13.16), (13.17) explained](./gray-paper.md#ex-13-13)
 
 :::
 

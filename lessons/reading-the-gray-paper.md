@@ -75,7 +75,7 @@ each kind of letter means:
 
 :::
 
-In plain words: a glance at a line tells you which of its letters are types, which are
+A glance at a line tells you which of its letters are types, which are
 values and which are functions, before you know any of them.
 
 | It looks like | It is | Examples |
@@ -117,7 +117,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -148,7 +148,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -198,7 +198,7 @@ The paper sets these types out in §3.3 to §3.7. The numbers:
 
 :::
 
-In plain words: ℕ is 0 and up, and a subscript caps it from above, so ℕ₂₅₆ is a byte's
+ℕ is 0 and up, and a subscript caps it from above, so ℕ₂₅₆ is a byte's
 range and ℕ_C a core index. ℤ adds the negatives, and its subscript is a range: ℤ with
 −2⁶³ to 2⁶³ is an i64. "mod" is JavaScript's `%` on numbers that aren't negative: slot 85
 mod 80 is 5.
@@ -215,7 +215,7 @@ The records, which a schema calls objects:
 
 :::
 
-In plain words: a tuple is a record with named fields, and a subscript reads a field. With
+A tuple is a record with named fields, and a subscript reads a field. With
 t = (a: 3, b: 5), t_a is 3, as `t.a` is in TypeScript. The paper writes a field's
 type with ∈ inside the tuple's brackets, as a schema writes a field's type.
 
@@ -233,7 +233,7 @@ The arrays:
 
 :::
 
-In plain words: ⟦T⟧ is an array of T, and its subscript fixes the length: n exactly, :n at
+⟦T⟧ is an array of T, and its subscript fixes the length: n exactly, :n at
 most, n: at least. s[i] is the item at index i, from 0; s with a range under it is a
 slice, `s.slice(1, 3)` for [0, 1, 2, 3]₁…₊₂ = [1, 2]. The circle-arrow index wraps round
 the end, which is how the authorizer queue turns: slot 85 reads entry 85 mod 80 = 5.
@@ -258,7 +258,7 @@ A \cap B = \emptyset \Longleftrightarrow A \mathrel{\unicode{x2AEF}} B
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -275,13 +275,13 @@ $$
 
 :::
 
-In plain words: braces make a set, unordered and with no repeats, and |s| is its size. ∅
+Braces make a set, unordered and with no repeats, and |s| is its size. ∅
 is "no value", null; T? is "a T or null", the optional field of a schema. ∇ is "this went
 wrong", kept apart from ⊥ (false) because false can be a perfectly good answer. Only one
 line above is displayed as a formula, the one for ⫫:
 
 **Read it aloud.** "A intersect B is nothing exactly when A shares nothing with B."
-**In plain words.** Two sets are disjoint when no item is in both. **On a value.** {1, 2}
+**What it means.** Two sets are disjoint when no item is in both. **On a value.** {1, 2}
 and {3} are disjoint: their intersection is ∅. {1, 2} and {2, 3} aren't: both hold 2.
 The paper uses it twice: a block's new tickets must share no id with those already
 held (§6.7), and a block's verdicts must name no report already judged (§10.2).
@@ -306,7 +306,7 @@ x &\mapsto \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -361,7 +361,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -400,7 +400,7 @@ c \mathrel{\unicode{x2B40}} \mathbb{N}_{\mathsf{C}},\;
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -449,7 +449,7 @@ under it: the entries keep the source's order, here core 0 first. Plain ∈ leav
 
 :::
 
-In plain words: [f(i) | i ∈ ℕₙ] with the in-order mark is `Array.from({ length: n }, (_, i) =>
+[f(i) | i ∈ ℕₙ] with the in-order mark is `Array.from({ length: n }, (_, i) =>
 f(i))`; with two sources it walks them side by side, like a zip. The sorting brackets
 sort by the key on the left, as `sort((a, b) => f(a) - f(b))` would, and the version with
 a dot drops repeats. Two sequences compare as words in a dictionary do: [1, 2, 3] comes
@@ -482,7 +482,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -539,7 +539,7 @@ y \prec x \Longleftrightarrow \exists f: y = f(x) \tag{3.1}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -557,7 +557,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -573,13 +573,13 @@ $$
 :::
 
 **(3.1), read it aloud.** "y precedes x exactly when there exists a function f such that y
-is f of x." **In plain words.** y ≺ x says y can be worked out from x alone, nothing
+is f of x." **What it means.** y ≺ x says y can be worked out from x alone, nothing
 else needed. It names no f: it only promises one exists. **On a value.** τ′ ≺ 𝐇, the first
 line of (4.5): the new time needs only the header, and it is the header's slot, so a block
 for slot 42 leaves τ′ = 42.
 
 **(3.2), read it aloud.** "U of a-zero to a-n is defined as the a-x such that a-x is not
-nothing, or x is n, and every a before it is nothing." **In plain words.** The first
+nothing, or x is n, and every a before it is nothing." **What it means.** The first
 argument that isn't ∅, as `a ?? b ?? c` is in JavaScript; if every one is ∅, the answer
 is ∅ too. **On a value.** The paper's own example, U(∅, 1, ∅, 2): a₀ is ∅, a₁ is 1, so the
 answer is 1, and a₃ = 2 is never looked at.
@@ -601,7 +601,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -632,7 +632,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -660,7 +660,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -702,7 +702,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -736,7 +736,7 @@ i \in \mathbb{N}_{2^{8}} &\mapsto \left[i, 0, 0, \dots\right] \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -777,7 +777,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -814,7 +814,7 @@ defines these editing signs:
 
 :::
 
-In plain words: ⌢ joins two sequences, `[...x, ...y]`; an arc drawn over a list of lists
+⌢ joins two sequences, `[...x, ...y]`; an arc drawn over a list of lists
 joins them all, `xs.flat()`; ++ appends one item, `[...x, i]`. The arrow with n on top
 keeps the first n, as `s.slice(0, n)` does, or, pointing left, the last n, as
 `s.slice(-n)` does. A T
@@ -835,7 +835,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -870,7 +870,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -901,7 +901,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -928,7 +928,7 @@ v & \text{if}\ \exists k : \left(k \mapsto v\right) \in \mathbf{d} \\
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -950,7 +950,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -973,7 +973,7 @@ $$
 
 :::
 
-In plain words, the whole of §3.5 is a JavaScript `Map` with rules you already follow:
+The whole of §3.5 is a JavaScript `Map` with rules you already follow:
 
 - **(3.3) and (3.4).** A dictionary is a set of key and value pairs in which no key
   appears twice. Read (3.4) aloud: "for every dictionary d, for every pair (k, v) in d,
@@ -1016,7 +1016,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1052,7 +1052,7 @@ s\in \bar{\mathbb{V}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1083,7 +1083,7 @@ bits in one byte, and the vectors' `bitfield` of `0x01` says "I hold core 0's da
 
 :::
 
-In plain words: 𝕓_C is C true-or-false values, and the paper treats ⊤ as 1 and ⊥ as 0.
+𝕓_C is C true-or-false values, and the paper treats ⊤ as 1 and ⊥ as 0.
 bits(·) reads bytes as bits, highest bit first: 160 is `10100000`. ¬ flips each bit.
 Which bit of a byte is which core is the codec's business, Appendix C, and it reads the
 lowest bit first ([11.1](./11-assurances/01-available.md)).
@@ -1104,7 +1104,7 @@ a\in \left[\!\left[\!\left\lgroup\mathbb{N}, \bar{\mathbb{V}}\right\rgroup\!\rig
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1148,7 +1148,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1204,7 +1204,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1266,7 +1266,7 @@ The 𝔹 and ℕ trap is the last sentence of §3.7.4:
 
 :::
 
-In plain words: 𝔹 is bytes, any number of them, and 𝔹₃₂ exactly 32. 𝔹 with a dollar sign
+𝔹 is bytes, any number of them, and 𝔹₃₂ exactly 32. 𝔹 with a dollar sign
 is text in ASCII. A byte and a small number look the same, but the codec writes the byte
 `80` as `80` and the number 128 as `80 80` ([2.2](./02-codec/02-compact-naturals.md)).
 

@@ -86,7 +86,7 @@ g\in \mathbb{N}_G
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ $$
 
 </details>
 
-→ [(12.13), (12.14) in plain words](./gray-paper.md#ex-12-13)
+→ [(12.13), (12.14) explained](./gray-paper.md#ex-12-13)
 
 <a id="gp-12-2-p7"></a>Note that the union of the two characterizes inputs to the Accumulation <abbr class="gp-term" title="one run of code in the PVM: Is-Authorized, refine or accumulate">invocation</abbr> function $\Psi_A$ (defined in equation [B.9](../16-host-calls/06-checkpoints.md#eq-B-9)).
 

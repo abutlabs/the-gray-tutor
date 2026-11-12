@@ -1,4 +1,4 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 12](./index.md)'s appendix: every formula this part quotes, explained. They run
 from §11.3 to §11.5, with two limits from §11.1:
@@ -9,7 +9,7 @@ from §11.3 to §11.5, with two limits from §11.1:
 - the rules its report keeps against the chain (11.3, 11.8, 11.34 to 11.45);
 - how reports take their cores (11.46).
 
-Each formula: its key, then read aloud, in plain words, on a real value, in your client.
+Each formula: its key, then read aloud, what it means, on a real value, in your client.
 Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 The real values come from the tiny reports vectors: 6 validators, 2 cores, an epoch of
@@ -29,7 +29,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ $$
 **Read it aloud.** "M is in: the pair of a sequence of core indices, one for each of the
 validators in kappa prime, and a sequence of validator keys, as many."
 
-**In plain words.** A type line. The guarantor assignment is two lists of the same
+**What it means.** A type line. The guarantor assignment is two lists of the same
 length, one entry per validator: the core it guarantees for, and its keys. Three
 validators per active core, every block.
 
@@ -76,7 +76,7 @@ P(v, e, t) &\equiv R\left(
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ shuffle, by e, of the floor of i over 3 for each i below v; and the floor of t m
 R. M is defined as the pair of P of the length of kappa prime, eta prime two and tau
 prime, and Phi of kappa prime."
 
-**In plain words.** Three steps, every validator computing the same:
+**What it means.** Three steps, every validator computing the same:
 
 1. **Seats.** Validator i gets core ⌊i/3⌋: `0 0 0 1 1 1 2 2 2 …`, three to a core.
 2. **Shuffle** (ℱ) the seats with the entropy η′₂, two epochs old, so nobody chooses
@@ -154,7 +154,7 @@ P(\left\vert\mathbf{k}\right\vert, e, \tau' - \mathsf{R}),
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ prime minus R over E equals the floor of tau prime over E; otherwise lambda prim
 prime three. M star is defined as the pair of P of the length of k, e, and tau prime minus
 R; and Phi of k."
 
-**In plain words.** 𝐌\* is the assignment as it was one rotation ago, at τ′ − R. If that
+**What it means.** 𝐌\* is the assignment as it was one rotation ago, at τ′ − R. If that
 slot is in the same epoch, it's dealt from the same validators and entropy. If it falls in
 the previous epoch, it's dealt from that epoch's validators, λ′, and its entropy, η′₃. So
 it comes out exactly as it did then.
@@ -207,7 +207,7 @@ a\in \left[\!\left[\!\left\lgroup\mathbb{N}, \bar{\mathbb{V}}\right\rgroup\!\rig
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -228,7 +228,7 @@ $$
 **Read it aloud.** "G is defined as the tuple of: r, a work-report; t, a timeslot; and a,
 a sequence of two to three pairs, each a natural and an Ed25519 signature."
 
-**In plain words.** A guarantee is the report, the slot the guarantors made it at, and
+**What it means.** A guarantee is the report, the slot the guarantors made it at, and
 their credential: two or three (validator index, signature) pairs. Two is enough, three
 is normal: a core has three guarantors, and one may be slow or offline.
 
@@ -261,7 +261,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -278,7 +278,7 @@ $$
 **Read it aloud.** "E sub G is in: a sequence of at most C guarantees. E sub G equals E sub
 G ordered and unique by the core of g's report."
 
-**In plain words.** At most one guarantee per core in a block, and the guarantees sorted by
+**What it means.** At most one guarantee per core in a block, and the guarantees sorted by
 core. Saying "the list equals itself sorted, without repeats" is the paper's way of
 saying both at once.
 
@@ -304,7 +304,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -317,7 +317,7 @@ $$
 **Read it aloud.** "For every g in E sub G: g's credential equals g's credential ordered
 and unique by v, over the pairs v and s in it."
 
-**In plain words.** Within one guarantee, the signatures are sorted by validator index,
+**What it means.** Within one guarantee, the signatures are sorted by validator index,
 and no validator signs twice.
 
 **On a real value.**
@@ -357,7 +357,7 @@ $$
 \end{gather}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -389,7 +389,7 @@ at most tau prime. And k is in G exactly when some guarantee in E sub G has some
 prime over R equals the floor of t over R, and M star otherwise. X sub G is defined as the
 token jam guarantee."
 
-**In plain words.** One rule with five checks for every signature, and one definition:
+**What it means.** One rule with five checks for every signature, and one definition:
 
 1. **Which assignment.** A guarantee made in this block's rotation answers to 𝐌. One made
    in the rotation before answers to 𝐌\*. That's the `where` at the bottom.
@@ -440,7 +440,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -453,7 +453,7 @@ $$
 
 **Read it aloud.** "Let I be the set of g's report, for each g in E sub G."
 
-**In plain words.** A name for later rules: 𝐈 is the reports the block's guarantees carry.
+**What it means.** A name for later rules: 𝐈 is the reports the block's guarantees carry.
 
 **On a real value.** `report_prev_rotation-1`: 𝐈 holds one report, package `0x63c03371…`
 on core 0.
@@ -473,7 +473,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -487,7 +487,7 @@ $$
 **Read it aloud.** "For every r in I: r's s's v equals the number of validators in kappa
 prime."
 
-**In plain words.** The report's data was erasure-coded into v shards, one for each
+**What it means.** The report's data was erasure-coded into v shards, one for each
 validator that will assure it. So v must be the current validator count.
 
 **On a real value.** `report_prev_rotation-1`: 6 shards, 6 validators. `bad_erasure_shards-1`
@@ -508,7 +508,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -523,7 +523,7 @@ $$
 **Read it aloud.** "For every r in I: rho double-dagger at r's core is nothing, and r's
 authorizer is in alpha at r's core."
 
-**In plain words.** Two checks that join three parts. The core must be empty after this
+**What it means.** Two checks that join three parts. The core must be empty after this
 block's assurances ([Part 11](../11-assurances/index.md)): a core holds one report at a
 time. And the report's authorizer hash must be in that core's pool
 ([Part 13](../13-authorization/index.md)): the gatekeeper the guarantors ran must be one
@@ -554,7 +554,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -573,7 +573,7 @@ $$
 **Read it aloud.** "For every r in I: the sum of g over r's digests is at most G sub A,
 and every digest's g is at least the minimum accumulate gas of the service at its s."
 
-**In plain words.** A report may ask for at most G_A = 10,000,000 gas to accumulate, all
+**What it means.** A report may ask for at most G_A = 10,000,000 gas to accumulate, all
 its digests together. And each digest must offer at least what its service says it needs
 per item, the service's minimum. The cap is per report, not per block.
 
@@ -603,7 +603,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -619,7 +619,7 @@ $$
 **Read it aloud.** "For every r in R: the length of r's l, plus the length of r's
 context's p, is at most J."
 
-**In plain words.** A report may lean on at most J = 8 other packages: those it imported
+**What it means.** A report may lean on at most J = 8 other packages: those it imported
 from by package hash (its lookup) and those its context says must come first.
 
 **On a real value.** `report_prev_rotation-1`: 0 + 0 = 0. `too_many_dependencies-1`: 5
@@ -646,7 +646,7 @@ L(\mathbf{l} \in \mathbb{B}_{} \cup \mathbb{E}) &\equiv \begin{cases}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -665,7 +665,7 @@ $$
 digest i's result, is at most W sub R. L of a result is its length when it is a blob, 0
 otherwise. W sub R is defined as 48 times 2 to the 10."
 
-**In plain words.** The report's variable parts, the authorizer's trace and every
+**What it means.** The report's variable parts, the authorizer's trace and every
 successful output, together fit in W_R = 49,152 bytes. An error counts 0: it has no bytes.
 This keeps a block's guarantees small.
 
@@ -692,7 +692,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -718,7 +718,7 @@ $$
 **Read it aloud.** "Let x be the set of r's context for each r in I, and p the set of r's
 package hash for each r in I. The size of p equals the length of I."
 
-**In plain words.** Two names, 𝐱 for the block's contexts and 𝐩 for its package hashes,
+**What it means.** Two names, 𝐱 for the block's contexts and 𝐩 for its package hashes,
 then the first use: as many distinct package hashes as reports, so no package is reported
 twice in one block.
 
@@ -740,7 +740,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -757,7 +757,7 @@ $$
 anchor hash is y's header hash, x's state root is y's state root, x's belt root is y's
 belt root, and x's anchor slot is y's slot."
 
-**In plain words.** The anchor must be one of the last H = 8 blocks the chain remembers,
+**What it means.** The anchor must be one of the last H = 8 blocks the chain remembers,
 and the context must describe it exactly: the same state root, belt root and slot. So a
 package was built against this chain, recently.
 
@@ -786,7 +786,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -813,7 +813,7 @@ h'_{R} &= x_{r}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -833,7 +833,7 @@ minus L. And there are h and h prime in A such that: h's slot is x's lookup-anch
 H of h is x's lookup-anchor hash; h prime's parent is H of h; and h prime's prior state
 root is x's lookup-anchor state root."
 
-**In plain words.** The lookup anchor is the block whose state the code was read from. It
+**What it means.** The lookup anchor is the block whose state the code was read from. It
 may be older than the anchor, but at most L = 14,400 slots, a day. And the client must have seen
 it: 𝐀 is the last L headers it keeps. A header carries its parent's state root, so the
 lookup anchor's state root is checked in its child's header, h′. This is one of the few
@@ -875,7 +875,7 @@ p \not\in \bigcup_{x \in \beta_H}\mathcal{K}\left(x_{\mathbf{p}}\right)
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -899,7 +899,7 @@ a in rho that isn't nothing. For every p in p bold: p is not in the union of the
 x's reported packages for every x in beta sub H, nor in the union of every x in xi, nor in
 q, nor in a."
 
-**In plain words.** A report's package must be new to the whole pipeline: not reported by
+**What it means.** A report's package must be new to the whole pipeline: not reported by
 a recent block (β_H), not accumulated recently (ξ), not waiting in the ready queue (ω, as
 𝐪), not on a core (ρ, as 𝐚). Otherwise its work would be counted twice.
 
@@ -934,7 +934,7 @@ $$
 keys of r's lookup: p is in p bold, or is one of the keys of b's reported packages for
 some b in beta sub H."
 
-**In plain words.** Every package a report depends on must be known: reported in this same
+**What it means.** Every package a report depends on must be known: reported in this same
 block, or by a recent one. Whether it will really accumulate first is the ready queue's
 business later ([Part 17](../17-accumulation/index.md)).
 
@@ -970,7 +970,7 @@ g \in \mathbf{E}_G
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -985,7 +985,7 @@ $$
 root, for each g in E sub G. For every r in I: r's l is a subset of p, together with the
 union of b's reported packages for every b in beta sub H."
 
-**In plain words.** 𝐩 is reused here as a dictionary, each package of this block to its
+**What it means.** 𝐩 is reused here as a dictionary, each package of this block to its
 segments root. Every entry of a report's lookup, a package and the root it claims, must
 match a package and root the chain has seen: reported in this block or a recent one. A
 wrong root would let refine import the wrong data.
@@ -1019,7 +1019,7 @@ $$
 **Read it aloud.** "For every r in I and every d in r's digests: d's code hash equals the
 code hash of the account delta at d's s."
 
-**In plain words.** Each digest names its service's code hash as the guarantors saw it, and
+**What it means.** Each digest names its service's code hash as the guarantors saw it, and
 it must be the code the service has now. A report refined with old code is refused.
 
 **On a real value.** `report_prev_rotation-1`: service 42's code hash is `0x6470fd21…`, and
@@ -1043,7 +1043,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1058,7 +1058,7 @@ $$
 which is tau prime, when there is a g in E sub G whose report's core is c; otherwise rho
 double-dagger at c."
 
-**In plain words.** Each guaranteed report takes its core, registered at this block's slot
+**What it means.** Each guaranteed report takes its core, registered at this block's slot
 τ′, not the slot the guarantee was made at. The timeout of
 [lesson 11.2](../11-assurances/02-timeouts.md) counts from here. Every other core keeps what the
 assurances left it. A core at or past |κ′|/3 always stays empty, so there are never more

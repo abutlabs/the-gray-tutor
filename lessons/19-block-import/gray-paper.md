@@ -1,10 +1,10 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 19](./index.md)'s appendix: the two formulas of §4, *Overview*, that [Part
 19](./index.md) quotes, explained. (4.2) and (4.3) say what a block is. (4.5) to (4.20) say
 what each new piece of state is made from, and so in what order a client can make them. The
 rest of §4 is in [Part 0's appendix](../00-start/gray-paper.md). Each formula: its key, then
-read aloud, in plain words, on a real value, in your client. Notation: [Reading the Gray
+read aloud, what it means, on a real value, in your client. Notation: [Reading the Gray
 Paper](../reading-the-gray-paper.md).
 
 ## (4.2) and (4.3): a block is a header and five bags
@@ -20,7 +20,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ $$
 **Read it aloud.** "B is defined as the tuple H and E. E is defined as the tuple E sub T,
 E sub D, E sub P, E sub A, E sub G."
 
-**In plain words.** A block is two things. The header is the cover page, signed by its
+**What it means.** A block is two things. The header is the cover page, signed by its
 author. The extrinsic is the data the block carries in from outside, in five lists:
 tickets for the sealing lottery, disputes, preimages, availability assurances and
 guaranteed reports. Any of them can be empty.
@@ -91,7 +91,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -148,7 +148,7 @@ $$
         pi, the header and S
 ```
 
-**In plain words.** Not a rule to compute anything, but a list of ingredients: for each
+**What it means.** Not a rule to compute anything, but a list of ingredients: for each
 new piece of state, what it needs.
 
 - Anything with a prime or a dagger on the right is made by another line, so it must be

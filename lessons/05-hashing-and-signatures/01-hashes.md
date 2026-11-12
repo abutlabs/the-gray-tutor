@@ -69,7 +69,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -84,7 +84,7 @@ $$
 
 </details>
 
-→ [(5.2) in plain words](./gray-paper.md#ex-5-2)
+→ [(5.2) explained](./gray-paper.md#ex-5-2)
 
 <a id="gp-5-p6"></a>$P$ is thus defined as being the mapping from one block header to its parent block header. With $P$, we are able to define the set of ancestor headers $\mathbf{A}$:
 
@@ -96,7 +96,7 @@ h \in \mathbf{A} \Leftrightarrow h = \mathbf{H} \vee (\exists i \in \mathbf{A} :
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ $$
 
 </details>
 
-→ [(5.3) in plain words](./gray-paper.md#ex-5-3)
+→ [(5.3) explained](./gray-paper.md#ex-5-3)
 
 <a id="gp-5-p8"></a>We only require implementations to store headers of ancestors which were authored in the previous $\mathsf{L} = 24$ hours of any block $\mathbf{B}$ they wish to validate.
 

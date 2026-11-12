@@ -86,7 +86,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -100,7 +100,7 @@ $$
 
 </details>
 
-→ [(B.15), (B.16) in plain words](./gray-paper.md#ex-B-15)
+→ [(B.15), (B.16) explained](./gray-paper.md#ex-B-15)
 
 :::
 

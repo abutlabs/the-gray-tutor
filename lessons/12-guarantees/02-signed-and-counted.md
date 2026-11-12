@@ -66,7 +66,7 @@ $$
 \end{gather}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ $$
 
 </details>
 
-→ [(11.28), (11.29) in plain words](./gray-paper.md#ex-11-28)
+→ [(11.28), (11.29) explained](./gray-paper.md#ex-11-28)
 
 <a id="gp-11-4-p9"></a>We note that the Ed25519 key of each validator whose signature is in a credential is placed in the *reporters* set $\mathbf{G}$. This is utilized by the validator activity statistics bookkeeping system section [13](../18-statistics/index.md#gp-13-1-p1).
 

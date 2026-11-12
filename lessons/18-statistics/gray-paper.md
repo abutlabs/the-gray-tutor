@@ -1,10 +1,10 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 18](./index.md)'s appendix: every formula of §13, *Statistics*, explained. Five
 blocks: the validators' tallies (13.1) to (13.3) and how a block moves them on (13.4) to
 (13.6); the cores' and services' tallies (13.7) and (13.8), and how each block fills them
 (13.9) to (13.17). All counting: nothing here decides anything, but every count goes into
-the state root. Each formula: its key, then read aloud, in plain words, on a real value, in
+the state root. Each formula: its key, then read aloud, what it means, on a real value, in
 your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (13.1) to (13.3): the four tallies
@@ -29,7 +29,7 @@ a\in \mathbb{N}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ Pi sub V and pi sub L are each in: a sequence of tuples of b, t, p, d, g and a, 
 naturals. The size of pi sub V is the size of kappa; the size of pi sub L is the size of
 lambda."
 
-**In plain words.** The statistics π are four tallies. Two are for validators: π_V, the
+**What it means.** The statistics π are four tallies. Two are for validators: π_V, the
 epoch in progress, and π_L, the epoch before, finished. Each holds one record per
 validator, in the same order as the validator keys, κ for this epoch's and λ for last
 epoch's. So validator v's record is at index v. A record has six counts: b, blocks
@@ -127,7 +127,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -164,7 +164,7 @@ is the author, else 0; its p by the number of preimages in E sub P if v is the a
 d by the sum of the preimages' sizes if v is the author; and its g by one if v's key in
 kappa prime is among the reporters G."
 
-**In plain words.** Three steps, one formula each, in this order:
+**What it means.** Three steps, one formula each, in this order:
 
 1. **(13.4), assurances first.** Each validator with an assurance in this block gets one
    more a. A true condition counts as 1 and a false one as 0, which is how "plus (there
@@ -244,7 +244,7 @@ a&\in \left(\mathbb{N}, \mathbb{N}, \mathbb{N}_G\right)
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -269,7 +269,7 @@ naturals, and u, an amount of gas. Pi sub S is in: a dictionary from service ids
 of p, a pair of naturals; r, a natural and an amount of gas; i, x, z and e, naturals; and
 a, two naturals and an amount of gas."
 
-**In plain words.** Two type lines, a schema for each card:
+**What it means.** Two type lines, a schema for each card:
 
 - **π_C, one card per core**, C of them: data load d, popularity p, and the work of the
   reports it took on: imports i, extrinsics x and their bytes z, exports e, bundle bytes
@@ -337,7 +337,7 @@ d&\mathrel{\unicode{x2AF6}} D(c)\,,\;
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -367,7 +367,7 @@ u. L of c is the sum, over each report r in I whose core is c, of its spec's bun
 length. D of c is the sum, over each report r in R whose core is c, of its spec's bundle
 length plus W sub G times the ceiling of its segment count times 65 over 64."
 
-**In plain words.** A core's card comes from three places in the block:
+**What it means.** A core's card comes from three places in the block:
 
 1. **R(c) and L(c), the work it took on.** 𝐈 is the reports guaranteed in this block.
    For those on core c, add up their digests' imports, extrinsics, extrinsic bytes,
@@ -447,7 +447,7 @@ n\mathrel{\unicode{x2AF6}}1,
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -473,7 +473,7 @@ R is the set of every digest's service, over the digests of the reports in I. s 
 set of every s for which some pair s, x is in E sub P. R of s is the sum, over each digest
 d of each report in I whose service is s, of: n is 1, d's u, i, x, z and e."
 
-**In plain words.** A service gets a card if it did at least one of three things this
+**What it means.** A service gets a card if it did at least one of three things this
 block, (13.14) to (13.16): a digest of its was in a guaranteed report (𝐬^R), a preimage
 was provided for it (𝐬^P), or it accumulated (a key of 𝐒, the accumulation tallies of
 §12.3). Then its card, (13.13):

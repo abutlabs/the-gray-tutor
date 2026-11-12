@@ -1,10 +1,10 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 3](./index.md)'s appendix: every formula this part quotes, explained. First the shapes
 your client decodes: a package and its items (§14.3), a context (§11.1.2), a digest
 (§11.1.4), a report and its availability specification (§11.1.1, §11.1.3). Then the rest of
 §14, what guarantors do in-core: your client never runs it, but every field of a report
-comes from it. Each formula: its key, then read aloud, in plain words, on a real value, in
+comes from it. Each formula: its key, then read aloud, what it means, on a real value, in
 your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 All the real values here come from the codec vectors, `vectors/codec/tiny/`: one
@@ -32,7 +32,7 @@ u\in \mathbb{H}_{},\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ e\in \mathbb{N}, \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ defined as the tuple of: s, a service id; c, a hash; y, a blob; g and a, two gas
 e, a natural; i, a sequence of pairs, each a hash (plain or boxed) and a natural; and x,
 a sequence of pairs, each a hash and a natural."
 
-**In plain words.** Two type lines, each a schema. A package is a permission slip (the
+**What it means.** Two type lines, each a schema. A package is a permission slip (the
 token 𝐣, and the authorizer named by its code host h, code hash u and configuration 𝐟),
 a postmark (the context 𝐜) and 1 to 16 jobs (𝐰). A job, a work-item, says which service
 runs it (s) and with which code (c), what input it gets (𝐲), how much gas refine and
@@ -153,7 +153,7 @@ l&\in \mathbb{H}_{}\,,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -173,7 +173,7 @@ $$
 **Read it aloud.** "C is defined as the tuple of: a, a hash; n, a timeslot; s, a hash; b,
 a hash; l, a hash; t, a timeslot; r, a hash; and p, a set of hashes."
 
-**In plain words.** The chain as the package saw it, named by two recent blocks. The
+**What it means.** The chain as the package saw it, named by two recent blocks. The
 anchor (a, n, s, b: its header hash, slot, state root and belt root) is a block the
 chain must still remember when the report arrives, at most H = 8 blocks back, so a report
 can't be built against a fork or a stale chain. The lookup anchor (l, t, r) is the block
@@ -213,7 +213,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -239,7 +239,7 @@ p's f. The encoding of p's m, with its length, followed by p's u bold, is define
 historical lookup, Lambda, of the account delta at p's h, at the slot of p's context's
 lookup anchor, of p's u. And m and u bold are two blobs."
 
-**In plain words.** Two things, both made from the package's own fields. First, the
+**What it means.** Two things, both made from the package's own fields. First, the
 authorizer's *name* is the hash of its code hash followed by its configuration: 32 + the
 configuration's length bytes in, 32 out. That name is what a report carries and what
 [Part 13](../13-authorization/index.md)'s pools hold. Second, the authorizer's *code*: look
@@ -289,7 +289,7 @@ u&\in \mathbb{N}_G\,,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -315,7 +315,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -335,7 +335,7 @@ g, an amount of gas; l, a blob or a work error; u, an amount of gas; and i, x, z
 four naturals. E is in the set of: infinity, the lightning bolt, bad exports, oversize,
 BAD and BIG."
 
-**In plain words.** A digest is one work-item's result card, ten fields. Four say whose
+**What it means.** A digest is one work-item's result card, ten fields. Four say whose
 it is and what to do next: the service s, the code hash c it ran, the payload's hash y,
 and the gas g its accumulate may use. One is the result 𝐥: refine's output bytes, or one
 of six errors. The last five are the load, what refining cost: gas used u, segments
@@ -392,7 +392,7 @@ z\mathrel{\unicode{x2AF6}}\!\!\!\!\sum_{\left(h, z\right) \in \mathbf{x}}\!\!\!\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -413,7 +413,7 @@ go to: s; c; y, which is H of the payload; g, which is a; l; u; i, which is the 
 i bold; e; x, which is the length of x bold; and z, which is the sum of z over the pairs
 of h and z in x bold."
 
-**In plain words.** Most of a digest is copied or counted, not computed. From the item:
+**What it means.** Most of a digest is copied or counted, not computed. From the item:
 the service, the code hash, the accumulate gas limit (renamed g) and the export count.
 Hashed: the payload, so the report carries 32 bytes however big the input was. Counted:
 the imports and the extrinsics, and the extrinsics' total length. Only two fields come
@@ -464,7 +464,7 @@ g\in \mathbb{N}_G
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -484,7 +484,7 @@ $$
 refinement context; c, a core index; a, a hash; t, a blob; l, a dictionary from hash to
 hash; d, a sequence of one to I work-digests; and g, an amount of gas."
 
-**In plain words.** The receipt for one whole package, made in-core and read on the chain.
+**What it means.** The receipt for one whole package, made in-core and read on the chain.
 𝐬 says how to find the package's data again; 𝐜 is the package's own context, copied; c is
 the core that did the work; a, 𝐭 and g are the authorizer's name, its trace (what its code
 returned when it said yes) and the gas it burned; 𝐥 maps each package this one imported
@@ -528,7 +528,7 @@ n\in \mathbb{N}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -544,7 +544,7 @@ $$
 **Read it aloud.** "Y is defined as the tuple of: p, a hash; l, a blob length; u, a
 hash; v, a validator count; e, a hash; and n, a natural."
 
-**In plain words.** How to find the package's data again, and check it. p is the package's
+**What it means.** How to find the package's data again, and check it. p is the package's
 hash. l is the length of its bundle, the package with everything needed to refine it
 again. u, the erasure root, is one Merkle root over every validator's shard, so a
 validator can check its own shard alone. v is how many shards: one per validator. e, the
@@ -603,7 +603,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -632,7 +632,7 @@ $$
 
 **Read it aloud** (14.1)**.** "J is defined as the blobs of W sub G bytes."
 
-**In plain words.** A package travels light: it carries hashes of its extrinsics and
+**What it means.** A package travels light: it carries hashes of its extrinsics and
 roots of the segments it imports, not the data itself, so a guarantor can decide cheaply
 whether the work is worth doing. The heavy data moves on its own:
 
@@ -671,7 +671,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -697,7 +697,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -726,7 +726,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -751,7 +751,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -777,7 +777,7 @@ $$
 - (14.9): "For every package p: the sum of its items' a is less than G sub A, and the sum
   of its items' g is less than G sub R."
 
-**In plain words.** Four caps on one package, so no package can swamp a core:
+**What it means.** Four caps on one package, so no package can swamp a core:
 
 1. **Dependencies** (14.4): at most J = 8 other packages it waits on, counting the
    packages it imports from by package hash and its prerequisites. A report must keep the
@@ -842,7 +842,7 @@ i \mathrel{\unicode{x2B40}} \mathbb{N}_{\left\lceil{}^{\left\vert\mathbf{s}\righ
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -863,7 +863,7 @@ s goes to the sequence, for each i in order below the ceiling of the length of s
 of the zero-padding to l of the encoding of J six of s and i, with its length, and L six
 of s and i, with its length; where l is W sub G."
 
-**In plain words.** The guarantors erasure-code two things and send every validator a
+**What it means.** The guarantors erasure-code two things and send every validator a
 shard of each: the bundle, kept only until the block that made the report available is
 final, for the auditors; and the exported segments, kept at least 28 days (672 epochs), in
 the D³L, for later packages. Beside the segments go paged proofs: for every 64 exported
@@ -913,7 +913,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -950,7 +950,7 @@ c, j, \mathbf{p}, \mathbf{t}, S^\#_{\mathbf{l}}(\mathbf{p}_{\mathbf{w}}), \ell
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -987,7 +987,7 @@ are Psi R of c, j, p, t, the imports, and ell; h is H of p; m is item j; ell is 
 the export counts of the items before j; and z is the length of t plus the lengths of the
 earlier items' successful outputs."
 
-**In plain words.** This is the guarantors' recipe, the function that turns a package
+**What it means.** This is the guarantors' recipe, the function that turns a package
 into a report. In order:
 
 1. **Authorize.** Run the authorizer, Ψ_I ([Part 13](../13-authorization/index.md)'s
@@ -1056,7 +1056,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1073,7 +1073,7 @@ $$
 the packages, the cores, the dictionaries and the validator counts, such that H of p is h,
 and the segments root of the spec of Xi of p, c, d and v is e."
 
-**In plain words.** Every entry of the lookup must be true: a package whose hash is h
+**What it means.** Every entry of the lookup must be true: a package whose hash is h
 really exists, and computing its report really gives segments root e. The paper doesn't
 ask a guarantor to prove this on the spot; it says a guarantor who can't be sure should
 not guarantee, since the chain later checks the lookup against the packages it has seen
@@ -1111,7 +1111,7 @@ J_{\mathbf{l}}(\mathbf{w} \in \mathbb{W}) &\equiv \left[\left\updownarrow\mathca
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1133,7 +1133,7 @@ r is r, when r is a hash; and l at h, when r is boxed h. S sub l of w is the seq
 at n, where M of b is L sub l of r, for each pair r and n in order in w's i. J sub l of w
 is the sequence of J zero of b and n, with its length, under the same conditions."
 
-**In plain words.** Four helpers, each run on one item:
+**What it means.** Four helpers, each run on one item:
 
 - **X**: the item's extrinsic blobs, the actual data behind each (hash, length) pair.
 - **L**: one import reference to a segments root. A plain hash is a root already; a boxed
@@ -1175,7 +1175,7 @@ J_{\mathbf{l}}^\#(\mathbf{p}_{\mathbf{w}})
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1191,7 +1191,7 @@ $$
 blob: p and l go to the encoding of p, X for each of p's items, S sub l for each of p's
 items, and J sub l for each of p's items."
 
-**In plain words.** The bundle: one blob holding everything an auditor needs to refine
+**What it means.** The bundle: one blob holding everything an auditor needs to refine
 the package again. The package, encoded; then every item's extrinsics; then every item's
 imported segments; then every import's proof. Only the proofs carry their length: the
 package already says how many extrinsics and imports there are and how long each is.
@@ -1231,7 +1231,7 @@ v
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1251,7 +1251,7 @@ $$
 **Read it aloud** (14.17)**.** "s is A of: H of p, B of p and l, all of e bar joined, and
 v."
 
-**In plain words.** The report's spec, its 𝐬, is made by the availability specifier A,
+**What it means.** The report's spec, its 𝐬, is made by the availability specifier A,
 from the package's hash, its bundle, every segment it exported, and how many validators
 will hold shards. The paragraphs after are a guarantor's practical duties: before
 refining, check every import's root is known and unexpired and every extrinsic can be
@@ -1312,7 +1312,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1343,7 +1343,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1363,7 +1363,7 @@ club; b club is H for each of C of v shards and the ceiling of the length of b o
 pieces of P sub z of b; s club is M sub B for each of the transpose of C for each of v
 shards and W sub G over z pieces of s followed by P of s; and z is 2 times D of v."
 
-**In plain words.** Six fields, four of them easy: p is handed in, l is the bundle's length,
+**What it means.** Six fields, four of them easy: p is handed in, l is the bundle's length,
 e is the constant-depth Merkle root of the exported segments, n is how many. The work is
 u, the erasure root, in four steps:
 

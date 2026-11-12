@@ -47,7 +47,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ $$
 
 </details>
 
-→ [(11.19) in plain words](./gray-paper.md#ex-11-19)
+→ [(11.19) explained](./gray-paper.md#ex-11-19)
 
 <a id="gp-11-3-p4"></a>We determine the core to which any given validator is assigned through a shuffle using epochal entropy and a periodic rotation to help guard the security and liveness of the network. We use $\eta_2$ for the epochal entropy rather than $\eta_1$ to avoid the possibility of <abbr class="gp-term" title="forks multiplying because validators disagree about the end of an epoch">fork-magnification</abbr> where uncertainty about chain state at the end of an epoch could give rise to two established <abbr class="gp-term" title="two blocks built on the same parent, splitting the chain until one side is dropped">forks</abbr> before it naturally resolves.
 
@@ -81,7 +81,7 @@ P(v, e, t) &\equiv R\left(
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ $$
 
 </details>
 
-→ [(11.20), (11.21), (11.22) in plain words](./gray-paper.md#ex-11-20)
+→ [(11.20), (11.21), (11.22) explained](./gray-paper.md#ex-11-20)
 
 <a id="gp-11-3-p7"></a>We also define $\mathbf{M}^*$, which is equivalent to the value $\mathbf{M}$ as it would have been under the previous rotation:
 
@@ -123,7 +123,7 @@ P(\left\vert\mathbf{k}\right\vert, e, \tau' - \mathsf{R}),
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -132,7 +132,7 @@ $$
 
 </details>
 
-→ [(11.23) in plain words](./gray-paper.md#ex-11-23)
+→ [(11.23) explained](./gray-paper.md#ex-11-23)
 
 :::
 

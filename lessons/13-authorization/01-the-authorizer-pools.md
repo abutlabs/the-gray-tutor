@@ -50,7 +50,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ $$
 
 </details>
 
-→ [(8.1) in plain words](./gray-paper.md#ex-8-1)
+→ [(8.1) explained](./gray-paper.md#ex-8-1)
 
 <a id="gp-8-2-p3"></a>Note: The portion of state $\phi$ may be altered only through an <abbr class="gp-term" title="a call from outside this part of the protocol: here, a host call made by a service's code during accumulation">exogenous call</abbr> made from the accumulate logic of an appropriately privileged service.
 
@@ -80,7 +80,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ $$
 
 </details>
 
-→ [(8.2), (8.3) in plain words](./gray-paper.md#ex-8-2)
+→ [(8.2), (8.3) explained](./gray-paper.md#ex-8-2)
 
 <a id="gp-8-2-p6"></a>Since $\alpha'$ is dependent on $\phi'$, practically speaking, this step must be computed after accumulation, the stage in which $\phi'$ is defined. Note that we utilize the guarantees extrinsic $\mathbf{E}_G$ to remove the oldest authorizer which has been used to justify a guaranteed work-package in the current block. This is further defined in equation [11.25](../12-guarantees/04-bad-guarantees.md#eq-11-25).
 

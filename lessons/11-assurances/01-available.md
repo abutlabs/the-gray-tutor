@@ -51,7 +51,7 @@ t\in \mathbb{N}_T
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ $$
 
 </details>
 
-→ [(11.1) in plain words](./gray-paper.md#ex-11-1)
+→ [(11.1) explained](./gray-paper.md#ex-11-1)
 
 <a id="gp-11-1-p3"></a>As usual, intermediate and <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> values ($\rho^\dagger$, $\rho^\ddagger$, $\rho'$) are held under the same constraints as the prior value.
 
@@ -98,7 +98,7 @@ s\in \bar{\mathbb{V}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ $$
 
 </details>
 
-→ [(11.11) in plain words](./gray-paper.md#ex-11-11)
+→ [(11.11) explained](./gray-paper.md#ex-11-11)
 
 :::
 
@@ -139,7 +139,7 @@ c \mathrel{\unicode{x2B40}} \mathbb{N}_{\mathsf{C}},\;
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -157,7 +157,7 @@ $$
 
 </details>
 
-→ [(11.17) in plain words](./gray-paper.md#ex-11-17)
+→ [(11.17) explained](./gray-paper.md#ex-11-17)
 
 :::
 

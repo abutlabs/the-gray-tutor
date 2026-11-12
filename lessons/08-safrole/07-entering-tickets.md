@@ -67,7 +67,7 @@ p\in \overset{\circ}{\mathbb{V}}_{\gamma_Z'}^{\left[\right]}\left\langle\mathsf{
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -97,7 +97,7 @@ $$
 
 </details>
 
-→ [(6.30), (6.31) in plain words](./gray-paper.md#ex-6-30)
+→ [(6.30), (6.31) explained](./gray-paper.md#ex-6-30)
 
 <a id="gp-6-7-p5"></a>We define $\mathbf{n}$ as the sequence of new tickets, with the ticket identifier, a hash, defined as the output component of the Bandersnatch RingVRF proof:
 
@@ -116,7 +116,7 @@ i \mathrel{\unicode{x2B40}} \mathbf{E}_T
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -129,7 +129,7 @@ $$
 
 </details>
 
-→ [(6.32) in plain words](./gray-paper.md#ex-6-32)
+→ [(6.32) explained](./gray-paper.md#ex-6-32)
 
 <a id="gp-6-7-p7"></a>The tickets submitted via the extrinsic must already have been placed in order of their implied identifier. Duplicate identifiers are never allowed lest a validator submit the same ticket multiple times:
 
@@ -142,7 +142,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -153,7 +153,7 @@ $$
 
 </details>
 
-→ [(6.33), (6.34) in plain words](./gray-paper.md#ex-6-33)
+→ [(6.33), (6.34) explained](./gray-paper.md#ex-6-33)
 
 <a id="gp-6-7-p9"></a>The new ticket accumulator $\gamma_A'$ is constructed by merging new tickets into the previous accumulator value (or the empty sequence if it is a new epoch):
 
@@ -167,7 +167,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -178,7 +178,7 @@ $$
 
 </details>
 
-→ [(6.35) in plain words](./gray-paper.md#ex-6-35)
+→ [(6.35) explained](./gray-paper.md#ex-6-35)
 
 <a id="gp-6-7-p11"></a>The maximum size of the ticket accumulator is $\mathsf{E}$. On each block, the accumulator becomes the lowest items of the sorted union of tickets from prior accumulator $\gamma_A$ and the submitted tickets. It is invalid to include useless tickets in the extrinsic, so all submitted tickets must exist in their <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> ticket accumulator. Formally:
 
@@ -190,7 +190,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -198,7 +198,7 @@ $$
 
 </details>
 
-→ [(6.36) in plain words](./gray-paper.md#ex-6-36)
+→ [(6.36) explained](./gray-paper.md#ex-6-36)
 
 <a id="gp-6-7-p13"></a>Note that it can be shown that in the case of an empty extrinsic $\mathbf{E}_T = \left[\right]$, as implied by $m' \ge \mathsf{Y}$, and unchanged epoch ($e' = e$), then $\gamma_A' = \gamma_A$.
 

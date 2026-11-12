@@ -46,7 +46,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ $$
 
 </details>
 
-→ [(11.12), (11.13) in plain words](./gray-paper.md#ex-11-12)
+→ [(11.12), (11.13) explained](./gray-paper.md#ex-11-12)
 
 <a id="gp-11-2-1-p5"></a>The signature must be one whose public key is that of the validator assuring and whose message is the <abbr class="gp-term" title="turning a value into bytes, so it can be hashed, signed or sent">serialization</abbr> of the parent hash $\mathbf{H}_{P}$ and the aforementioned bitstring:
 
@@ -76,7 +76,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -94,7 +94,7 @@ $$
 
 </details>
 
-→ [(11.14), (11.15) in plain words](./gray-paper.md#ex-11-14)
+→ [(11.14), (11.15) explained](./gray-paper.md#ex-11-14)
 
 <a id="gp-11-2-1-p7"></a>A bit may only be set if the corresponding core has an <abbr class="gp-term" title="a guaranteed report waiting on its core until enough validators hold its pieces">availability assignment</abbr>:
 
@@ -107,7 +107,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ $$
 
 </details>
 
-→ [(11.16) in plain words](./gray-paper.md#ex-11-16)
+→ [(11.16) explained](./gray-paper.md#ex-11-16)
 
 :::
 

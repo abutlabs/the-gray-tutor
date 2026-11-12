@@ -169,7 +169,7 @@ function keyOf(block: Block, paper: Paper, keyed: Set<string>, file: string): st
   }
   if (rows.length === 0) return "";
   // folded on the site, where hovering a symbol says the same; open in the e-book (epub.ts)
-  return `<details class="gp-key"><summary>Its symbols, in plain words</summary>\n\n| Symbol | Say it | Means |\n| --- | --- | --- |\n${rows.join("\n")}\n\n</details>`;
+  return `<details class="gp-key"><summary>Its symbols</summary>\n\n| Symbol | Say it | Means |\n| --- | --- | --- |\n${rows.join("\n")}\n\n</details>`;
 }
 
 /** Each glossed prose word, the first time the page quotes it, underlined with its meaning. */
@@ -234,7 +234,7 @@ export function fill(file: string, markdown: string, paper: Paper, where: Return
         if (key) parts.push(key);
         const explained = b.equations.map((n) => where.explained.get(n)).find(Boolean);
         if (q.kind === "text" && explained && explained !== file) {
-          parts.push(`→ [${b.equations.map((n) => `(${n})`).join(", ")} in plain words](${linkFrom(file, explained, `ex-${b.equations[0].replace(/\./g, "-")}`)})`);
+          parts.push(`→ [${b.equations.map((n) => `(${n})`).join(", ")} explained](${linkFrom(file, explained, `ex-${b.equations[0].replace(/\./g, "-")}`)})`);
         }
       }
     }

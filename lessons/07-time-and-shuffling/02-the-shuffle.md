@@ -53,7 +53,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ $$
 
 </details>
 
-→ [(F.1) in plain words](./gray-paper.md#ex-F-1)
+→ [(F.1) explained](./gray-paper.md#ex-F-1)
 
 :::
 
@@ -132,7 +132,7 @@ i \mathrel{\unicode{x2B40}} \mathbb{N}_{l}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -150,7 +150,7 @@ $$
 
 </details>
 
-→ [(F.2), (F.3) in plain words](./gray-paper.md#ex-F-2)
+→ [(F.2), (F.3) explained](./gray-paper.md#ex-F-2)
 
 :::
 

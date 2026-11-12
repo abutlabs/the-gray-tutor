@@ -25,8 +25,8 @@ import { snippetNumbers, wholeFiles } from "../tools/snapshots.ts";
 import type { Snapshot } from "../tools/snapshots.ts";
 
 const parts = readParts();
-/** A part's appendix, its Gray Paper formulas in plain words (lessons/NN-part/gray-paper.md),
- *  as the sidebar and the book list it: "13.A The formulas, in plain words". */
+/** A part's appendix, its Gray Paper formulas explained (lessons/NN-part/gray-paper.md),
+ *  as the sidebar and the book list it: "13.A The formulas, explained". */
 const appendixOf = (p: (typeof parts)[number]) => {
   const file = `${p.dir}/gray-paper.md`;
   if (!existsSync(join("lessons", file))) return [];

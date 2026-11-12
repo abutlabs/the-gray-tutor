@@ -49,7 +49,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ $$
 
 </details>
 
-→ [(10.8), (10.9), (10.10) in plain words](./gray-paper.md#ex-10-8)
+→ [(10.8), (10.9), (10.10) explained](./gray-paper.md#ex-10-8)
 
 <a id="gp-10-2-p9"></a>The judgments of all verdicts must be ordered by validator index and there may be no duplicates:
 
@@ -86,7 +86,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -95,7 +95,7 @@ $$
 
 </details>
 
-→ [(10.11) in plain words](./gray-paper.md#ex-10-11)
+→ [(10.11) explained](./gray-paper.md#ex-10-11)
 
 :::
 

@@ -75,7 +75,7 @@ Y &\colon\left\{ \begin{aligned}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ $$
 
 </details>
 
-→ [(12.20), (12.21) in plain words](./gray-paper.md#ex-12-20)
+→ [(12.20), (12.21) explained](./gray-paper.md#ex-12-20)
 
 :::
 

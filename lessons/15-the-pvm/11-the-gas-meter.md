@@ -52,7 +52,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -70,7 +70,7 @@ $$
 
 </details>
 
-→ [(A.8) in plain words](./gray-paper.md#ex-A-8)
+→ [(A.8) explained](./gray-paper.md#ex-A-8)
 
 :::
 
@@ -94,7 +94,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ $$
 
 </details>
 
-→ [(A.10) in plain words](./gray-paper.md#ex-A-10)
+→ [(A.10) explained](./gray-paper.md#ex-A-10)
 
 <a id="gp-A-4-p10"></a>We also have to adjust the state based on the executed instruction, to force a gas charge on the next step when necessary:
 
@@ -120,7 +120,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -135,7 +135,7 @@ $$
 
 </details>
 
-→ [(A.11) in plain words](./gray-paper.md#ex-A-11)
+→ [(A.11) explained](./gray-paper.md#ex-A-11)
 
 :::
 

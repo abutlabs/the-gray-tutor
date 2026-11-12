@@ -66,7 +66,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ $$
 
 </details>
 
-→ [(9.9), (9.10), (9.11) in plain words](./gray-paper.md#ex-9-9)
+→ [(9.9), (9.10), (9.11) explained](./gray-paper.md#ex-9-9)
 
 :::
 
@@ -144,7 +144,7 @@ r\in \mathbb{N}_S \,,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -165,7 +165,7 @@ $$
 
 </details>
 
-→ [(12.15) in plain words](./gray-paper.md#ex-12-15)
+→ [(12.15) explained](./gray-paper.md#ex-12-15)
 
 :::
 

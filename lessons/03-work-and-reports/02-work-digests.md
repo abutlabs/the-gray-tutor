@@ -59,7 +59,7 @@ u&\in \mathbb{N}_G\,,\;
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ $$
 
 </details>
 
-→ [(11.6) in plain words](./gray-paper.md#ex-11-6)
+→ [(11.6) explained](./gray-paper.md#ex-11-6)
 
 <a id="gp-11-1-4-p3"></a>Work-digests are a tuple comprising several items. Firstly $s$, the index of the service whose state is to be altered and thus whose refine code was already executed. We include the hash of the code of the service at the time of being reported $c$, which must be accurately predicted within the work-report according to equation [11.45](../12-guarantees/05-bad-reports.md#eq-11-45).
 
@@ -103,7 +103,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ $$
 
 </details>
 
-→ [(11.7) in plain words](./gray-paper.md#ex-11-7)
+→ [(11.7) explained](./gray-paper.md#ex-11-7)
 
 <a id="gp-11-1-4-p7"></a>The first two are special values concerning execution of the virtual machine, $\infty$ denoting an out-of-gas error and $\unicode{x21AF}$ denoting an unexpected program termination. Of the remaining four, the first indicates that the number of exports made was invalidly reported, the second that the size of the digest (refinement output) would cross the acceptable limit, the third indicates that the service's code was not available for lookup in state at the <abbr class="gp-term" title="after the change: the value once it is made, written with a prime (α′); for state, after the block">posterior</abbr> state of the <abbr class="gp-term" title="the block whose state an in-core run's lookups saw; it must be final and recent">lookup-anchor</abbr> block. The fourth indicates that the code was available but was beyond the maximum size allowed $\mathsf{W}_C$.
 
@@ -160,7 +160,7 @@ z\mathrel{\unicode{x2AF6}}\!\!\!\!\sum_{\left(h, z\right) \in \mathbf{x}}\!\!\!\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -180,7 +180,7 @@ $$
 
 </details>
 
-→ [(14.10) in plain words](./gray-paper.md#ex-14-10)
+→ [(14.10) explained](./gray-paper.md#ex-14-10)
 
 :::
 

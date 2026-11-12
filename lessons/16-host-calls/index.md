@@ -105,7 +105,7 @@ F \in \Omega\left\langle\left\{\right\}\right\rangle &\colon
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -142,7 +142,7 @@ $$
 
 </details>
 
-→ [(B.1), (B.2) in plain words](./gray-paper.md#ex-B-1)
+→ [(B.1), (B.2) explained](./gray-paper.md#ex-B-1)
 
 <a id="gp-B-2-p3"></a>Note for the Is-Authorized host-call dispatch function $F$ in equation [B.2](#eq-B-2), we elide the host-call context since, being essentially stateless, it is always $\emptyset$.
 
@@ -312,7 +312,7 @@ u,
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |

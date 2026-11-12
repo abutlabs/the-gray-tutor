@@ -1,4 +1,4 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 8](./index.md)'s appendix: every formula of §6 this part quotes, and the two of
 Appendix G, explained. In the paper's order, not the lessons': §6.2 Safrole's state, §6.3
@@ -7,7 +7,7 @@ marks, §6.7 the tickets, Appendix G the VRF signature and the ring proof. §6.1
 the entropy's history are in [7.A](../07-time-and-shuffling/gray-paper.md). Real values: the
 tiny network, 6 validators, E = 12 slots an epoch, the lottery closing at Y = 10, at most K
 = 3 tickets a block. A hash or key is shown by its first two bytes. Each formula: its key,
-then read aloud, in plain words, on a real value, in your client. Notation: [Reading the
+then read aloud, what it means, on a real value, in your client. Notation: [Reading the
 Gray Paper](../reading-the-gray-paper.md).
 
 ## (6.3): Safrole's four fields
@@ -27,7 +27,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ $$
 **Read it aloud.** "Gamma is defined as the tuple of gamma P, gamma Z, gamma S and gamma
 A."
 
-**In plain words.** γ is Safrole's own part of the state, one record of four fields, like
+**What it means.** γ is Safrole's own part of the state, one record of four fields, like
 an object with four keys:
 
 - γ_P, the validators who become active at the next epoch;
@@ -85,7 +85,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -134,7 +134,7 @@ e\in \mathbb{N}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -152,7 +152,7 @@ $$
 gamma S is in a sequence of exactly E tickets, or a sequence of exactly E Bandersnatch
 keys." "T is defined as the tuple of y, in H, and e, in N."
 
-**In plain words.** Three type lines, a schema for γ's last three fields.
+**What it means.** Three type lines, a schema for γ's last three fields.
 
 - **(6.4)** γ_Z is a ring root: 144 bytes that stand for a whole list of Bandersnatch
   keys, as a hash stands for its data.
@@ -195,7 +195,7 @@ $$
 \end{gather}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -216,7 +216,7 @@ $$
 **Read it aloud.** "Iota, gamma P, kappa and lambda are each in a sequence of K, of a size
 in V. V is defined as the set of 3c, such that c is in N from 2 to C plus 1."
 
-**In plain words.** The four validator sets have one type: a list of validator key sets
+**What it means.** The four validator sets have one type: a list of validator key sets
 (𝕂, each 336 bytes, in (6.9)). ι is the staging set, γ_P the pending set, κ the active
 set, λ the previous one. (6.8) says how long such a list may be: 3 times a number from 2
 up to, not including, C + 1. So a multiple of 3, from 6 to 3C. Why three? Validators are
@@ -250,7 +250,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -274,7 +274,7 @@ $$
 k from 0, 32 of them. k sub e, an Ed25519 key, is k from 32, 32 of them. k sub l, a BLS
 key, is k from 64, 144 of them. k sub m, 128 bytes, is k from 208, 128 of them."
 
-**In plain words.** A validator's key set is 336 bytes laid end to end, and the four lines
+**What it means.** A validator's key set is 336 bytes laid end to end, and the four lines
 name its four slices, by where each starts and how long it is:
 
 | Bytes | Name | For |
@@ -319,7 +319,7 @@ k \mathrel{\unicode{x2B40}} \mathbf{k}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -339,7 +339,7 @@ lambda, gamma Z; where z is O of the sequence of k sub b, for each k in order fr
 prime. Phi of k is defined as the sequence of, for each k in order from k: a run of zeros
 if k's Ed25519 key is in psi O prime; otherwise k."
 
-**In plain words.** At a new epoch, the four sets move along one place, as people in a
+**What it means.** At a new epoch, the four sets move along one place, as people in a
 queue:
 
 1. **κ′ = γ_P**: the pending validators become active;
@@ -403,7 +403,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -440,7 +440,7 @@ X F and eta three prime; and T is 0. H sub V is a Bandersnatch signature by H su
 nothing, in the context X E and Y of H sub S. X E is the string jam entropy; X F, jam
 fallback seal; X T, jam ticket seal."
 
-**In plain words.** Every header carries two Bandersnatch VRF signatures by its author,
+**What it means.** Every header carries two Bandersnatch VRF signatures by its author,
 H_A. That is the Bandersnatch key of validator H_I in κ′, from
 [(5.10)](../04-blocks/06-the-header.md#eq-5-10). A signature here has a key (under the
 V), a message (above it) and a context (in the angle brackets). First find i, this slot's
@@ -499,7 +499,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -513,7 +513,7 @@ $$
 **Read it aloud.** "Eta zero prime is defined as the hash of eta zero concatenated with Y
 of H sub V."
 
-**In plain words.** Every block, the accumulator η₀ takes in fresh randomness: the output
+**What it means.** Every block, the accumulator η₀ takes in fresh randomness: the output
 of the header's entropy source, H_V, 32 bytes nobody could steer. Join the old η₀ and that
 output, 64 bytes, and hash them with Blake2b. The 32 bytes that come out are the new η₀.
 Hashing the old value in means one block can't wipe out what the blocks before it added.
@@ -546,7 +546,7 @@ F(\eta'_2, \kappa') \!\!\!&\text{otherwise}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -572,7 +572,7 @@ Z\colon\left\{ \,\begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -588,7 +588,7 @@ and m is at least Y, and the size of gamma A is E; gamma S, if e prime equals e;
 two prime and kappa prime, otherwise." And: "Z maps a sequence of E tickets to a sequence
 of E tickets: s maps to s 0, s at its size minus 1, s 1, s at its size minus 2, and so on."
 
-**In plain words.** The sealers change only when a new epoch begins, and then the paper
+**What it means.** The sealers change only when a new epoch begins, and then the paper
 tries three cases in order:
 
 1. **The winners**, if all three hold: this block is in the very next epoch (e′ = e + 1,
@@ -640,7 +640,7 @@ i \in \mathbb{N}_{\mathsf{E}}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -656,7 +656,7 @@ $$
 Bandersnatch keys. r and k map to: for each i in N sub E, the Bandersnatch key of k at E-4
 inverse of the first 4 bytes of the hash of r concatenated with E-4 of i, wrapped around."
 
-**In plain words.** For each slot i of the epoch, 0 to E − 1:
+**What it means.** For each slot i of the epoch, 0 to E − 1:
 
 1. write i as 4 bytes, little-endian, and put it after r, the randomness;
 2. hash the 36 bytes with Blake2b;
@@ -702,7 +702,7 @@ k \mathrel{\unicode{x2B40}} \gamma_P'
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -726,7 +726,7 @@ Z(\gamma_A) &\text{if } e' = e \wedge m < \mathsf{Y} \le m' \wedge \left\vert\ga
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -743,7 +743,7 @@ is greater than e; nothing otherwise." And: "H sub W is defined as: Z of gamma A
 prime equals e, and m is less than Y, which is at most m prime, and the size of gamma A is
 E; nothing otherwise."
 
-**In plain words.** Two header fields that let a node follow the validators from headers
+**What it means.** Two header fields that let a node follow the validators from headers
 alone, without the state:
 
 - **The epoch mark**, H_E, (6.28): in the first block of a new epoch, the randomness as it
@@ -799,7 +799,7 @@ p\in \overset{\circ}{\mathbb{V}}_{\gamma_Z'}^{\left[\right]}\left\langle\mathsf{
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -820,7 +820,7 @@ proof against gamma Z prime, on nothing, in the context X T, eta two prime and e
 is the ceiling of 2 E over the size of gamma P prime. The size of E sub T is at most: K, if
 m prime is less than Y; 0 otherwise."
 
-**In plain words.** The tickets extrinsic is a list of entries, each two fields:
+**What it means.** The tickets extrinsic is a list of entries, each two fields:
 
 - **e**, the attempt, below n. n = ⌈2E / |γ′_P|⌉ is how many tickets each validator may
   enter in an epoch: enough for the validators to fill the lottery twice over.
@@ -865,7 +865,7 @@ i \mathrel{\unicode{x2B40}} \mathbf{E}_T
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -886,7 +886,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -901,7 +901,7 @@ $$
 for each i in order from E sub T." And: "n equals n sorted by x's y, no repeats. The set of
 x's y for each x in n shares nothing with the set of x's y for each x in gamma A."
 
-**In plain words.** (6.32) turns each entered ticket into a ticket of the lottery. Its id
+**What it means.** (6.32) turns each entered ticket into a ticket of the lottery. Its id
 y is the output of its ring proof, (G.5), and its attempt e is kept. (6.33) says the block
 must list them already sorted by id, with no id twice: the list must equal itself sorted,
 duplicates removed. (6.34) says none of them may be in the lottery already. A block that
@@ -938,7 +938,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -959,7 +959,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -973,7 +973,7 @@ $$
 prime is greater than e, gamma A otherwise), sorted by x's y." And: "n is a subset of
 gamma A prime."
 
-**In plain words.** The new lottery is the new tickets together with the old ones (none
+**What it means.** The new lottery is the new tickets together with the old ones (none
 at a new epoch: a new lottery starts empty), sorted by id, cut to the best E. (6.36) adds
 that every new ticket must survive the cut. A ticket too poor to make the lottery is a
 waste of space, and a block that brings one is invalid.
@@ -1012,7 +1012,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -1029,7 +1029,7 @@ $$
 subset of B 96, are defined as the set of x in B 96 such that verify of k, c, m and x is
 true. Y of s is defined as the output of the signature, its first 32 bytes."
 
-**In plain words.** (G.1) defines a signature by what checks: the valid ones are the
+**What it means.** (G.1) defines a signature by what checks: the valid ones are the
 96-byte strings that `verify` accepts for this key, context and message. The paper leaves
 `verify` to the Bandersnatch VRF specification it cites. Your client calls a library for
 it.
@@ -1073,7 +1073,7 @@ commitment to that sequence. The ring proofs against root r, on message m, in co
 subset of B 784, are defined as the set of x in B 784 such that verify of r, c, m and x is
 true. Y of p is defined as the output of the proof, its first 32 bytes."
 
-**In plain words.** The same three ideas, for anonymous signatures:
+**What it means.** The same three ideas, for anonymous signatures:
 
 - **(G.3)** O turns a list of keys into a ring root, a 144-byte commitment: one short
   value that stands for the whole list.

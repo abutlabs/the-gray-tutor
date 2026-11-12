@@ -51,7 +51,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ $$
 
 </details>
 
-→ [(4.1) in plain words](./gray-paper.md#ex-4-1)
+→ [(4.1) explained](./gray-paper.md#ex-4-1)
 
 <a id="gp-4-p3"></a>Where $\sigma$ is the prior state, $\sigma'$ is the posterior state, $B$ is some valid block and $\Upsilon$ is our block-level state-transition function.
 

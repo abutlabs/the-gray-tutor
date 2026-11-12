@@ -1,9 +1,9 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 11](./index.md)'s appendix: every formula of §11.1 and §11.2 this part quotes,
 explained. Seven blocks, (11.1) and (11.11) to (11.18): what a core holds, what an assurance
 is, the five rules it keeps, when a report becomes available, and when a core lets go. Each
-formula: its key, then read aloud, in plain words, on a real value, in your client.
+formula: its key, then read aloud, what it means, on a real value, in your client.
 Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 The real values come from the tiny assurances vectors: 6 validators, 2 cores, and a block
@@ -26,7 +26,7 @@ t\in \mathbb{N}_T
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ $$
 **Read it aloud.** "Rho is in: a sequence of C things, each either nothing or a tuple of
 g, a guarantee, and t, a timeslot."
 
-**In plain words.** A type line. ρ has one place per core, and each place is empty (∅) or
+**What it means.** A type line. ρ has one place per core, and each place is empty (∅) or
 holds one report waiting for its data: the whole guarantee that brought it, report and
 signatures, and the slot it arrived, t. One per core, never more: that is why a core can
 take a new report only when its place is empty. ρ†, ρ‡ and ρ′ have the same shape. They
@@ -84,7 +84,7 @@ s\in \bar{\mathbb{V}}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ $$
 **Read it aloud.** "E sub A is in: a sequence of tuples of a, a hash; f, a bitstring of C
 bits; v, a natural below the number of validators; and s, an Ed25519 signature."
 
-**In plain words.** The assurances extrinsic is a list, at most one entry per validator.
+**What it means.** The assurances extrinsic is a list, at most one entry per validator.
 Each says: the block I looked at (a), which cores' data I hold, one bit per core (f), who
 I am (v, my place in κ), and my signature (s). The bit is a promise the chain can't
 check. The footnote says a false one has no on-chain consequence: a missing shard only
@@ -141,7 +141,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -159,7 +159,7 @@ $$
 to the length of E sub A: the assurer of entry i minus 1 is less than the assurer of
 entry i."
 
-**In plain words.** Two rules. Every assurance is anchored on this block's parent, H_P,
+**What it means.** Two rules. Every assurance is anchored on this block's parent, H_P,
 so it speaks about the cores as the parent left them and can't be replayed in a later
 block. And the validator indices go strictly up, so the list is sorted and no validator
 appears twice.
@@ -193,7 +193,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ $$
 by the Ed25519 key of kappa at a's v, of X sub A concatenated with H of the encoding of
 H sub P and a's f. X sub A is defined as the token jam available."
 
-**In plain words.** The signature must be the assurer's own: made with the Ed25519 key of
+**What it means.** The signature must be the assurer's own: made with the Ed25519 key of
 validator v in the current set κ, over a message of two parts. First the context string
 `jam_available`, 13 bytes. A signature made for anything else can never pass as an
 assurance. Then the hash of the parent hash followed by the bitfield. Change a bit, or
@@ -248,7 +248,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -266,7 +266,7 @@ $$
 **Read it aloud.** "For every a in E sub A and every core c: a's bit at c implies rho
 dagger at c is not nothing."
 
-**In plain words.** A bit may be 1 only for a core that has a report waiting, after this
+**What it means.** A bit may be 1 only for a core that has a report waiting, after this
 block's disputes have cleared any judged bad. "Implies" reads: if the bit is set, then the
 core must be busy. A 0 bit says nothing, so it's always allowed.
 
@@ -299,7 +299,7 @@ c \mathrel{\unicode{x2B40}} \mathbb{N}_{\mathsf{C}},\;
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -318,7 +318,7 @@ $$
 guarantee, for each c in order in the core indices, such that the sum over a in E sub A
 of a's bit at c is greater than two thirds of the number of validators."
 
-**In plain words.** For each core, in order, count the assurances whose bit for that core
+**What it means.** For each core, in order, count the assurances whose bit for that core
 is 1. More than two thirds of the validators, and the core's report joins 𝐑, the newly
 available reports, which go on to accumulation. Bits are 0 or 1, so the sum is the count.
 To stay in whole numbers, check 3 × count > 2 × |κ|.
@@ -358,7 +358,7 @@ p &\text{otherwise}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -377,7 +377,7 @@ is nothing, or p's report is in R, or the header's timeslot is at least p's t pl
 the number of validators now is not the number next; otherwise p. Where p is rho dagger at
 c."
 
-**In plain words.** Take each core's report after the disputes, p. The core empties if any
+**What it means.** Take each core's report after the disputes, p. The core empties if any
 of four things holds:
 
 1. it was empty already;

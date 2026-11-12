@@ -1,9 +1,9 @@
-# The formulas, in plain words
+# The formulas, explained
 
 [Part 10](./index.md)'s appendix: every formula of §10, *Disputes, Verdicts and Judgments*,
 explained. Eleven blocks, (10.1) to (10.19): what the state keeps, what a block carries, how
 a verdict is counted and recorded, what it does to the cores, who is named an offender, and
-the rules of order. Each formula: its key, then read aloud, in plain words, on a real value,
+the rules of order. Each formula: its key, then read aloud, what it means, on a real value,
 in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 Most real values here come from one vector, `progress_invalidates_avail_assignments-1` on
@@ -23,7 +23,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ $$
 
 **Read it aloud.** "Psi is defined as the four-tuple psi-G, psi-B, psi-W, psi-O."
 
-**In plain words.** ψ, the past judgments, is four sets that only ever grow. Three hold the
+**What it means.** ψ, the past judgments, is four sets that only ever grow. Three hold the
 hashes of reports: those judged good (ψ_G), bad (ψ_B) and wonky (ψ_W). The fourth holds the
 Ed25519 keys of every validator found guilty, the offenders (ψ_O). They are written sorted,
 as every set in the state is.
@@ -82,7 +82,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ E-C is in: a sequence of at most N-O triples, a hash, an Ed25519 key and a signa
 E-F is in: a sequence of at most N-O tuples, a hash, true-or-false, an Ed25519 key and a
 signature."
 
-**In plain words.** The disputes part of a block is three lists:
+**What it means.** The disputes part of a block is three lists:
 
 - **verdicts**, at most N_V = 16: each the report's hash, an epoch, and the judgments.
   ⌊τ/E⌋ − ℕ₂ is "this epoch's index minus 0 or 1": this epoch or the one before, nothing
@@ -171,7 +171,7 @@ K(a) \equiv \begin{cases}
 \end{gather}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -208,7 +208,7 @@ judgment v, i, s in bold j: i is less than the length of bold k, and s is an Ed2
 signature by bold k at i's e key on X-sub-v joined with r. Where bold k is K of a.
 X-sub-top is defined as the string jam_valid, X-sub-bottom as the string jam_invalid."
 
-**In plain words.** Three rules for every verdict:
+**What it means.** Three rules for every verdict:
 
 1. **(10.3) Who the judges are.** K(a) picks the validator set: κ, this epoch's
    validators, if the verdict's epoch a is this one; λ, the last epoch's, otherwise.
@@ -271,7 +271,7 @@ V(a, \mathbf{j}) &\equiv \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -294,7 +294,7 @@ thirds of the length of bold k, rounded down, plus one; false if t is zero; noth
 equals a third of the length of bold k, rounded down. Where t is the sum of v over every
 judgment v, i, s in bold j, and bold k is K of a."
 
-**In plain words.** Boil each verdict down to its report's hash and one answer. Count t,
+**What it means.** Boil each verdict down to its report's hash and one answer. Count t,
 the votes saying "valid" (the sum treats ⊤ as 1 and ⊥ as 0). Then:
 
 - t is every vote, ⌊⅔ |𝐤|⌋ + 1: **⊤, good**;
@@ -361,7 +361,7 @@ f
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -378,7 +378,7 @@ prime: psi-W union every r such that r, nothing is in bold v. Psi-O prime: psi-O
 every f such that f and the rest is in E-C, union every f such that f and the rest is in
 E-F."
 
-**In plain words.** Each judged report's hash joins the set of its answer, and every
+**What it means.** Each judged report's hash joins the set of its answer, and every
 culprit's and fault's key joins the offenders. Union, ∪, adds without repeats. The "…" in
 (f, …) means "whatever else the tuple holds", so only the key f is taken.
 
@@ -413,7 +413,7 @@ v \in \left\{\,\bot, \emptyset\,\right\} \\
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -432,7 +432,7 @@ $$
 c's guarantee's report, with some v, is in bold v, and v is false or nothing; otherwise
 rho at c."
 
-**In plain words.** ρ holds, for each core, the report waiting there for its data to be
+**What it means.** ρ holds, for each core, the report waiting there for its data to be
 made available. For each core, hash its pending report (ℋ, Blake2b of the report's
 bytes) and look the hash up in 𝐯. Judged bad (⊥) or wonky (∅): the core is emptied.
 Judged good, or not judged at all: it stays. ρ† is this midway value, which the
@@ -470,7 +470,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -488,7 +488,7 @@ s in E-F, all of: r in psi-B prime if and only if r not in psi-G prime if and on
 f is in bold k; s is an Ed25519 signature by f on X-sub-v joined with r. Where bold k is
 the set of the e keys of every validator in lambda or kappa, minus psi-O."
 
-**In plain words.** An accusation must be true, about a validator, and signed by them:
+**What it means.** An accusation must be true, about a validator, and signed by them:
 
 - **A culprit**'s report is now in the bad set. Its key belongs to a validator of this
   epoch or the last who isn't already an offender. (That is 𝐤: κ's and λ's Ed25519 keys,
@@ -540,7 +540,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -555,7 +555,7 @@ $$
 in E-C, in order, joined with the sequence of f for each fault f and the rest in E-F, in
 order."
 
-**In plain words.** The header's offenders mark is the new offenders' keys: every
+**What it means.** The header's offenders mark is the new offenders' keys: every
 culprit's, in the order the block lists them, then every fault's. A list, not a set, so
 the order is the block's.
 
@@ -585,7 +585,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -613,7 +613,7 @@ equals its culprits ordered by f, unique; E-F, its faults ordered by f, unique. 
 of every r of E-V is disjoint from psi-G union psi-B union psi-W. For every verdict r,
 a, bold j of E-V: bold j equals its judgments ordered by i, unique."
 
-**In plain words.** The ≀≀ sign before a key means "sorted by this key, with no key twice".
+**What it means.** The ≀≀ sign before a key means "sorted by this key, with no key twice".
 A list equal to its own sorted, unique self is already sorted and has no repeats.
 
 - **(10.8)** Verdicts are sorted by report hash, no report twice.
@@ -655,7 +655,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -668,7 +668,7 @@ $$
 **Read it aloud.** "For every r, true in bold v: there exists a fault r and the rest in
 E-F."
 
-**In plain words.** A report judged good must have at least one fault about it in the same
+**What it means.** A report judged good must have at least one fault about it in the same
 block. A dispute starts only when someone votes "invalid". If the report turns out good,
 that someone was wrong, and the block must name them. A bad verdict has no such rule: its
 culprits may come in a later block.

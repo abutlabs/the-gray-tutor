@@ -52,7 +52,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ $$
 
 </details>
 
-→ [(11.3) in plain words](./gray-paper.md#ex-11-3)
+→ [(11.3) explained](./gray-paper.md#ex-11-3)
 
 :::
 
@@ -93,7 +93,7 @@ L(\mathbf{l} \in \mathbb{B}_{} \cup \mathbb{E}) &\equiv \begin{cases}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -110,7 +110,7 @@ $$
 
 </details>
 
-→ [(11.8), (11.9), (11.10) in plain words](./gray-paper.md#ex-11-8)
+→ [(11.8), (11.9), (11.10) explained](./gray-paper.md#ex-11-8)
 
 :::
 
@@ -130,7 +130,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -144,7 +144,7 @@ $$
 
 </details>
 
-→ [(11.33) in plain words](./gray-paper.md#ex-11-33)
+→ [(11.33) explained](./gray-paper.md#ex-11-33)
 
 :::
 
@@ -165,7 +165,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -177,7 +177,7 @@ $$
 
 </details>
 
-→ [(11.34) in plain words](./gray-paper.md#ex-11-34)
+→ [(11.34) explained](./gray-paper.md#ex-11-34)
 
 <a id="gp-11-4-1-p3"></a>There must be no duplicate work-package hashes (i.e.  two work-reports of the same package). Therefore, we require the <abbr class="gp-term" title="how many items a set has">cardinality</abbr> of $\mathbf{p}$ to be the length of the work-report sequence $\mathbf{I}$:
 
@@ -189,7 +189,7 @@ $$
 \end{equation}
 $$
 
-→ [(11.35) in plain words](./gray-paper.md#ex-11-35)
+→ [(11.35) explained](./gray-paper.md#ex-11-35)
 
 <a id="gp-11-4-1-p5"></a>We require that the anchor block be within the last $\mathsf{H}$ blocks and that its details be correct by ensuring that it appears within our most recent blocks $\beta_H^\dagger$:
 
@@ -201,7 +201,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -215,7 +215,7 @@ $$
 
 </details>
 
-→ [(11.36) in plain words](./gray-paper.md#ex-11-36)
+→ [(11.36) explained](./gray-paper.md#ex-11-36)
 
 <a id="gp-11-4-1-p7"></a>We require that each <abbr class="gp-term" title="the block whose state an in-core run's lookups saw; it must be final and recent">lookup-anchor</abbr> block be within the last $\mathsf{L}$ timeslots:
 
@@ -227,7 +227,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -237,7 +237,7 @@ $$
 
 </details>
 
-→ [(11.37) in plain words](./gray-paper.md#ex-11-37)
+→ [(11.37) explained](./gray-paper.md#ex-11-37)
 
 <a id="gp-11-4-1-p9"></a>We also require that we have a record of it; this is one of the few conditions which cannot be checked purely with on-chain state and must be checked by virtue of retaining the series of the last $\mathsf{L}$ headers as the ancestor set $\mathbf{A}$. Since it is determined through the header chain, it is still deterministic and calculable. Formally:
 
@@ -254,7 +254,7 @@ h'_{R} &= x_{r}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -269,7 +269,7 @@ $$
 
 </details>
 
-→ [(11.38) in plain words](./gray-paper.md#ex-11-38)
+→ [(11.38) explained](./gray-paper.md#ex-11-38)
 
 <a id="gp-11-4-1-p11"></a>We require that the work-package of the report not be the work-package of some other report made in the past. We ensure that the work-package not appear anywhere within our pipeline. Formally:
 
@@ -296,7 +296,7 @@ p \not\in \bigcup_{x \in \beta_H}\mathcal{K}\left(x_{\mathbf{p}}\right)
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -314,7 +314,7 @@ $$
 
 </details>
 
-→ [(11.39), (11.40), (11.41) in plain words](./gray-paper.md#ex-11-39)
+→ [(11.39), (11.40), (11.41) explained](./gray-paper.md#ex-11-39)
 
 <a id="gp-11-4-1-p13"></a>We require that the prerequisite work-packages, if present, and any work-packages mentioned in the segment-root lookup, be either in the extrinsic or in our recent history.
 
@@ -332,7 +332,7 @@ x \;\middle\vert\; x \in \mathcal{K}\left(b_{\mathbf{p}}\right),\, b \in \beta_H
 \end{align}
 $$
 
-→ [(11.42) in plain words](./gray-paper.md#ex-11-42)
+→ [(11.42) explained](./gray-paper.md#ex-11-42)
 
 <a id="gp-11-4-1-p15"></a>We require that any segment roots mentioned in the segment-root lookup be verified as correct based on our recent work-package history and the present block:
 
@@ -353,7 +353,7 @@ g \in \mathbf{E}_G
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -364,7 +364,7 @@ $$
 
 </details>
 
-→ [(11.43), (11.44) in plain words](./gray-paper.md#ex-11-43)
+→ [(11.43), (11.44) explained](./gray-paper.md#ex-11-43)
 
 <a id="gp-11-4-1-p17"></a>(Note that these checks leave open the possibility of accepting work-reports in apparent dependency loops. We do not consider this a problem: the pre-accumulation stage effectively guarantees that accumulation never happens in these cases and the reports are simply ignored.)
 
@@ -378,7 +378,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -386,7 +386,7 @@ $$
 
 </details>
 
-→ [(11.45) in plain words](./gray-paper.md#ex-11-45)
+→ [(11.45) explained](./gray-paper.md#ex-11-45)
 
 :::
 

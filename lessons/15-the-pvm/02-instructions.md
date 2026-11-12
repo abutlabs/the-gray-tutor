@@ -49,7 +49,7 @@ i &\mapsto \min(24,\ j \in \mathbb{N} : \left(\mathbf{k} \frown \left[1, 1, \dot
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ $$
 
 </details>
 
-→ [(A.3) in plain words](./gray-paper.md#ex-A-3)
+→ [(A.3) explained](./gray-paper.md#ex-A-3)
 
 <a id="gp-A-2-p6"></a>The Skip function appends $\mathbf{k}$ with a sequence of set bits in order to ensure a well-defined result for the final instruction $\text{skip}(\left\vert\mathbf{c}\right\vert - 1)$.
 
@@ -81,7 +81,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -90,7 +90,7 @@ $$
 
 </details>
 
-→ [(A.4) in plain words](./gray-paper.md#ex-A-4)
+→ [(A.4) explained](./gray-paper.md#ex-A-4)
 
 :::
 
@@ -141,7 +141,7 @@ x &\mapsto \mathbf{y}: \forall i \in \mathbb{N}_{8n} : \mathbf{y}[8n - 1 - i] \L
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -164,7 +164,7 @@ $$
 
 </details>
 
-→ [(A.13), (A.14), (A.15), (A.16), (A.17), (A.18) in plain words](./gray-paper.md#ex-A-13)
+→ [(A.13), (A.14), (A.15), (A.16), (A.17), (A.18) explained](./gray-paper.md#ex-A-13)
 
 <a id="gp-A-4-p16"></a>Immediate arguments are encoded in little-endian format with the most-significant bit being the sign bit. They may be compactly encoded by eliding more significant octets. Elided octets are assumed to be zero if the MSB of the value is zero, and 255 otherwise. This allows for compact representation of both positive and negative encoded values. We thus define the signed extension function operating on an input of $n$ octets as $\mathcal{X}_{n}$:
 
@@ -179,7 +179,7 @@ x &\mapsto x + \left\lfloor\frac{x}{2^{8n-1}}\right\rfloor(2^{64}-2^{8n})
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -189,7 +189,7 @@ $$
 
 </details>
 
-→ [(A.19) in plain words](./gray-paper.md#ex-A-19)
+→ [(A.19) explained](./gray-paper.md#ex-A-19)
 
 :::
 
@@ -218,7 +218,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -227,7 +227,7 @@ $$
 
 </details>
 
-→ [(A.23) in plain words](./gray-paper.md#ex-A-23)
+→ [(A.23) explained](./gray-paper.md#ex-A-23)
 
 :::
 
@@ -246,7 +246,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -257,7 +257,7 @@ $$
 
 </details>
 
-→ [(A.24) in plain words](./gray-paper.md#ex-A-24)
+→ [(A.24) explained](./gray-paper.md#ex-A-24)
 
 :::
 
@@ -275,7 +275,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -283,7 +283,7 @@ $$
 
 </details>
 
-→ [(A.25) in plain words](./gray-paper.md#ex-A-25)
+→ [(A.25) explained](./gray-paper.md#ex-A-25)
 
 :::
 
@@ -304,7 +304,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -312,7 +312,7 @@ $$
 
 </details>
 
-→ [(A.26) in plain words](./gray-paper.md#ex-A-26)
+→ [(A.26) explained](./gray-paper.md#ex-A-26)
 
 :::
 
@@ -331,7 +331,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.27) in plain words](./gray-paper.md#ex-A-27)
+→ [(A.27) explained](./gray-paper.md#ex-A-27)
 
 :::
 
@@ -353,7 +353,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.28) in plain words](./gray-paper.md#ex-A-28)
+→ [(A.28) explained](./gray-paper.md#ex-A-28)
 
 :::
 
@@ -377,7 +377,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.29) in plain words](./gray-paper.md#ex-A-29)
+→ [(A.29) explained](./gray-paper.md#ex-A-29)
 
 :::
 
@@ -401,7 +401,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.30) in plain words](./gray-paper.md#ex-A-30)
+→ [(A.30) explained](./gray-paper.md#ex-A-30)
 
 :::
 
@@ -424,7 +424,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.31) in plain words](./gray-paper.md#ex-A-31)
+→ [(A.31) explained](./gray-paper.md#ex-A-31)
 
 :::
 
@@ -449,7 +449,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.32) in plain words](./gray-paper.md#ex-A-32)
+→ [(A.32) explained](./gray-paper.md#ex-A-32)
 
 :::
 
@@ -474,7 +474,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.33) in plain words](./gray-paper.md#ex-A-33)
+→ [(A.33) explained](./gray-paper.md#ex-A-33)
 
 :::
 
@@ -501,7 +501,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.34) in plain words](./gray-paper.md#ex-A-34)
+→ [(A.34) explained](./gray-paper.md#ex-A-34)
 
 :::
 
@@ -527,7 +527,7 @@ $$
 \end{equation}
 $$
 
-→ [(A.35) in plain words](./gray-paper.md#ex-A-35)
+→ [(A.35) explained](./gray-paper.md#ex-A-35)
 
 :::
 

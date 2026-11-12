@@ -51,7 +51,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ $$
 
 </details>
 
-→ [(5.9) in plain words](./gray-paper.md#ex-5-9)
+→ [(5.9) explained](./gray-paper.md#ex-5-9)
 
 <a id="gp-5-p16"></a>We assume the state-Merklization function $\mathcal{M}_\sigma$ is capable of transforming our state $\sigma$ into a 32-octet <abbr class="gp-term" title="a short hash that stands for some data, so the data can be checked against it later">commitment</abbr>. See appendix [D](./index.md#gp-D-p1) for a full definition of these two functions.
 
@@ -125,7 +125,7 @@ L&\colon\left\{ \begin{aligned}
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -145,7 +145,7 @@ $$
 
 </details>
 
-→ [(D.3), (D.4) in plain words](./gray-paper.md#ex-D-3)
+→ [(D.3), (D.4) explained](./gray-paper.md#ex-D-3)
 
 <a id="gp-D-2-1-p9"></a>We may then define the basic Merklization function $\mathcal{M}_\sigma$ as:
 
@@ -166,7 +166,7 @@ r &\text{if } b_0 = 1
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -181,7 +181,7 @@ $$
 
 </details>
 
-→ [(D.5), (D.6) in plain words](./gray-paper.md#ex-D-5)
+→ [(D.5), (D.6) explained](./gray-paper.md#ex-D-5)
 
 :::
 

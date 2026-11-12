@@ -65,7 +65,7 @@ b &\text{otherwise}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ $$
 
 </details>
 
-→ [(A.62) in plain words](./gray-paper.md#ex-A-62)
+→ [(A.62) explained](./gray-paper.md#ex-A-62)
 
 <a id="gp-A-10-p3"></a>For non-immediate shift and rotate instructions only the first source register matters:
 
@@ -114,7 +114,7 @@ b &\text{otherwise}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -123,7 +123,7 @@ $$
 
 </details>
 
-→ [(A.63) in plain words](./gray-paper.md#ex-A-63)
+→ [(A.63) explained](./gray-paper.md#ex-A-63)
 
 <a id="gp-A-10-p5"></a>The cost of memory accesses is defined as follows:
 
@@ -135,7 +135,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -143,7 +143,7 @@ $$
 
 </details>
 
-→ [(A.64) in plain words](./gray-paper.md#ex-A-64)
+→ [(A.64) explained](./gray-paper.md#ex-A-64)
 
 <a id="gp-A-10-p7"></a>The cost of a branch depends on whether any of its targets (either the jump target or the implicit fallthrough) point to an instruction byte which is equal to the opcode for the `unlikely` or the `trap` instruction; formally:
 
@@ -173,7 +173,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -183,7 +183,7 @@ $$
 
 </details>
 
-→ [(A.65) in plain words](./gray-paper.md#ex-A-65)
+→ [(A.65) explained](./gray-paper.md#ex-A-65)
 
 <a id="gp-A-10-p9"></a>In the following table the $\mathbf{c}$, $\mathbf{k}$, and $\imath$ arguments are omitted for clarity.
 

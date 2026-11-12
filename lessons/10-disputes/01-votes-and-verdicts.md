@@ -66,7 +66,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -93,7 +93,7 @@ $$
 
 </details>
 
-→ [(10.2) in plain words](./gray-paper.md#ex-10-2)
+→ [(10.2) explained](./gray-paper.md#ex-10-2)
 
 <a id="gp-10-2-p3"></a>The signatures of all judgments must be valid in terms of one of the two allowed validator key-sets, identified by the verdict's second term which must be either the epoch index of the prior state or one less. Each verdict must contain judgments from exactly two-thirds plus one of the identified validators. Formally:
 
@@ -117,7 +117,7 @@ K(a) \equiv \begin{cases}
 \end{gather}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -145,7 +145,7 @@ $$
 
 </details>
 
-→ [(10.3), (10.4), (10.5) in plain words](./gray-paper.md#ex-10-3)
+→ [(10.3), (10.4), (10.5) explained](./gray-paper.md#ex-10-3)
 
 :::
 
@@ -198,7 +198,7 @@ V(a, \mathbf{j}) &\equiv \begin{cases}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -212,7 +212,7 @@ $$
 
 </details>
 
-→ [(10.12) in plain words](./gray-paper.md#ex-10-12)
+→ [(10.12) explained](./gray-paper.md#ex-10-12)
 
 :::
 
@@ -296,7 +296,7 @@ $$
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -308,7 +308,7 @@ $$
 
 </details>
 
-→ [(10.1) in plain words](./gray-paper.md#ex-10-1)
+→ [(10.1) explained](./gray-paper.md#ex-10-1)
 
 :::
 
@@ -352,7 +352,7 @@ f
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -361,7 +361,7 @@ $$
 
 </details>
 
-→ [(10.15), (10.16), (10.17), (10.18) in plain words](./gray-paper.md#ex-10-15)
+→ [(10.15), (10.16), (10.17), (10.18) explained](./gray-paper.md#ex-10-15)
 
 :::
 

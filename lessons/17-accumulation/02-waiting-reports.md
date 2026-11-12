@@ -53,7 +53,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ $$
 
 </details>
 
-→ [(12.1), (12.2) in plain words](./gray-paper.md#ex-12-1)
+→ [(12.1), (12.2) explained](./gray-paper.md#ex-12-1)
 
 <a id="gp-12-1-p3"></a>We also maintain knowledge of ready (i.e.  available and/or audited) but not-yet-accumulated work-reports in the state item $\omega$. Each of these were made available at most one epoch ago but have or had unfulfilled dependencies. Alongside the work-report itself, we retain its unaccumulated dependencies, a set of work-package hashes. Formally:
 
@@ -81,7 +81,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -91,7 +91,7 @@ $$
 
 </details>
 
-→ [(12.3) in plain words](./gray-paper.md#ex-12-3)
+→ [(12.3) explained](./gray-paper.md#ex-12-3)
 
 <a id="gp-12-1-p5"></a>The newly available work-reports, $\mathbf{R}$, are partitioned into two sequences based on the condition of having zero prerequisite work-reports. Those meeting the condition, $\mathbf{R}^!$, are accumulated immediately. Those not, $\mathbf{R}^Q$, are for queued execution. Formally:
 
@@ -109,7 +109,7 @@ D(r) &\equiv (r, \left\{\,(r_{\mathbf{c}})_{\mathbf{p}}\,\right\} \cup \mathcal{
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -132,7 +132,7 @@ $$
 
 </details>
 
-→ [(12.4), (12.5), (12.6) in plain words](./gray-paper.md#ex-12-4)
+→ [(12.4), (12.5), (12.6) explained](./gray-paper.md#ex-12-4)
 
 <a id="gp-12-1-p7"></a>We define the queue-editing function $E$, which is essentially a mutator function for items such as those of $\omega$, parameterized by sets of now-accumulated work-package hashes (those in $\xi$). It is used to update queues of work-reports when some of them are accumulated. Functionally, it removes all entries whose work-report's hash is in the set provided as a parameter, and removes any dependencies which appear in said set. Formally:
 
@@ -154,7 +154,7 @@ E\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -167,7 +167,7 @@ $$
 
 </details>
 
-→ [(12.7) in plain words](./gray-paper.md#ex-12-7)
+→ [(12.7) explained](./gray-paper.md#ex-12-7)
 
 <a id="gp-12-1-p9"></a>We further define the accumulation priority queue function $Q$, which provides the sequence of work-reports which are able to be accumulated given a set of not-yet-accumulated work-reports and their dependencies.
 
@@ -186,7 +186,7 @@ Q\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -196,7 +196,7 @@ $$
 
 </details>
 
-→ [(12.8) in plain words](./gray-paper.md#ex-12-8)
+→ [(12.8) explained](./gray-paper.md#ex-12-8)
 
 <a id="gp-12-1-p11"></a>Finally, we define the mapping function $P$ which extracts the corresponding work-package hashes from a set of work-reports:
 
@@ -213,7 +213,7 @@ P\colon\left\{ \begin{aligned}
 \end{equation}
 $$
 
-→ [(12.9) in plain words](./gray-paper.md#ex-12-9)
+→ [(12.9) explained](./gray-paper.md#ex-12-9)
 
 <a id="gp-12-1-p13"></a>We may now define the sequence of accumulatable work-reports in this block as $\mathbf{R}^*$:
 
@@ -227,7 +227,7 @@ $$
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -239,7 +239,7 @@ $$
 
 </details>
 
-→ [(12.10), (12.11), (12.12) in plain words](./gray-paper.md#ex-12-10)
+→ [(12.10), (12.11), (12.12) explained](./gray-paper.md#ex-12-10)
 
 :::
 
@@ -285,7 +285,7 @@ E({\omega}^\circlearrowleft_{m - i}, \xi'_{\mathsf{E} - 1}) &\text{if } i \ge \t
 \end{align}
 $$
 
-<details class="gp-key"><summary>Its symbols, in plain words</summary>
+<details class="gp-key"><summary>Its symbols</summary>
 
 | Symbol | Say it | Means |
 | --- | --- | --- |
@@ -299,7 +299,7 @@ $$
 
 </details>
 
-→ [(12.31), (12.32), (12.33) in plain words](./gray-paper.md#ex-12-31)
+→ [(12.31), (12.32), (12.33) explained](./gray-paper.md#ex-12-31)
 
 :::
 
