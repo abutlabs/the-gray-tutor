@@ -1,15 +1,28 @@
 # Part 7 · Time and shuffling
 
-JAM's clock has two hands: the slot, every six seconds, and the epoch, every hour. This
-part teaches your client to read both, and then to shuffle: JAM deals validators out to
-cores with a shuffle everyone can repeat, from randomness nobody could steer.
+**In one sentence:** this part teaches your client to tell which epoch a block is in, and
+to shuffle a list the way every other JAM client does.
 
 By the end of this part your client reads slots and epochs, and shuffles a list from a
 hash exactly the way every other JAM client does.
 
-Both run on every validator from the block and the state alone: no clock on the wall and
-no messages. A slot comes from the header, an epoch from the slot, a shuffle from the
-entropy in the state. Everyone gets the same answer because everyone has the same inputs.
+## The big picture
+
+JAM's clock has two hands: the slot, every six seconds, and the epoch, every hour.
+
+- **The epoch** ([7.1](./01-epochs.md)) is when the slow things change: the validators,
+  the block-making lottery, the entropy's history.
+- **The shuffle** ([7.2](./02-the-shuffle.md)) deals validators out to cores. Everyone
+  can repeat it, and it runs on randomness nobody could steer.
+
+Both run on every validator, from the block and the state alone: no clock on the wall and
+no messages.
+
+- A slot comes from the header.
+- An epoch comes from the slot.
+- A shuffle comes from the entropy in the state.
+
+Everyone gets the same answer because everyone has the same inputs.
 
 **Builds on** [Part 4 · Blocks](../04-blocks/index.md), [Part 5 · Hashing and
 signatures](../05-hashing-and-signatures/index.md) and [Part 6 · State and
@@ -149,8 +162,9 @@ $$
 :::
 
 Read it aloud: "tau is a timeslot, and tau prime, the new time, is the header's slot. Let
-e remainder m be tau over E: e the epoch, m the slot within it; and the same, primed, for
-the new time." A new epoch is e′ > e. The shuffle lines: "Q sub l of a hash is l numbers,
-each four bytes of the hash of h with a counter after it; shuffling a sequence by a hash is
-shuffling it by the numbers Q draws from that hash, as many as the sequence has items"
-([7.2](./02-the-shuffle.md) walks it).
+e remainder m be tau over E: e the epoch, m the slot within it. The same, primed, for the
+new time." A new epoch is e′ > e.
+
+The shuffle lines: "Q sub l of a hash is l numbers, each four bytes of the hash of h with
+a counter after it. Shuffling a sequence by a hash is shuffling it by the numbers Q draws
+from that hash, as many as the sequence has items." [7.2](./02-the-shuffle.md) walks it.

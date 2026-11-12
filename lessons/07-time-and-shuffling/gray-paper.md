@@ -35,12 +35,15 @@ $$
 
 **Read it aloud.** "Tau is in N sub T. Tau prime is defined as H sub T."
 
-**In plain words.** Two statements. The first is a type: τ, the time in the state, is a
-timeslot, a whole number below 2³² (a u32). The second is the rule: after a block, τ′ is
-that block's own slot, the header's `slot` field, copied. So τ always holds the slot of
-the latest block, and while a block is being checked, τ is still its parent's slot. That
-is what lets §6.1 compare the two. (That a slot must be later than its parent's is a
-header rule, [(5.8)](../04-blocks/06-the-header.md#eq-5-8).)
+**In plain words.** Two statements.
+
+- A type: τ, the time in the state, is a timeslot, a whole number below 2³² (a u32).
+- The rule: after a block, τ′ is that block's own slot, the header's `slot` field,
+  copied.
+
+So τ always holds the slot of the latest block. While a block is being checked, τ is
+still its parent's slot. That is what lets §6.1 compare the two. (That a slot must be
+later than its parent's is a header rule, [(5.8)](../04-blocks/06-the-header.md#eq-5-8).)
 
 **On a real value.** The tiny vector `enact-epoch-change-with-no-tickets-4`:
 
@@ -81,13 +84,16 @@ $$
 **Read it aloud.** "Let e remainder m equal tau over E, and e prime remainder m prime
 equal tau prime over E."
 
-**In plain words.** The R is the paper's way of writing the two answers of one whole-number
-division: the quotient on its left, the remainder on its right. Divide a slot by E, the
-epoch's length, and the quotient e is the epoch, the remainder m is the *phase*, where the
-slot falls within its epoch. Without a prime, it's about τ, the block before; with a
-prime, about τ′, this block. A block starts a new epoch exactly when e′ > e. Several
-rules of [Part 8](../08-safrole/index.md) also read m and m′: the phase tells them whether the ticket lottery is
-still open.
+**In plain words.** The R writes the two answers of one whole-number division: the
+quotient on its left, the remainder on its right. Divide a slot by E, the epoch's length.
+
+- The quotient, e, is the epoch.
+- The remainder, m, is the *phase*: where the slot falls within its epoch.
+
+Without a prime, it's about τ, the block before. With a prime, it's about τ′, this block.
+A block starts a new epoch exactly when e′ > e. Several rules of
+[Part 8](../08-safrole/index.md) also read m and m′: the phase tells them whether the
+ticket lottery is still open.
 
 **On a real value.** The same vector, on tiny, where E = 12:
 
@@ -146,13 +152,15 @@ prime, eta three prime are defined as: eta zero, eta one, eta two, if e prime is
 than e; otherwise eta one, eta two, eta three."
 
 **In plain words.** (6.22) is a type line: η is exactly four 32-byte hashes, 128 bytes in
-all. η₀ is the accumulator, stirred by every block (that's (6.23), in
-[8.A](../08-safrole/gray-paper.md#ex-6-23)). η₁, η₂ and η₃ are what η₀ was
-when each of the last three epochs ended, newest first.
+all.
 
-(6.24) moves them. At a new epoch (e′ > e), each one steps one place down the line: the
-old η₀ becomes η′₁, the old η₁ becomes η′₂, the old η₂ becomes η′₃, and the old η₃ is
-forgotten. In any other block, the three stay as they are. The tuple on each side is just
+- η₀ is the accumulator, stirred by every block (that's (6.23), in
+  [8.A](../08-safrole/gray-paper.md#ex-6-23)).
+- η₁, η₂ and η₃ are what η₀ was when each of the last three epochs ended, newest first.
+
+(6.24) moves them. At a new epoch (e′ > e), each one steps one place down the line. The
+old η₀ becomes η′₁, the old η₁ becomes η′₂, the old η₂ becomes η′₃. The old η₃ is
+forgotten. In any other block, the three stay as they are. The tuple on each side is
 three values written together, as an array of three.
 
 **On a real value.** `enact-epoch-change-with-no-tickets-4` again, where e′ > e. Each hash
@@ -214,16 +222,16 @@ holding s at r zero mod l, concatenated with F of s prime up to l minus 1 and r 
 where s prime is s except that s prime at r zero mod l is s at l minus 1; otherwise the
 empty sequence."
 
-**In plain words.** The top line is the function's type: F takes a list s of l items (of
-any type T) and at least l numbers r, and gives back the same l items in a new order. The
-lines under it say how, as a recursion, a function that calls itself on a shorter list:
+**In plain words.** The top line is the function's type. F takes a list s of l items (of
+any type T) and at least l numbers r. It gives back the same l items in a new order. The
+lines under it say how, as a recursion: a function that calls itself on a shorter list.
 
 1. pick the item at index r₀ mod l, and put it first;
 2. make s′: the same list, with the last item copied into the gap the pick left;
 3. drop the last place (s′ up to l − 1), drop the number used (r from 1 on), and shuffle
    what's left the same way.
 
-The empty list shuffles to the empty list, and that is where the recursion stops.
+The empty list shuffles to the empty list. That is where the recursion stops.
 
 **On a real value.** Four letters and the numbers 1, 1, 0, 0, as
 [7.2](./02-the-shuffle.md) works them:
@@ -300,9 +308,9 @@ hash h. For number i:
 3. **read** bytes 4i mod 32 to 4i mod 32 + 4 of that hash as a little-endian number
    (ℰ₄⁻¹). The `mod 32` wraps: number 8 reads bytes 0 to 3 again, of the next hash.
 
-(F.3) is the shuffle as JAM uses it: F of a list and a hash is F of the list and l numbers
-drawn from that hash, l being the list's length. Everyone holding the same hash gets the
-same order.
+(F.3) is the shuffle as JAM uses it. F of a list and a hash is F of the list and l numbers
+drawn from that hash, where l is the list's length. Everyone holding the same hash gets
+the same order.
 
 **On a real value.** The shuffle vector's case with 8 items, 0 to 7, and h = 32 bytes of
 `ff`:
@@ -325,9 +333,9 @@ in [7.2](./02-the-shuffle.md#the-code).
 ## Say it in one breath
 
 τ is the slot of the latest block, and a block sets it to its own slot (6.1). Dividing a
-slot by E gives its epoch and its phase, and a block whose epoch is greater than its
-parent's starts a new one (6.2). η is four hashes, the accumulator and the last three
-epochs' values (6.22), and at a new epoch they step along one place (6.24). JAM's shuffle
-picks the item at the next number mod what's left and fills the gap with the last item
-(F.1), and it draws those numbers from a hash, eight 4-byte numbers per Blake2b of the
-hash and a counter (F.2), so every node holding the same hash deals the same order (F.3).
+slot by E gives its epoch and its phase. A block whose epoch is greater than its parent's
+starts a new one (6.2). η is four hashes: the accumulator and the last three epochs'
+values (6.22). At a new epoch they step along one place (6.24). JAM's shuffle picks the
+item at the next number mod what's left, and fills the gap with the last item (F.1). It
+draws those numbers from a hash: eight 4-byte numbers per Blake2b of the hash and a
+counter (F.2). So every node holding the same hash deals the same order (F.3).
