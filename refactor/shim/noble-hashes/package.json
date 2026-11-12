@@ -1,0 +1,1 @@
+{"name":"@noble/hashes","version":"0.0.0-local-shim","type":"module","exports":{"./blake2.js":"./blake2.js"}}
