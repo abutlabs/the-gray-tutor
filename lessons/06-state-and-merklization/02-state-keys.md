@@ -1,17 +1,30 @@
 # State keys
 
-[Lesson 6.1](./01-the-state-trie.md)'s keys looked suspiciously *designed*: `0x01` and thirty zeros, `0xff` and
-thirty zeros, and then a few that looked like noise. They are designed. Every key in a
-JAM state is made by one of three recipes, which the Gray Paper calls C. Learn the
-recipes, and you know where to find anything: the validators, the clock, a service's
-code.
+**In one sentence:** every entry of the state sits under a 31-byte key made by one of three
+recipes, so the key alone says what the entry is.
 
-Make a few keys first. Pick a recipe and type what goes in: each of the 31 bytes is
-coloured by where it came from.
+Make a few. Pick a recipe and type what goes in: each of the 31 bytes is coloured by where
+it came from.
 
 <a id="try-it"></a>
 
 <StateKeyWeave />
+
+## The idea
+
+A trie needs a key for every entry. JAM could have hashed a name for each one, and every
+key would look like noise. It builds keys you can read instead, like addresses.
+
+- **The chain's own records** (the validators, the clock, the entropy: 16 in all) get a
+  number each. The key is the number, then zeros. Each record is a *state component*.
+- **A service's account** gets 255, then the service's id.
+- **Anything a service keeps** (its code, its storage) gets the service's id, woven into
+  a hash that names the thing.
+
+So the keys of [lesson 6.1](./01-the-state-trie.md) were designed. `0x0b` and thirty
+zeros is the clock. `0xff` and thirty zeros is service 0's account. Learn the three
+recipes and you can find anything in the state, or look at a *state key* and say what
+it holds.
 
 ## New words
 
@@ -70,9 +83,7 @@ $$
 :::
 
 In plain words: every key is 31 bytes, made by C, the *state-key constructor*. C is one
-function with three cases, and what you hand it picks the case, like a TypeScript function
-overloaded on its arguments: one number; a number and a service; or a service and some
-bytes.
+function with three cases, and what you hand it picks the case:
 
 | Case | You hand it | Where it puts | The 31 bytes |
 | --- | --- | --- | --- |
@@ -83,16 +94,14 @@ bytes.
 The middle case takes any number in the Gray Paper, but the state only ever hands it 255:
 every service's account is C(255, s).
 
-(In the last row, n = ℰ₄(s) and a = H(h): the service's four bytes take turns with the
-hash's first four, then 23 more bytes of the hash follow.)
+In the last row, n = ℰ₄(s) and a = H(h): the service's four bytes take turns with the
+hash's first four, then 23 more bytes of the hash follow.
 
 Try each row on [the keys at the top](#try-it). Make service `0x04030201`'s account,
-then weave a different service into the same hash: only the four service bytes move. The
-widget doesn't hash, so for C(s, h) you type the hash's bytes yourself. They start as the
-ones in a key from [lesson 6.1](./01-the-state-trie.md).
+then weave a different service into the same hash: only the four service bytes move.
 
-The state has **16 components**, C(1) to C(16), each a Greek letter in the Gray Paper.
-Here they are, with their sizes in the state you met in [lesson 6.1](./01-the-state-trie.md):
+The 16 components, C(1) to C(16), each with its Greek letter and its size in the state of
+[lesson 6.1](./01-the-state-trie.md):
 
 | Key | Letter | What it is | Bytes |
 | --- | --- | --- | --- |
@@ -113,9 +122,9 @@ Here they are, with their sizes in the state you met in [lesson 6.1](./01-the-st
 | C(15) | ξ | recently accumulated packages | 12 |
 | C(16) | θ | the last accumulation outputs | 1 |
 
-You can already read a few of those sizes. τ is 4 bytes: ℰ₄ of a timeslot ([lesson 0.4](../00-start/04-the-jam-clock.md)).
-η is 128: four 32-byte hashes. The three validator sets are 2,017 each: a length byte,
-then six validators of 336 bytes. Reading what's *inside* comes [next lesson](./03-reading-the-state.md).
+Some sizes you can already read. τ is 4 bytes: a timeslot ([lesson 0.4](../00-start/04-the-jam-clock.md)).
+η is 128: four 32-byte hashes. Each validator set is 2,017: a count byte, then six
+validators of 336 bytes. [Lesson 6.3](./03-reading-the-state.md) reads what is inside.
 
 What a service keeps comes in three kinds, and each makes its h differently:
 
@@ -123,8 +132,8 @@ What a service keeps comes in three kinds, and each makes its h differently:
 - a **request** for a preimage of hash H(p) and length l: h = ℰ₄(l) ⌢ H(p);
 - a **storage** item with key k: h = ℰ₄(2^32 − 1) ⌢ k.
 
-Hashing h makes every key exactly 31 bytes, whatever went in, and the Gray Paper points
-out the bonus:
+Hashing h makes every key 31 bytes, whatever went in. The Gray Paper adds what follows
+from that:
 
 ::: gray-paper D.1 8-8
 
@@ -134,23 +143,19 @@ out the bonus:
 
 :::
 
-In plain words: a client never needs the original storage key back, only its hash. This
-lesson builds preimages and requests. Storage keys wait: your client keeps each service's
-storage as a map from key to value (read from the vectors in [lesson 14.2](../14-services/02-the-service-account.md), written
-by the `write` host call in [lesson 16.5](../16-host-calls/05-storage.md)), and needs these keys only to put that map
-into the state trie, which block import does ([lesson 19.2](../19-block-import/02-the-whole-state.md)).
+In plain words: a client never needs a storage key back, only its hash. This lesson builds
+the keys of preimages and requests. Storage keys wait for block import
+([lesson 19.2](../19-block-import/02-the-whole-state.md)), which puts each service's storage into the
+trie: the map [lesson 14.2](../14-services/02-the-service-account.md) reads and the `write` host call
+of [lesson 16.5](../16-host-calls/05-storage.md) fills.
 
-All three cases together make a real state. Here is the one `npm run state-fallback` reads
+All three recipes together make a real state. Here is the one `npm run state-fallback` reads
 in [lesson 6.1](./01-the-state-trie.md): one file, `fallback/00000001.json`, whose 21 entries the script builds into the trie
 and hashes up to one root, then checks against the `parent_state_root` in the same file's
-block header. Each leaf is named by its key's case. The 16 components sit together, as their
-keys all start with a few zero bits; the account is alone on the other side, as 255 starts
-with a 1; and service 0's four keys all start `0x00`, its id's first byte, so they sit
-deepest, told apart only by their hash bytes. Set τ to slot 1, four bytes in one leaf,
-and the root changes completely: that is why 32 bytes can stand for the whole state.
-Every dot is a hash too: tap a branch to see the two 32-byte hashes it joins, the 64-byte
-node they make, and the hash of that, which the branch above joins in turn, all the way to
-the root.
+block header. Each leaf is named by its recipe. The 16 components sit together. The
+account is alone on the other side, since 255 starts with a 1. Service 0's four items sit
+deepest. Set τ to slot 1 and the root changes completely. Tap a branch to see the two
+hashes it joins.
 
 <StateRoot />
 
@@ -519,49 +524,48 @@ has the same recipe a second time, as `state_key_from_index_service` in
 ## Check your understanding
 
 ::: check
-**In [lesson 6.1](./01-the-state-trie.md), the key `0x10` and 30 zeros sat at depth 4. What is it?**
+**How many kinds of state key are there, and what does each one address?**
 
-- [ ] C(10), ρ, reports awaiting availability
-  > No: `0x10` is hex, so it's 16, not 10. C(10)'s key starts `0x0a`.
-- [x] C(16), θ, the last accumulation outputs
-  > Yes: C(i) is the byte i, then 30 zeros, and 16 is `0x10`. Its value is θ's 1 byte,
-  > just as the table says.
-- [ ] Service 16's account
-  > No: an account's key starts with 255, `0xff`. A key that's one byte and then zeros is
-  > a component.
+- [ ] One: every key is the hash of its entry's name
+  > No: only one recipe hashes anything, and even that one keeps the service's id readable.
+- [x] Three: a state component, a service's account, and something a service keeps
+  > Yes: C(i), C(255, s) and C(s, h). Sixteen components, one account per service, and as
+  > many items as the services keep.
+- [ ] Sixteen: one for each component
+  > No: the 16 components share one recipe, C(i). Services' accounts and items have the
+  > other two.
 
-**How does a state key tell you what kind of thing it holds?**
+**You are handed a state key and nothing else. What can you tell from it?**
 
-- [ ] It doesn't: you have to look the key up in a table
+- [x] Its kind and its owner: which component, or which service. Not which of a service's items it is
+  > Yes: a number then zeros is a component, 255 first is an account, and anything else
+  > has a service's id in bytes 0, 2, 4 and 6. The rest is a hash, and a hash doesn't run
+  > backwards.
+- [ ] Nothing: a key is a hash
   > No: the keys are built so that their own bytes say what they are.
-- [x] By how it's built: a component's key is its number then zeros, an account's starts with 255 and the service's id
-  > Yes: C(i) for the 16 components, C(255, s) for service s's account, and C(s, h) for
-  > what a service keeps. You can read a key's kind straight off its first bytes.
-- [ ] By its length: each kind of key has a different length
-  > No: every state key is 31 bytes long. Their contents differ, not their size.
+- [ ] Everything, down to a storage item's original key
+  > No: that key went into a hash. The Gray Paper says a client need not even keep it.
 
-**What is the key `0xff` and 30 zeros?**
+**Where is a service's code in the state?**
 
-- [x] Service 0's account
-  > Yes: C(255, 0) is 255, then ℰ₄(0) spread out, which is all zeros. In
-  > [lesson 6.1](./01-the-state-trie.md) it sat alone at depth 1, holding 89 bytes.
-- [ ] Component 255, the last part of the state
-  > No: there are 16 components, C(1) to C(16). 255 starts every account key.
-- [ ] An empty key, kept for an entry not filled in yet
-  > No: the state has no placeholder entries. Every key holds a value; this one holds
-  > service 0's 89-byte account.
+- [ ] Inside its account, under C(255, s)
+  > No: an account is 89 bytes. It holds the code's hash, not the code.
+- [ ] Under a component number of its own
+  > No: the components are the chain's 16 records. What a service keeps is under C(s, h).
+- [x] Under C(s, h), as a preimage the service keeps; its account records the code's hash
+  > Yes: h is ℰ₄(2^32 − 2) ⌢ H(code). In [lesson 6.1](./01-the-state-trie.md)'s state it
+  > was the 159,322-byte value.
 
-**Service 0 and service `0x04030201` each keep something under the same h. How do their two keys differ?**
+**Two services keep something under the same h. Do their keys collide?**
 
-- [ ] Not at all: the key comes from the hash of h, and h is the same
-  > No: C(s, h) weaves the service in. Without it, two services' items would land on the
-  > same key.
-- [x] In bytes 0, 2, 4 and 6 only: `00 00 00 00` for one, `01 02 03 04` for the other
+- [ ] Yes: the key comes from the hash of h, and h is the same
+  > No: C(s, h) weaves the service in, so two services' items never share a key.
+- [x] No: each key carries its service's id in four of its bytes
   > Yes: the service's four bytes take turns with the hash's first four. The other 27
-  > bytes come from H(h), the same for both.
-- [ ] In every byte, because the service is hashed in along with h
-  > No: the service isn't hashed. Its bytes go into the key as they are, which is why
-  > `bin/state.ts` can read the service back out of a key.
+  > bytes are the same for both.
+- [ ] No: the service's id is hashed together with h
+  > No: the id isn't hashed. It goes into the key as it is, which is why a key can be read
+  > back to its service.
 
 **Why does C(s, h) hash h instead of using it as it is?**
 
@@ -572,7 +576,7 @@ has the same recipe a second time, as `state_key_from_index_service` in
   > No: the value sits in the state as it is, and anyone who knows h can work out the key.
   > The hash is about size.
 - [ ] So that two services can't use the same h
-  > No: they can, and their keys still differ, by the service bytes woven in.
+  > No: they can, and their keys still differ, by the service's bytes woven in.
 :::
 
 ## What you have

@@ -271,6 +271,34 @@ tests ask for the files remade.
 
 ## Shape
 
+**Explain it the way Feynman would.** If it can't be said simply, it isn't understood yet:
+find the simple way to say it before writing anything else. Start from the question the
+thing answers (two validators want to know if they hold the same state), not from its
+definition. One idea a sentence, short sentences, a picture from ordinary life where one
+fits (keys you can read, like addresses). Say what a thing is for before what it is made
+of. Then stop: five words that carry the point beat fifty that surround it.
+
+**Three tiers, in this order.** A reader stops at the tier they need.
+
+1. **In one sentence**, right under the title, in bold: what the thing is, with no symbol
+   and no new word left unexplained. If this sentence is hard to write, the lesson isn't
+   ready.
+2. **The idea**, `## The idea`, after the widget: 100 to 200 words, plain. The problem,
+   then the trick that solves it, on one example. No Gray Paper symbols, no byte layouts,
+   no code. Someone who reads only this should be able to explain the lesson to a friend.
+3. **The exact rule**, `## What the Gray Paper says`: the paper's own words (v0.8.0,
+   untouched), each quote followed by *In plain words*, which now only has to connect the
+   formula to the idea above it. Layouts, sizes and edge cases live here.
+
+The code comes after, for the reader who builds.
+
+**Questions an interviewer would ask.** *Check your understanding* asks what a Polkadot
+Fellowship interviewer would: what is this, why is it built this way, what would break
+without it, who runs it and where. Never "what are the bytes of our example": a question
+whose answer is a value from the page tests reading, not understanding. Each wrong option
+is a belief someone really holds, and its reason says why it is wrong. (6.1: *why does
+every header carry a state root?*, *why is a state key 31 bytes?*)
+
 **The example first.** A lesson opens on something to try: right under its opening
 paragraph, before *New words*, its widget on real values, with two or three sentences
 saying what to do with it (Parts 4 and 6 are the models: 6.3 opens the state's rows before
@@ -299,7 +327,7 @@ opened τ's four bytes reads the paper's formula as a description of something t
    `::: check` block (`.vitepress/checks.ts` has the format), each with 2 to 5 options,
    exactly one right, and a reason under every option, wrong ones too: a wrong answer
    teaches most when it says why it's wrong. Ask about the lesson's idea, not its
-   TypeScript, on its own values (why `04 03 02 01`, not what `w.fixed` is called). Make
+   TypeScript and not its example's bytes (see *Questions an interviewer would ask*). Make
    the wrong options the mistakes a reader really makes (52 as the size of every item),
    never silly ones, and move the right answer around. A question may only use what this
    lesson or an earlier one taught. Never make the task decoding hex or bits in your head

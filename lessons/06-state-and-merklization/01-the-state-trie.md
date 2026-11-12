@@ -1,18 +1,37 @@
 # The state trie
 
-Every JAM header carries `parent_state_root`: 32 bytes that stand for the *entire* state
-of the chain. Every validator's keys, every service's code and storage, every pending
-report: all of it, behind one hash. Change a single byte anywhere, and the root changes.
-How do you hash a whole world, and still be able to prove one small piece of it later?
-With a *trie*. This lesson builds one and checks it against 400 real states.
+**In one sentence:** the state root is a 32-byte fingerprint of everything the chain knows,
+built so that a change to any byte, anywhere, changes it.
 
-Play with one first. Three keys, each with a value, and every node's real hash. Flip a
-key's bits, or change a value, and watch which hashes change: the root, at the top, always
-does.
+Here are three keys, three values, and every node's real hash. Flip a key's bits or change
+a value, and watch which hashes change. The root, at the top, always does.
 
 <a id="try-it"></a>
 
 <TrieBuilder />
+
+## The idea
+
+Two validators want to know whether they hold the same state. It is megabytes: every
+validator's keys, every service's code. They can't compare all of it after every block.
+So each boils its state down to one hash, and they compare that.
+
+One hash over the whole state would do it, and nothing more: to prove one small piece of
+the state later, you would have to show all of it. So the state is hashed as a tree.
+
+1. Cut the state into entries, each a key and a value.
+2. File the entries by the bits of their keys: 0 goes left, 1 goes right. That tree is a
+   *trie*.
+3. Hash from the bottom up. A *leaf* hashes one entry. A *branch* hashes the two hashes
+   below it. The last hash, at the top, is the *state root*.
+
+Change one value and its leaf's hash changes, then the branch above it, and so on up to
+the root. Nothing else moves. That is the whole trick: one hash stands for everything, and
+any one entry is tied to it by a short path of hashes. Doing this to a whole state is
+called *Merklization*.
+
+Every JAM header carries the result, as `parent_state_root`. This lesson builds the trie
+and checks it against 400 real states.
 
 ## New words
 
@@ -67,17 +86,15 @@ $$
 
 :::
 
-In plain words: `parent_state_root` is the root of the state *before* this block, which is
-the state after its parent. Ethereum puts the state *after* the block in its header; JAM
-puts the one before, so an author can seal and send a block before it has hashed the state
-that block leaves behind: that root goes in the next block's header, and the two jobs
-overlap. ℳ_σ, the function that turns a state into 32 bytes, is Appendix D's, in two
-stages:
+In plain words: `parent_state_root` is the root of the state *before* this block, the one
+its parent left. Ethereum and Polkadot put the state *after* the block there. JAM's choice
+lets an author send a block before hashing the state it leaves behind: that root goes in
+the next header, so the two jobs overlap.
 
-1. *Serialization* turns the state into a list of entries: each a 31-byte *key* and a
-   value of any length. (Which key holds what is [the next lesson](./02-state-keys.md). Today they're just
-   bytes.)
-2. *Merklization* turns those entries into one 32-byte root. That's today:
+ℳ_σ, the function from a state to 32 bytes, is Appendix D's, in two stages.
+*Serialization* turns the state into entries, a 31-byte key and a value each
+([lesson 6.2](./02-state-keys.md) says which key holds what). *Merklization* turns the
+entries into the root. That's today:
 
 ::: gray-paper D.2
 
@@ -183,18 +200,15 @@ $$
 
 :::
 
-In plain words, the trie is binary: it sorts entries by their key's bits, most significant first. Every
-node is exactly 64 bytes, and its first bit says what kind it is.
+In plain words: every node is exactly 64 bytes, and its first bit says which kind it is.
 
-- **A leaf** (first bit 1) holds one entry: the key, and the value itself if the value
-  fits in 32 bytes (second bit 0, then six bits of its length). A bigger value is
-  replaced by its hash (second bit 1). Small things inline, big things by fingerprint.
-- **A branch** (first bit 0) holds the hashes of its two subtries: left for keys whose
-  next bit is 0, right for 1. Two hashes are 512 bits, though, and the branch needs one
-  for its 0. So the left hash gives up its first bit.
+- **A leaf** (first bit 1) holds one entry: the key, then the value itself if it fits in
+  32 bytes, or the value's hash if it doesn't. The second bit says which.
+- **A branch** (first bit 0) holds two hashes: the subtrie of the keys whose next bit is
+  0, then the one for 1. Two hashes are 512 bits and the branch needs one bit for itself,
+  so the left hash gives up its first bit.
 
-That's why a state key is 31 bytes, where everything so far has been 32. A leaf has to
-fit in one 64-byte node:
+That is why a state key is 31 bytes when every hash is 32. A leaf has to fit in one node:
 
 | Part of a leaf | Bytes |
 | --- | --- |
@@ -203,13 +217,10 @@ fit in one 64-byte node:
 | the value (up to 32 bytes) or its 32-byte hash | 32 |
 | **the whole node** | **64** |
 
-A 32-byte key would leave no room for the first byte. Hashes are still 32 bytes; only
-keys give one up, to make room.
+The root, M, of some entries:
 
-And the root, M, of some entries:
-
-- no entries: 32 zero bytes;
-- one entry: the hash of its leaf;
+- none: 32 zero bytes;
+- one: the hash of its leaf;
 - more: split them on the next bit of their keys, and hash the branch of the two halves.
 
 Three keys starting `0x01` (`0b0000_0001`), `0x40` (`0b0100_0000`) and `0xff`
@@ -217,41 +228,30 @@ Three keys starting `0x01` (`0b0000_0001`), `0x40` (`0b0100_0000`) and `0xff`
 
 ![The trie of the keys 0x01, 0x40 and 0xff. The root is a branch. Its 1 side is the leaf for 0xff, the only key whose first bit is 1. Its 0 side is another branch, whose 0 side is the leaf for 0x01 (first bits 0b00) and whose 1 side is the leaf for 0x40 (first bits 0b01). A branch holds both sides' hashes, and the root is the hash of the top branch.](./images/01-state-trie.svg)
 
-`0xff` is alone on the 1 side, so it becomes a leaf right away. The other two need a
-second bit to part ways.
+`0xff` is the only key that starts with a 1, so it is a leaf after one bit. The other two
+need a second bit to part ways. A key's bits are its route down the trie, and its leaf
+sits where no other key shares the route.
 
-So a key's bits are its route down the trie: from its first bit on, 0 goes left and 1
-goes right, and its leaf sits as soon as no other key shares the route. `0xff` stops after
-one bit, `0x01` and `0x40` after two. Change a key's bits and you change its route: its
-leaf lands somewhere else, maybe deeper, and every hash above it changes with it.
+M is one recursive function, and the hashing happens on the way back up, one hash per
+node: five for these three keys. A real state is the same, only bigger: the tiny genesis
+state the official traces start from has 21 entries, which make 21 leaves and 22 branches
+(two with an empty side), the deepest leaf 11 bits down. Its 12 values over 32 bytes are
+hashed first, so its root takes 55 hashes.
 
-Nothing builds the trie first and hashes it after. M is one recursive function: split the
-entries on the next bit, work out each half's root, hash the branch. The hashing happens
-on the way back up, one hash per node: for these three keys, three leaves and two
-branches, five hashes. A real state is the same, only bigger: the tiny genesis state the
-official traces start from has 21 entries, which make 21 leaves and 22 branches (two with
-an empty side), the deepest leaf 11 bits down. Its 12 values over 32 bytes are hashed
-first, so its root takes 55 hashes.
-
-Now go back to [the trie at the top](#try-it), which starts from the same three
-keys, and try each rule on it. A value is text, or hex from `0x`, and every node shows its
-real hash, made as your client's `merkle` makes it.
+Try each rule on [the trie at the top](#try-it):
 
 - **Flip a key's bits.** Its leaf moves to its new route.
 - **Make two keys that differ only in their last bit.** The trie needs all eight bits to
   part them: a chain of branches with empty sides.
-- **Change a value.** Only the hashes on that leaf's path change, but the path always ends
+- **Change a value.** Only the hashes on that leaf's path change, and the path always ends
   at the root.
-- **Make a value longer than 32 bytes.** The leaf doesn't split or move: it keeps its place
-  and holds the value's hash, while the value is kept outside the trie.
+- **Make a value longer than 32 bytes.** The leaf keeps its place and holds the value's
+  hash. The value itself is kept outside the trie.
 
-Why hash a branch whose other side is empty, 32 zero bytes? Because M splits on one bit
-per level, always, even when every key goes the same way. That keeps the trie simple: a
-node's depth says which bit it split on, so no node has to record "skip these bits", and
-there are only two kinds of node, each 64 bytes. Ethereum's trie does skip, with a third
-kind of node that records the bits its keys share; JAM's costs one extra hash per shared
-bit instead. The Gray Paper just defines it this way; the trade is ours to read. A real
-state rarely pays much: of the tiny genesis state's 22 branches, only 2 have an empty side.
+Why hash a branch with an empty side? M splits on one bit per level, even when every key
+goes the same way. Ethereum's trie skips shared bits, with a third kind of node to record
+them. JAM pays one extra hash per shared bit and keeps two kinds of node, 64 bytes each.
+The price is small: of the tiny genesis state's 22 branches, only 2 have an empty side.
 
 ## The tests
 
@@ -769,53 +769,57 @@ three cases off like the Gray Paper's own definition.
 ## Check your understanding
 
 ::: check
-**Change one value anywhere in the state, say τ's 4 bytes. Why does the root change?**
+**Why does every header carry a state root?**
 
-- [ ] The whole trie is rebuilt, and a rebuilt trie gets a new root
-  > No: only the hashes on τ's path are worked out again. Every other subtrie keeps its
-  > hash, and the branches above reuse it as it is.
-- [x] Its leaf's hash changes, so its branch's does, and so on up the path to the root
-  > Yes: a branch holds the hashes of the two subtries below it. A new hash at the bottom
-  > makes a new branch above it, all the way up, and the root is the last of them.
-- [ ] It doesn't: a value that small sits inside its leaf, not behind a hash
-  > No: inside the leaf is exactly why it shows. New bytes in the leaf give the leaf a new
-  > hash. Inline or hashed, the change reaches the root.
+- [x] So that 32 bytes are enough to tell whether you hold exactly the state the block was built on
+  > Yes: a different byte anywhere gives a different root. Two nodes that agree on the root
+  > agree on every key and every value.
+- [ ] So that a node can rebuild the state from the header
+  > No: a hash can't be turned back into what was hashed. The root checks a state. It
+  > doesn't contain one.
+- [ ] It is the author's signature over the state
+  > No: the signature is the seal. The root is a plain hash that anyone holding the state
+  > can work out again.
 
-**τ's value is 4 bytes; service 0's code is 159,322. What do their leaves hold?**
+**JAM's header holds the root of the state before its block; Ethereum's holds the one after. What does JAM gain?**
 
-- [ ] τ's 4 bytes; the code is split over many leaves
-  > No: one entry is always one leaf, and every leaf is 64 bytes. The code doesn't fit, so
-  > it doesn't go in at all.
-- [ ] Each holds its value's hash, so that every leaf is the same size
-  > No: only values over 32 bytes are hashed. One of 32 bytes or less goes in as it is, and
-  > the leaf's first byte says how long it is.
-- [x] τ's leaf holds the 4 bytes themselves; the code's holds its 32-byte hash
-  > Yes: small things inline, big things by fingerprint. `bin/state.ts` says so: "4-byte
-  > value, in the leaf", "159322-byte value, hashed".
+- [ ] A smaller header
+  > No: a root is 32 bytes either way.
+- [x] An author can send a block without first hashing the state it leaves behind
+  > Yes: that root goes into the next block's header, so running a block and hashing its
+  > result can overlap.
+- [ ] Safety: a state before a block can't be forged, one after it could
+  > No: both are checked the same way, one block apart. The gain is time.
 
-**In the little trie of `0x01`, `0x40` and `0xff`, why is `0xff` a leaf straight under the root, and the other two a level deeper?**
+**Why hash the state as a trie, and not as one hash over all its bytes?**
 
-- [x] It's the only key whose first bit is 1, so one bit already sets it apart
-  > Yes: `0xff` is `0b1111_1111`, and the others start with 0. `0x01` (`0b00…`) and `0x40`
-  > (`01…`) need their second bit to part ways.
-- [ ] It's the biggest key, and the biggest goes nearest the root
-  > No: bits decide, not size. A key `0x80`, `0b1000_0000`, alone on the 1 side, would sit
-  > there just the same.
-- [ ] The trie keeps itself balanced: one key on one side, two on the other
-  > No: a trie doesn't balance. In the real state, `0xff` is alone on the 1 side and the
-  > other 20 keys share the 0 side, some as deep as 11.
+- [ ] A trie's root is harder to forge
+  > No: both are as strong as the hash under them. The trie costs more hashing, not less.
+- [ ] A trie's root is shorter
+  > No: 32 bytes either way.
+- [x] One entry can be proven with the few hashes along its path, and one change redoes only that path
+  > Yes: a branch holds the hashes of its two sides, so everything off the path is used as
+  > it is. One flat hash would need the whole state for either job.
 
-**Two clients work out the same 32-byte root for their states. What do they know?**
+**Every hash in JAM is 32 bytes. Why is a state key 31?**
 
-- [ ] They hold the same number of entries
-  > No: they know far more. The root covers every key and every value, not just how many
-  > there are.
-- [x] Their states are the same: every key, and every value
-  > Yes: a different byte anywhere gives a different root. That's why one hash in the
-  > header, `parent_state_root`, is enough to check a whole state.
-- [ ] They have the same keys, though the values may differ
-  > No: the values are in the leaves too, inline or as a hash. A different value means a
-  > different leaf, and a different root.
+- [x] A leaf has to fit in one 64-byte node: a byte for its kind and length, the key, then 32 bytes of value or hash
+  > Yes: 1 + 31 + 32 = 64. A 32-byte key would leave no room for the first byte.
+- [ ] The first byte of a hash is always zero, so it is dropped
+  > No: a hash's bytes are all as good as random. The key gives one up to make room.
+- [ ] The 32nd byte is kept for the service's id
+  > No: a service's id goes inside the 31 bytes, as [lesson 6.2](./02-state-keys.md) shows.
+
+**A service's code is 159,322 bytes. How is it in the trie?**
+
+- [ ] Split over many leaves, 32 bytes each
+  > No: one entry is one leaf, and every leaf is 64 bytes.
+- [x] In one leaf, as its 32-byte hash; the code itself is kept outside the trie
+  > Yes: a value over 32 bytes is replaced by its hash, and the leaf's second bit says so.
+  > The root still covers every byte of the code, through that hash.
+- [ ] It isn't: only values that fit in a leaf are covered by the root
+  > No: a big value is covered by its hash. Change one byte of the code and the root
+  > changes.
 :::
 
 ## What you have

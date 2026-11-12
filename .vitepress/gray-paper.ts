@@ -71,7 +71,7 @@ export function grayPaperQuotes(md: MarkdownIt): void {
     open.meta = { grayPaper: "open" };
     open.content = m[1]
       ? `<div class="gray-paper again">\n`
-      : `<div class="gray-paper">\n<p class="gray-paper-says">The Gray Paper says</p>\n`;
+      : `<div class="gray-paper">\n<p class="gray-paper-says">The Gray Paper, v0.8.0</p>\n`;
     open.map = [startLine, startLine + 1];
     const [parent, max] = [state.parentType, state.lineMax];
     state.parentType = "blockquote";

@@ -1,15 +1,29 @@
 # Reading the state
 
-You know where everything in the state lives ([lesson 6.2](./02-state-keys.md)). Time to open the boxes. Each
-value is an encoding, so [Part 2](../02-codec/index.md)'s codecs read it. This lesson reads three components,
-the time, the entropy and the validators, and checks each against the blocks themselves.
+**In one sentence:** the value under each state key is an ordinary encoding, so the codecs
+you already have read the chain's records straight out of the state.
 
-Open a few yourself first. Every row is one entry of a real state: a key from
+Open a few. Every row is one entry of a real state: a key from
 [lesson 6.2](./02-state-keys.md), and the bytes stored under it.
 
 <a id="try-it"></a>
 
 <StateRows />
+
+## The idea
+
+[Lesson 6.1](./01-the-state-trie.md) hashed the state. [Lesson 6.2](./02-state-keys.md)
+labelled it. Now open it.
+
+The Gray Paper has one table for this, (D.2): for every key, the bytes under it. Each row
+is a record written with [Part 2](../02-codec/index.md)'s codecs. The clock is one number
+in 4 bytes. The entropy is four hashes. The validators are a count, then 336 bytes each.
+
+So reading the state takes three steps: build the key, find the entry, decode the value.
+This lesson does it for three records, the time, the entropy and the validators.
+
+A decoder that reads the wrong bytes doesn't crash. It hands you wrong values. So each
+reading is checked against something the blocks themselves say.
 
 ## New words
 
@@ -228,14 +242,20 @@ is a length or a discriminator in front of something. This lesson reads three ro
 | C(6) | η, entropy: four hashes, newest first, no length in front | `seqN(hash, 4)` |
 | C(8) | κ, this epoch's validators, with their length in front | `seq(ValidatorKey)` |
 
-A *validator key* (§6) is 336 bytes: three keys for three jobs, Bandersnatch (32 bytes),
-Ed25519 (32) and BLS (144), then 128 bytes of metadata, which the Gray Paper leaves opaque
-(a validator's network address, say). You met the first two in [lesson 4.6](../04-blocks/06-the-header.md), where an
-epoch mark carries just those. The state keeps all four parts.
+A *validator key* (§6) is 336 bytes, in four parts:
+
+- The Bandersnatch key, bytes 0 to 31: seals blocks and enters the ticket lottery
+  ([Part 8](../08-safrole/index.md)).
+- The Ed25519 key, bytes 32 to 63: signs assurances.
+- The BLS key, bytes 64 to 207: for signatures that can be combined into one.
+- Metadata, bytes 208 to 335, which the Gray Paper leaves opaque (a network address, say).
+
+An epoch mark ([lesson 4.6](../04-blocks/06-the-header.md)) carries only the first two. The state keeps all four parts.
+On the tiny network κ is six of them with their count in front: 1 + 6 × 336 = 2,017 bytes.
 
 <ValidatorKeyMap />
 
-And three facts from elsewhere in the Gray Paper, to check your reading against:
+Three facts from elsewhere in the Gray Paper, to check each reading against:
 
 - **τ** (§6): after a block, the time *is* that block's slot. So the time in the state
   before block n is the slot of block n − 1.
@@ -517,51 +537,56 @@ red.
 ## Check your understanding
 
 ::: check
-**The state before block 12 of the `safrole` trace says τ is slot 11. Why not 12?**
+**What is T(σ), and how does it lead to the state root?**
 
-- [ ] The state lags a slot behind, and catches up later
-  > No: it's exactly right. τ is the slot of the most recent block, and in this state
-  > block 12 hasn't happened yet.
-- [x] τ is the slot of the most recent block, and before block 12 that's block 11
-  > Yes: after a block, the time is that block's slot. So the state before block n holds
-  > block n − 1's slot: here, 11.
-- [ ] Slots count from 0 and blocks from 1, so block 12 is in slot 11
-  > No: block 12 is in slot 12; its header says so. The 11 is the block before it.
+- [x] The state written as entries: C makes each key, a codec each value. Hashing those entries into a trie gives the root
+  > Yes: (D.2) is that list, row by row. [Lesson 6.1](./01-the-state-trie.md)'s M hashes
+  > it down to 32 bytes.
+- [ ] The state transition: it turns one state into the next
+  > No: that is what importing a block does. T changes nothing. It only writes a state
+  > down.
+- [ ] The trie: its branches and leaves
+  > No: T is the flat list of keys and values. The trie is built from it afterwards.
 
-**κ's value is 2,017 bytes on tiny. Where does that come from?**
+**A number inside a state value: how is it written?**
 
-- [x] A length byte, `06`, then six validator keys of 336 bytes each
-  > Yes: 1 + 6 × 336 = 2,017. Each key is Bandersnatch (32), Ed25519 (32), BLS (144) and
-  > metadata (128).
-- [ ] A `01` saying κ is there, then six validator keys
-  > No: κ isn't optional, so there's no there-or-not byte. The first byte is `06`, how many
-  > validators follow.
-- [ ] Six validators' Bandersnatch and Ed25519 keys, as in an epoch mark
-  > No: those are 64 bytes a validator, 6 × 64 = 384 in all. The state keeps all four
-  > parts of each key, 336 bytes.
+- [ ] Always in the compact form, to save space
+  > No: τ is 4 bytes even when the slot is small.
+- [x] Fixed-width, by the size of the thing, unless it is a count or a discriminator in front of something
+  > Yes: that is the Gray Paper's second note under (D.2). τ is ℰ₄. The `06` in front of κ
+  > is a count.
+- [ ] Fixed-width always, counts included
+  > No: a count in front of a list is a length, written the way lengths are.
 
-**The test checks real assurances against keys read from κ. Which key, and where is it in each validator's 336 bytes?**
+**What is in a validator's key, and what is each part for?**
 
-- [ ] The Bandersnatch key, bytes 0 to 31
-  > No: Bandersnatch is for sealing blocks and the ticket lottery. Assurances are signed
-  > with Ed25519.
-- [ ] The BLS key, bytes 64 to 207
-  > No: BLS is for signatures that can be combined into one. An assurance is a plain
-  > Ed25519 signature.
-- [x] The Ed25519 key, bytes 32 to 63
-  > Yes: it comes second, after the 32-byte Bandersnatch key. Read the wrong 32 bytes,
-  > as swapping two fields of `ValidatorKey` does, and every assurance fails.
+- [ ] One key for every job, then padding up to 336 bytes
+  > No: there are three keys, for three jobs, then metadata.
+- [ ] Bandersnatch for assurances, Ed25519 for sealing blocks
+  > No: the other way round. Read the wrong 32 bytes and every assurance fails.
+- [x] Bandersnatch for sealing and the lottery, Ed25519 for assurances, BLS for signatures that combine, then metadata
+  > Yes: 32 + 32 + 144 + 128 = 336 bytes, in that order.
 
-**Block 12 of the `safrole` trace starts an epoch. What must its epoch mark's `entropy` be?**
+**The state before block n holds τ. Which slot is that?**
 
-- [ ] η₀ after block 12, stirred with the block's own randomness
-  > No: the mark carries η₀ as it stood *before* its block, the value in the state the
-  > block starts from.
-- [ ] η₃, the oldest of the four
-  > No: the mark carries η₀ and η₁, as `entropy` and `tickets_entropy`.
-- [x] η₀ in the state before block 12, `0xcf7f084e…`
-  > Yes: the epoch mark carries η₀ and η₁ as they stood before its block. `bin/read-state.ts`
-  > printed that η₀, and the trace's epoch mark holds the same hash.
+- [ ] Block n's own slot
+  > No: block n hasn't been applied to this state yet.
+- [x] The slot of the block before it
+  > Yes: importing a block sets τ to that block's slot, so the state before block n still
+  > holds the slot of block n − 1.
+- [ ] The slot the wall clock shows right now
+  > No: the state knows only what blocks told it.
+
+**Your state's root matches the header's. Why check a decoded value against anything else?**
+
+- [ ] The header's root could be wrong
+  > No: if it were, the block would be invalid, and the vectors' blocks are valid.
+- [x] The root proves you hold the right bytes, not that you read them right
+  > Yes: swap two fields of a record and every byte is still there, every hash still
+  > matches, and every key you read is wrong. So τ is checked against headers, η against
+  > epoch marks, and κ against real assurances.
+- [ ] The test vectors can't be trusted
+  > No: they are the reference. The doubt is about your decoder, not the data.
 :::
 
 ## What you have
