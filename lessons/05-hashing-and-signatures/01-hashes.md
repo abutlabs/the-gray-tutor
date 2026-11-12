@@ -1,29 +1,35 @@
 # Hashes
 
-A blockchain is a *chain* because each block holds on to the one before it, and what it
-holds is a *hash*: a 32-byte fingerprint of the previous block's header. Change one bit
-of an old block and its fingerprint changes, which breaks the next block's grip, and the
-next, all the way up. This lesson gives your client JAM's hash function, then checks a
-real chain of a hundred blocks, link by link.
+**In one sentence:** a hash is a 32-byte fingerprint of some bytes, and every block carries
+the fingerprint of the block before it, which is what makes the blocks a chain.
 
-## New words
+Flip one bit of the input below. Then count how much of its fingerprint changed.
 
-- **Hash.** A 32-byte fingerprint of some data: change one bit of the data and the
-  fingerprint changes completely. The Gray Paper writes H(x). *Example:* the hash of no
-  bytes at all starts `0x0e5751c0`.
-- **Parent.** The block before this one. Each header names its parent by hash, which is
-  what makes the blocks a chain. *Example:* block 2's parent is block 1.
-- **Trace.** A recorded run of real blocks, each with the state before and after it, from
-  the test vectors. *Example:* the tiny `fallback` trace has 100 blocks.
-- **Blake2b.** The hash function JAM uses. It can make fingerprints of any size up to 64
-  bytes; JAM asks for 32. *Example:* asked for 64 bytes, the hash of no bytes at all
-  starts `786a02f7`, a different value altogether, not a longer `0e5751c0`.
-- **Library (dependency).** Code someone else wrote and published, which your project
-  installs and uses. *Example:* `@noble/hashes`, from `npm install`.
-- **Known-answer test.** A test whose expected value comes from somewhere you trust, not
-  from your own code. *Example:* the published Blake2b-256 of nothing at all.
+<a id="try-it"></a>
 
-All six are in the [glossary](../glossary.md).
+<HashAvalanche />
+
+## The idea
+
+How do you know nobody rewrote an old block? You could keep every block and compare them
+byte by byte. A [*hash*](../glossary.md#hash) does it with 32 bytes.
+
+A hash is a fingerprint of some data. The same bytes always give the same fingerprint.
+Change one bit of the data and the fingerprint changes completely.
+
+So each block's header holds the hash of the header before it, its
+[*parent*](../glossary.md#parent). Block 2 holds on to block 1, block 3 to block 2, and so
+on up. Change one bit of an old block and its fingerprint changes. That breaks the next
+block's grip, and the next, all the way up. Nothing old can change quietly.
+
+JAM's hash function is [*Blake2b*](../glossary.md#blake2b). Your client takes it from a
+[*library*](../glossary.md#library), the first code in it you didn't write. A
+[*known-answer test*](../glossary.md#known-answer-test) checks you asked the library for
+the right thing.
+
+This lesson gives your client the hash, then walks a
+[*trace*](../glossary.md#trace), a recorded run of a hundred real blocks, and checks every
+link.
 
 ## What the Gray Paper says
 
@@ -39,11 +45,11 @@ All six are in the [glossary](../glossary.md).
 
 :::
 
-In plain words: H(m) is *Blake2b* with a 256-bit (32-byte) output, as defined in RFC
-7693. JAM hashes *encodings*: to hash a value, encode it ([Part 2](../02-codec/index.md)),
-then hash the bytes. Bytes encode as themselves, so a blob is hashed as it is. ℍ₀, the
-"zero hash", is 32 zero bytes, used where there is nothing to point at. Keccak, the other
-hash, waits for [Part 9](../09-recent-history/index.md).
+H(m) is Blake2b with a 256-bit (32-byte) output, as RFC 7693 defines it. JAM hashes
+*encodings*: to hash a value, encode it ([Part 2](../02-codec/index.md)), then hash the
+bytes. Bytes encode as themselves, so a blob is hashed as it is. ℍ₀, the zero hash, is 32
+zero bytes, used where there is nothing to point at. Keccak, the other hash, waits for
+[Part 9](../09-recent-history/index.md).
 
 §5 (*The Header*) puts the hash to work as the chain's link:
 
@@ -107,27 +113,26 @@ $$
 
 :::
 
-In plain words: a header's `parent` is the hash of its parent block's header,
-H(ℰ(parent header)) (5.2). Follow `parent` back, one header at a time, and you visit
-every ancestor, all the way to genesis (5.3). A node keeps only the last 24 hours of
-them, L = 14,400 slots. The test vectors' block-import traces are chains of real blocks,
-so the link is something you can check.
+A header's `parent` is the hash of its parent block's header, H(ℰ(parent header)) (5.2).
+Follow `parent` back, one header at a time, and you visit every ancestor, all the way to
+genesis (5.3). A node keeps only the last 24 hours of them, L = 14,400 slots. The test
+vectors' traces are chains of real blocks, so the link is something you can check.
 
-Try it below. The input starts as `c7 12`: 4,807 written as ℰ₂, from [lesson 2.1](../02-codec/01-fixed-width-integers.md).
-Flip any one of its bits, and about half of the hash's 256 bits flip with it, scattered,
-with no pattern to follow. Empty the input to meet the hash of nothing, `0e5751c0...`.
-Then write 42 as ℰ₄ and as ℰ₈: one number, two encodings, two hashes with nothing in
-common.
+Try each rule on [the hash at the top](#try-it). Its input starts as `c7 12`: 4,807
+written as ℰ₂, from [lesson 2.1](../02-codec/01-fixed-width-integers.md).
 
-<HashAvalanche />
+- **Flip any one bit.** About half of the hash's 256 bits flip with it, scattered, with
+  no pattern to follow.
+- **Empty the input.** The hash of no bytes at all starts `0x0e5751c0`.
+- **Write 42 as ℰ₄ and as ℰ₈.** One number, two encodings, two hashes with nothing in
+  common.
 
 ## A library, for once
 
-So far you've written everything yourself. Hash functions are the exception. Writing a
-correct, fast Blake2b is a fine exercise in cryptography, but this is a tutorial about
-JAM, and a tiny mistake in a hash would make every result wrong in ways no test of yours
-would catch. So the client takes its first dependency: `@noble/hashes`, a small, audited
-library with no dependencies of its own.
+So far you've written everything yourself. A hash function is the exception: a tiny
+mistake in one would make every result wrong in ways no test of yours would catch. So the
+client takes its first dependency: `@noble/hashes`, a small, audited library with no
+dependencies of its own.
 
 **Rewrite** `package.json`
 
@@ -175,12 +180,14 @@ npm install
 
 ## The tests
 
-The first test pins the hash of *no bytes at all*, a classic known answer. The second
-walks the tiny `fallback` trace, blocks 1 to 100, and checks every link. The official
-vectors hold eight traces, each a short tiny chain built to try one thing, in its own
-folder of `vectors/traces/`. `fallback` is the simplest: no service sends any work, so its
-blocks carry nothing but their headers, and the block-makers are chosen by Safrole's
-fallback rule ([lesson 8.3](../08-safrole/03-the-fallback-sealers.md)), hence the name.
+Two tests. The first pins the hash of *no bytes at all*, a known answer. The second walks
+the tiny `fallback` trace, blocks 1 to 100, and checks every link.
+
+The official vectors hold eight traces, each a short tiny chain built to try one thing, in
+its own folder of `vectors/traces/`. `fallback` is the simplest. No service sends any
+work, so its blocks carry nothing but their headers. Safrole's fallback rule
+([lesson 8.3](../08-safrole/03-the-fallback-sealers.md)) picks who makes each block, hence
+the name.
 
 **New file** `test/hash.test.ts`
 
@@ -219,8 +226,8 @@ test("each block names its parent by the hash of the header before it", () => {
 `Block` is both a codec and a type (lessons [2.5](../02-codec/05-sequences-and-records.md) and [4.7](../04-blocks/07-the-block.md)): `traceBlock(n): Block` uses
 the type, `Block(TINY)` the codec. TypeScript tells them apart by where they appear.
 
-The tests import two names that don't exist yet. A stub for the hash, the right size and
-all zeros:
+The tests import two names that don't exist yet. First a stub for the hash, the right
+size and all zeros:
 
 **New file** `src/hash.ts`
 
@@ -281,7 +288,7 @@ test at test/hash.test.ts:10:1
 ...
 ```
 
-Both tests caught the stub: the hash of nothing isn't 32 zero bytes, and a chain of zero
+Both tests caught the stub. The hash of nothing isn't 32 zero bytes, and a chain of zero
 hashes links nothing.
 
 ## The code
@@ -344,10 +351,10 @@ Red, and both new tests with it. (Your fifth planted bug.) The trail:
    library picks its own default: the biggest. JAM's H is Blake2b with a *32-byte* output,
    and a library can't know that. You have to say so.
 
-This is what a known-answer test is for. Without the hash of nothing pinned to a value
-anyone can check (`python3 -c "import hashlib; print(hashlib.blake2b(b'',
-digest_size=32).hexdigest())"` prints it), the chain test alone would only tell you "every
-link is broken", and the hunt would start in the encoding. The fix is one argument:
+This is what a known-answer test is for. Anyone can check the value it pins:
+`python3 -c "import hashlib; print(hashlib.blake2b(b'', digest_size=32).hexdigest())"`
+prints it. Without it, the chain test alone would only say "every link is broken", and
+the hunt would start in the encoding. The fix is one argument:
 
 **Replace in** `src/hash.ts`
 
@@ -382,8 +389,8 @@ reported 54 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 
 99 links, checked: every one of these blocks really does follow the one before it.
 
-The first four of them, held by their hashes. Pick a block and flip one bit of its seal,
-its slot or its entropy source: its hash becomes a stranger, and the block after it no
+Here are the first four, held by their hashes. Pick a block and flip one bit of its seal,
+its slot or its entropy source. Its hash becomes a stranger, and the block after it no
 longer matches. Flip a bit of its `parent` and the link before it breaks too.
 
 <HashChain />
@@ -421,9 +428,9 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 `Run` is your client's own, not TypeScript's: the notebook from
-[lesson 0.3](../00-start/03-watch-your-client.md#the-module), in `src/obs.ts`. `new Run("chain")` opens one for this program, and
-`"chain"` is its kind, which Grafana files it under and its id starts with:
-`chain-1791728701859` below.
+[lesson 0.3](../00-start/03-watch-your-client.md#the-module), in `src/obs.ts`.
+`new Run("chain")` opens one for this program. `"chain"` is its kind: Grafana files it
+under that, and its id starts with it, `chain-1791728701859` below.
 
 What flows through the walk:
 
@@ -450,8 +457,8 @@ const walk = {
 
 :::
 
-Block 2's `parent` really is Blake2b-256 of block 1's encoded header — that one
-equality, checked down the whole trace, is what makes the hundred files a chain.
+Block 2's `parent` really is Blake2b-256 of block 1's encoded header. That one equality,
+checked down the whole trace, is what makes the hundred files a chain.
 
 **Run**
 
@@ -493,60 +500,72 @@ on a well-tested library here.
 ## Check your understanding
 
 ::: check
-**Flip one bit of the input `c7 12`. What happens to its 32-byte hash?**
+**Why does each header carry the hash of its parent's header?**
+
+- [ ] As a compressed copy of the parent, to save space
+  > No: a hash can't be turned back into the header. It is a fingerprint, 32 bytes
+  > whatever the size of what it fingerprints.
+- [x] So that no old block can change without breaking the link above it
+  > Yes: block 2 holds block 1 by its exact fingerprint. Change any bit of block 1's
+  > header and block 2's `parent` no longer matches.
+- [ ] To tell a node the parent's slot, so blocks stay in order
+  > No: the slot is its own field. A hash says nothing readable about the parent. It
+  > can only be matched.
+
+**One bit of a hashed input is flipped. What happens to the 32-byte hash?**
 
 - [ ] One bit of the hash flips, in the same place
-  > No: a hash isn't a copy of its input. Every bit of the output depends on every
-  > bit of the input.
-- [ ] Only the first few bytes change
+  > No: a hash isn't a copy of its input. Every bit of the output depends on every bit
+  > of the input.
+- [ ] Only its first few bytes change
   > No: the change is scattered across all 32 bytes, with no pattern to follow.
 - [x] About half of its 256 bits flip, all over the place
-  > Yes: one bit in, a stranger out. That's why one changed byte anywhere in a block
+  > Yes: one bit in, a stranger out. That is why one changed byte anywhere in a block
   > can't hide.
 
-**42 written as ℰ₄ and as ℰ₈ give two hashes with nothing in common. Why?**
+**The same number, written in 4 bytes and in 8, gives two hashes with nothing in common. Why?**
 
-- [x] H hashes bytes, not numbers, and `2a 00 00 00` and `2a 00 00 00 00 00 00 00` are different bytes
-  > Yes: to hash a value, JAM encodes it and hashes the bytes. Change the encoding,
-  > even by four zero bytes, and the hash is a stranger.
+- [x] The hash is taken over bytes, not numbers, and the two encodings are different bytes
+  > Yes: to hash a value, JAM encodes it and hashes the bytes. Change the encoding, even
+  > by four zero bytes, and the hash is a stranger.
 - [ ] One of the two must be a bug: the same number should give the same hash
-  > No: H never sees the number, only bytes. That's why the encoding has to be byte
-  > perfect before any hash can match.
-- [ ] Trailing zero bytes count for more in a hash than other bytes
-  > No: no byte counts for more. Any change at all, a zero added or a bit flipped,
-  > gives a hash with nothing in common.
+  > No: the hash never sees the number, only bytes. That is why the encoding has to be
+  > byte perfect before any hash can match.
+- [ ] Zero bytes at the end count for more in a hash than other bytes
+  > No: no byte counts for more. Any change at all, a zero added or a bit flipped, gives
+  > a hash with nothing in common.
 
-**Each header names its parent by the hash of the parent's header. What does that buy?**
+**The chain test fails whenever the hash is wrong. What does the known-answer test add?**
 
-- [ ] A compressed copy of the parent, to save space
-  > No: a hash can't be turned back into the header. It's a fingerprint, 32 bytes,
-  > whatever the size of what it fingerprints.
-- [x] Change any bit of block 1's header, and block 2's `parent` no longer matches
-  > Yes: block 2 holds on to block 1 by its exact fingerprint. Breaking one link breaks
-  > the grip of every block after it.
-- [ ] It tells you the parent's slot, so blocks stay in order
-  > No: the slot is its own field. The hash says nothing readable about the parent;
-  > it can only be matched.
+- [ ] Nothing: one failing test is enough
+  > No: the chain test alone only says "every link is broken". The hunt would start in
+  > the encoding, where nothing is wrong.
+- [ ] Proof that the headers are encoded right
+  > No: it hashes no bytes at all, so no encoding is in it. The chain test is the one
+  > that needs the headers' bytes exact.
+- [x] It tests the hash on its own, against a value anyone can check
+  > Yes: its expected value comes from outside your code. When it fails, the hash is
+  > wrong, whatever the encoding does.
 
-**Your first `blake2b(data)` gave 64 bytes. Could you have kept just the first 32?**
+**A Blake2b library gave 64 bytes where JAM wants 32. Why not keep the first 32?**
 
-- [ ] Yes: the first half of the 64-byte hash is the 32-byte one
+- [ ] You can: the first half of the 64-byte hash is the 32-byte one
   > No: Blake2b's output size is part of its setup and changes every byte. The 64-byte
   > hash of nothing starts `786a02f7`, the 32-byte one `0e5751c0`.
-- [ ] Yes, as long as every client cuts it the same way
-  > No: JAM's H is Blake2b with a 32-byte output, and every header in the vectors was
-  > hashed that way. Cut-down hashes would break every link.
-- [x] No: you have to ask Blake2b for 32 bytes, `dkLen: 32`
-  > Yes: that's the fix. The known answer, the hash of nothing starting `0e5751c0`,
-  > is how you know it's right.
+- [x] The output size is part of the function: you have to ask Blake2b for 32 bytes
+  > Yes: JAM's hash is Blake2b with a 32-byte output. In the library that is
+  > `dkLen: 32`, and the known answer is how you know it's right.
+- [ ] You can, as long as every client cuts it the same way
+  > No: every header in the vectors was hashed with a 32-byte output. Cut-down hashes
+  > would break every link.
 :::
 
 ## What you have
 
 A hash function, and proof that your encoding of headers is exact for every field these
 headers carry: a byte off anywhere in them would break a link. (None of them has a tickets
-mark; [lesson 4.6](../04-blocks/06-the-header.md)'s `header_1` covers that one.) A header makes a second promise by
-hash, about everything its block carries: [lesson 5.2](./02-the-extrinsic-hash.md)
-checks it.
+mark. [Lesson 4.6](../04-blocks/06-the-header.md)'s `header_1` covers that one.) A header
+makes a second promise by hash, about everything its block carries.
+[Lesson 5.2](./02-the-extrinsic-hash.md) checks it.
 
 Next: [5.2 The extrinsic hash](./02-the-extrinsic-hash.md)

@@ -16,7 +16,7 @@ const hex = (bytes: ArrayLike<number>) => Buffer.from(Array.from(bytes)).toStrin
 
 test("the hash widget's H is 5.1's: the hash of nothing is the lesson's known answer, 32 bytes", () => {
   const text = lessonText(HASHES);
-  const [, start] = /the hash of no\s+bytes\s+at\s+all\s+starts\s+`0x([0-9a-f]{8})`/.exec(text)!;
+  const [, start] = /[Tt]he hash of no\s+bytes\s+at\s+all\s+starts\s+`0x([0-9a-f]{8})`/.exec(text)!;
   const [, full] = /const empty: string = "0x([0-9a-f]{64})";/.exec(text)!;
   assert.ok(full.startsWith(start), "the lesson's two values agree");
   assert.equal(hex(H([])), full);
@@ -173,5 +173,8 @@ test("lesson 5.2's hash tree: its boxes are the block's real hashes, and proving
   assert.deepEqual(SHOWN, { proof: proofSize(proof), block: extrinsicSize(BLOCK) });
   const raw = lessonText("05-hashing-and-signatures/02-the-extrinsic-hash.md");
   const at = raw.indexOf("<ExtrinsicTree />");
-  assert.ok(at > raw.indexOf("Nobody needs the other reports themselves") && at < raw.indexOf("<ExtrinsicCommit />"));
+  assert.ok(at > raw.indexOf("Nobody needs the other reports themselves") && at < raw.indexOf("## The tests"));
+  // the block to try is placed once, at the top, before the idea
+  const top = raw.indexOf("<ExtrinsicCommit />");
+  assert.ok(top > raw.indexOf('<a id="try-it"></a>') && top < raw.indexOf("## The idea") && top === raw.lastIndexOf("<ExtrinsicCommit />"));
 });

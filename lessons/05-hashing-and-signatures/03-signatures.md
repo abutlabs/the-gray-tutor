@@ -1,25 +1,35 @@
 # Signatures
 
+**In one sentence:** a signature is proof that the holder of a secret key approved some
+bytes, and anyone with the matching public key can check it.
+
+A validator signs an assurance below, and its public key checks it. Change one bit of what
+was signed, and check again.
+
+<a id="try-it"></a>
+
+<SignCheck />
+
+## The idea
+
 A hash says "these bytes haven't changed". It can't say *who*: anyone can hash anything.
-For "who", you need a *signature*. Only the holder of a secret key can make one, and
-anyone with the matching public key can check it. JAM validators sign all day long: every
-assurance, every guarantee, every vote in a dispute. This lesson checks real validator
-signatures, a thousand of them, and then catches a forgery red-handed.
+For "who", you need a [*signature*](../glossary.md#signature).
 
-## New words
+Keys come in pairs. The [*secret key*](../glossary.md#secret-key) signs. The
+[*public key*](../glossary.md#public-key) checks. Only the holder knows the secret one, and
+everyone may know the public one. Think of a signet ring: one hand can press the seal,
+and anyone who knows the crest can recognise it. A signature does one thing wax can't. It
+is tied to the bytes it signed: on a message one byte different, it is worthless.
 
-- **Signature.** Proof that the holder of a secret key approved some bytes; anyone with
-  the matching public key can check it. *Example:* a validator's signature on an
-  assurance.
-- **Secret key and public key.** A pair: the secret one signs, the public one checks. Only
-  the holder knows the secret one; everyone may know the public one. *Example:* a
-  validator's 32-byte Ed25519 public key.
-- **Ed25519.** The signature scheme JAM uses for its everyday signatures (RFC 8032).
-  *Example:* a 64-byte signature.
-- **Domain prefix.** A few ASCII bytes in front of a signed message, so a signature for
-  one job can't pass for another. *Example:* `jam_available`, `jam_guarantee`.
+JAM validators sign all day long: every assurance, every guarantee, every vote in a
+dispute. Their everyday scheme is [*Ed25519*](../glossary.md#ed25519).
 
-All four are in the [glossary](../glossary.md).
+One trap is left. A signature made for one job could be shown as if it were for another.
+So each kind of message starts with its own few letters, a
+[*domain prefix*](../glossary.md#domain-prefix). "I hold my piece" can never pass for
+"this report is good".
+
+This lesson checks real validator signatures, a thousand of them, then catches a forgery.
 
 ## What the Gray Paper says
 
@@ -43,17 +53,19 @@ All four are in the [glossary](../glossary.md).
 
 :::
 
-In plain words: JAM's everyday signatures are *Ed25519*, as RFC 8032 defines them. A
-public key is 32 bytes, a signature is 64. 𝕍̄ₖ⟨m⟩ is "the signatures key k could make on
-m", so a line that says s ∈ 𝕍̄ₖ⟨m⟩ means "s is k's signature on m": exactly what this
-lesson checks. The other two are for later, or never. Bandersnatch (96-byte signatures,
-and 784-byte ring proofs that hide which key signed) seals blocks and runs the ticket
-lottery, checked with a library in [Part 8](../08-safrole/index.md). BLS (144-byte keys)
-is for signatures that combine into one, used beside block import, so your client never
-checks one. [Cryptography we use](../cryptography.md) has all of them.
+JAM's everyday signatures are Ed25519, as RFC 8032 defines them. A public key is 32
+bytes, a signature is 64. 𝕍̄ₖ⟨m⟩ is "the signatures key k could make on m". So a line
+that says s ∈ 𝕍̄ₖ⟨m⟩ means "s is k's signature on m": exactly what this lesson checks.
 
-§11 (*Reporting and Assurance*): an assurance ([lesson 4.2](../04-blocks/02-tiny-and-full.md)) must be signed by the
-validator it names, with that validator's Ed25519 key, and the message signed is
+The other two are for later, or never. Bandersnatch (96-byte signatures, and 784-byte
+ring proofs that hide which key signed) seals blocks and runs the ticket lottery, checked
+with a library in [Part 8](../08-safrole/index.md). BLS (144-byte keys) is for signatures
+that combine into one, used beside block import, so your client never checks one.
+[Cryptography we use](../cryptography.md) has all of them.
+
+§11 (*Reporting and Assurance*): an assurance
+([lesson 4.2](../04-blocks/02-tiny-and-full.md)) must be signed by the validator it names,
+with that validator's Ed25519 key. The message signed is
 
 > X_A, then H(ℰ(parent, bitfield)), where X_A = `$jam_available`
 
@@ -72,14 +84,17 @@ Three details, and each one matters:
   parent's place. ([Lesson 11.3](../11-assurances/03-bad-assurances.md)
   checks that the two really are the same.)
 
-Try it below. A validator signs an assurance's 45 bytes, and its public key checks them.
-Change one bit of the bitfield, or of the parent, and check again. Swap the prefix for
-`jam_guarantee`, put the `$` in, or check with another validator's key. Each one fails.
-Sign again and it passes, with a signature that shares almost no bytes with the old one.
+Try each on [the assurance at the top](#try-it). A validator signs its 45 bytes, and its
+public key checks them.
+
+- **Change one bit** of the bitfield, or of the parent, and check again. It fails.
+- **Swap the prefix** for `jam_guarantee`, or put the `$` in. It fails.
+- **Check with another validator's key.** It fails.
+- **Sign again.** It passes, with a signature that shares almost no bytes with the old
+  one.
+
 The demo validator's secret key is made up and shown, so you can sign. The real
 assurance, validator 5's from the vectors, you can only check.
-
-<SignCheck />
 
 ## Another library
 
@@ -134,16 +149,16 @@ npm install
 
 ## The tests
 
-Three tests, from small to dramatic. First a known answer: RFC 8032's own first example,
-a signature of no bytes at all. Then real validators, from the `stf/assurances` test
-vectors. Those vectors test a whole state transition, which comes much later; today you
-borrow just two things from them: the validators' keys (`pre_state.curr_validators`)
-and the assurances (`input.assurances`). In `some_assurances-1`, every signature is
-genuine. In `assurances_with_bad_signature-1`, one isn't.
+Three tests. First a known answer: RFC 8032's own first example, a signature of no bytes
+at all. Then real validators, from the `stf/assurances` test vectors. Those vectors test a
+whole state transition, which comes much later. Today you borrow two things from them:
+the validators' keys (`pre_state.curr_validators`) and the assurances
+(`input.assurances`). In `some_assurances-1`, every signature is genuine.
+In `assurances_with_bad_signature-1`, one isn't.
 
 Here is that file: the fields the tests read, lit, and where the rest gets read. Step
-through its six assurances as the third test does, and set a breakpoint in
-`signedAssurances` to watch the same values go by:
+through its six assurances as the third test does. Set a breakpoint in `signedAssurances`
+to watch the same values go by:
 
 <VectorStep />
 
@@ -277,7 +292,7 @@ test at test/signature.test.ts:40:1
 
 Look at what passed: the RFC's genuine signature, and all 1,029 genuine assurances on
 tiny and full. A check that trusts everyone sails through every honest case. Only the two
-checks that try a forgery caught it, which is why every signature test needs one.
+checks that try a forgery caught it. That is why every signature test needs one.
 
 ## The code
 
@@ -293,12 +308,12 @@ export function verifyEd25519(key: Bytes, message: Bytes, signature: Bytes): boo
 ```
 
 A thin wrapper, with the arguments in the order you'd say them: *who* signed *what*, and
-the signature. (The library wants them the other way round; now only one line of your
-client has to remember that.)
+the signature. The library wants them the other way round. Now only one line of your
+client has to remember that.
 
 Blocks and tickets are signed with a different kind of key, Bandersnatch. Its keys turn
-up with the ticket lottery in [Part 8](../08-safrole/index.md); checking its signatures needs a library
-this tutorial doesn't add yet.
+up with the ticket lottery in [Part 8](../08-safrole/index.md). Checking its signatures
+needs a library this tutorial doesn't add yet.
 
 **Run**
 
@@ -358,8 +373,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-What flows through it — the forged assurance, what the check makes of it, the line it
-earns:
+What flows through it: the forged assurance, what the check makes of it, the line it
+earns.
 
 ::: code-group
 
@@ -388,9 +403,9 @@ validator 1: FORGED
 
 :::
 
-`validator_index` says whose key to check — the vector's `curr_validators[1]`, key
-`0xad93247bd0130755…` — and the signature under it was made by someone else, so the
-check says so. The other five verify.
+`validator_index` says whose key to check: the vector's `curr_validators[1]`, key
+`0xad93247bd0130755…`. The signature under it was made by someone else, so the check
+says so. The other five verify.
 
 **Run**
 
@@ -409,8 +424,8 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 Caught! Validator 1's assurance carries a signature its key never made. The new
-*Assurances* panel, on the **2 · Blocks and state** dashboard, lists each one: the validator, `signed: true` or
-`false`, its key and its bitfield. Then point it at
+*Assurances* panel, on the **2 · Blocks and state** dashboard, lists each one: the
+validator, `signed: true` or `false`, its key and its bitfield. Then point it at
 `../vectors/stf/assurances/full/some_assurances-1.json` and watch 1,023 validators
 check out.
 
@@ -444,23 +459,23 @@ small bridge. Both clients lean on a specialist here, just as with Blake2b.
   > Yes: anyone can hash anything, but only one validator can sign with its key, and
   > anyone with its public key can check.
 - [ ] That the bytes are hidden from everyone else
-  > No: a signature hides nothing. The message is in the open; the signature only
+  > No: a signature hides nothing. The message is in the open. The signature only
   > vouches for it.
-- [ ] Nothing new: it's a longer hash, 64 bytes instead of 32
+- [ ] Nothing new: it's a longer hash, 64 bytes where a hash is 32
   > No: anyone can compute a hash of anything. Only the holder of the secret key can
   > make a signature that its public key accepts.
 
-**X_A is written `$jam_available`. What is the `$`?**
+**An assurance names its validator by index. How does a node check its signature?**
 
-- [ ] A real byte, `0x24`, in front of the letters
-  > No: put it in, and not one signature in the vectors checks. The signed message
-  > starts with the letters themselves.
-- [ ] Shorthand for the string's length in front, as with a blob
-  > No: there's no length. X_A is just the 13 bytes of `jam_available`; the 32-byte
-  > hash follows, 45 bytes in all.
-- [x] Notation: it marks an ASCII string, and is not a byte itself
-  > Yes: §3 uses `$` for ASCII strings. What's signed starts with the 13 letters, no
-  > `$`.
+- [ ] With the public key the assurance carries next to its signature
+  > No: an assurance carries no key, only `validator_index`. The keys are the
+  > validators' own, which the node already holds.
+- [ ] By trying every validator's key until one accepts it
+  > No: the index says whose key to use. A signature that key rejects is a forgery,
+  > whoever else's key might accept it.
+- [x] It rebuilds the signed message and checks it with that validator's Ed25519 public key
+  > Yes: the prefix, then the hash of the anchor and the bitfield, checked against the
+  > key at `validator_index`. No secret is needed to check.
 
 **What does a prefix like `jam_available` prevent?**
 
@@ -474,24 +489,37 @@ small bridge. Both clients lean on a specialist here, just as with Blake2b.
   > No: every validator uses the same prefix. The assurance's `validator_index` says
   > whose key to check with.
 
-**The stub that said yes to everything passed all 1,029 genuine assurances. What does that show?**
+**A validator signed a message. One byte of the message is then changed. Is the signature still good?**
 
-- [ ] The stub was nearly right: it only missed one forgery
-  > No: it checked nothing at all. It would have passed a thousand forgeries just as
-  > happily.
-- [ ] The genuine assurances were enough to prove the check works
+- [ ] Yes: it proves who signed, whatever the message says now
+  > No: a signature is on exact bytes. If it carried over, anyone could change what a
+  > validator said and keep its word on it.
+- [x] No: on a message one byte different, the same signature is worthless
+  > Yes: that's the whole point of a signature. The RFC's own example fails this way
+  > in your first test, on one added byte.
+- [ ] Yes, as long as the prefix is untouched
+  > No: the prefix is part of the message, and so is every byte after it. Change any
+  > of them and the check fails.
+
+**A signature check passes every genuine signature in the vectors. Has it been tested?**
+
+- [ ] Yes: a thousand real signatures are proof enough
   > No: honest cases pass a check that trusts everyone. They can't tell a real check
-  > from a fake one.
-- [x] Every signature test needs a forgery to catch
-  > Yes: only the two checks that tried a forgery failed against the stub. A test
-  > that never says "no" can't prove the code can.
+  > from one that always says yes.
+- [ ] Nearly: it can only be wrong about rare cases
+  > No: the stub that said yes to everything passed all 1,029 of them, and it checked
+  > nothing at all.
+- [x] No: not until it has refused a forgery
+  > Yes: only the checks that tried a forgery failed against the stub. A test that
+  > never says "no" can't prove the code can.
 :::
 
 ## What you have
 
-[Part 5](./index.md), done. Your client can check a block's links (hashes), its contents (the
-extrinsic hash), and who signed what (Ed25519). Guarantees and dispute votes are signed
-the same way, with their own prefixes; you'll check them in the parts that process them.
-Every header also commits to the whole state, by its root: [Part 6](../06-state-and-merklization/index.md) computes that root.
+[Part 5](./index.md), done. Your client can check a block's links (hashes), its contents
+(the extrinsic hash), and who signed what (Ed25519). Guarantees and dispute votes are
+signed the same way, with their own prefixes. You'll check them in the parts that process
+them. Every header also commits to the whole state, by its root:
+[Part 6](../06-state-and-merklization/index.md) computes that root.
 
 Next: [Part 6 · State and Merklization](../06-state-and-merklization/index.md)

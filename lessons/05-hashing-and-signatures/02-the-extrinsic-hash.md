@@ -1,20 +1,38 @@
 # The extrinsic hash
 
-Nodes pass headers around on their own, ahead of the rest of the block. A header is a
-few hundred bytes; the extrinsic behind it can be many times that. So how does a header
-say *exactly* which extrinsic belongs to it? With a field you've decoded since [lesson 4.6](../04-blocks/06-the-header.md)
-without a second look: `extrinsic_hash`, 32 bytes that promise the whole contents. Swap
-one ticket, drop one signature, and the promise is broken. This lesson computes the
-promise, then checks it in 400 real blocks.
+**In one sentence:** the extrinsic hash is a header's 32-byte promise of exactly what its
+block carries, built so that one report or one preimage can be proven to be in the block
+without showing the rest.
 
-## New words
+Below is a small made-up block, with every hash real. Change a byte of its preimage and
+watch which hashes change.
 
-- **Extrinsic hash.** The header's 32-byte promise of exactly which extrinsic belongs to
-  it. *Example:* swap one ticket, and the promise is broken.
-- **Merkle commitment.** A hash of hashes, built so that one piece can be proven to be
-  inside without showing the rest. *Example:* one report, and the other parts' hashes.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md).
+<ExtrinsicCommit />
+
+## The idea
+
+Nodes pass headers around on their own, ahead of the rest of the block. A header is a few
+hundred bytes. The extrinsic behind it can be many times that. So how does a header say
+*exactly* which extrinsic belongs to it?
+
+With one field, the [*extrinsic hash*](../glossary.md#extrinsic-hash): 32 bytes that
+promise the whole contents. Swap one ticket, drop one signature, and the promise is
+broken.
+
+One hash over everything would do that much. But to prove later that one report was in
+the block, you would have to show the whole extrinsic. So the hash is built in layers.
+
+Picture five sealed envelopes, each stamped with its fingerprint, and one fingerprint
+taken over the five stamps. To show what one envelope held, you open that one and show
+the other four stamps. The extrinsic's five parts are the envelopes. Inside two of them,
+each report and each preimage is swapped for its own hash first, so one of those can be
+shown alone too.
+
+A hash of hashes built this way is a
+[*Merkle commitment*](../glossary.md#merkle-commitment). This lesson computes the
+extrinsic hash, then checks it in 400 real blocks.
 
 ## What the Gray Paper says
 
@@ -88,7 +106,7 @@ $$
 
 :::
 
-In plain words, (5.4) to (5.7) are three steps:
+(5.4) to (5.7) are three steps:
 
 1. Encode each of the extrinsic's five parts, in Appendix C's order: tickets, preimages,
    guarantees, assurances, disputes.
@@ -100,21 +118,22 @@ Two parts get a twist before step 1:
 - a **preimage** goes in as its requester and the *hash* of its data, not the data;
 - a **guarantee** goes in as the *hash* of its work-report, then its slot and signatures.
 
-Why? The paper's first sentence says it: the extrinsic hash is a Merkle commitment, built
-so that each report and each preimage can be proven to be in the block on its own. To prove one report was in a
-block, you show the report, the guarantees part (every other report shrunk to its 32-byte
-hash), and the other four parts' hashes. Nobody needs the other reports themselves. As a
-tree, from the root down:
+Why? The paper's first sentence says it: each report and each preimage can be proven to
+be in the block on its own. To prove one report was in a block, you show three things:
+the report, the guarantees part (every other report shrunk to its 32-byte hash), and the
+other four parts' hashes. Nobody needs the other reports themselves. As a tree, from the
+root down:
 
 <ExtrinsicTree />
 
-Below is a small made-up block, with every hash real. Change a byte of its preimage, and
-two hashes change: the preimages part's, and the root. The other four stay as they were.
-Then prove report 1: hand over the report, the guarantees part with report 2 as its hash,
-and four hashes, and the sums come back to the root. Change any piece, and they don't.
-Empty the block too: you'll meet its root again further down.
+Try it on [the block at the top](#try-it):
 
-<ExtrinsicCommit />
+- **Change a byte of its preimage.** Two hashes change: the preimages part's, and the
+  root. The other four stay as they were.
+- **Prove report 1.** Hand over the report, the guarantees part with report 2 as its
+  hash, and four hashes. The sums come back to the root. Change any piece, and they
+  don't.
+- **Empty the block.** You'll meet its root again further down.
 
 ## The tests
 
@@ -128,9 +147,9 @@ Over their 100 blocks each:
 | `preimages` | 68 preimages, 87 guarantees, 524 assurances |
 | `storage` | 86 guarantees, 520 assurances |
 
-Together they put four of the five parts to work. (No trace carries a dispute, so here
-the disputes part is only ever empty. [Lesson 4.4](../04-blocks/04-disputes.md)'s vectors already checked its bytes.)
-First, let `traceBlock` read any of them:
+Together they put four of the five parts to work. No trace carries a dispute, so here the
+disputes part is only ever empty. ([Lesson 4.4](../04-blocks/04-disputes.md)'s vectors
+already checked its bytes.) First, let `traceBlock` read any of them:
 
 **Replace in** `test/hash.test.ts`
 
@@ -162,8 +181,8 @@ test("every block's header promises its extrinsic by hash", () => {
 });
 ```
 
-That last argument to `deepEqual` is the message for a failure: if block 42 of
-`preimages` disagrees, the test says `preimages 42` instead of leaving you to guess.
+The last argument to `deepEqual` is the message for a failure. If block 42 of `preimages`
+disagrees, the test says `preimages 42`.
 
 ## The code
 
@@ -212,8 +231,8 @@ export function extrinsicHash(config: Config, extrinsic: Extrinsic): Bytes {
 
 The Gray Paper's three steps close the function: `parts` is step 1,
 `parts.map(blake2b256)` is step 2, and `blake2b256(concatBytes(...))` is step 3. The two
-twists are plain records from [Part 2](../02-codec/index.md), built for this one job. They aren't exported:
-nothing else in the client needs them.
+twists are plain records from [Part 2](../02-codec/index.md), built for this one job.
+They aren't exported: nothing else in the client needs them.
 
 **Run**
 
@@ -235,9 +254,9 @@ reported 55 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 ...
 ```
 
-400 promises, all kept. Here's a fun one: all 100 `fallback` blocks carry the *same*
+400 promises, all kept. And look: all 100 `fallback` blocks carry the *same*
 extrinsic hash, `0x189d15af...6ca252`. Five empty parts always encode the same way, so
-they always hash the same way: that's the fingerprint of an empty block.
+they always hash the same way. That's the fingerprint of an empty block.
 
 ## Watch it
 
@@ -285,20 +304,22 @@ What `npm run chain preimages` does:
 - `npm run chain` runs `node bin/chain.ts` (the script from [lesson 5.1](./01-hashes.md)), and npm passes
   on the word after it. `process.argv[2]` is that word, `"preimages"`; with none,
   `"fallback"`.
-- The word names a *trace*: a folder of the official vectors holding real blocks in a row,
-  `00000001.json`, `00000002.json` and on, each with the state before and after it. This
-  one, `../vectors/traces/preimages/`, is 100 blocks of a chain where services ask for data
-  and blocks deliver it; `bin/chain.ts` walks the first 100 of any trace. The folders are `fallback`, `safrole`, `storage`, `preimages` and `fuzzy`,
-  and a lighter version of the last three: any of them works.
-- For each block, two checks: its `parent` is the hash of the block before ([lesson 5.1](./01-hashes.md)'s
-  check), and the hash of the extrinsic it carries equals the `extrinsic_hash` its header
-  promised (this lesson's).
+- The word names a trace: a folder of the official vectors holding real blocks in a row,
+  `00000001.json`, `00000002.json` and on. This one, `../vectors/traces/preimages/`, is a
+  chain where services ask for data and blocks deliver it. `bin/chain.ts` walks the first
+  100 blocks of any trace.
+  The folders are `fallback`, `safrole`, `storage`, `preimages` and `fuzzy`, and a lighter version of the last three: any of them works.
+- For each block, two checks. Its `parent` is the hash of the block before
+  ([lesson 5.1](./01-hashes.md)'s check). And the hash of the extrinsic it carries equals
+  the `extrinsic_hash` its header promised (this lesson's).
 
-Why not plain `fallback`, [lesson 5.1](./01-hashes.md)'s trace? No work happens in it, so its blocks are all
-empty, every extrinsic hash is the same, and the check hardly checks. The preimages trace's blocks carry things: 27 of them
-preimages (up to 10 in one block), 65 a report, 99 assurances.
+Why not plain `fallback`, [lesson 5.1](./01-hashes.md)'s trace? No work happens in it, so
+its blocks are all empty, every extrinsic hash is the same, and the check hardly checks.
+The preimages trace's blocks carry things:
+27 of them preimages (up to 10 in one block), 65 a report, 99 assurances.
 
-What flows through one turn of the loop — block 8 of the preimages trace, the two hashes it checks, and the lines the walk prints:
+What flows through one turn of the loop: block 8 of the preimages trace, the two hashes it
+checks, and the lines the walk prints.
 
 ::: code-group
 
@@ -333,8 +354,8 @@ const computed = {
 
 :::
 
-Each turn hashes the header it just read and keeps it, so the next block's `parent` can
-be compared to it; and it hashes the extrinsic the block carries, to compare with the
+Each turn hashes the header it just read and keeps it, to compare with the next block's
+`parent`. It also hashes the extrinsic the block carries, to compare with the
 `extrinsic_hash` its header promised. A hundred turns add up to the two counts.
 
 **Run**
@@ -371,11 +392,11 @@ to
     encode(PreimagesExtrinsic, extrinsic.preimages),
 ```
 
-and run `npm run chain preimages` again. 73 of 100 extrinsics match: the 27 blocks
-that carry a preimage now break their promise, and every block without one is fine,
-because an empty list encodes the same way under both rules. The links still hold: the
-headers didn't change, only your idea of what they promise. Put the line back, and the
-100 come back.
+and run `npm run chain preimages` again. 73 of 100 extrinsics match. The 27 blocks that
+carry a preimage now break their promise. Every block without one is fine, because an
+empty list encodes the same way under both rules. The links still hold: the headers
+didn't change, only your idea of what they promise. Put the line back, and the 100 come
+back.
 
 <details>
 <summary>lasair: <code>compute_extrinsic_hash</code>, in <code>conformance/validate.ml</code></summary>
@@ -398,14 +419,26 @@ Your version reuses the codecs you already trust, so it has one less place to be
 ## Check your understanding
 
 ::: check
-**Why is the extrinsic hash a hash of five hashes, not one hash of the whole encoded extrinsic?**
+**Why does a header carry an extrinsic hash at all?**
+
+- [x] Headers travel ahead of the rest of the block, and the hash ties each to exactly one extrinsic
+  > Yes: 32 bytes promise the whole contents. Swap one ticket or drop one signature, and
+  > the extrinsic no longer matches its header.
+- [ ] So that a node can rebuild the extrinsic from the header
+  > No: a hash can't be turned back into what was hashed. It checks an extrinsic. It
+  > doesn't contain one.
+- [ ] It is the author's signature over the block's contents
+  > No: it is a plain hash, and anyone holding the extrinsic can work it out again. That
+  > is exactly what your client does.
+
+**Why is it a hash of five hashes, and not one hash of the whole encoded extrinsic?**
 
 - [ ] Five small hashes are faster than one big one
-  > No: it's more work, not less. Every byte still gets hashed, and then the five
-  > hashes are hashed once more.
+  > No: it's more work, not less. Every byte still gets hashed, and then the five hashes
+  > are hashed once more.
 - [x] So one piece can be proven to be in the block without showing the rest
-  > Yes: to prove a report, you show it, its part with the other reports as hashes,
-  > and the other four parts' hashes. They hash back to the root: a Merkle commitment.
+  > Yes: to prove a report, you show it, its part with the other reports as hashes, and
+  > the other four parts' hashes. They hash back to the root: a Merkle commitment.
 - [ ] Because the five parts arrive in five separate messages
   > No: the five parts travel together, as the extrinsic. The split is for proofs.
 
@@ -421,35 +454,34 @@ Your version reuses the codecs you already trust, so it has one less place to be
   > Yes: from those, the checker rebuilds the guarantees part's hash, then the root,
   > and compares it with the header's `extrinsic_hash`.
 
-**All 100 `fallback` blocks carry the same extrinsic hash, `0x189d15af...6ca252`. Why?**
+**Two blocks that carry nothing have the same extrinsic hash. Is that a fault?**
 
-- [x] Every one of their extrinsics is empty, and the same bytes always hash the same
-  > Yes: five empty parts encode the same way every time, so the root is the same:
-  > the fingerprint of an empty block.
-- [ ] They're 100 copies of one block
-  > No: each has its own slot and parent. Their header hashes all differ, which is how
-  > 99 links can hold.
-- [ ] Empty blocks leave the extrinsic hash as a placeholder
-  > No: it's computed like any other. Your `extrinsicHash` gets `0x189d15af...` from
-  > the five empty parts.
+- [ ] Yes: one block could then be passed off as the other
+  > No: each block has its own slot and parent, so their header hashes differ. That is
+  > how 99 links can hold between a hundred empty blocks.
+- [x] No: the same bytes always hash the same, and the blocks still differ in their headers
+  > Yes: five empty parts encode the same way every time, so the root is the same. It
+  > is the fingerprint of an empty block.
+- [ ] It can't happen: the extrinsic hash covers the slot too
+  > No: it covers the five parts and nothing else. The slot is the header's own field.
 
-**Put back the 0.7.2 rule, preimages hashed whole, and 73 of the 100 `preimages` blocks still match. Why not none?**
+**Gray Paper 0.7.2 hashed preimages whole; 0.8.0 swaps each for its hash. Under the old rule, which blocks still match their headers?**
 
-- [ ] The old rule and the new one give the same hash most of the time
+- [x] The ones with no preimage: an empty list encodes the same under both rules
+  > Yes: both rules write an empty list as `00`. Only a block that carries a preimage
+  > changes, and breaks its promise.
+- [ ] Most of them: the two rules usually give the same hash
   > No: for a block with a preimage they never do. The data and its 32-byte hash are
   > different bytes.
-- [x] Those 73 blocks carry no preimage, and an empty list encodes the same under both rules
-  > Yes: both rules write an empty list as `00`. Only the 27 blocks with a preimage
-  > change, and break their promise.
-- [ ] The links between the blocks still hold
-  > No: they do hold, but that's a different promise. The headers didn't change, only
-  > what your code thinks they promise.
+- [ ] All of them, since the links between the blocks still hold
+  > No: the links do hold, but that's a different promise. The headers didn't change,
+  > only what your code thinks they promise.
 :::
 
 ## What you have
 
 A client that checks two promises in every block: the link to its parent, and the
-contents of its extrinsic. One kind of promise is left in [Part 5](./index.md): signatures, a
-validator's word that *it* made something.
+contents of its extrinsic. One kind of promise is left in [Part 5](./index.md):
+signatures, a validator's word that *it* made something.
 
 Next: [5.3 Signatures](./03-signatures.md)
