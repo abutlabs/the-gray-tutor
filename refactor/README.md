@@ -107,3 +107,30 @@ glossary against it). Leave the glossary entry itself alone unless it is wrong.
 If a run cannot finish (a test you can't make pass, a deploy you can't fix), revert your
 commit so main is green, remove the label, and say what happened in a comment on the
 issue. A half-done lesson is never pushed.
+
+## The orchestrator: one loop, several workers
+
+One scheduled task runs this, once an hour. It does no rewriting itself. It hands each
+open issue to a worker (a subagent) and checks what comes back.
+
+1. `git pull`. List the open issues of milestone 1 (REST API). Workable issues are the
+   Part issues #95 to #115 that are open and not labelled `in-progress` (or whose label is
+   more than 3 hours stale).
+2. Spawn one worker per workable Part issue, at most four at a time, all in the same
+   turn so they run side by side. Give each its own git worktree
+   (`isolation: "worktree"`) and this instruction: "Read refactor/README.md in full, then
+   do one run of 'One run, step by step' on issue #N and nothing else. Work only in your
+   own working copy. Report: the lessons you rewrote, your commits, whether the deploy
+   was green, and anything left undone."
+3. When no Part issue is open or in progress, and only then, hand out #88, alone, since it
+   touches every lesson: its worker changes the generator (`tools/gray-paper-text.ts`),
+   the tests, and the same words in every lesson file in one commit, so the generator and
+   the files still agree. After #88 is closed, hand out #89, split into at most four
+   workers by page.
+4. Wait for the workers. Then check for yourself: main's latest `pages` workflow is
+   green, every issue a worker says it closed is closed, and no `in-progress` label is
+   left on an issue nobody is working on. Fix what is off (remove a stale label, reopen
+   an issue whose boxes aren't all ticked).
+5. Comment once on #116: what each worker did, in a line each, and what is left.
+6. Leave #90 to #94 alone. When #88, #89 and every Part issue are closed, comment on #116
+   that the refactor is complete; a later run that finds that comment does nothing.
