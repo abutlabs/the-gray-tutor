@@ -1,34 +1,39 @@
 # The mountain belt
 
+**In one sentence:** the mountain belt is a short row of hashes that stands for every
+result any service has ever handed back, and grows by one item a block.
+
 <AlbertClimber />
 
-Every JAM block remembers a little of the blocks before it, and one thing it keeps is a
-running commitment to *every accumulation output ever*. An accumulation output is 32
-bytes: the hash a service hands back when its finished work lands on the chain, usually
-a commitment to its new state. Each block rolls all of its services' outputs into one
-32-byte root — [lesson 17.11](../17-accumulation/11-what-a-service-yields.md) builds
-them — and *that* root is the one item each block appends to the belt here, the
-vectors' `accumulate_root`. Bridges to other chains read it
-(a bridge is a program on another chain, Ethereum say, that checks what happened on
-JAM), so it has to be small, cheap to extend, and checkable with tools those chains already
-have. JAM's answer is a *Merkle mountain belt*: a row of perfect little Merkle trees,
-"mountains", of sizes 1, 2, 4, 8 and so on. Appending an item is exactly like adding 1 to
-a binary number. Really. You'll see it. By the end of this lesson your client keeps the
-belt, and its one-hash summary, exactly as the test vectors do.
+Tap to append an item. Watch what happens when two mountains of the same size meet.
 
-## New words
+<a id="try-it"></a>
 
-- **Merkle mountain belt.** A list of Merkle tree roots, one per power of two, that grows
-  one item at a time. *Example:* 5 items make a mountain of 4 and a mountain of 1.
-- **Peak.** One mountain's root, or ∅ where the belt has no mountain of that size.
-  *Example:* after 5 items the peaks are [a hash, ∅, a hash].
-- **Super-peak.** One hash for the whole belt, made from its peaks. *Example:* the
-  `beefy_root` in each recent block, named for BEEFY, the way validators sign that hash
-  for bridges.
-- **Keccak-256.** Ethereum's hash function. It gives 32 bytes, like Blake2b, but different
-  ones. *Example:* Keccak-256 of nothing at all starts `0xc5d24601`.
+<MountainBelt />
 
-All four are in the [glossary](../glossary.md).
+## The idea
+
+Other chains want to check what happened on JAM. A program that does it, on Ethereum say,
+is a bridge. What can JAM hand it?
+
+Each time a service's finished work lands on the chain, the service hands back a hash,
+usually a commitment to its new state. A bridge needs one commitment to *every* such
+output ever. It has to be small, cheap to extend, and checkable with tools those chains
+already have.
+
+JAM's answer is a
+[*Merkle mountain belt*](../glossary.md#merkle-mountain-belt): a row of perfect little
+Merkle trees, "mountains", of sizes 1, 2, 4, 8 and so on. Two of one size never sit side
+by side. They merge into one of twice the size, like trading two coins for the next coin
+up. So 5 items make a mountain of 4 and a mountain of 1, and appending an item is exactly
+like adding 1 to a binary number.
+
+Each mountain's root is a [*peak*](../glossary.md#peak). One hash made from the peaks,
+the [*super-peak*](../glossary.md#super-peak), stands for the whole belt. The hashing is
+[*Keccak-256*](../glossary.md#keccak-256), Ethereum's own.
+
+This lesson builds the belt and its one-hash summary, exactly as the test vectors have
+them.
 
 ## What the Gray Paper says
 
@@ -96,13 +101,14 @@ $$
 
 :::
 
-In plain words, Appendix E.2 (*Merkle Mountain Ranges and Belts*) says: a belt is a list
-of *peaks*, and peak i is the root of a mountain of 2^i items, or ∅ if there's no
-mountain of that size. The paper says *range* (MMR) where it defines the list and *belt*
-(MMB) where it appends to one; this tutorial says belt throughout, as §7 does.
+Appendix E.2 (*Merkle Mountain Ranges and Belts*): a belt is a list of *peaks*. Peak i is
+the root of a mountain of 2^i items, or ∅ if there's no mountain of that size. So
+after 5 items the peaks are [a hash, ∅, a hash]. The paper says *range* (MMR) where it
+defines the list and *belt* (MMB) where it appends to one. This tutorial says belt
+throughout, as §7 does.
 
-**Appending** an item l (the function 𝒜, which the Gray Paper defines through a helper,
-P, that calls itself once per place, and R, which writes one place of a list): start at
+**Appending** an item l is the function 𝒜. The Gray Paper defines it through a helper, P,
+that calls itself once per place, and R, which writes one place of a list. Start at
 place 0, carrying l.
 
 - If the place is empty, the carried hash rests there. Done.
@@ -110,33 +116,32 @@ place 0, carrying l.
   place empties, and you move on to the next place, carrying the merged hash.
 - If you run off the end, the carried hash becomes a new, biggest mountain.
 
-That's binary addition, with mountains for 1s, empty places for 0s, and merging for
-"carry the one". One difference, and it's the whole point: a counter's digit is a bare
-1, and carrying throws its 1s away — nothing about 1000 remembers the eight 1s that
-made it. Here every held place stores exactly 32 bytes, a Keccak-256 hash, and a carry
-hashes the two peaks it eats, so the one peak of 1000 still commits to all 8 items.
-A binary counter whose digits are receipts.
+That's binary addition: mountains for 1s, empty places for 0s, merging for "carry the
+one". One difference, and it's the whole point. A counter's digit is a bare 1, and
+carrying throws its 1s away: nothing about 1000 remembers the eight 1s that made it.
+Here every held place stores exactly 32 bytes, a Keccak-256 hash, and a carry hashes the
+two peaks it eats. So the one peak of 1000 still commits to all 8 items. A binary counter
+whose digits are receipts.
 
-Try it. Each tap appends one item. A peak's label reads as the items under it — 1–4 is
-the mountain over items 1 to 4 — and the bytes beneath the label are the peak itself,
-hashed live on this page with the same items `npm run belt` uses, so every hash and
-super-peak here matches what your terminal prints. It starts at 5 items, a mountain of
-4 and a mountain of 1. Turn on step by step and watch the carry climb one place at a
-time, merging or resting, just as the 1s carried in
-[lesson 2.2](../02-codec/02-compact-naturals.md). Then append up to 8, for three merges in a row:
+Try it on [the belt at the top](#try-it). Each tap appends one item. A peak's label reads
+as the items under it: 1–4 is the mountain over items 1 to 4. The bytes beneath the label
+are the peak itself, hashed live on this page with the same items `npm run belt` uses, so
+every hash and super-peak there matches what your terminal prints.
 
-<MountainBelt />
+- **It starts at 5 items**: a mountain of 4 and a mountain of 1.
+- **Turn on step by step.** The carry climbs one place at a time, merging or resting,
+  just as the 1s carried in [lesson 2.2](../02-codec/02-compact-naturals.md).
+- **Append up to 8**, for three merges in a row.
 
 And backwards? Jump to 32 items and the belt is one peak: `· · · · · ●`, 100000, five
 mountains collapsed into one by five merges. Now *take one back*. The page manages it
-only by cheating — it kept the items and replays 1 to 31 from an empty belt. Your
-client never could: each merge's H(peak ⌢ carried) destroyed the two 32-byte peaks it
-read, and Keccak has no reverse, so the five peaks of 31 items are not derivable from
-the 32-item belt alone. (After 33 the one step back *is* easy — item 33 sits alone in
-place 0, unhashed; it's the merges that lock the door.) The belt is a commitment, not
-an archive: it can prove the past it was shown, never replay it. And that's fine,
-because nothing in JAM ever rewinds the belt — it only appends, one accumulate root
-per block.
+only by cheating: it kept the items and replays 1 to 31 from an empty belt. Your client
+never could. Each merge's H(peak ⌢ carried) destroyed the two 32-byte peaks it read, and
+Keccak has no reverse, so the five peaks of 31 items can't be worked out from the 32-item
+belt alone. (After 33 the one step back *is* easy: item 33 sits alone in place 0,
+unhashed. It's the merges that lock the door.) The belt is a commitment, not an archive:
+it can prove the past it was shown, never replay it. That's fine, because nothing in JAM
+ever rewinds the belt. It only appends, one accumulate root per block.
 
 ::: gray-paper E.2 6-9
 
@@ -207,10 +212,11 @@ $$
 :::
 
 Two more functions. ℰ_M is how a belt is written as bytes, in the state: its length, then
-each place as an optional hash (`00` for ∅, `01` and the 32 bytes for a peak), which
-[lesson 9.2](./02-recent-blocks.md)'s `Recent` record does. And the *super-peak*, M_R,
-squeezes a belt into one hash: take the peaks that exist, in
-order. None gives 32 zero bytes, and one gives itself. Otherwise it's
+each place as an optional hash (`00` for ∅, `01` and the 32 bytes for a peak).
+[Lesson 9.2](./02-recent-blocks.md)'s `Recent` record does that.
+
+The super-peak, M_R, squeezes a belt into one hash. Take the peaks that exist, in order.
+None gives 32 zero bytes, and one gives itself. Otherwise it's
 H(`$peak` ⌢ M_R(all but the last) ⌢ the last). The `$` marks an ASCII string, as in
 [lesson 5.3](../05-hashing-and-signatures/03-signatures.md): the bytes hashed are the four letters `peak`, without the `$`.
 
@@ -223,27 +229,27 @@ acc = H("peak" ⌢ acc ⌢ peak₂)      (fold in the mountain of 4)
 M_R = H("peak" ⌢ acc ⌢ peak₃)      (fold in the mountain of 8)
 ```
 
-peak₀ is the leftmost dot — the smallest mountain — joined as it is, no label, and the
+peak₀ is the leftmost dot, the smallest mountain, joined as it is, with no label. The
 fold climbs toward the biggest. The subscripts count only the peaks that *exist*: ∅
-places are skipped, so on the 9-item belt `● · · ●` the whole fold is one line,
-M_R = H(`peak` ⌢ peak₀ ⌢ peak₁), where peak₀ is the single newest item in place 0 and
-peak₁ is the mountain of 8 over in place 3. The widget below writes these same lines
-and names each dot's peak, so you can see the subscripts slide across the gaps.
+places are skipped. So on the 9-item belt `● · · ●` the whole fold is one line,
+M_R = H(`peak` ⌢ peak₀ ⌢ peak₁): peak₀ is the single newest item in place 0, and peak₁ is
+the mountain of 8 over in place 3. The widget below writes these same lines and names
+each dot's peak, so you can see the subscripts slide across the gaps.
 
-Why the label? Without it, the super-peak of two peaks would be H(peak₀ ⌢ peak₁) — the
-same 64 bytes a merge hashes. One value would then mean two things: "a belt of two
-mountains" and "one mountain twice the size" would hash identically, and a bridge
-signing the super-peak couldn't say which it had signed. The four letters make the
-super-peak's input 68 bytes, which no merge can ever produce. It's the same trick as
-the signing contexts of [lesson 8.9](../08-safrole/09-seals.md): every hash first states what it is. Like
-writing TOTAL beside the sum on a receipt, so the total can never be read as one more
-item.
+Why the label? Without it, the super-peak of two peaks would be H(peak₀ ⌢ peak₁): the
+same 64 bytes a merge hashes. One value would then mean two things. "A belt of two
+mountains" and "one mountain twice the size" would hash the same, and a bridge signing
+the super-peak couldn't say which it had signed. The four letters make the super-peak's
+input 68 bytes, which no merge can ever produce. It's the same trick as the signing
+contexts of [lesson 8.9](../08-safrole/09-seals.md): every hash first states what it is.
+Like writing TOTAL beside the sum on a receipt, so the total can never be read as one
+more item.
 
 One value, three names: **M_R** is the Gray Paper's symbol for it, the **super-peak**
-this tutorial's plain word, and **`beefy_root`** the field it fills in state — in every
-recent block's history entry, where validators sign it for bridges.
+this tutorial's word, and **`beefy_root`** the field it fills in state, in every recent
+block's history entry, where validators sign it for bridges.
 
-Here is M_R on the history vectors' real belts, hashed live on this page — the belt of 9
+Here is M_R on the history vectors' real belts, hashed live on this page. The belt of 9
 items is the one with a merge to watch, and every answer is the vector's own `beefy_root`:
 
 <SuperPeak />
@@ -282,13 +288,14 @@ $$
 
 :::
 
-In plain words: take this block's accumulation outputs θ′, each a service and the hash it
-yielded; write each as the service id in 4 bytes then the hash, 36 bytes; roll them into
-one root with M_B, the well-balanced Merkle root ([lesson 17.11](../17-accumulation/11-what-a-service-yields.md)
-builds it); and append that root to the belt with 𝒜. That root is the vectors'
-`accumulate_root`, the one item a block adds.
+Four steps. Take this block's accumulation outputs θ′, each a service and the hash it
+yielded. Write each as the service id in 4 bytes then the hash, 36 bytes. Roll them into
+one root with M_B, the well-balanced Merkle root
+([lesson 17.11](../17-accumulation/11-what-a-service-yields.md) builds it). Append that
+root to the belt with 𝒜. That root is the vectors' `accumulate_root`, the one item a
+block adds.
 
-And the hash? Not Blake2b, for once. The belt uses *Keccak-256*, ℋ_K, Ethereum's hash,
+And the hash? Not Blake2b, for once. The belt uses Keccak-256, ℋ_K, Ethereum's hash,
 "to maximize compatibility with legacy systems": a bridge contract on Ethereum can check
 JAM's belt with a hash it has built in.
 
@@ -367,11 +374,11 @@ test("the belt after each block of the history vectors, and its super-peak", () 
 });
 ```
 
-The vectors are the `history` ones ([lesson 9.2](./02-recent-blocks.md) uses the rest of them). Each gives the
-belt before a block, the item appended (`accumulate_root`), the belt after, and, in the
-newest block's history entry, the super-peak as `beefy_root`. Between them they hold
-belts of 1, 2, 8 and 9 items, so the 7 → 8 append carries all the way up, three merges
-in a row.
+The vectors are the `history` ones ([lesson 9.2](./02-recent-blocks.md) uses the rest of
+them). Each gives the belt before a block, the item appended (`accumulate_root`), and the
+belt after. The newest block's history entry has the super-peak, as `beefy_root`. Between
+them they hold belts of 1, 2, 8 and 9 items, so
+the 7 → 8 append carries all the way up, three merges in a row.
 
 A stub that never merges: every item becomes a peak of its own, and the super-peak is
 zeros.
@@ -426,10 +433,10 @@ test at test/belt.test.ts:16:1
 ```
 
 Red, in the two tests that append. Read the first diff from its top. The expected belt
-(the `-` lines) starts with `null`, an empty place, because two items should merge into
-one mountain of 2 in place 1. Your stub's belt (the `+` lines) starts with the item
-itself, its 32 bytes all 1, and has it again in place 1: two mountains of 1, side by
-side. The Keccak test already passes: the hash was there before the belt.
+(the `-` lines) starts with `null`, an empty place: two items should merge into one
+mountain of 2 in place 1. Your stub's belt (the `+` lines) starts with the item itself,
+its 32 bytes all 1, and has it again in place 1: two mountains of 1, side by side. The
+Keccak test already passes: the hash was there before the belt.
 
 ## The code
 
@@ -486,9 +493,9 @@ The merge is two lines in the loop:
     peaks[i] = null;
 ```
 
-The Gray Paper writes A's helper P as a recursion; `appendToBelt` is the same thing as a
-loop, carrying one hash along the places. `superPeak` stays recursive, just as the Gray
-Paper writes it: fold all but the last, then join the last on.
+The Gray Paper writes A's helper P as a recursion. `appendToBelt` is the same thing as a
+loop, carrying one hash along the places. `superPeak` stays recursive, as the Gray Paper
+writes it: fold all but the last, then join the last on.
 
 **Run**
 
@@ -542,8 +549,8 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** No vector this time: the program makes its own items, one
-per append — item i is Keccak-256 of the single byte i, any 32 bytes would do. What
-goes in, what each append computes, and what it prints:
+per append. Item i is Keccak-256 of the single byte i; any 32 bytes would do. What goes
+in, what each append computes, and what it prints:
 
 ::: code-group
 
@@ -571,9 +578,9 @@ after  16: · · · · ●    super-peak 0x77a03478…
 
 :::
 
-Read the input into the output: item 1's hash *is* the `after 1` super-peak — one peak,
-no folding — and every later line is the belt after one more append. The 15 → 16 step
-above is the biggest collapse on the page: four merges, 1111 + 1 = 10000.
+Read the input into the output. Item 1's hash *is* the `after 1` super-peak: one peak,
+no folding. Every later line is the belt after one more append. The 15 → 16 step above
+is the biggest collapse on the page: four merges, 1111 + 1 = 10000.
 
 **Run**
 
@@ -603,10 +610,10 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 Your hashes are these same ones: the items are fixed bytes, so only the link's run id
-changes from run to run. Now read the dots from right to left: after 5, `● · ●` is 101, after 6 `· ● ●` is 110, after
-8 `· · · ●` is 1000. The belt *is* the count in binary, written backwards, smallest
-mountain first. Watch 7 → 8: three mountains merge into one, like 0111 + 1 = 1000. The
-*Belt* panel has every step; try `npm run belt 100`.
+changes from run to run. Now read the dots from right to left: after 5, `● · ●` is 101,
+after 6 `· ● ●` is 110, after 8 `· · · ●` is 1000. The belt *is* the count in binary,
+written backwards, smallest mountain first. Watch 7 → 8: three mountains merge into one,
+like 0111 + 1 = 1000. The *Belt* panel has every step. Try `npm run belt 100`.
 
 ![Belt panel](./images/01-belt.png)
 
@@ -636,53 +643,52 @@ same `history` vectors. OCaml's `match` makes the binary counter almost a poem.
 ## Check your understanding
 
 ::: check
-**The belt holds 5 items: a mountain of 4 and a mountain of 1, `● · ●`. What does a sixth item do?**
+**What is the belt for?**
+
+- [ ] It lets a validator replay old blocks
+  > No: the belt is a commitment, not an archive. It can prove a past it was shown,
+  > never replay one.
+- [x] It gives other chains one small commitment to every accumulation output ever
+  > Yes: a bridge reads it. So it is small, cheap to extend, and hashed with a function
+  > those chains already have.
+- [ ] It stores each service's state
+  > No: a place holds 32 bytes, a hash. A service's output is usually a commitment to
+  > its state, and the belt commits to those outputs.
+
+**A belt holds a mountain of 4 and a mountain of 1. What does the next item do?**
 
 - [ ] It becomes a second mountain of 1, next to the first
-  > No: place 0 is taken, and two mountains of one size never sit side by side. The new
-  > item merges with the mountain there.
-- [x] It merges with the mountain of 1, and the merged mountain of 2 rests in the empty place 1
-  > Yes: H(peak ⌢ item) carries to place 1, finds it empty, and stops. The belt is
-  > `· ● ●`, 110 read right to left: 6.
+  > No: two mountains of one size never sit side by side. The new item merges with the
+  > mountain in place 0.
+- [x] It merges with the mountain of 1, and the new mountain of 2 rests in the empty place
+  > Yes: H(peak ⌢ item) carries to place 1, finds it empty, and stops. That is 101 + 1 =
+  > 110, six items.
 - [ ] It merges with the mountain of 4
   > No: the carry starts at place 0 and climbs one place at a time. A mountain of 4 only
   > merges with another mountain of 4.
 
-**`bin/history.ts` prints the belt `● · · · ● ●`. How many items are in it?**
-
-- [ ] 3, one per mountain
-  > No: a mountain in place i holds 2^i items. These three hold 1, 16 and 32.
-- [ ] 35
-  > No: that reads the dots left to right, as 100011. The belt puts the smallest
-  > mountain first, so read it right to left.
-- [x] 49
-  > Yes: right to left it's 110001, 32 + 16 + 1 = 49. One accumulation root for each
-  > block so far, and the newest block in that history is slot 49.
-
-**A belt of exactly 4 items has one peak. What is its super-peak?**
-
-- [x] That peak, unchanged
-  > Yes: M_R of a single peak is the peak itself. `$peak` only comes in when there are
-  > two or more.
-- [ ] H(`peak` ⌢ the peak)
-  > No: that prefix joins a fold of the earlier peaks to the last one. With one peak
-  > there's nothing to join.
-- [ ] 32 zero bytes
-  > No: zeros are for a belt with no peaks at all. This one has a mountain over all 4
-  > items.
-
-**Appending item 32 merges five times and leaves one peak: [∅, ∅, ∅, ∅, ∅, a hash]. Can the client compute the 31-item belt — the five peaks that were there — from the 32-item belt alone?**
+**Appending item 32 merges five times and leaves one peak: [∅, ∅, ∅, ∅, ∅, a hash]. Can the client compute the 31-item belt, the five peaks that were there, from the 32-item belt alone?**
 
 - [ ] Yes: split the hash back into the five peaks it was built from
   > No: Keccak-256 is one-way. Each merge's H(peak ⌢ carried) read 64 bytes and kept
-  > 32; no amount of work recovers the inputs from the output.
+  > 32. No amount of work recovers the inputs from the output.
 - [ ] Yes: the hash still contains all 31 items, so decode them back out
-  > No: 32 bytes *commit* to the items, they don't *contain* them. The belt can prove
-  > a past it was shown, never replay one — a receipt, not a copy.
+  > No: 32 bytes *commit* to the items, they don't *contain* them. A receipt, not a
+  > copy.
 - [x] No: only replaying items 1 to 31 onto an empty belt rebuilds those peaks
-  > Yes: the items themselves are the only road back, and the belt doesn't keep them.
-  > That's fine — JAM only ever appends. After 33, though, one step back would be easy:
-  > item 33 sits alone in place 0, unhashed, so clearing the place is the whole step.
+  > Yes: the items are the only road back, and the belt doesn't keep them. That's fine:
+  > JAM only ever appends.
+
+**Why does the super-peak hash the letters `peak` in front of its peaks?**
+
+- [x] So a belt of two mountains can never hash the same as one mountain twice the size
+  > Yes: a merge hashes 64 bytes, two peaks. With the four letters the super-peak's
+  > input is 68 bytes, which no merge can ever produce.
+- [ ] The letters are the length of the belt, as a blob has its length in front
+  > No: they are four fixed ASCII bytes, the same for every belt. They say what kind of
+  > hash this is, not how long anything is.
+- [ ] Ethereum's hash needs a prefix on its input
+  > No: Keccak-256 hashes any bytes. A merge hashes two peaks with no prefix at all.
 
 **Why does the belt hash with Keccak-256, not Blake2b like the rest of JAM?**
 
@@ -700,6 +706,7 @@ same `history` vectors. OCaml's `match` makes the binary counter almost a poem.
 
 A Merkle mountain belt, the commitment JAM keeps for bridges, appended to in a handful of
 hashes per block, whatever its length. The belt's super-peak is one of the things the
-chain writes down for every block; [lesson 9.2](./02-recent-blocks.md) keeps the rest of that record.
+chain writes down for every block. [Lesson 9.2](./02-recent-blocks.md) keeps the rest of
+that record.
 
 Next: [9.2 Recent blocks](./02-recent-blocks.md)

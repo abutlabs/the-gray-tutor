@@ -191,7 +191,7 @@ test("Part 8's entropy, seating and vectors are its lessons'", () => {
 test("Part 9's belt and history are its lessons'", () => {
   assert.match(lessonCode("9.2"), new RegExp(`export const RECENT_BLOCKS = ${RECENT_BLOCKS};`));
   assert.match(lessonCode("9.1"), /export function keccak256\(/);
-  assert.ok(textOf("9.1").includes("Keccak-256.** Ethereum's hash function"));
+  assert.ok(textOf("9.1").includes("[*Keccak-256*](../glossary.md#keccak-256), Ethereum's own"));
 });
 
 test("Part 10's vote splits, rules and vectors are its lessons'", () => {

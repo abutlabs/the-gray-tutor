@@ -1,18 +1,33 @@
 # Recent blocks
 
-The state has a short memory on purpose: the last eight blocks. For each, it keeps the
-header hash, the state root after it, the belt's super-peak ([lesson 9.1](./01-the-mountain-belt.md)), the slot,
-and the work-packages it reported. Guarantors anchor their work on these blocks, and the
-chain uses them to turn away reports it has already seen. This lesson keeps that memory
-up to date, block by block.
+**In one sentence:** the state remembers the last eight blocks, so that new work can point
+at a recent block and a report the chain has already seen can be turned away.
 
-## New words
+Let block 50 arrive, then 51 and 52. Watch what each one does to the list of eight.
 
-- **Recent history.** β. What the state remembers of the last eight blocks (β_H), with the
-  belt of accumulation outputs (β_B). *Example:* a guarantee's anchor must be one of
-  those eight blocks.
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md).
+<RecentBlocks />
+
+## The idea
+
+The state has a short memory on purpose: the last eight blocks. Guarantors anchor their
+work on these blocks, and the chain uses them to turn away reports it has already seen.
+
+So it keeps a small entry for each: the header hash, the state root after it, the belt's
+super-peak ([lesson 9.1](./01-the-mountain-belt.md)), the slot, and the work-packages it
+reported. That list, with the belt beside it, is the
+[*recent history*](../glossary.md#recent-history).
+
+Each new block does three things to the list. It fills in a blank, adds itself, and
+forgets the oldest.
+
+The blank is the odd one. A block's state root comes *after* the block, so it can't be
+written when the block is added. The next block brings it. Think of a diary: each
+morning you first write how yesterday ended, then start today's page, and tear out the
+page from nine days ago.
+
+This lesson keeps that memory up to date, block by block.
 
 ## What the Gray Paper says
 
@@ -155,23 +170,24 @@ $$
 
 (The belt's own append, in between, is [lesson 9.1](./01-the-mountain-belt.md#what-the-gray-paper-says)'s.)
 
-In plain words, §7 (*Recent History*) says β is two things: β_H, the list of recent
-blocks, at most H = 8 of them, and β_B, the belt. (θ, in the same type line, is the
-block's accumulation outputs, which the belt's new root is made from.) Each new block
-does three things to them:
+§7 (*Recent History*): β is two things. β_H is the list of recent blocks, at most H = 8
+of them. β_B is the belt. (θ, in the same type line, is the block's accumulation outputs,
+which the belt's new root is made from.) Each new block does three things to them, the
+three you watched [at the top](#try-it):
 
-1. **Fills in a blank (7.5).** The newest remembered block's state root couldn't be known when
-   it was added, because a block's state root comes *after* the block. Now it is known:
-   it's this block's `parent_state_root` (H_R, [lesson 4.6](../04-blocks/06-the-header.md)). So it's written in.
-2. **Adds itself (7.8).** The block's accumulation outputs go onto the belt ([lesson 9.1](./01-the-mountain-belt.md)), and
-   a new entry joins the list: its header hash, the belt's new super-peak, its slot, the
-   packages its guarantees reported (each package's hash, with the root of the segments
-   it exports), and a state root of 32 zeros. The Gray Paper calls that zero
-   root "inaccurate but safe": nothing reads it before step 1 fixes it, one block later.
+1. **Fills in a blank (7.5).** The newest remembered block's state root couldn't be known
+   when it was added. Now it is: it's this block's `parent_state_root`
+   (H_R, [lesson 4.6](../04-blocks/06-the-header.md)). So it's written in.
+2. **Adds itself (7.8).** The block's accumulation outputs go onto the belt
+   ([lesson 9.1](./01-the-mountain-belt.md)), and a new entry joins the list: its header
+   hash, the belt's new super-peak, its slot, the packages its guarantees reported (each
+   package's hash, with the root of the segments it exports), and a state root of 32
+   zeros. The Gray Paper calls that zero root "inaccurate but safe": nothing reads it
+   before step 1 fixes it, one block later.
 3. **Forgets (7.8).** Only the last eight entries are kept: the arrow over the whole
    entry list, with H on top, keeps the rightmost H.
 
-So β's two halves live in one state entry, C(3), with very different memories:
+β's two halves live in one state entry, C(3), with very different memories:
 
 | | β_H, the recent blocks | β_B, the belt |
 | --- | --- | --- |
@@ -179,16 +195,18 @@ So β's two halves live in one state entry, C(3), with very different memories:
 | keeps | a whole entry per block: header hash, state root, super-peak, slot, reported packages | only the peaks, one place per power of two |
 | size | always 8 entries at most | one place per binary digit of the block count: 23 after a year of 6-second blocks, 29 after a century |
 
-The belt never resets and never forgets a block, yet it stays tiny: it grows with the number
-of *digits* in the block count, not with the count, like [lesson 9.1](./01-the-mountain-belt.md)'s binary counter.
-Each peak is a commitment to all the blocks under it, which is why one super-peak can stand
-for the chain's whole history of accumulation outputs.
+The belt never resets and never forgets a block, yet it stays tiny. It grows with the
+number of *digits* in the block count, not with the count, like
+[lesson 9.1](./01-the-mountain-belt.md)'s binary counter. Each peak is a commitment to all
+the blocks under it. That is why one super-peak can stand for the chain's whole history
+of accumulation outputs.
 
 The history vectors give the new block's parts ready-made: its header hash, its
 `parent_state_root`, the root of its accumulation outputs, its slot, and its reported
-packages. For now, all you need to know is that a block brings them. [Part 12](../12-guarantees/index.md) works out
-the reported packages; the accumulation root needs the outputs that services hand back
-with the `yield` host call, which [lesson 17.11](../17-accumulation/11-what-a-service-yields.md) builds.
+packages. For now, a block simply brings them. [Part 12](../12-guarantees/index.md) works
+out the reported packages. The accumulation root needs the outputs that services hand
+back with the `yield` host call, which
+[lesson 17.11](../17-accumulation/11-what-a-service-yields.md) builds.
 
 ## The records first
 
@@ -248,8 +266,9 @@ export function recordBlock(before: Recent, block: NewBlock): Recent {
 ```
 
 Every structure here is a `record`, so it's a type, an encoder, a decoder and a JSON
-reader at once ([lesson 2.5](../02-codec/05-sequences-and-records.md)). `Recent` is exactly how C(3) holds β in the state: the list,
-then the belt, each peak an `option` ([lesson 4.5](../04-blocks/05-maybe-and-exactly-n.md)), since a belt has gaps.
+reader at once ([lesson 2.5](../02-codec/05-sequences-and-records.md)). `Recent` is
+exactly how C(3) holds β in the state: the list, then the belt, each peak an `option`
+([lesson 4.5](../04-blocks/05-maybe-and-exactly-n.md)), since a belt has gaps.
 
 > [!NOTE]
 > The `slot` in each entry is new in Gray Paper 0.8.0; 0.7.2's entries didn't have it.
@@ -326,10 +345,10 @@ test("β in real states: the newest block remembered is the block before", () =>
 
 Two kinds of check. The vectors check `recordBlock`: all three steps, at both sizes,
 including a block that pushes the ninth entry out. Real states check the *codec* and the
-rules: before each of 99 trace blocks, the newest remembered block is the one before, by
-header hash ([lesson 5.1](../05-hashing-and-signatures/01-hashes.md)), with its state root still zeros, and the entry before it
-filled in. The real chain did that recording, so this test passes before `recordBlock`
-does anything.
+rules. Before each of 99 trace blocks, the newest remembered block is the one before, by
+header hash ([lesson 5.1](../05-hashing-and-signatures/01-hashes.md)), with its state
+root still zeros, and the entry before it filled in. The real chain did that recording,
+so this test passes before `recordBlock` does anything.
 
 **Run, expect it to fail**
 
@@ -414,7 +433,7 @@ A negative `slice` counts from the end, so it keeps the last eight.
 > **The simple road.** `recordBlock` keeps the reported packages in the order the block
 > lists them. The Gray Paper holds them in a *dictionary*, and dictionaries are encoded
 > sorted by key ([lesson 3.3](../03-work-and-reports/03-a-work-report.md)), here the
-> package hash. The vectors only ever list them in order, so this is fine for now; the
+> package hash. The vectors only ever list them in order, so this is fine for now. The
 > [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) sorts
 > them.
 
@@ -529,10 +548,10 @@ its super-peak, folded live: 0x41063bd0… — the newest block's beefy ✓
 
 :::
 
-Read the input into the output: the `value`'s first byte, `0x08`, is `seq`'s count — 8
-remembered blocks — and the very next 32 bytes are slot 42's `header_hash`, the
-`0x8492038c…` that opens the first printed row. Everything the program shows is decoded
-out of that one entry's bytes by the codecs this lesson builds.
+Read the input into the output. The `value`'s first byte, `0x08`, is `seq`'s count: 8
+remembered blocks. The very next 32 bytes are slot 42's `header_hash`, the `0x8492038c…`
+that opens the first printed row. Everything the program shows is decoded out of that
+one entry's bytes by the codecs this lesson builds.
 
 **Run**
 
@@ -557,21 +576,23 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 Eight blocks, slots 42 to 49, and only the newest still waiting for its state root. Now
-read the belt backwards, as [lesson 9.1](./01-the-mountain-belt.md) taught you: 110001 in binary is 49, one
-accumulation root for each block so far. The `beefy` column is the super-peak as it stood
-after each block — eight snapshots of the one belt, a fresh M_R every block because every
-block appends. The `belt` column is where [lesson 9.1](./01-the-mountain-belt.md)'s
-one-way street gets precise: the old belts' *hashes* are gone for good — only the stored
-belt, the newest line's, has real peaks behind its dots — but their *shapes* cost
-nothing, because a shape is only the item count in binary, and each block's count is one
-less than the next. So the program draws every shape and could recover no peak but the
-last row's. Watch slot 47 → 48: `● ● ● ● · ●` collapses to `· · · · ● ●`, four merges
-in one block, 101111 + 1 = 110000. The *Recent history* panel, on the **3 ·
-Consensus** dashboard, shows it all.
+read the belt backwards, as [lesson 9.1](./01-the-mountain-belt.md) taught you: 110001 in
+binary is 49, one accumulation root for each block so far.
 
-Now let block 50 arrive, then 51 and 52: the three steps, on the trace's own β.
+The `beefy` column is the super-peak as it stood after each block: eight snapshots of the
+one belt, a fresh M_R every block because every block appends.
 
-<RecentBlocks />
+The `belt` column is where [lesson 9.1](./01-the-mountain-belt.md)'s one-way street gets
+precise. The old belts' *hashes* are gone for good: only the stored belt, the newest
+line's, has real peaks behind its dots. Their *shapes* cost nothing, because a shape is
+only the item count in binary, and each block's count is one less than the next. So the
+program draws every shape and could recover no peak but the last row's. Watch
+slot 47 → 48: `● ● ● ● · ●` collapses to `· · · · ● ●`, four merges in one block,
+101111 + 1 = 110000. The *Recent history* panel, on the **3 · Consensus** dashboard,
+shows it all.
+
+These eight are the list [at the top](#try-it). Let block 50 arrive there, then 51 and
+52: the three steps, on the trace's own β.
 
 ![Recent history panel](./images/02-recent-history.png)
 
@@ -579,7 +600,7 @@ Now let block 50 arrive, then 51 and 52: the three steps, on the trace's own β.
 
 The first test above runs every history vector whole: β′ is all a history vector's state
 holds, and it says nothing back. That's the `stf/history` family. Move the check into
-`test/families.ts` and have the test call it:
+`test/families.ts`, and have the test call it:
 
 **Add to** `test/families.ts`
 
@@ -745,18 +766,28 @@ the road yours doesn't take yet (the note above).
 ## Check your understanding
 
 ::: check
-**In `bin/history.ts`'s output, only slot 49's state root is zeros. Why?**
+**Why does the state remember recent blocks at all?**
 
-- [ ] Block 49 changed nothing, so its state is empty
-  > No: every new entry starts with zeros, whatever its block did. Slot 48's root was
-  > zeros too, one block earlier.
-- [x] A block's state root comes after the block, so it's written in by the next one
-  > Yes: block 50 brings it as `parent_state_root`, H_R. Until then, the zeros are
-  > "inaccurate but safe".
-- [ ] Only the oldest blocks keep a state root, to save space
-  > No: slots 42 to 48 all have theirs. Only the newest is still waiting.
+- [ ] So a node can replay the last eight blocks after a crash
+  > No: an entry is a few hashes and a slot, not a block. Nothing can be replayed from
+  > it.
+- [ ] To build the belt
+  > No: the belt grows from each block's accumulation root. The list sits beside it.
+- [x] Guarantors anchor their work on them, and the chain turns away a report it has already seen
+  > Yes: a guarantee's anchor must be one of those eight blocks, and each entry keeps
+  > the packages its block reported, so a package reported again is easy to spot.
 
-**β_H holds slots 42 to 49. Block 50 arrives. What does β_H hold after it?**
+**Why is the newest entry's state root 32 zeros?**
+
+- [ ] The newest block changed nothing, so its state is empty
+  > No: every new entry starts with zeros, whatever its block did.
+- [x] A block's state root comes after the block, so the next block writes it in
+  > Yes: the next block brings it as `parent_state_root`, H_R. Until then, the zeros are
+  > "inaccurate but safe": nothing reads them.
+- [ ] Only older blocks keep a state root, to save space
+  > No: every other entry has its own. Only the newest is still waiting.
+
+**The list holds slots 42 to 49. Block 50 arrives. What does the list hold after it?**
 
 - [x] Slots 43 to 50, with 49's state root filled in and 50's zeros
   > Yes: all three steps. Fill in the blank, add the new entry, keep the last H = 8.
@@ -765,16 +796,16 @@ the road yours doesn't take yet (the note above).
 - [ ] Slots 42 to 49, unchanged until the epoch ends
   > No: β changes every block. Each block adds itself and forgets the oldest.
 
-**Each entry keeps the work-packages its block reported. What does the chain use them for?**
+**The belt never forgets a block, and the list forgets all but eight. Why does the belt stay small?**
 
-- [ ] To run the packages' work again later
-  > No: an entry keeps only each package's hash and exports root, not its work.
-- [x] To turn away a report of a package it has already seen
-  > Yes: with eight blocks of reported packages to hand, a package reported again is
-  > easy to spot.
-- [ ] To build the belt
-  > No: the belt grows from each block's accumulation root, not from its reported
-  > packages.
+- [ ] It drops its oldest peaks, as the list drops its oldest entries
+  > No: it never resets and never forgets. Every block since genesis is under one of
+  > its peaks.
+- [x] It has one place per binary digit of the block count, not one per block
+  > Yes: each peak commits to all the blocks under it. A year of 6-second blocks needs
+  > 23 places.
+- [ ] It keeps only the super-peak
+  > No: it keeps the peaks. The super-peak is made from them, fresh every block.
 
 **What is an entry's `beefy_root`?**
 
@@ -789,7 +820,8 @@ the road yours doesn't take yet (the note above).
 ## What you have
 
 The chain's short-term memory: eight blocks, kept up to date, with the blank from last
-block filled in every time, and every history vector passing whole. That's what the chain remembers; [Part 10](../10-disputes/index.md) is how it
-judges, when a work-report that validators vouched for turns out to be wrong.
+block filled in every time, and every history vector passing whole. That's what the
+chain remembers. [Part 10](../10-disputes/index.md) is how it judges, when a work-report
+that validators vouched for turns out to be wrong.
 
 Next: [Part 10 · Disputes](../10-disputes/index.md)

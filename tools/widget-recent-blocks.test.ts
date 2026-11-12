@@ -79,8 +79,10 @@ test("the steps are the preimages trace's own β and headers, where vectors/ is 
   }
 });
 
-test("lesson 9.2 places the widget once, in Watch it after the run's reading", () => {
+test("lesson 9.2 places the widget once, at the top, and Watch it sends the reader back to it after the run's reading", () => {
   const at = raw.indexOf("<RecentBlocks />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<RecentBlocks />"), "placed once");
-  assert.ok(at > raw.indexOf("shows it all.") && at < raw.indexOf("## The scoreboard"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[at the top](#try-it)", raw.indexOf("shows it all."));
+  assert.ok(back > 0 && back < raw.indexOf("## The scoreboard"));
 });
