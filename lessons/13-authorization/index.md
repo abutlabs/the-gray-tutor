@@ -1,10 +1,11 @@
 # Part 13 · Authorization
 
-Who may use a core? Not just anyone with a work-package. Each core has gatekeepers, its
-*authorizers*: an authorizer is a PVM program plus a blob of settings, named by one hash,
-and a package gets onto a core only if one of the core's current authorizers says yes.
-This part keeps each core's list of accepted authorizers, its *pool*, moving: one in from
-a queue and one out, block by block.
+**In one sentence:** a core takes a work-package only if one of its current gatekeepers
+says yes, and this part keeps each core's list of gatekeepers up to date.
+
+The gatekeepers are *authorizers*: an authorizer is a PVM program plus a blob of settings,
+named by one hash. Each core has a list of the ones it accepts, its *pool*. The pool
+moves block by block: one in from a queue, one out.
 
 By the end of this part your client keeps every core's pool of authorizers moving,
 checked on the vectors and on 99 real blocks.

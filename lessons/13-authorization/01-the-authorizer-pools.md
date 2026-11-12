@@ -1,28 +1,37 @@
 # The authorizer pools
 
-Who is allowed to use a core? Not just anyone with a work-package. Each piece of work
-must be *authorized*, by an *authorizer*: a PVM program plus a blob of settings, named by
-one hash, that decides whether a package may run. [Part 13's page](./index.md) tells an
-authorizer's whole life, from the code someone writes to the hash a report carries; read
-it first if you haven't. The authorizer's code runs in-core, on the core's guarantors.
-The chain never runs it. What the chain does is keep, for each core, a short list of the
-authorizers it currently accepts, its *pool*, and a long line of them waiting their turn,
-its *queue*. Every block, the pool changes a little: one goes out, one comes in. This
-lesson keeps the pools moving, on every validator, and it's all of [Part 13](./index.md).
+**In one sentence:** for each core the chain keeps a short list of the gatekeepers it
+accepts right now, and every block one leaves the list and one joins it.
 
-## New words
+Here is one core, with letters for hashes. Step on block by block and watch the pool fill
+to 8, then slide: the newest in on the right, the oldest out on the left.
 
-- **Authorization token and trace.** The two blobs round an authorizer: the *token*
-  travels in the package, the argument that it may use the core (a signature, say); the
-  *trace* is what the authorizer's code produced when it said yes, kept in the report as
-  `auth_output`. The chain reads neither; only the authorizer's code does. *Example:*
-  token `0x0102030405`, trace `0x`.
-- **Authorizer queue.** ϕ[c]. For each core, 80 authorizer hashes waiting their turn; one
-  joins the core's pool every block. *Example:* at slot 85, the queue's entry 5 (85 mod
-  80) joins.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md), with the authorizer ([lesson 3.1](../03-work-and-reports/01-a-work-package.md)) and its
-pool ([lesson 12.4](../12-guarantees/04-bad-guarantees.md)).
+<AuthorizerPool />
+
+## The idea
+
+Who may use a core? Not anyone with a work-package. A gatekeeper has to say yes. The
+gatekeeper is an authorizer: a PVM program plus a blob of settings, named by one hash
+([lesson 3.1](../03-work-and-reports/01-a-work-package.md)). [Part 13's page](./index.md)
+tells its whole life; read it first if you haven't.
+
+The authorizer's code runs in-core, on the core's guarantors. The package hands it a
+[*token*](../glossary.md#authorization-token), the argument that it may use the core. When it says
+yes, what it produced, its [*trace*](../glossary.md#trace), goes in the report. The chain reads
+neither.
+
+So what does the chain do? It keeps two lists of names for each core.
+
+- **The pool**: the few authorizers the core accepts right now
+  ([lesson 12.4](../12-guarantees/04-bad-guarantees.md)).
+- **The queue**: a long line of them waiting their turn, the
+  [*authorizer queue*](../glossary.md#authorizer-queue).
+
+Every block the pool moves a little. An authorizer that was just used leaves, the next
+one in the queue joins, and if the pool is too long the oldest drops off. This lesson
+keeps the pools moving, on every validator, and it is all of [Part 13](./index.md).
 
 ## What the Gray Paper says
 
@@ -100,37 +109,32 @@ $$
 
 :::
 
-In plain words, §8 (*Authorization*) says, for each core c:
+§8 (*Authorization*) says, for each core c:
 
 - **α[c], the pool**: at most O = 8 authorizer hashes.
 - **ϕ[c], the queue**: exactly Q = 80 of them. Only a privileged service can change the
   queue, during accumulation ([Part 17](../17-accumulation/index.md)).
 
 Both hold *names*, 32-byte hashes, never code: the code sits in some service's preimages,
-and only the guarantors ever run it. Everything in this lesson runs on the chain, on every
-validator.
+and only the guarantors ever run it.
 
 Each block, α′[c] is made in three steps:
 
 1. If a guarantee in this block used core c ([Part 12](../12-guarantees/index.md)), its report's authorizer is
    taken out of the pool: the *leftmost* copy, the one that's been there longest.
 2. The queue's entry for this slot joins: ϕ′[c][τ′ mod Q]. The queue is a wheel, read
-   one slot at a time and going round every 80 slots.
+   one slot at a time and going round every 80 slots: at slot 85, the queue's entry 5
+   (85 mod 80) joins.
 3. If the pool is now over O, the oldest drop off the front, leaving the newest O.
 
 ϕ′, not ϕ: the queue *after* accumulation, which is why, in a real client, this step
 comes late in the block. In C(1) and C(2) ([lesson 6.2](../06-state-and-merklization/02-state-keys.md)) the pools are lists with their
 length in front, and the queues are 80 hashes exactly: 514 and 5,120 bytes on tiny.
 
-Try it below, on one core, with letters for hashes. Step on block by block and watch the
-pool fill to 8, then slide: the newest in on the right, the oldest out on the left. Give
-a block a guarantee using a letter that's in the pool twice, and see the leftmost copy
-go. The queue is drawn the way the Gray Paper reads it, as a wheel of 80 entries: each
-slot turns it one notch, and the entry under the pointer joins. Slide past slot 80 and
-it has gone round once, with entry 0 under the pointer again. Then switch to the
-trace's queue, A 80 times over: take an A out, put an A in, and the pool never changes.
-
-<AuthorizerPool />
+Try each step on [the core at the top](#try-it). Give a block a guarantee using a letter
+that is in the pool twice, and the leftmost copy goes. Slide past slot 80 and the wheel
+has gone round once, with entry 0 under the pointer again. Then switch to the trace's
+queue, A 80 times over: take an A out, put an A in, and the pool never changes.
 
 ## The codecs first
 
@@ -704,49 +708,54 @@ and that comment didn't. Comments go stale; tests don't.
 ## Check your understanding
 
 ::: check
-**A core's pool is `A B A C`. A guarantee in this block used A on that core, the slot is 85, and the queue's entry 5 is D. What is the pool after?**
+**What is an authorizer, and who runs it?**
 
-- [ ] `A B C D`
-  > No: that takes out the second A, the newer one. The rule takes the *leftmost* copy,
-  > the one that's been there longest.
-- [x] `B A C D`
-  > Yes: the oldest A leaves and the rest close up. Then D, entry 85 mod 80 = 5, joins on
-  > the right. Four is under O = 8, so nothing drops off.
-- [ ] `B C D`
-  > No: one guarantee takes out one copy. The second A stays.
+- [ ] A validator chosen to approve packages for a core
+  > No: an authorizer is a program, not a validator. Validators run it.
+- [x] A PVM program plus its settings, named by one hash; the core's guarantors run it, in-core
+  > Yes: it decides whether a package may use the core. The chain never runs it.
+- [ ] A rule in the Gray Paper that every block is checked against
+  > No: anyone can write an authorizer. Its code sits in some service's preimages.
 
-**A pool holds 8 already, `A B C D E F G H`, and no guarantee used the core. The queue's entry for this slot is X. What happens?**
+**The chain never runs an authorizer. What does it do about authorization, then?**
 
-- [ ] X is turned away: the pool is full
-  > No: the queue's entry joins every block. A full pool is dealt with afterwards, by
-  > step 3.
-- [ ] H, the newest, makes room for X
-  > No: step 3 keeps the *newest* O. H stays; the oldest goes.
-- [x] X joins on the right, and A drops off the front: `B C D E F G H X`
-  > Yes: with X the pool holds 9, and step 3 keeps the newest 8. A has been there
-  > longest.
+- [ ] Nothing: it trusts the guarantors
+  > No: a report must name an authorizer the core accepts right now, and the chain checks
+  > that.
+- [ ] It runs the authorizer again when the block is imported
+  > No: block import never runs one. It only compares hashes.
+- [x] It keeps each core's pool of accepted authorizer hashes, checks a report's authorizer is in it, and moves the pool on every block
+  > Yes: names in, names out. Whether the program really said yes is for the auditors,
+  > who run the package again.
 
-**At slot 85, why does the queue's entry 5 join, and not entry 85?**
+**Who decides which authorizers a core will accept in future?**
 
-- [x] The queue is a wheel of 80 entries: 85 mod 80 = 5
-  > Yes: the slot picks the entry, ϕ′[c][τ′ mod Q]. On full, at slot 645, it's entry 5
-  > again: the wheel has gone round eight times.
-- [ ] Entries 0 to 4 have been used up and removed, so entry 5 is next
-  > No: joining the pool removes nothing from the queue. It stays 80 hashes, and the same
-  > entry is read again 80 slots later.
-- [ ] The wheel moves one entry each block, and this is the fifth block
-  > No: it's read by the slot number itself. A slot with no block simply skips its entry.
+- [ ] The core's guarantors, by voting
+  > No: guarantors run authorizers. They don't choose them.
+- [x] A privileged service, which sets the core's queue during accumulation
+  > Yes: the queue is 80 hashes, and one joins the pool each block. Whoever fills the
+  > queue decides who gets the core.
+- [ ] Whoever builds the next work-package
+  > No: a builder has to satisfy an authorizer already in the pool.
 
-**With the stub `nextPools`, which changes nothing, the 99 real blocks of the `preimages` trace still passed. Why?**
+**A pool keeps at most 8 authorizers and gains one every block. Which one leaves?**
 
-- [ ] Those blocks had no guarantees, so no pool changed
-  > No: their guarantees used 85 authorizers between them. Something else hid the stub.
-- [x] Every pool and every queue in that trace holds the same authorizer, 8 and 80 times over
-  > Yes: take an A out, put an A in, and the pool reads exactly as before. Only the hand
-  > tests and the vectors can catch a stub.
-- [ ] The test compares the pools after the block with themselves
-  > No: it works from the pools *before* the block and compares with the pools after.
-  > Only the queues come from after the block, because the rule uses ϕ′.
+- [ ] The newest, to make room
+  > No: the newest 8 stay.
+- [ ] One chosen at random
+  > No: nothing here is random. Every validator must get the same pool.
+- [x] The one a guarantee just used, if any; then the oldest, if the pool is still over 8
+  > Yes: a used authorizer is spent, leftmost copy first. After the queue's entry joins,
+  > only the newest 8 are kept.
+
+**The rule reads the queue after accumulation, ϕ′, not before. What does that mean for a client?**
+
+- [ ] Nothing: the queue never changes
+  > No: a privileged service can replace it, during accumulation.
+- [x] The pools can only be moved on late in the block, once accumulation has run
+  > Yes: the entry that joins is taken from the queue as accumulation left it.
+- [ ] The pools must be moved on before any guarantee is checked
+  > No: the rule asks for nothing of the kind. It asks that accumulation has run.
 :::
 
 ## What you have
