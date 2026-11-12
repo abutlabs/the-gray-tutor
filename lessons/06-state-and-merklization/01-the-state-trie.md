@@ -240,20 +240,22 @@ The price is small: of the tiny genesis state's 22 branches, only 2 have an empt
 
 ## The tests
 
-Two sets of vectors. The `trie` vectors are made for exactly this: entries in, root out.
-They're one file, `vectors/trie/trie.json`: `vectorJson`, from your `test/vectors.ts` of
-[lesson 2.6](../02-codec/06-the-first-test-vectors.md), finds `vectors/` from its own file's place and reads names from there. It
+Two sets of vectors.
+
+**The `trie` vectors** are made for this: entries in, root out. They are one file,
+`vectors/trie/trie.json`. (`vectorJson`, from your `test/vectors.ts` of
+[lesson 2.6](../02-codec/06-the-first-test-vectors.md), finds `vectors/` from its own file's place.) It
 holds 11 cases, each a set of entries, key → value in hex, and the root they must make, its
 `output`. The cases hold 0, 1, 1, 1, 1, 1, 2, 2, 2, 5 and 10 entries, and the single
-entries' values are 0, 1, 32, 33 and 60 bytes long: either side of a leaf's 32. (Their
-keys are 32 bytes, from when the Gray Paper's keys were. The trie only ever reads the
-first 31, so the test simply drops the 32nd.)
-And then real states, from the four traces of [lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md): each trace step carries the
-state *before* its block, as key-value entries, and each block's header promises that
+entries' values are 0, 1, 32, 33 and 60 bytes long: either side of a leaf's 32. Their
+keys are 32 bytes, from when the Gray Paper's keys were. The trie reads the first 31, so
+the test drops the 32nd.
+
+**Real states**, from the four traces of [lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md). Each trace step carries the
+state *before* its block, as key-value entries, and its block's header promises that
 state's root.
 
-First, a helper that reads a trace's state, next to the other vector readers. Each
-entry's key and value become bytes, and the header's promise comes along.
+First a helper that reads a trace's state, next to the other vector readers:
 
 **Add to** `test/vectors.ts`
 
@@ -359,9 +361,9 @@ test at test/trie.test.ts:8:1
 ...
 ```
 
-Red, but look at which vector it fell on. The first trie vector is the empty state, and
-the Gray Paper says an empty trie's root is 32 zero bytes: the stub got that one right
-by accident. Every other root, and every real state, it got wrong.
+Red, but not on the first case. That one is the empty state, and an empty trie's root is
+32 zero bytes: the stub got it right by accident. Every other root, and every real state,
+it got wrong.
 
 ## The code
 
@@ -427,19 +429,18 @@ export function stateRoot(entries: KeyValue[], trace?: Trace): Bytes {
 }
 ```
 
-A few things to notice:
+Four things to notice:
 
-- **`bit`** finds byte `i / 8`, rounded down, and inside it bit `i % 8`, counted from the
-  left: shift that bit to the bottom (`>>`), and keep just it (`& 1`). These are the
-  bitwise operators [lesson 1.2](../01-bytes-and-numbers/02-numbers.md) warned about, and they're safe here: a byte is far below
+- **`bit`** takes byte `i / 8`, rounded down, and in it bit `i % 8`, counted from the
+  left: shift that bit to the bottom (`>>`) and keep only it (`& 1`). These are the
+  bitwise operators [lesson 1.2](../01-bytes-and-numbers/02-numbers.md) warned about. They are safe here: a byte is far below
   their 32 bits.
-- **`0b10000000 | value.length`** builds a leaf's first byte in one go: the `1, 0` on
-  top, the length (at most 32, so six bits are plenty) at the bottom.
+- **`0b10000000 | value.length`** builds a leaf's first byte in one go: `1, 0` on top,
+  the length below. The length is at most 32, so six bits hold it.
 - **`merkle` keeps the keys whole and counts `depth`.** The Gray Paper chops the first
-  bit off every key at each level instead, and looks at the new first bit. Same trie, and
-  no copying.
-- **`trace`** is the same optional watcher as the decoder's ([lesson 2.7](../02-codec/07-watch-a-decode.md)): it hears about
-  every leaf, and costs nothing when nobody is listening.
+  bit off every key at each level instead. Same trie, no copying.
+- **`trace`** is the decoder's optional watcher ([lesson 2.7](../02-codec/07-watch-a-decode.md)): it hears about
+  every leaf, and costs nothing when nobody listens.
 
 **Run**
 
@@ -462,9 +463,8 @@ reported 60 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 ...
 ```
 
-About fifty lines, and your client computes the state root of real JAM states, up to 273
-entries each, exactly as the Gray Paper says. It takes a couple of seconds, most of it
-reading 300 MB of JSON.
+About fifty lines, and your client computes the root of real JAM states, up to 273
+entries each. The couple of seconds go mostly on reading 300 MB of JSON.
 
 ## Watch it
 
@@ -537,9 +537,9 @@ depth  8  0x05000000000000000000000000000000000000000000000000000000000000  4-by
 
 :::
 
-Two of the twenty-one entries going in: the 4-byte value at key `0x05…` is small enough
-to sit in its leaf, the 89-byte one at `0xff…` leaves only its hash. The root the trie
-builds from all of them is exactly the root the block's header promises.
+Two of the 21 entries are shown going in. The 4-byte value at key `0x05…` sits in its
+leaf. The 89-byte one at `0xff…` leaves only its hash. The root built from all 21 is the
+root the block's header promises.
 
 **Run**
 
@@ -576,27 +576,27 @@ the header promises it: true
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=state-1791728955705
 ```
 
-Twenty-one entries, one root, and the header agrees. Now read the leaves, in key order,
-and the trie's shape appears:
+Twenty-one entries, one root, and the header agrees. The leaves come in key order, and
+they show the trie's shape:
 
-- `0xff00…` sits at **depth 1**: it's the only key that starts with a 1 bit, so it
-  needs no more splitting. Same story as the little picture above.
-- `0x0100…` to `0x0f00…` sit at **depth 8**: they differ only in their first byte, so
-  eight bits tell them apart. Fifteen of them, plus `0x10` at depth 4.
-- four keys starting `0x00` go deeper, to depth 9 to 11.
+- `0xff00…` is at **depth 1**: the only key that starts with a 1 bit, as in the picture
+  above.
+- `0x0100…` to `0x0f00…` are at **depth 8**: they differ only in their first byte, so
+  eight bits part them. Fifteen of them, plus `0x10` at depth 4.
+- Four keys starting `0x00` go deeper, to depths 9 to 11.
 
 Most values are big enough to be hashed. The biggest, 159,322 bytes, is a service's code:
-its hash is the code hash in the service's own entry, the one under `0xff`. Those
-keys that are all zeros after the first byte look suspiciously *designed*, don't they?
-That's [the next lesson](./02-state-keys.md). The dashboard's *State trie* panel has every leaf and the root.
+its hash is the code hash in the service's own entry, the one under `0xff`. And the keys
+that are all zeros after their first byte look *designed*. They are:
+[the next lesson](./02-state-keys.md) says how. The dashboard's *State trie* panel has every leaf and the root.
 
 ![State trie panel](./images/01-state-trie.png)
 
 ## The scoreboard
 
-The trie vectors' test already runs their one file whole: every case, entries in and root
-out. That's the scoreboard's `trie` family. Move the check into `test/families.ts`, where
-the scoreboard can reach it, and let the test call it from there, so it's written once:
+Your test already runs the trie vectors' one file whole: every case, entries in and root
+out. That is the scoreboard's `trie` family. Move the check into `test/families.ts`, where
+the scoreboard can reach it, and have the test call it there, so it is written once:
 
 **Add to** `test/families.ts`
 
@@ -653,7 +653,7 @@ test("each header promises the state before its block, by its root: 400 real sta
 });
 ```
 
-The trie vector is a list of cases, each some key-value entries and the root they must make. One case:
+One case of the vector, and its row on the scoreboard:
 
 ::: code-group
 
@@ -676,7 +676,8 @@ trie                       1 of 1  ✔
 
 :::
 
-Run whole means every case in the list, from no entries (a root of all zeros) up to ten, builds the root the vector names. The console row counts the file as one vector, passed.
+Run whole means every case, from no entries (a root of all zeros) up to ten, builds the
+root the vector names. The scoreboard counts the file as one vector, passed.
 
 **Run**
 
@@ -810,8 +811,8 @@ three cases off like the Gray Paper's own definition.
 ## What you have
 
 The function every JAM node runs after every block: the state root, matching the official
-trie vector whole. Your client can now
-check that a header's `parent_state_root` really is the state it came from. A root is all
-it gives, though: which key holds what? [Lesson 6.2](./02-state-keys.md) maps the keys.
+trie vector whole. Your client can now check that a header's `parent_state_root` really
+is the state it came from. A root is all it gives, though: which key holds what?
+[Lesson 6.2](./02-state-keys.md) maps the keys.
 
 Next: [6.2 State keys](./02-state-keys.md)

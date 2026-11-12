@@ -324,11 +324,15 @@ test("κ: real assurances check out with the validators' keys from the state", (
 });
 ```
 
-Three components, three independent witnesses: 99 headers for τ, the 8 epoch marks of
-the `safrole` trace (one every 12 slots, at the start of each tiny epoch) for η, and all
-524 assurances of the `preimages` trace for κ. The `assert.ok(marks > 0)` and
-`assert.equal(checked, 524)` lines are there so a loop that silently checks nothing
-can't pass.
+Three components, three independent witnesses:
+
+- **τ**: 99 headers.
+- **η**: the 8 epoch marks of the `safrole` trace, one every 12 slots, at the start of
+  each tiny epoch.
+- **κ**: all 524 assurances of the `preimages` trace.
+
+`assert.ok(marks > 0)` and `assert.equal(checked, 524)` are there so that a loop that
+checks nothing can't pass.
 
 ## The code
 
@@ -401,10 +405,10 @@ reported 66 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 The κ test: real assurances ([Part 4](../04-blocks/index.md)), checked with Ed25519 ([Part 5](../05-hashing-and-signatures/index.md)) against keys read
 from a real state ([Part 6](./index.md)) with your own codecs ([Part 2](../02-codec/index.md)). Four parts, one `assert`.
 
-And the test checks against the right set. The Gray Paper checks an assurance with κ, the
-validators as they were *before* the block (§11: κ, with no prime mark), so the test's choice holds
-even when the sets start rotating, in [Part 8](../08-safrole/index.md). (In these traces they never do: ι, κ
-and λ hold the same six throughout.)
+It also checks against the right set. The Gray Paper checks an assurance with κ, the
+validators as they were *before* the block (§11: κ, with no prime mark). So the test still
+holds when the sets start rotating, in [Part 8](../08-safrole/index.md). In these traces they never do: ι, κ
+and λ hold the same six throughout.
 
 ## Watch it
 
@@ -446,7 +450,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-What flows through it — three state entries in, three components out:
+What flows through it: three state entries in, three components out.
 
 ::: code-group
 
@@ -473,10 +477,9 @@ const components = {
 
 :::
 
-The key of each `keyvals` entry begins with its component's number — 0x0b is 11, τ; 0x06 is 6, η;
-0x08 is 8, κ — and the value is that component's encoding, which the readers decode:
-the time's four little-endian bytes say slot 11, and η's first 32 bytes are η₀ exactly
-as the output prints it.
+Each entry's key begins with its component's number: `0x0b` is 11, τ; `0x06` is 6, η;
+`0x08` is 8, κ. The value is that component's encoding. The time's four bytes, lowest
+first, say slot 11, and η's first 32 bytes are η₀, as the output prints it.
 
 **Run**
 
@@ -497,8 +500,8 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 
 Block 12 of the `safrole` trace starts an epoch, and its state says the time is slot 11:
 one block earlier, as promised. Compare η0 and η1 with that block's epoch mark, in the
-trace file: same hashes. And κ0's key, `0x4418fb8c…`, is an old friend: it's validator 0
-from [lesson 5.3](../05-hashing-and-signatures/03-signatures.md)'s assurance vectors. The test vectors share one cast of six validators.
+trace file: same hashes. And κ0's key, `0x4418fb8c…`, is an old friend: validator 0 of
+[lesson 5.3](../05-hashing-and-signatures/03-signatures.md)'s assurance vectors. The test vectors share one cast of six validators.
 The *Reading σ* panel shows all three components.
 
 ![Reading σ panel](./images/03-reading-sigma.png)

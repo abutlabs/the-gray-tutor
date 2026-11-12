@@ -193,10 +193,10 @@ The first two pin the byte layouts with small examples: service `0x04030201` has
 `01 02 03 04`, so its account key reads `ff 01 00 02 00 03 00 04 00`, then zeros.
 
 The third names every key of a real state, the one before the first block of the
-`fallback` trace. It lists the 16 components and service 0's account. Then, for every
-value in the state, it asks: is this value sitting exactly where a preimage of *itself*
-would sit? If so, it's a preimage, and its request has to be there too. At the end, the
-keys named this way and the keys in the state must be the same 21, no more, no fewer.
+`fallback` trace. It lists the 16 components and service 0's account. Then it asks of
+every value in the state: does it sit where a preimage of *itself* would? If so, it is a
+preimage, and its request has to be there too. The keys named this way and the keys in
+the state must be the same 21, no more, no fewer.
 
 A stub, with every key the same: 31 zero bytes.
 
@@ -416,14 +416,17 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-`describe` runs the recipes backwards. A key that's 255 and then zeros from byte 8 on is
-an account, and the service id is in bytes 1, 3, 5 and 7. A key that's zeros from byte 1
-on is a component. Anything else is woven, with the service id in bytes 0, 2, 4 and 6.
-The account check goes *first* for a reason: service 0's account key is `0xff` and 30
-zeros, which also looks like a component 255. There's no component 255, so it's the
-account.
+`describe` runs the recipes backwards:
 
-What flows through this run — two of the state's 21 entries by their keys, what `describe` makes of them, and the lines printed:
+- 255, then zeros from byte 8 on: an account. The service id is in bytes 1, 3, 5 and 7.
+- Zeros from byte 1 on: a component.
+- Anything else is woven, with the service id in bytes 0, 2, 4 and 6.
+
+The account check goes *first*. Service 0's account key is `0xff` and 30 zeros, which
+also looks like a component 255. There is no component 255, so it is the account.
+
+What flows through it: two of the state's 21 entries, what `describe` makes of their
+keys, and the lines printed.
 
 ::: code-group
 
@@ -463,9 +466,8 @@ the header promises it: true
 
 :::
 
-`describe` reads each key backwards: `08` and then zeros is component 8, κ; `ff` and
-zeros from byte 8 is an account, service 0. The names are printed beside the depth each
-key reached in the trie.
+`08` then zeros is component 8, κ. `ff` with zeros from byte 8 on is an account, service
+0's. Each name is printed beside the depth its key reached in the trie.
 
 **Run**
 
@@ -484,10 +486,11 @@ reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-r
 ```
 
 The same 21 leaves as [lesson 6.1](./01-the-state-trie.md), now with names. The one alone at depth 1 is service
-0's account. The *State trie* panel shows the names too. Then try a state a hundred
-blocks on, `../vectors/traces/storage/00000100.json`: 164 entries. The same 16
-components, the same account, the same two preimages and requests, and 143 new things
-service 0 keeps. That's its storage, filling up block by block.
+0's account. The *State trie* panel shows the names too.
+
+Then try a state a hundred blocks on, `../vectors/traces/storage/00000100.json`: 164
+entries. The same 16 components, the same account, the same two preimages and requests,
+and 143 new things service 0 keeps. That is its storage, filling up block by block.
 
 ![State trie panel](./images/02-state-trie.png)
 
