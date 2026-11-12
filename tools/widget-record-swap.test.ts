@@ -1,6 +1,6 @@
 // Lesson 2.5's record-swap widget (.vitepress/theme/record-swap.ts): its twelve bytes are
-// the lesson's, read right they give the values written, swapped they give the check
-// question's, and its list is the lesson's test's.
+// the lesson's, read right they give the values written, swapped they give the lesson's
+// values, and its list is the lesson's test's.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -36,9 +36,11 @@ test("the list 1, 2, 3 as u16s is its count then its items: the lesson's 0x03010
   assert.equal(`0x${SEQ_BYTES.flatMap((g) => g.bytes).map((b) => b.toString(16).padStart(2, "0")).join("")}`, "0x03010002000300");
 });
 
-test("lesson 2.5 places the widget once, at the end of Lists and structures", () => {
+test("lesson 2.5 places the widget once, at the top to try; the Gray Paper's rule sends back to it", () => {
   const raw = lessonText(LESSON);
   const at = raw.indexOf("<RecordSwap />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<RecordSwap />"), "placed once");
-  assert.ok(at > raw.indexOf("## Lists and structures") && at < raw.indexOf("## What the Gray Paper says"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("## What the Gray Paper says") && back < raw.indexOf("## Sequences"));
 });

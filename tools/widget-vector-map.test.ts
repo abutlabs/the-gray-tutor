@@ -127,10 +127,11 @@ test("the line explains each field on its real value, with its own bytes", () =>
   assert.deepEqual(fromHex("0x0102ff"), [1, 2, 255]);
 });
 
-test("lesson 2.6 places the widget after the read-the-bytes bullets, before the vectors helper", () => {
+test("lesson 2.6 places the widget once, at the top to try; Look at one sends back to it after the bullets", () => {
   const at = text.indexOf("<VectorMap />");
-  assert.ok(at > text.indexOf("The last eight are"), "after the bullets");
-  assert.ok(at > text.indexOf("The `tiny` and `full` folders"), "after the tiny and full paragraph");
-  assert.ok(at < text.indexOf("## A helper for vectors"), "before the helper");
+  assert.ok(at > text.indexOf('<a id="try-it"></a>') && at < text.indexOf("## The idea"), "at the top");
+  const back = text.indexOf("[at the top](#try-it)");
+  assert.ok(back > text.indexOf("The last eight are"), "after the bullets");
+  assert.ok(back < text.indexOf("## A helper for vectors"), "before the helper");
   assert.equal(text.split("<VectorMap />").length, 2, "once");
 });

@@ -1,5 +1,5 @@
 // Lesson 2.4's codec-picker widget (.vitepress/theme/codec-picker.ts): every byte string it
-// shows is one the lesson's tests or check questions give.
+// shows is one the lesson's tests or prose give.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -55,9 +55,11 @@ test("typed values read as decimal, hex or bits, and junk reads as nothing", () 
   assert.equal(parse("sixteen"), undefined);
 });
 
-test("lesson 2.4 places the widget once, in Tests after the bytes table", () => {
+test("lesson 2.4 places the widget once, at the top to try; Tests sends back to it after the bytes table", () => {
   const raw = lessonText(LESSON);
   const at = raw.indexOf("<CodecPicker />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<CodecPicker />"), "placed once");
-  assert.ok(at > raw.indexOf("A hash is its 32 bytes and nothing else") && at < raw.indexOf("**Run**", raw.indexOf("## Tests")));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("A hash is its 32 bytes and nothing else") && back < raw.indexOf("**Run**", raw.indexOf("## Tests")));
 });

@@ -1,32 +1,34 @@
 # Codecs
 
-Every kind of JAM value needs three things:
+**In one sentence:** a codec is one object that knows one kind of value three ways: how to
+encode it, how to decode it, and how to read it from the test vectors' JSON.
 
-1. its encoding, ℰ, from the Gray Paper;
-2. its decoding, the way back;
-3. a way to read it from the test vectors' JSON, so tests can compare.
+Put one number under all five codecs. The codec decides the bytes, not the value: 7 is one
+byte or eight, depending on which you ask.
 
-Write those three separately for every structure and sooner or later they drift apart: a
-field added to the encoder but not the decoder, two fields read in the wrong order. So
-each kind of value gets one object holding all three, a `Codec<T>`. Small codecs (a u32,
-a hash) snap together into codecs for whole structures, like bricks. The field order is
-written once, and every direction follows it.
+<a id="try-it"></a>
 
-## New words
+<CodecPicker />
 
-- **Codec.** One object that knows one kind of value three ways: how to encode it, how to
-  decode it, and how to read it from JSON. *Example:* `u32`, the codec for 4-byte numbers.
-- **JSON.** The plain-text format the test vectors are written in. *Example:*
-  `{"slot": 42, "hash": "0x01..."}`.
-- **Interface.** A TypeScript list of what an object must have, with no code in it.
-  *Example:* every codec has `encode`, `decode` and `fromJson`.
-- **Generic (`<T>`).** A type with a blank in it, filled in where it's used. *Example:*
-  `Codec<number>` is a codec for numbers, `Codec<Bytes>` one for bytes.
-- **Blob.** Any run of bytes of no fixed length, written with its length in front (the
-  Gray Paper's ↕). *Example:* the three bytes 1, 2, 3 encode as `0x03010203`: `03`, the
-  length, then `01 02 03`.
+## The idea
 
-All five are in the [glossary](../glossary.md).
+Every kind of JAM value needs three things: its encoding, from the Gray Paper; its
+decoding, the way back; and a way to read it from the test vectors'
+[*JSON*](../glossary.md#json), the plain-text format they are written in, so tests can
+compare.
+
+Write those three separately for every structure and sooner or later they drift apart. A
+field gets added to the encoder but not the decoder. Two fields get read in the wrong
+order.
+
+So each kind of value gets one object holding all three: a
+[*codec*](../glossary.md#codec). Small codecs, for a 4-byte number or a hash, snap
+together into codecs for whole structures, like bricks. The field order is written once,
+and every direction follows it.
+
+This lesson builds the smallest bricks: a codec for each width of integer, one for bytes
+of a known size, and one for a [*blob*](../glossary.md#blob), a run of bytes of no fixed
+length.
 
 ## What the Gray Paper says
 
@@ -82,7 +84,10 @@ $$
 
 :::
 
-And for bytes whose number isn't known in advance, it adds a length in front:
+Nothing (∅) encodes as no bytes at all (C.1). Bytes encode as themselves (C.2): a hash's
+32 bytes go out exactly as they are.
+
+For bytes whose number isn't known in advance, it adds a length in front:
 
 ::: gray-paper C.1.3 1-3
 
@@ -116,19 +121,20 @@ $$
 
 :::
 
-In plain words:
-
-- **Nothing (∅) encodes as no bytes at all** (C.1), and **bytes encode as themselves**
-  (C.2): a hash's 32 bytes go out exactly as they are.
-- **A value whose size can vary gets its length in front**, as a compact natural from
-  [lesson 2.2](./02-compact-naturals.md). The paper calls that length a discriminator
-  and writes ↕x for "x, with its length in front" (C.7). A hash needs none: everyone
-  knows it's 32 bytes.
+A value whose size can vary gets its length in front, as a compact natural from
+[lesson 2.2](./02-compact-naturals.md). The paper calls that length a discriminator and
+writes ↕x for "x, with its length in front" (C.7). The three bytes 1, 2, 3 as a blob are
+`0x03010203`: `03`, the length, then `01 02 03`. A hash needs no length: everyone knows
+it's 32 bytes.
 
 That is the whole of this lesson's codecs: numbers as [2.1](./01-fixed-width-integers.md) and
 [2.2](./02-compact-naturals.md) write them, fixed bytes as themselves, and a blob as ↕.
 
 ## The interface
+
+A TypeScript [*interface*](../glossary.md#interface) lists what an object must have, with
+no code in it. This one is [*generic*](../glossary.md#generic): `<T>` is a blank, filled
+in where it's used, so `Codec<number>` is a codec for numbers.
 
 **New file** `src/codec/codec.ts`
 
@@ -164,7 +170,7 @@ export function decode<T>(codec: Codec<T>, bytes: Bytes): T {
 ```
 
 `Value<C>` uses `infer`: "if C is a `Codec` of some T, give me that T". It lets the type
-of a whole structure fall out of its codec, as [the next lesson](./05-sequences-and-records.md) shows off.
+of a whole structure fall out of its codec, as [the next lesson](./05-sequences-and-records.md) shows.
 
 ## Integers
 
@@ -253,8 +259,7 @@ export const blob: Codec<Bytes> = {
 ```
 
 `blob` is (C.7)'s ↕x, "x with its length in front"; `fixedBytes` is (C.2), bytes as
-themselves. A hash needs no length, since everyone knows it's 32 bytes. A blob of any
-size has to announce itself.
+themselves.
 
 ## Tests
 
@@ -314,11 +319,8 @@ c0 00 40                  16,384 as a compact natural: 3 bytes
 
 A hash is its 32 bytes and nothing else: its length is always 32, so none goes in front.
 
-The codec decides the bytes, not the value. Put one number under all five codecs: 16,384
-is `00 40 00 00` as a u32 and `c0 00 40` as a natural, and 7 is one byte or eight
-depending on which you ask for.
-
-<CodecPicker />
+The same number under two codecs gives different bytes: 16,384 is
+`00 40 00 00` as a u32, `c0 00 40` as a natural. Try others [at the top](#try-it).
 
 **Run**
 
@@ -363,8 +365,7 @@ order.
 **Why put encoding, decoding and reading the JSON in one codec, instead of three separate functions?**
 
 - [ ] A codec writes fewer bytes than separate functions would
-  > No: the bytes are the Gray Paper's either way. 4,807 as a u16 is `c7 12` however
-  > the code is arranged.
+  > No: the bytes are the Gray Paper's either way, however the code is arranged.
 - [x] So the three can't drift apart
   > Yes: written separately, a field gets added to the encoder but not the decoder, or two
   > fields get read in the wrong order. In one codec, the order is written once.
@@ -372,39 +373,37 @@ order.
   > No: the vectors hold values (in JSON) and bytes. Grouping the three directions is
   > about keeping your own code in step.
 
-**16,384 as a `u32`, and 16,384 as a `natural`: what bytes?**
+**You know a field holds the number 16,384. Do you know its bytes?**
 
-- [ ] The same bytes: a number has only one encoding
-  > No: the codec decides. ℰ₄ always writes four bytes, and the compact natural as few
-  > as it needs.
-- [ ] `c0 00 40` for both: a compact natural is just a smaller u32
-  > No: `c0 00 40` is the compact natural only. A u32 has no marker byte; it is four
-  > bytes of the number, little end first.
-- [x] `00 40 00 00` as a u32, `c0 00 40` as a natural
-  > Yes: 16,384 is `0x4000`. ℰ₄ writes it in four bytes, little end first. The compact
-  > natural needs three: the marker `c0`, then `00 40`.
+- [ ] Yes: a number has only one encoding
+  > No: the fixed four-byte width writes four bytes, and the compact natural as few as it
+  > needs. Same number, different bytes.
+- [ ] Yes: the compact form, since it is the shortest
+  > No: nothing picks the shortest. A timeslot is four bytes even when it is 1.
+- [x] No: the codec decides the bytes, not the value
+  > Yes: the Gray Paper's type for the field says which encoding it gets. Until you know
+  > the codec, you don't know the bytes.
 
-**How does decoding `05 01 02 03 04 05` as a blob know to stop after five bytes?**
+**Why does a blob carry its length in front, when a hash doesn't?**
 
-- [x] It reads the length first, `05`, then exactly that many bytes
-  > Yes: that's what ↕ is for. A blob of any size announces its length, a compact
-  > natural, in front.
-- [ ] It reads to the end of the input
-  > No: a blob can sit in the middle of a bigger value, with more fields after it. The
-  > length says where it ends.
-- [ ] Blobs are always five bytes, like a hash is always 32
-  > No: a blob can be any length; that's why it carries one. A hash needs no length
-  > because it is always 32 bytes.
+- [x] A blob can be any size, so the bytes must say where it ends; a hash is always 32 bytes
+  > Yes: that's what ↕ is for. A blob can sit in the middle of a bigger value, with more
+  > fields after it, and the length says where it stops.
+- [ ] A hash is too short to need one
+  > No: size isn't the point. A hash needs no length because everyone knows it is 32
+  > bytes.
+- [ ] A decoder reads a blob to the end of the input, and the length is a check
+  > No: a blob is rarely last. Without the length the decoder could not find the field
+  > after it.
 
-**`natural32` handles counts as a JS number. Does it write a 4-byte number?**
+**`natural32` gives a count back as a `number`. Does it write four bytes?**
 
 - [ ] Yes: the 32 means 32 bits, so 4 bytes
   > No: the name is about the value in your code, a `number` instead of a `bigint`, not
   > the bytes. On the wire it is the same compact natural as `natural`.
 - [x] No: it writes exactly the bytes `natural` does
-  > Yes: both use ℰ, the compact natural, so 16,384 is `c0 00 40` from either. Only the
-  > type you get back differs: counts never come near 2^64, so a plain `number` holds
-  > them.
+  > Yes: both use ℰ, the compact natural. Only the type you get back differs: counts never
+  > come near 2^64, so a plain `number` holds them.
 :::
 
 ## What you have

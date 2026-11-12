@@ -1,38 +1,45 @@
 # The first test vectors
 
-Exam day. Your codec meets the official test vectors, the same ones every JAM team
-checks against. Their `codec/` folder holds JAM structures twice over: as JSON, and as
-the exact bytes ℰ produces. Decode the bytes into the JSON's values, encode those values
-back into the very same bytes, and your codec agrees with every other client's. No
-partial credit.
+**In one sentence:** JAM's official test vectors hold real structures twice, as readable
+values and as their exact bytes, and a codec that turns each into the other agrees with
+every other client's.
 
-Everything in [Part 2](./index.md) gets used here: [lesson 2.1](./01-fixed-width-integers.md)'s fixed widths, [lesson 2.2](./02-compact-naturals.md)'s compact
-naturals, [lesson 2.3](./03-writer-and-reader.md)'s Writer and Reader, and lessons [2.4](./04-codecs.md) and [2.5](./05-sequences-and-records.md)'s codecs, sequences
-and records.
+Here is one of them: a whole work item, all 236 bytes, beside its JSON. Tap a field to
+light up its bytes and see the rule that wrote them, on its real value. Tap a byte to find
+its field. The amber bytes are the only lengths in the file: the payload's, and how many
+items each list holds.
 
-## New words
+<a id="try-it"></a>
 
-- **Hex dump.** A file's bytes printed as hex, a few to a line, to read them by eye.
-  *Example:* `04 03 02 01 70 a5 08 29`.
-- **Round trip.** Decode the bytes, encode the result, and check you got the very same
-  bytes back. *Example:* `work_item.bin` → a work item → `work_item.bin` again.
-- **Tiny and full.** JAM's two configurations, with the same rules: *full* is a realistic
-  picture of the future network, with the Gray Paper's own numbers; *tiny* is small enough
-  to run on your own machine (6 validators, 2 cores). *Example:* `codec/tiny/` and
-  `codec/full/`.
-- **Segment.** A 4,104-byte piece of data that a work-item exports, for later
-  work-packages to import. *Example:* the `work_item` vector's item exports 4.
-- **Vector family.** One kind of test vector, in a folder of its own, all checked the same
-  way. *Example:* `codec`, and later `stf/safrole` and `traces/fallback`.
-- **Scoreboard.** Your client's tally of every official test vector, each one run whole.
-  *Example:* after this lesson, 4 of 1,428 pass.
+<VectorMap />
 
-All six are in the [glossary](../glossary.md), next to *test vector*.
+## The idea
+
+You have a codec. How do you know it is right?
+
+Reading the Gray Paper again won't tell you. A rule you misread once, you misread the
+same way twice. What you need is the answers, like the ones at the back of a maths book.
+
+JAM has them: the official test vectors, the same ones every JAM team checks against.
+Their `codec/` folder holds JAM structures twice over: as JSON, for people, and as the
+exact bytes the encoding produces.
+
+So the exam is a [*round trip*](../glossary.md#round-trip). Decode the bytes into the
+JSON's values. Encode those values back into the very same bytes. Do both, and your codec
+agrees with every other client's. No partial credit.
+
+Everything in [Part 2](./index.md) gets used here: [lesson 2.1](./01-fixed-width-integers.md)'s
+fixed widths, [lesson 2.2](./02-compact-naturals.md)'s compact naturals,
+[lesson 2.3](./03-writer-and-reader.md)'s Writer and Reader, and lessons
+[2.4](./04-codecs.md) and [2.5](./05-sequences-and-records.md)'s codecs, sequences and
+records. This lesson passes the first four vectors, and builds the board that counts the
+rest.
 
 ## Look at one
 
 From `client/`, the vectors are at `../vectors/`. A small program to show a file's bytes
-in hex will be handy for every vector from here on:
+in hex, a [*hex dump*](../glossary.md#hex-dump), will be handy for every vector from here
+on:
 
 **New file** `bin/hexdump.ts`
 
@@ -54,11 +61,10 @@ You give it a file and how many bytes to show from the start: `48` shows the fir
 and leaving the number off shows 64. The work item's file is 236 bytes. Show its first 52,
 which is exactly its first four fields: 4 + 32 + 8 + 8 bytes.
 
-A script can carry its words too. `hexdump` takes any file; `hexdump-work-item` is this
-one run, the file and the 52 built in, so `npm run hexdump-work-item` shows it again
-whenever you like. Every run in the lessons that names a file gets a script like this,
-named for what it shows. By the end, `npm run` on its own lists them all: a menu of
-everything your client can show, with nothing to retype.
+`hexdump` takes any file; `hexdump-work-item` is this one run, the file and the 52 built
+in, so `npm run hexdump-work-item` shows it again whenever you like. Every run in the
+lessons that names a file gets a script like this, named for what it shows. By the end,
+`npm run` on its own lists them all.
 
 What flows through this run:
 
@@ -126,17 +132,12 @@ Read the first bytes against the JSON:
   the third row, and `00 00 00 00` on the fourth. A row is just 16 bytes, so a field can
   run on into the next one.
 
-The `tiny` and `full` folders hold the same structures in JAM's two configurations. Tiny
-(6 validators, 2 cores) is what tests run fast with, and full uses the Gray Paper's own
-numbers. For the structures in this lesson the two are identical, and later
-ones differ.
+The whole item, field by field, is [at the top](#try-it).
 
-Here is the whole work item, all 236 bytes, beside its JSON. Tap a field to light up its
-bytes and see the rule that wrote them, on its real value. Tap a byte to find its field.
-The amber bytes are the only lengths in the file: the payload's, and how many items each
-list holds.
-
-<VectorMap />
+The `tiny` and `full` folders hold the same structures in JAM's two configurations.
+[*Tiny*](../glossary.md#tiny) (6 validators, 2 cores) is what tests run fast with, and
+[*full*](../glossary.md#full) uses the Gray Paper's own numbers. For the structures in
+this lesson the two are identical, and later ones differ.
 
 ## A helper for vectors
 
@@ -203,8 +204,9 @@ work-packages that must be accumulated first.
 
 **A work item** (§14, *Packages and Items*) is one job inside a work-package: the
 service it is for, that service's code hash, the gas limits for its two stages, a
-payload, the data segments it imports and how many it exports, and the extrinsic data
-it carries.
+payload, the data [*segments*](../glossary.md#segment) it imports and how many it exports,
+and the extrinsic data it carries. A segment is a 4,104-byte piece of data that a
+work-item exports, for later work-packages to import.
 
 Write the fields in the order **Appendix C encodes them**, not the order the definitions
 list them. They differ: §14 lists a work item's payload third, but Appendix C encodes it
@@ -301,8 +303,8 @@ reported 21 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 ```
 
 All four pass: tiny and full, both structures. Your codec reproduces the official
-encoding, byte for byte. That's a real JAM milestone, however small: a client written
-from the Gray Paper alone agreeing with the reference. Enjoy it.
+encoding, byte for byte: a client written from the Gray Paper alone, agreeing with the
+reference.
 
 ## Break it on purpose
 
@@ -328,13 +330,14 @@ from `payload` on goes wrong. Put `export_count` back before going on.
 ## The scoreboard
 
 Four vectors pass. Out of how many? Every JAM team keeps the same tally, so keep one too:
-a program that runs every official vector and counts.
+a [*scoreboard*](../glossary.md#scoreboard), a program that runs every official vector and
+counts.
 
 The vectors come in families, a folder each. `codec/` holds structures like today's.
 `stf/` holds the rules that change the chain's state, a family per rule (`stf/safrole`,
 `stf/disputes`...). `traces/` holds whole runs of real blocks, and a few smaller families
-sit beside them. A family's vectors are all checked the same way; for `codec`, it's the
-round trip you just wrote.
+sit beside them. A [*vector family*](../glossary.md#vector-family)'s vectors are all
+checked the same way; for `codec`, it's the round trip you just wrote.
 
 On the scoreboard a vector is run **whole**: your client's answer must be all of the
 vector's answer, not part of it. Many tests in this tutorial check one piece of a vector,
@@ -577,47 +580,58 @@ Gray Paper 0.8.0, and lasair's type marks them so.
 **`work_item.json` and `work_item.bin`: how are they related?**
 
 - [ ] The `.bin` is a compressed copy of the `.json` text
-  > No: there is no text in the `.bin` at all, not even the field names. Its 236 bytes are
+  > No: there is no text in the `.bin` at all, not even the field names. Its bytes are
   > only the values.
 - [x] They are the same work item: the `.json` for people, the `.bin` encoded
   > Yes: the `.bin` is the JSON's values, in the JSON's order, each written by its rule
   > from [Part 2](./index.md). A client decodes the `.bin` and must get exactly the `.json`'s values.
-- [ ] They are two different work items that happen to share a service
-  > No: every value matches. `04 03 02 01` is the service, 16909060, and the next 32
-  > bytes are the same `code_hash`.
+- [ ] They are an input and the output a client must compute from it
+  > No: nothing is computed here. Both files are one value, in two forms.
 
-**In `hexdump-work-item`'s command, `node bin/hexdump.ts ../vectors/codec/tiny/work_item.bin 52`, what is the 52?**
+**What must your codec do to pass a codec vector?**
 
-- [ ] The size of every work item
-  > No: this one is 236 bytes, and an item with a longer payload is longer still.
-- [ ] The number of fields in a work item
-  > No: a work item has eight fields at the top level. 52 counts bytes, not fields.
-- [x] How many bytes to show, from the start of the file
-  > Yes: `bin/hexdump.ts` stops after 52 bytes. They happen to be exactly the first four fields,
-  > 4 + 32 + 8 + 8.
+- [ ] Decode the bytes into the JSON's values
+  > No: that is half. The values must also encode back to the very same bytes.
+- [ ] Produce the same JSON text as the file
+  > No: your client never writes JSON. It reads the JSON's values to compare with what it
+  > decoded.
+- [x] Decode the bytes into the JSON's values, and encode those values back into the same bytes
+  > Yes: the round trip. Both directions agree with the official encoding, byte for byte.
 
-**Why is `service`, 16909060, written `04 03 02 01`?**
+**§14 lists a work item's payload third. Appendix C encodes it after the gas limits and the export count. Which order does your codec follow?**
 
-- [x] ℰ₄ writes a number's least significant byte first
-  > Yes: 16909060 is `0x01020304`, and ℰ₄ starts from its lowest byte, `04`.
-- [ ] The vector files store numbers backwards to save space
-  > No: the order saves nothing; both orders take 4 bytes. It is simply the Gray Paper's
-  > rule for fixed-width numbers, from [lesson 2.1](./01-fixed-width-integers.md).
-- [ ] The service id is a hash, and hashes are written in reverse
-  > No: the service id is a plain number, and a hash such as `code_hash` is copied exactly
-  > as it is, never reversed.
+- [x] Appendix C's: the encoding is what the bytes follow
+  > Yes: a record's bytes say nothing about which field is which, so the codec's order has
+  > to be the encoding's. The vectors' JSON lists the fields in that order too.
+- [ ] §14's: the definition comes first in the paper
+  > No: the definition says what a work item holds. Appendix C says how it is written, and
+  > the two orders differ.
+- [ ] Either: a decoder matches fields by name
+  > No: there are no names in the bytes. Move one field and the fields after it read the
+  > wrong bytes, as *Break it on purpose* showed.
 
-**The payload has its length, `05`, in front of it. Why doesn't `code_hash`?**
+**The payload has its length in front of it. Why doesn't `code_hash`?**
 
 - [ ] `code_hash` comes first, and only later fields need a length
   > No: order has nothing to do with it. `refine_gas_limit` comes later and has no
   > length either.
-- [ ] Lengths are only written for numbers
-  > No: it's the other way round. Numbers like the gas limits have a fixed size and no
-  > length; the payload is bytes, and it has one.
 - [x] A hash is always 32 bytes, but a payload can be any size
   > Yes: when both sides know a field's size, nothing needs saying. A payload's size
   > changes from item to item, so the bytes have to say it.
+- [ ] Lengths are only written for numbers
+  > No: it's the other way round. Numbers like the gas limits have a fixed size and no
+  > length; the payload is bytes, and it has one.
+
+**On the scoreboard a vector is run whole. What does that mean?**
+
+- [ ] Every vector in its family must pass before any counts
+  > No: each vector counts on its own. The codec family shows 4 of 30.
+- [ ] The test for the piece a lesson built must pass
+  > No: many tests check one piece of a vector, which is the right way to build. The
+  > scoreboard is stricter.
+- [x] Your client's answer must be all of the vector's answer, with nothing in it different
+  > Yes: a vector counts only once nothing in it differs. For a codec vector, that is the
+  > whole round trip.
 :::
 
 ## What you have
