@@ -7,9 +7,9 @@ the rules of order. Each formula: its key, then read aloud, in plain words, on a
 in your client. Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 Most real values here come from one vector, `progress_invalidates_avail_assignments-1` on
-tiny: six validators, slot τ = 0 (epoch 0), two reports pending on the two cores, and a
-block that judges both, one good (`0xa78b…`) and one bad (`0xf907…`), names the bad one's
-two guarantors as culprits and one validator who voted against the good one as a fault.
+tiny. It has six validators, slot τ = 0 (epoch 0), and two reports pending on the two cores.
+Its block judges both, one good (`0xa78b…`) and one bad (`0xf907…`). It names the bad one's
+two guarantors as culprits, and one validator who voted against the good one as a fault.
 
 ## (10.1): what the state keeps
 
@@ -40,10 +40,10 @@ $$
 
 **Read it aloud.** "Psi is defined as the four-tuple psi-G, psi-B, psi-W, psi-O."
 
-**In plain words.** ψ, the past judgments, is four sets that only ever grow: the hashes
-of reports judged good (ψ_G), bad (ψ_B) and wonky (ψ_W), and the Ed25519 keys of every
-validator found guilty, the offenders (ψ_O). They are written sorted, as every set in the
-state is.
+**In plain words.** ψ, the past judgments, is four sets that only ever grow. Three hold the
+hashes of reports: those judged good (ψ_G), bad (ψ_B) and wonky (ψ_W). The fourth holds the
+Ed25519 keys of every validator found guilty, the offenders (ψ_O). They are written sorted,
+as every set in the state is.
 
 **On a real value.** Before the block, all four are empty. After it:
 
@@ -128,8 +128,8 @@ signature."
 - **faults**, at most N_O = 16: the report's hash, the vote, the voter's key, and their
   vote signature.
 
-A culprit or fault names a validator by key, not by index, because it may be about a
-validator of either set, κ or λ, where the same validator can sit at different indices
+A culprit or fault names a validator by key, not by index. It may be about a validator of
+either set, κ or λ, and the same validator can sit at different indices in the two
 (`0x4418…` is κ[0] and λ[2] in this vector).
 
 **On a real value.** The block's three lists:
@@ -215,11 +215,11 @@ X-sub-top is defined as the string jam_valid, X-sub-bottom as the string jam_inv
    (10.2) already allowed only those two epochs.
 2. **(10.4) How many votes.** Exactly ⌊⅔ |𝐤|⌋ + 1, two thirds of the judges plus one:
    not fewer, and not more.
-3. **(10.4), (10.5) Each vote is signed.** Its index i names a judge that exists
-   (i < |𝐤|), and s is that judge's Ed25519 signature (the e part of their keys) on the
-   prefix X_v then the report's hash r. The prefix is `jam_valid` for ⊤ and `jam_invalid`
-   for ⊥ (the `$` in the paper is notation, not a byte), so a "valid" signature can never
-   pass as an "invalid" one.
+3. **(10.4), (10.5) Each vote is signed.** Its index i names a judge that exists    (i <
+   |𝐤|). s is that judge's Ed25519 signature (the e part of their keys) on the    prefix
+   X_v, then the report's hash r. The prefix is `jam_valid` for ⊤ and `jam_invalid`    for ⊥
+   (the `$` in the paper is notation, not a byte). So a "valid" signature can never    pass
+   as an "invalid" one.
 
 **On a real value.** τ = 0, E = 12, the good verdict's judgment from validator 2:
 
@@ -233,16 +233,16 @@ verify              Ed25519(0xcab2…, those 41 bytes, 0x7d8a…) = true
 the same, X_⊥       6a61 6d5f 696e 7661 6c69 64 a78b …   43 bytes: false
 ```
 
-The bytes `6a 61 6d 5f 76 61 6c 69 64` are the ASCII letters `jam_valid`. And on another
-vector, `progress_with_verdict_signatures_from_previous_set-1`, τ = 36 is epoch 3; its
-verdict's a = 2 is not 3, so K(2) = λ, the last epoch's six keys, and the signatures check
-against those. Its twin, `-2`, says a = 1: (10.2) allows only 3 or 2, and the block is
-refused, `bad_judgement_age`.
+The bytes `6a 61 6d 5f 76 61 6c 69 64` are the ASCII letters `jam_valid`. On another vector,
+`progress_with_verdict_signatures_from_previous_set-1`, τ = 36 is epoch 3. Its verdict's a =
+2 is not 3, so K(2) = λ, the last epoch's six keys, and the signatures check against those.
+Its twin, `-2`, says a = 1. (10.2) allows only 3 or 2, so the block is refused,
+`bad_judgement_age`.
 
 On full, 1,023 validators: ⌊⅔ · 1,023⌋ + 1 = 682 + 1 = 683 judgments a verdict.
 
 **In your client.** `judges` (K), `voteMessage` and `votesSigned` in `src/disputes.ts`,
-written in [10.1](./01-votes-and-verdicts.md#the-code); the count, the index check and the
+written in [10.1](./01-votes-and-verdicts.md#the-code). The count, the index check and the
 age are three of `verdictError`'s rules, in [10.4](./04-bad-verdicts.md#the-code).
 
 ## (10.12): good, bad or wonky
@@ -301,11 +301,11 @@ the votes saying "valid" (the sum treats ⊤ as 1 and ⊥ as 0). Then:
 - t is 0: **⊥, bad**;
 - t is ⌊⅓ |𝐤|⌋: **∅, wonky**, a real split nobody can settle.
 
-The cases leave every other t without an answer, and a verdict must have one, so any other
-split makes the block invalid ([10.4](./04-bad-verdicts.md)'s `bad_vote_split`). The
-footnote in the paper gives the reason for these three: they are the thresholds for the
-three things a verdict can do, and the network assumes at least two thirds plus one of
-the validators are live.
+The cases leave every other t without an answer, and a verdict must have one. So any other
+split makes the block invalid ([10.4](./04-bad-verdicts.md)'s `bad_vote_split`). The paper's
+footnote gives the reason for these three. They are the thresholds for the three things a
+verdict can do, and the network assumes at least two thirds plus one of the validators are
+live.
 
 **On a real value.** Tiny has |𝐤| = 6, so the three counts are 5, 0 and 2:
 
@@ -379,8 +379,8 @@ every f such that f and the rest is in E-C, union every f such that f and the re
 E-F."
 
 **In plain words.** Each judged report's hash joins the set of its answer, and every
-culprit's and fault's key joins the offenders. Union, ∪, adds without repeats; the "…"
-in (f, …) means "whatever else the tuple holds", so only the key f is taken.
+culprit's and fault's key joins the offenders. Union, ∪, adds without repeats. The "…" in
+(f, …) means "whatever else the tuple holds", so only the key f is taken.
 
 **On a real value.**
 
@@ -490,10 +490,10 @@ the set of the e keys of every validator in lambda or kappa, minus psi-O."
 
 **In plain words.** An accusation must be true, about a validator, and signed by them:
 
-- **A culprit**'s report is now in the bad set; its key belongs to a validator of this
-  epoch or the last who isn't already an offender (that is 𝐤: κ's and λ's Ed25519 keys,
-  with ψ_O taken out, ∖); and its signature is that validator's guarantee of the report,
-  on `jam_guarantee` ⌢ r.
+- **A culprit**'s report is now in the bad set. Its key belongs to a validator of this
+  epoch or the last who isn't already an offender. (That is 𝐤: κ's and λ's Ed25519 keys,
+  with ψ_O taken out, ∖.) Its signature is that validator's guarantee of the report,   on
+  `jam_guarantee` ⌢ r.
 - **A fault**'s vote contradicts the verdict. ⇔ ties three statements together, all true
   or all false: "r is bad", "r is not good", "v". So either the report is bad and the
   fault voted ⊤ valid, or it is good and the fault voted ⊥ invalid. A wonky report is
@@ -516,10 +516,10 @@ fault (0xa78b…, ⊥, 0xf30a…, 0xa376…)
   X_⊥ ⌢ r            43 bytes, Ed25519(0xf30a…, …, 0xa376…) = true
 ```
 
-Two that fail: in `progress_with_faults-7` a second fault on the good report `0x11da…`
-voted ⊤: "not bad" is false, "not good" is false, v is true, and the ⇔ breaks
-(`fault_verdict_wrong`). In `progress_with_culprits-4`, `0x4418…` is already in ψ_O, so
-it isn't in 𝐤 (`offender_already_reported`).
+Two that fail. In `progress_with_faults-7`, a second fault on the good report `0x11da…`
+voted ⊤. "Bad" is false, "not good" is false, v is true, and the ⇔ breaks
+(`fault_verdict_wrong`). In `progress_with_culprits-4`, `0x4418…` is already in ψ_O, so it
+isn't in 𝐤 (`offender_already_reported`).
 
 **In your client.** `culpritSigned` and `faultSigned`, written in
 [10.2](./02-culprits-and-faults.md#the-code), and the other rules in `offenseError`,
@@ -613,9 +613,8 @@ equals its culprits ordered by f, unique; E-F, its faults ordered by f, unique. 
 of every r of E-V is disjoint from psi-G union psi-B union psi-W. For every verdict r,
 a, bold j of E-V: bold j equals its judgments ordered by i, unique."
 
-**In plain words.** The ≀≀ sign before a key means "sorted by this key, with no key
-twice": a list equal to its own sorted, unique self is already sorted and has no
-repeats.
+**In plain words.** The ≀≀ sign before a key means "sorted by this key, with no key twice".
+A list equal to its own sorted, unique self is already sorted and has no repeats.
 
 - **(10.8)** Verdicts are sorted by report hash, no report twice.
 - **(10.9)** Culprits are sorted by key, and so are faults, no key twice in either.
@@ -624,9 +623,9 @@ repeats.
 - **(10.11)** Inside a verdict, the judgments are sorted by validator index, no judge
   twice.
 
-Uniqueness is the point: a vote counted twice could make a split look like a verdict,
-and a key named twice would be punished twice. Sorting makes a repeat cheap to spot, since
-it must sit right next to its twin.
+Uniqueness is the point. A vote counted twice could make a split look like a verdict, and a
+key named twice would be punished twice. Sorting makes a repeat cheap to spot: it must sit
+right next to its twin.
 
 **On a real value.** The good examples keep every rule: `0xa78b…` before `0xf907…`;
 culprits `0x4418…` before `0xad93…`; judges 0, 1, 2, 3, 4. Vectors that break them:
@@ -669,10 +668,10 @@ $$
 **Read it aloud.** "For every r, true in bold v: there exists a fault r and the rest in
 E-F."
 
-**In plain words.** A report judged good must have at least one fault about it in the
-same block. A dispute starts only when someone votes "invalid"; if the report turns out
-good, that someone was wrong, and the block must name them. A bad verdict has no such
-rule: its culprits may come in a later block.
+**In plain words.** A report judged good must have at least one fault about it in the same
+block. A dispute starts only when someone votes "invalid". If the report turns out good,
+that someone was wrong, and the block must name them. A bad verdict has no such rule: its
+culprits may come in a later block.
 
 **On a real value.**
 
@@ -687,13 +686,13 @@ progress_with_faults-1                     (0x11da…, ⊤); no faults at all   
 ## Say it in one breath
 
 The state keeps the reports judged good, bad and wonky, and the offenders' keys (10.1). A
-block carries verdicts, culprits and faults (10.2). Each verdict holds exactly two thirds
-of this epoch's or last epoch's validators plus one, each vote signed on `jam_valid` or
-`jam_invalid` and the report's hash (10.3 to 10.5); all of them valid is good, none is
-bad, a third is wonky, and anything else sinks the block (10.12). The judged reports join
-their sets and the offenders' keys join ψ_O (10.15 to 10.18); a report judged bad or
-wonky leaves its core (10.14). A culprit is a guarantor of a bad report, a fault a voter
-against the verdict, each a current validator not yet punished, convicted by their own
-signature (10.6, 10.7), and the header lists them (10.19). Everything is sorted with no
-repeats, no report is judged twice (10.8 to 10.11), and a good verdict comes with a fault
+block carries verdicts, culprits and faults (10.2). Each verdict holds exactly two thirds of
+this epoch's or last epoch's validators plus one, each vote signed on `jam_valid` or
+`jam_invalid` and the report's hash (10.3 to 10.5). All of them valid is good, none is bad,
+a third is wonky, and anything else sinks the block (10.12). The judged reports join their
+sets, and the offenders' keys join ψ_O (10.15 to 10.18). A report judged bad or wonky leaves
+its core (10.14). A culprit is a guarantor of a bad report, a fault a voter against the
+verdict. Each is a validator of this epoch or the last, not yet punished, and convicted by
+their own signature (10.6, 10.7). The header lists them (10.19). Everything is sorted with
+no repeats, no report is judged twice (10.8 to 10.11), and a good verdict comes with a fault
 (10.13).

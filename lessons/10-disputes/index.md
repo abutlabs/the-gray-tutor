@@ -1,20 +1,21 @@
 # Part 10 · Disputes
 
+**In one sentence:** when a guaranteed work-report turns out to be wrong, validators hold a
+trial in the blocks themselves, and this part makes your client the court that checks it.
+
 <AlbertJudge />
 
-What happens when a guaranteed work-report turns out to be wrong? A trial, held in the
-blocks themselves: validators vote, the verdict is recorded forever, and whoever vouched
-for a bad report, or voted against the truth, is named an offender and loses their seat.
+Validators vote. The verdict is recorded forever. Whoever vouched for a bad report, or
+voted against the truth, is named an offender and loses their seat.
 
 By the end of this part your client is the court: every verdict, culprit and fault
 checked, and every disputes vector accepted or refused just as it should be.
 
 ## The big picture
 
-The chain never re-runs a core's work; three guarantors' signatures carry it ([Part
-12](../12-guarantees/index.md)). What keeps the three honest is that anyone may check
-them afterwards. The paper opens §10 with what this part records, and why it's rare but
-needed:
+The chain never re-runs a core's work. Three guarantors' signatures carry it ([Part
+12](../12-guarantees/index.md)). What keeps the three honest? Anyone may check them
+afterwards. The paper opens §10 with what this part records, and why it's rare but needed:
 
 ::: gray-paper 10 1-2
 
@@ -67,20 +68,26 @@ same, and what a verdict does to the chain:
 
 :::
 
-In plain words: judgments come from auditing, off the chain, and nearly all of them say
-"valid". A verdict against a report means validators have already stopped building on
-any chain that accumulated it, and a block carrying the verdict also stops the report
-being accumulated now ([10.3](./03-clearing-the-cores.md)). The record lasts forever,
-for the reasons the paper gives: offenders can be punished by whatever system stakes the
-validators (on Polkadot, by taking their stake: slashing), a report found bad must not
-come back, and a report found good can't be disputed again. In 0.8.0 the one rule that
-reads the three sets is §10's own: a report already in one can't get a second verdict
-([10.4](./04-bad-verdicts.md)'s `already_judged`). The offenders' keys are read again
-when the next validator set is chosen ([lesson 8.2](../08-safrole/02-rotating-the-validators.md)).
+Judgments come from auditing, off the chain, and nearly all of them say "valid". A verdict
+against a report means validators have already stopped building on any chain that
+accumulated it. A block carrying the verdict also stops the report being accumulated now
+([10.3](./03-clearing-the-cores.md)).
+
+The record lasts forever, for the reasons the paper gives:
+
+- Offenders can be punished by whatever system stakes the validators. On Polkadot that
+  means taking their stake: slashing.
+- A report found bad must not come back.
+- A report found good can't be disputed again.
+
+In 0.8.0 the one rule that reads the three sets is §10's own: a report already in one
+can't get a second verdict ([10.4](./04-bad-verdicts.md)'s `already_judged`). The
+offenders' keys are read again when the next validator set is chosen
+([lesson 8.2](../08-safrole/02-rotating-the-validators.md)).
 
 If you build web services: a verdict is a signed incident report, filed once enough
-reviewers have reproduced the bug; the good, bad and wonky sets are the incident log,
-append-only; and the offenders are the engineers named in it.
+reviewers have reproduced the bug. The good, bad and wonky sets are the incident log,
+append-only. The offenders are the engineers named in it.
 
 **Builds on** [Part 3 · Work and reports](../03-work-and-reports/index.md), [Part 4 ·
 Blocks](../04-blocks/index.md), [Part 5 · Hashing and

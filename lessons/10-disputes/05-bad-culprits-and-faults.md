@@ -1,24 +1,43 @@
 # Bad culprits and faults
 
+**In one sentence:** an accusation gets a validator punished, so a block is refused unless
+each one names a real validator, carries that validator's own signature, and fits the
+verdict.
+
 <AlbertJailbird />
 
-[Lesson 10.4](./04-bad-verdicts.md) checked the verdicts. Now the accusations: a culprit says "this validator
-vouched for a bad report", a fault "this validator voted the wrong way", and either gets
-a validator punished. So they had better be true: about a real validator, backed by its
-own signature, not already punished. With these rules and [lesson 10.4](./04-bad-verdicts.md)'s, your
-client's disputes agree with every disputes vector.
+A report has been judged, and a validator is accused of voting the wrong way. Set the
+verdict and the vote, and see whether the accusation stands.
 
-## New words
+<a id="try-it"></a>
 
-- **Evidence.** What makes an accusation stick: the accused's own signature. *Example:* a
-  culprit carries the guarantee its validator signed; a fault, the vote.
-- **Offender (ψ_O).** A validator found guilty; ψ_O holds the keys of every one so far.
-  Nobody already found guilty can be accused again. *Example:* a culprit naming a key
-  already in ψ_O sinks the block.
-- **If and only if (⇔).** The Gray Paper's ⇔ says two things are true together or false
-  together. *Example:* "the report is bad ⇔ the fault voted valid".
+<FaultRule />
 
-All three are in the [glossary](../glossary.md).
+## The idea
+
+[Lesson 10.4](./04-bad-verdicts.md) checked the verdicts. Now the accusations. A culprit says "this validator
+vouched for a bad report". A fault says "this validator voted the wrong way". Either
+gets a validator punished. What stops a block from accusing an innocent one?
+
+The accusation has to be true, in three ways:
+
+- **About a real validator.** One of this epoch's or the last's, and not an
+  [*offender*](../glossary.md#offender) already: nobody found guilty can be accused again.
+- **With [*evidence*](../glossary.md#evidence).** The accused's own signature: a culprit
+  carries the guarantee its validator signed, a fault the vote.
+- **Fitting the verdict.** A culprit's report must have been judged bad. A fault's vote
+  must be against the verdict.
+
+The Gray Paper writes that last rule as an
+[*if*](../glossary.md#if) and [*only if*](../glossary.md#only-if): two things that are
+true together or false together. The report is bad if and only if the fault voted valid.
+
+One rule more ties verdicts to accusations. A dispute only starts when someone calls a
+report invalid. So if the report is judged good, someone was wrong, and a fault must say
+who.
+
+With these rules and [lesson 10.4](./04-bad-verdicts.md)'s, your client's disputes agree with every disputes
+vector.
 
 ## What the Gray Paper says
 
@@ -111,8 +130,8 @@ $$
 
 :::
 
-In plain words, with (10.9) from [lesson 10.4](./04-bad-verdicts.md#what-the-gray-paper-says)
-for the order. ψ′ here means the judged sets *after* this block's verdicts
+(10.9), for the order, is quoted in [lesson 10.4](./04-bad-verdicts.md#what-the-gray-paper-says).
+ψ′ here means the judged sets *after* this block's verdicts
 ([lesson 10.1](./01-votes-and-verdicts.md)'s `recordVerdicts`). Every culprit must keep four rules:
 
 1. **In order.** Culprits sorted by key, no key twice. (`culprits_not_sorted_unique`)
@@ -152,19 +171,18 @@ about a separate thing:
 
 The verdict is the emergency, so a block author files it the moment they have the votes.
 A bad report has to come off its core before it's accumulated, and every node needs to
-know which chain to stop building on. The culprit is the paperwork. The author has to
-hold the guarantor's signed guarantee to copy it in, and may not have it to hand, for
-example if it sits in a block on the chain now being abandoned. So it can follow. The
-verdict put the report in ψ_B for good, so rule 2 holds in every later block. The one
-deadline is rule 3: once the guarantor's key is in neither κ nor λ, nobody can name them
-any more.
+know which chain to stop building on.
+
+The culprit is the paperwork. The author has to hold the guarantor's signed guarantee to
+copy it in, and may not have it to hand, for example if it sits in a block on the chain
+now being abandoned. So it can follow. The verdict put the report in ψ_B for good, so
+rule 2 holds in every later block. The one deadline is rule 3: once the guarantor's key
+is in neither κ nor λ, nobody can name them any more.
 
 The Gray Paper writes rule 6 as a double ⇔: r ∈ ψ′_B ⇔ r ∉ ψ′_G ⇔ v. All three are true
 together or false together, so a fault on a wonky report (neither bad nor good) fails it
-too. A culprit is a guarantor, a fault an auditor, which is where the vectors' names
+too: try it [at the top](#try-it). A culprit is a guarantor, a fault an auditor, which is where the vectors' names
 `bad_guarantor_key` and `bad_auditor_key` come from.
-
-<FaultRule />
 
 ## The tests
 
@@ -438,8 +456,8 @@ progress_with_faults-7: fault_verdict_wrong
 :::
 
 The culprits' report is in ψ′'s bad set, so rule 2 holds, but the first culprit's key is
-already in ψ_O: the whole block is refused at rule 3. In the second, the verdict is good, so
-a fault had to vote invalid; the second one voted valid, with the verdict, and that is
+already in ψ_O: the whole block is refused at rule 3. In the second, the verdict is good,
+so a fault had to vote invalid. The second one voted valid, with the verdict, and that is
 `fault_verdict_wrong`.
 
 **Run**
@@ -685,17 +703,17 @@ report is refused.
   > No: they vouched for a good report and did nothing wrong. Culprits are for bad
   > reports.
 
-**In `progress_with_bad_verdict_without_culprits-1`, a report is judged bad and no culprit is named. What happens?**
+**A report is judged bad, and the block names no culprit. What happens?**
 
 - [ ] Refused: a bad report must have guarantors to punish
   > No: no rule asks culprits for a bad verdict. Only a good verdict needs something,
   > a fault.
-- [x] Accepted: the report joins the bad set, and the offenders mark is empty
-  > Yes: the vector accepts it, with `offenders_mark` `[]`. The guarantors did sign it,
-  > but a culprit is a separate proof, their signature copied in, and it can come in a
-  > later block.
 - [ ] Refused, `not_enough_faults`
   > No: that rule is for good verdicts. This one is bad.
+- [x] Accepted: the report joins the bad set, and the offenders mark is empty
+  > Yes: `progress_with_bad_verdict_without_culprits-1` is accepted, with
+  > `offenders_mark` `[]`. The guarantors did sign the report, but a culprit is a
+  > separate proof, their signature copied in, and it can come in a later block.
 
 **A culprit names a key already in ψ_O. What happens?**
 
@@ -707,14 +725,23 @@ report is refused.
 - [ ] Refused, `bad_signature`: an offender's key can't sign
   > No: the culprit carries its own key, and its signature checks against that key.
   > It's ψ_O that sinks it.
+
+**Why may a culprit be named in a later block than the verdict that condemns its report?**
+
+- [ ] A guarantor can only be named once its key has left κ and λ
+  > No: the other way round. Once the key is in neither, nobody can name them any more.
+- [x] The verdict can't wait, and the culprit can: it needs the guarantor's signed guarantee, which the author may not have to hand
+  > Yes: the bad report must come off its core before it's accumulated. The verdict put
+  > it in ψ_B for good, so the culprit's rules still hold in a later block.
+- [ ] A culprit has to wait until its report is accumulated
+  > No: a bad report must never be accumulated. That is why the verdict comes at once.
 :::
 
 ## What you have
 
 The whole court, checked: every verdict, culprit and fault in a block follows the rules,
 and every disputes vector is accepted or refused just as it should be, all 60 passing
-whole. Disputes are for
-the rare report that's wrong. [Part 11](../11-assurances/index.md) is what happens to every report on a core:
-validators vouching that its data really is available.
+whole. Disputes are for the rare report that's wrong. [Part 11](../11-assurances/index.md) is what happens to
+every report on a core: validators vouching that its data really is available.
 
 Next: [Part 11 · Assurances](../11-assurances/index.md)

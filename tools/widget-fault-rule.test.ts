@@ -34,8 +34,10 @@ test("the names come in offenseError's order, each with the vector the run shows
   }
 });
 
-test("lesson 10.5 places the widget once, after the ⇔ paragraph", () => {
+test("lesson 10.5 places the widget once, at the top, before The idea; the ⇔ paragraph sends the reader back to it", () => {
   const at = raw.indexOf("<FaultRule />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<FaultRule />"), "placed once");
-  assert.ok(at > raw.indexOf("`bad_guarantor_key` and `bad_auditor_key` come from.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const names = raw.indexOf("`bad_guarantor_key` and `bad_auditor_key` come from.");
+  assert.ok(names > raw.indexOf("try it [at the top](#try-it)") && names < raw.indexOf("## The tests"));
 });
