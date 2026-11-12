@@ -1,10 +1,35 @@
 # A real program
 
+**In one sentence:** a real service wakes up with its memory laid out in sections, empty
+gaps between them, and four registers set, and it stops the machine whenever it has a
+question for the outside world.
+
+Lay out the test's tiny program or the real service, or sizes of your own. Tap a row to
+touch its first byte.
+
+<a id="try-it"></a>
+
+<YLayout />
+
+## The idea
+
 Every program so far was a handful of bytes you assembled yourself. Now the real thing:
-the bootstrap service, a 149,274-byte PVM program from the test vectors' state. It expects
-its memory laid out just so before it starts, and sooner or later it asks the outside
-world for something, with `ecalli`. Build both and watch a real service wake up and ask
-its first question.
+the bootstrap service, a 149,274-byte program from the test vectors' state. A real program
+needs two things yours didn't.
+
+**A world to wake up in.** Compiled code expects its memory laid out just so before its
+first instruction: read-only data, read-write data and a heap, a stack, its arguments. One
+function lays that out, the same way for every program. It leaves an empty stretch between
+sections, like the gaps between houses: a program that runs off the end of one section
+hits nothing at all, instead of the next one. It also sets four registers: the way out,
+the top of the stack, where the arguments are, and how long they are.
+
+**A way to ask.** Sooner or later a program wants something from the outside world. One
+instruction stops the machine and says which question it has, by number. Whoever runs the
+machine answers, and the machine carries on. That is a
+[*host call*](../glossary.md#host-call).
+
+Build both, and watch a real service wake up and ask its first question.
 
 ## What the Gray Paper says
 
@@ -23,7 +48,7 @@ its first question.
 
 :::
 
-In plain words, **`ecalli`** (opcode 10): ε = ħ × ν_X. The machine stops with a *host
+**`ecalli`** (opcode 10) is the way to ask: ε = ħ × ν_X. The machine stops with a *host
 call*, and ν_X says which one. The machine hands back ı pointing *at* the `ecalli`, with
 registers and memory as they were. A.6 says what happens next:
 
@@ -117,7 +142,7 @@ $$
 
 :::
 
-In plain words, Ψ_H runs Ψ, and whenever it stops on a host call, hands the call to f, the
+Ψ_H runs Ψ, and whenever it stops on a host call, hands the call to f, the
 host's function, with the gas, registers and memory and some context x of the host's own.
 If f says carry on, the machine carries on from the next instruction, ı + 1 + skip(ı),
 with whatever f changed. Any other exit ends Ψ_H. The host calls are numbered in App. B:
@@ -225,7 +250,7 @@ $$
 
 :::
 
-In plain words, **Y** turns a standard program ([lesson 15.1](./01-the-program-blob.md)
+**Y** builds the world to wake up in. It turns a standard program ([lesson 15.1](./01-the-program-blob.md)
 unpacked its parts: o, w, z, s and the code) and some argument bytes a into a starting
 memory and registers. Memory is laid out in *zones* of Z_Z = 2^16 bytes, with an empty zone
 between sections, so a program that runs off the end of one section hits nothing at all
@@ -242,9 +267,8 @@ P rounds up to whole pages, Z to whole zones (not to be confused with Z_Z, a zon
 Everything else isn't there: touch it and the machine faults, or panics below 2^16
 ([lesson 15.4](./04-memory.md)).
 
-Lay out the test's tiny program or the real service, or sizes of your own:
-
-<YLayout />
+Lay out the test's tiny program and the real service on [the map at the top](#try-it),
+and find the gaps between their sections.
 
 And the registers: r0 = 2^32 − 2^16, the halt address ([lesson 15.3](./03-the-machine.md)), so that when the
 program returns, it ends. r1 = the top of the stack, which grows down. r7 = where the
@@ -307,7 +331,7 @@ $$
 
 :::
 
-In plain words, Ψ_M is what the rest of the paper calls: Y lays out the program (and if it
+Ψ_M is what the rest of the paper calls: Y lays out the program (and if it
 can't, that's a panic, with no gas used), Ψ_H runs it with the host's f, and R reads the
 answer. A halt returns the bytes from φ′₇, φ′₈ of them; if those aren't readable, the
 answer is empty. Out of gas is ∞, and anything else a panic. It also says how much gas was
@@ -613,8 +637,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The code and arguments going in, the
-world Y builds for them, and the lines printed:
+What flows through it:
 
 ::: code-group
 
@@ -735,14 +758,25 @@ note above leaves for the [hardening pass](https://github.com/abutlabs/the-gray-
   > No: pages are 4,096 bytes, and inside a section they sit side by side: w and its heap
   > page at 0x30000 and 0x31000.
 
-**The bootstrap service starts with r8 = 3. What is the 3?**
+**How does a program find its arguments when it starts?**
 
-- [ ] The service has three inputs
-  > No: it has none. r8 counts bytes of arguments.
-- [x] Three bytes of arguments: slot 1, service 0 and 0 inputs, each a one-byte compact natural
-  > Yes: E(t, s, |i|) is `01 00 00`, and r7 says where it is, 0xfeff0000.
-- [ ] It's service 3
-  > No: it's service 0. r8 is the arguments' length.
+- [ ] They are on the stack, where r1 points
+  > No: r1 is the top of the stack. The arguments have a section of their own.
+- [ ] They follow the code, inside the program blob
+  > No: the blob is the program alone. Y places the arguments in memory when it lays the
+  > program out.
+- [x] r7 says where they are and r8 how many bytes
+  > Yes: the bootstrap service's accumulate starts with r8 = 3. Its arguments are the
+  > slot, the service's id and its number of inputs, a one-byte compact natural each.
+
+**The Gray Paper numbers 28 host calls. Why does your client build only 20?**
+
+- [ ] The other 8 are optional: a client may leave them out
+  > No: nothing about them is optional. They are simply never asked of a block importer.
+- [x] The other 8 only run in refine, on the cores, which a block importer never does
+  > Yes: your client runs accumulate, on the chain. Refine is run in-core, by guarantors.
+- [ ] The other 8 are for authorizers, which have a machine of their own
+  > No: it is the same machine everywhere. The 8 belong to refine.
 :::
 
 ## What you have
@@ -751,7 +785,5 @@ A machine that runs every instruction in the Gray Paper, and a real service star
 it, right up to its first question for the host. Answering that question is [Part 16](../16-host-calls/index.md).
 Before that, the machine needs to charge for its work, or a program could run forever:
 [lesson 15.9](./09-what-instructions-cost.md) prices every instruction.
-
-**Say it out loud.** A service starts with its memory in sections, empty zones between them, and four registers set: the way out, the stack, and where its arguments are. Accumulate enters at 5.
 
 Next: [15.9 What instructions cost](./09-what-instructions-cost.md)

@@ -1,9 +1,34 @@
 # Bits and bytes
 
-Most instructions do sums. These ten *look* at a number instead: how many 1s does it
-have? How many 0s sit above its highest 1? What are its bytes back to front? A program
-that juggles bitmaps or reads big-endian data needs them. After this lesson your machine
-runs every instruction in the Gray Paper but one.
+**In one sentence:** ten instructions look at a number's bits instead of doing sums with
+it: they count its 1s, count the 0s at either end, widen a small value, or turn its bytes
+round.
+
+Here is one register. Flip its bits or type a number, then tap an instruction to see
+which bits it looked at.
+
+<a id="try-it"></a>
+
+<BitCounts />
+
+## The idea
+
+Most instructions do sums. These ten *look* at a number instead. How many 1s does it
+have? How many 0s sit above its highest 1? What are its bytes, back to front?
+
+Who asks such things? A program that juggles bitmaps does: its questions are about single
+bits, and no sum answers them. So does a program that reads data from outside. Registers
+go to memory lowest byte first, and plenty of data out in the world is written the other
+way round. One instruction flips between the two.
+
+The ten come in three groups:
+
+- **three counts**: the 1s, the 0s at the top, the 0s at the bottom, each for all 64 bits
+  and for the low 32;
+- **three that widen** a small value to fill the register, keeping its sign or not;
+- **one that turns** the 8 bytes round.
+
+After this lesson your machine runs every instruction in the Gray Paper but one.
 
 ## What the Gray Paper says
 
@@ -32,8 +57,7 @@ Appendix A.5, the instructions with two registers (101 to 110; 100, `move_reg`, 
 
 :::
 
-In plain words, each one makes φ′_D from φ_A alone, and the byte after the opcode is
-D + 16·A.
+Each one makes φ′_D from φ_A alone, and the byte after the opcode is D + 16·A.
 
 - **`count_set_bits`**: how many bits are 1.
 - **`leading_zero_bits`**: how many 0s come above the highest 1. **`trailing_zero_bits`**:
@@ -51,9 +75,8 @@ The Gray Paper counts with B, which lists a number's bits lowest first, and B wi
 arrow over it, the same bits highest first. That second one is how people write numbers,
 and it's how your code will too.
 
-Flip bits, or type a number, and tap an instruction to see which bits it looked at:
-
-<BitCounts />
+Try each on [the register at the top](#try-it). Zero is the corner: both zero counts
+give 64.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Any instruction**, pick `reverse_bytes` and press **Step**. Then try `count_set_bits_64`.
 
@@ -158,8 +181,8 @@ export const BIT_OPERATIONS: Record<string, (x: bigint) => bigint> = {
 
 The trick: turn the number into a *string*. `toString(2)` writes a bigint in binary, and
 `padStart` fills in the zeros above its highest 1, so `bits(5n, 8)` is `"00000101"`.
-(`BigInt.asUintN(n, x)` keeps x's lowest n bits, x mod 2^n.) Counting is now string work:
-drop the 0s and count what's left, or let `/^0*/` match the run of 0s at the start and
+(`BigInt.asUintN(n, x)` keeps x's lowest n bits, x mod 2^n.) Counting is now string work.
+Drop the 0s and count what's left. Or let `/^0*/` match the run of 0s at the start, and
 `/0*$/` the run at the end. Zero needs no special case: its string is all 0s, so both runs
 are the whole thing.
 
@@ -248,8 +271,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One number going in, one
-instruction's answer, and the lines printed:
+What flows through it:
 
 ::: code-group
 
@@ -358,15 +380,15 @@ with no shifts, no masks and no special case.
   > No: the count is defined for zero. Your code needs no special case for it either: its
   > string of bits is all 0s.
 
-**What does `reverse_bytes` turn round?**
+**What is `reverse_bytes` for, and what does it turn round?**
 
-- [x] The register's 8 bytes, each byte left as it is
-  > Yes: the first byte becomes the last, the way a big-endian number becomes a
-  > little-endian one.
-- [ ] The hex digits
-  > No: that would also swap the halves inside each byte. Bytes move whole.
-- [ ] All 64 bits
+- [ ] Mirroring a bitmap: it turns all 64 bits round
   > No: that's a different operation. `reverse_bytes` moves whole bytes.
+- [ ] Printing a number: it turns the hex digits round
+  > No: that would also swap the halves inside each byte. Bytes move whole.
+- [x] Reading big-endian data: it turns the register's 8 bytes round, each byte left as it is
+  > Yes: registers go to memory little-endian, and plenty of data out in the world is
+  > big-endian. The first byte becomes the last, and one instruction flips between them.
 :::
 
 ## What you have
@@ -374,7 +396,5 @@ with no shifts, no masks and no special case.
 Every instruction in the Gray Paper's tables, bar one: `ecalli`, the door out of the
 machine to the host. [Lesson 15.8](./08-a-real-program.md) builds it, and runs a real service up to its first
 `ecalli`.
-
-**Say it out loud.** Ten instructions look at a number's bits instead of doing sums: counting 1s, widening a value, turning its bytes round.
 
 Next: [15.8 A real program](./08-a-real-program.md)

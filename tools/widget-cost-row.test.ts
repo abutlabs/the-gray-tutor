@@ -54,8 +54,10 @@ test("the run's rows for the instructions offered", () => {
   assert.ok(seen >= 5, "store_ind_u64 and move_reg rows");
 });
 
-test("lesson 15.9 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.9 places the widget once, at the top, and the three functions send the reader back to it", () => {
   const at = raw.indexOf("<CostRow />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<CostRow />"));
-  assert.ok(at > raw.indexOf("`ecalli` reads and writes none.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("might keep it."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

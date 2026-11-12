@@ -64,8 +64,10 @@ test("the bits lit are the bits counted: a count's answer is how many are lit", 
   assert.equal(parse("nope"), null);
 });
 
-test("lesson 15.7 places the widget once, at the end of What the Gray Paper says", () => {
+test("lesson 15.7 places the widget once, at the top, and the ten instructions send the reader back to it", () => {
   const at = raw.indexOf("<BitCounts />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<BitCounts />"), "placed once");
-  assert.ok(at > raw.indexOf("it's how your code will too.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("it's how your code will too."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

@@ -1,15 +1,32 @@
 # What instructions cost
 
+**In one sentence:** every instruction has a price tag of three numbers (how long it
+takes, how much decoding it needs, which parts of a processor it keeps busy), so that what
+a program pays tracks the time it really takes.
+
+Pick an instruction and its registers, and watch its row. Try an `add_64` that writes a
+register it also reads, then one that doesn't.
+
+<a id="try-it"></a>
+
+<CostRow />
+
+## The idea
+
 A program that loops forever would stall every validator running it. JAM's answer is
-*gas*: a service gets a budget, and every piece of code is paid for before it runs. Gray
-Paper 0.8.0 sets the price by imagining a modern CPU running the code and counting its
-cycles, so that gas tracks the time code really takes.
+[*gas*](../glossary.md#gas): a service gets a budget, and every piece of code is paid for
+before it runs.
+
+What should an instruction cost, then? One price for all would charge a slow divide the
+same as a quick add. So Gray Paper 0.8.0 sets the price by imagining a modern CPU running
+the code and counting its cycles. That way gas tracks the time code really takes.
 
 Think of a restaurant. This lesson is the recipe card for each dish: how long it takes and
-which stations it needs. [Lesson 15.10](./10-the-pipeline.md) is the kitchen, cooking several
-dishes at once. [Lesson 15.11](./11-the-gas-meter.md) is the bill, paid before the food comes.
+which stations it needs. [Lesson 15.10](./10-the-pipeline.md) is the kitchen, cooking
+several dishes at once. [Lesson 15.11](./11-the-gas-meter.md) is the bill, paid before the
+food comes.
 
-Don't learn this table by heart. Keep two things: an instruction's cost is a row of three
+Don't learn the table by heart. Keep two things: an instruction's cost is a row of three
 numbers, and loads, stores, divides and `ecalli` are the expensive ones.
 
 ## What the Gray Paper says
@@ -316,7 +333,7 @@ $$
 
 :::
 
-In plain words, every instruction has a row with three things:
+Every instruction has a row with three things, its recipe card:
 
 - **č, cycles**: how long it takes to finish. An `add_64` takes 1, a load or a store 25
   (the Gray Paper calls that 𝔪), a multiply 3 to 6, a divide 60, `ecalli` 100. And
@@ -341,9 +358,8 @@ The registers an instruction reads and writes (š and ř, App. A.9) come straigh
 row in the instruction tables. A `cmov` counts as reading the register it writes, since it
 might keep it.
 
-Pick an instruction and its registers, and watch its row:
-
-<CostRow />
+Watch 𝔓 and 𝔟 work on [the row at the top](#try-it): make `add_64` write a register it
+reads, or put a `trap` at one end of a branch.
 
 **Try it in the [playground](../pvm-playground.md).** Press **Any instruction**. Under the Code panel it says `add_64` takes 2 decode slots. In the edit box change the line to `add_64 r7, r7, r8`, press **Assemble and reset**, and it says 1.
 
@@ -543,11 +559,14 @@ export function instructionCost(program: Program, ins: Instruction): Cost {
 }
 ```
 
-`registersUsed` reads the registers off the instruction's layout. Stores, branches and
-`jump_ind` only read; three-register instructions read A and B and write D; two-register
-ones read A and write D; everything else writes its first register and reads the rest.
+`registersUsed` reads the registers off the instruction's layout:
 
-The table copies the Gray Paper's row by row, and its names (`simple`, `shift`,
+- stores, branches and `jump_ind` only read;
+- three-register instructions read A and B and write D;
+- two-register ones read A and write D;
+- everything else writes its first register and reads the rest.
+
+The table copies the Gray Paper's, row by row. Its names (`simple`, `shift`,
 `compare`...) follow the shorthands the Gray Paper's own source uses for its kinds of row,
 so you can hold the two side by side. Loads, stores and branches each share one row, so a
 pattern finds them. `branchCost` reads the opcode byte at both ways a branch can go. Past
@@ -626,8 +645,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** A basic block going in, one
-instruction's price tag, and the lines printed:
+What flows through it:
 
 ::: code-group
 
@@ -654,8 +672,8 @@ store_ind_u64    cycles  25  slots 1  ALU+store
 
 :::
 
-No machine runs here: the program only needs the code. It prices each instruction, and stops
-where the next basic block begins.
+No machine runs here: the program needs only the code. It prices each instruction, and
+stops where the next basic block begins.
 
 **Run**
 
@@ -705,6 +723,18 @@ your table matches on names.
 ## Check your understanding
 
 ::: check
+**Why does the Gray Paper price instructions on a model of a CPU, and not charge each one the same?**
+
+- [ ] So that a program can never run forever
+  > No: the budget does that, whatever the prices. The model decides how much of it each
+  > instruction takes.
+- [ ] So that validators with faster machines can charge less
+  > No: the CPU is imagined, the same one for every validator. Nobody's real hardware
+  > comes into it.
+- [x] So that gas tracks the time code really takes
+  > Yes: a divide takes 60 cycles and an add 1. One price for both would let slow code
+  > pay as little as quick code.
+
 **`add_64 r2 = r0 + r1` needs 2 decode slots, and `add_64 r0 = r0 + r1` only 1. Why?**
 
 - [ ] r0 is a special register, cheaper to use
@@ -756,7 +786,5 @@ your table matches on names.
 A price for every instruction the PVM knows. A price list doesn't say what a block costs,
 though, because a CPU runs instructions side by side: [lesson 15.10](./10-the-pipeline.md) builds the CPU that
 adds them up.
-
-**Say it out loud.** Every instruction has a row: its cycles, its decoding, and which parts of the CPU it uses. That's the price list, not the bill.
 
 Next: [15.10 The pipeline](./10-the-pipeline.md)

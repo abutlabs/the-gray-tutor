@@ -62,8 +62,10 @@ test("the rows cover the address space once, in order, with a gap between every 
   }
 });
 
-test("lesson 15.8 places the widget once, after the layout table", () => {
+test("lesson 15.8 places the widget once, at the top, and the layout table sends the reader back to it", () => {
   const where = raw.indexOf("<YLayout />");
   assert.ok(where > 0 && where === raw.lastIndexOf("<YLayout />"), "placed once");
-  assert.ok(where > raw.indexOf("panics below 2^16 ([lesson 15.4]") && where < raw.indexOf("And the registers: r0 = 2^32"));
+  assert.ok(where > raw.indexOf('<a id="try-it"></a>') && where < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("panics below 2^16 ([lesson 15.4]"));
+  assert.ok(back > 0 && back < raw.indexOf("And the registers: r0 = 2^32"));
 });
