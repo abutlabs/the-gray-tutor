@@ -4,7 +4,7 @@
 part quotes, explained. Eleven blocks, (C.1) to (C.7) and (C.10) to (C.15): how any JAM
 value becomes bytes. Real values: the codec vectors (`vectors/codec/tiny`) and the block
 traces. The bits, the maybe and the block are in [4.A](../04-blocks/gray-paper.md). Each
-formula: its key, then read aloud, in plain words, on a real value, in your client.
+formula: its key, then read aloud, what it means, on a real value, in your client.
 Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (C.1) and (C.2): nothing, and bytes
@@ -56,10 +56,10 @@ $$
 **Read it aloud.** "E of nothing is defined as the empty sequence. E of x, where x is in
 B, is defined as x."
 
-**In plain words.** The two simplest rules of the codec. Nothing (∅, which your client
-writes as `null`) takes no bytes at all. And a value that already *is* bytes (a hash, a
+**What it means.** The two simplest rules of the codec. Nothing (∅, which your client
+writes as `null`) takes no bytes at all. A value that already *is* bytes (a hash, a
 signature, a blob) goes out exactly as it is, byte for byte. The codec has no work to do
-on either, which is the point: most of a block is hashes and signatures, and they cost
+on either. That is the point: most of a block is hashes and signatures, and they cost
 nothing to encode.
 
 **On a real value.** `header_1` starts with its parent hash. The JSON says
@@ -116,11 +116,11 @@ $$
 with E of b, concatenated with the rest. E of a, b, and so on, is defined as E of the
 tuple a, b, and so on."
 
-**In plain words.** A tuple, a record of a few fields, encodes as its fields' encodings,
-one after another, in the order written, with nothing between them: no names, no
-separators, no count. (C.4) is shorthand: giving ℰ several values at once means the tuple
-of them. So the reader must know the fields and their order already, and the bytes carry
-only the values.
+**What it means.** A tuple, a record of a few fields, encodes as its fields' encodings,
+one after another, in the order written. Nothing goes between them: no names, no
+separators, no count. So the reader must already know the fields and their order, and the
+bytes carry only the values. (C.4) is shorthand: giving ℰ several values at once means the
+tuple of them.
 
 **On a real value.** A header starts with three hashes and a slot. By (C.3) its bytes are
 each field's, glued:
@@ -185,11 +185,11 @@ of x mod 2 to the 8l, if there exists an l in N sub 8 with 2 to the 7l at most x
 below 2 to the 7 times l plus 1; and otherwise, if x is below 2 to the 64, the sequence
 holding 2 to the 8 minus 1, concatenated with E sub 8 of x."
 
-**In plain words.** A number takes as few bytes as it needs, 1 to 9, and the first byte
+**What it means.** A number takes as few bytes as it needs, 1 to 9, and the first byte
 says how many more follow. That first byte starts with l ones and a zero, the marker:
 no ones for a one-byte number, one for two bytes, and so on. The bits after the marker
-hold x's top bits, and the next l bytes hold the rest of x, smallest byte first (C.12).
-The condition picks l: the number of extra bytes, the one l where x is at least
+hold x's top bits. The next l bytes hold the rest of x, smallest byte first (C.12).
+The condition picks l, the number of extra bytes: the one l where x is at least
 2^(7l) and below 2^(7(l+1)). Each extra byte buys 7 more bits, because the marker takes
 one bit of the first byte for each. A number too big for that, 2^56 or more, gets the
 byte 255 and all eight bytes.
@@ -240,8 +240,8 @@ $$
 **Read it aloud.** "E of the sequence i zero, i one, and so on, is defined as E of i zero,
 concatenated with E of i one, concatenated with the rest."
 
-**In plain words.** A list encodes as its items, one after another. On its own that has
-no length in front: the paper adds one where the length can vary, with ↕ (C.7). A list
+**What it means.** A list encodes as its items, one after another. On its own that has
+no length in front. The paper adds one where the length can vary, with ↕ (C.7). A list
 whose length everyone knows, such as a hash's 32 bytes or one ticket for each slot of an
 epoch, goes bare. That is why the paper can say a hash's encoding is the hash itself: a
 hash is 32 bytes in a row, and (C.6) writes them in a row.
@@ -287,7 +287,7 @@ $$
 **Read it aloud.** "Up-down-arrow x is defined as the tuple of the size of x and x, thus E
 of up-down-arrow x is defined as E of the size of x, concatenated with E of x."
 
-**In plain words.** ↕x is x with its length in front, written as a compact natural (C.5).
+**What it means.** ↕x is x with its length in front, written as a compact natural (C.5).
 The paper calls that length a discriminator: it tells a reader where x ends. The paper
 puts ↕ only where the length can vary, so a hash never gets one and a blob always does.
 
@@ -342,8 +342,8 @@ $$
 defined as E of up-down-arrow the sequence of the pairs E of k and E of d at k, for each
 key k of d, sorted by k."
 
-**In plain words.** A small map is written as a list of (key, value) pairs with its
-length in front, sorted by key. The sorting is the point: a map has no order of its own,
+**What it means.** A small map is written as a list of (key, value) pairs with its
+length in front, sorted by key. The sorting is the point. A map has no order of its own,
 so without it two clients could write the same map two ways and get two different hashes.
 
 **On a real value.** The real dictionaries in the vectors are empty: χ_Z, the services
@@ -394,9 +394,9 @@ $$
 with E of b, concatenated with E of c, and the rest, where a is less than b is less than
 c, and so on."
 
-**In plain words.** A set is written as its items, smallest first: the same reason as the
-dictionary, a set has no order, so the codec gives it one. "Smallest" for hashes means
-by their bytes, from the first. On its own a set carries no length; where one is needed,
+**What it means.** A set is written as its items, smallest first. The reason is the
+dictionary's: a set has no order, so the codec gives it one. "Smallest" for hashes means
+by their bytes, from the first. On its own a set carries no length. Where one is needed,
 the paper adds ↕, as Appendix D does for the four sets of past judgments.
 
 **On a real value.** Those four sets are empty in the tiny genesis state, so each is a
@@ -447,7 +447,7 @@ $$
 to l bytes. x maps to the empty sequence if l is 0; otherwise, to the sequence holding x
 mod 256, concatenated with E sub l minus 1 of the floor of x over 256."
 
-**In plain words.** A number in exactly l bytes, smallest byte first (little-endian).
+**What it means.** A number in exactly l bytes, smallest byte first (little-endian).
 Write x's lowest byte, chop it off, and do the same with one byte fewer, until there are
 no bytes left. The width is the type's, never the number's: a slot is 4 bytes even when
 it is 1. ℰ₂, ℰ₄ and ℰ₈ are a u16, a u32 and a u64.
@@ -494,7 +494,7 @@ E sub l of the tuple a, b, and so on, is E sub l of a, concatenated with E sub l
 and the rest. E sub l of the sequence i zero, i one, and so on, is E sub l of i zero,
 concatenated with E sub l of i one, and the rest."
 
-**In plain words.** The same three rules as (C.3), (C.4) and (C.6), with ℰₗ in place of ℰ:
+**What it means.** The same three rules as (C.3), (C.4) and (C.6), with ℰₗ in place of ℰ:
 every number inside gets exactly l bytes. The paper uses it to say "these numbers are all
 u32" in one go, such as ℰ₄(χ_M, χ_A, χ_V, χ_R) in Appendix D.
 

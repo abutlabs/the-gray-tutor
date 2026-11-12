@@ -2,13 +2,20 @@
 
 <AlbertChemist />
 
-Appendix C of the Gray Paper defines the codec ℰ, which turns any JAM value into bytes,
-and its inverse, which reads the value back. It matters more than it looks. JAM hashes
-encodings: a block's hash is the hash of its header's encoding, a work-report is known
-by the hash of its encoding. One byte out of place anywhere, and your hashes differ from
-every other client's.
+**In one sentence:** this Part builds the codec, the one set of rules that turns any JAM
+value into bytes and back, so that every client writes the same bytes.
 
-Appendix C opens with the codec's one promise:
+By the end of this part your client encodes and decodes its first two JAM structures
+and agrees with the official test vectors, byte for byte.
+
+## The big picture
+
+JAM hashes encodings. A block's hash is the hash of its header's encoding. A work-report
+is known by the hash of its encoding. One byte out of place anywhere, and your hashes
+differ from every other client's.
+
+So Appendix C of the Gray Paper defines the codec ℰ, which turns any JAM value into
+bytes, and its inverse, which reads the value back. It opens with the codec's one promise:
 
 ::: gray-paper C.1
 
@@ -19,17 +26,16 @@ Appendix C opens with the codec's one promise:
 :::
 
 "Exactly one value" for any bytes, and, the other way round, exactly one way to write
-each value: that is what lets two clients that never talk agree on a hash.
+each value. That is what lets two clients that never talk agree on a hash.
 
 If you've passed JSON between services, the codec is `JSON.stringify` with the schema baked
-in and the field names left out: every structure has a fixed list of fields in a fixed
+in and the field names left out. Every structure has a fixed list of fields in a fixed
 order, so the bytes carry only values, and a reader needs the same list to make sense of
-them. There is no server-side and client-side format. Every validator runs this one codec
-on everything, which is why the test vectors can give a structure as JSON and as bytes and
-insist on both.
+them.
 
-By the end of this part your client encodes and decodes its first two JAM structures
-and agrees with the official test vectors, byte for byte.
+Where does it run? Everywhere. There is no server-side and client-side format: every
+validator runs this one codec on everything. That is why the test vectors can give a
+structure as JSON and as bytes and insist on both.
 
 ## At a glance
 

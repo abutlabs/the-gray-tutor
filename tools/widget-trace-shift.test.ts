@@ -49,8 +49,10 @@ test("in its own place nothing changes; moved below the payload the trace runs o
   }
 });
 
-test("lesson 2.7 places the widget once, at the end of Break it again", () => {
+test("lesson 2.7 places the widget once, at the top to try; Break it again sends back to it", () => {
   const at = raw.indexOf("<TraceShift />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<TraceShift />"), "placed once");
-  assert.ok(at > raw.indexOf("Put `export_count` back afterwards.") && at < raw.indexOf("<details>", raw.indexOf("## Break it again")));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[at the top](#try-it)");
+  assert.ok(back > raw.indexOf("Put `export_count` back afterwards.") && back < raw.indexOf("<details>", raw.indexOf("## Break it again")));
 });

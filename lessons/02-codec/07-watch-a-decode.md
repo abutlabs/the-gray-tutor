@@ -1,34 +1,44 @@
 # Watch a decode
 
-In [lesson 2.6](./06-the-first-test-vectors.md) you moved one field and three values went haywire. The test said
-*that* they were wrong, not *where the bytes went*. Time to give the decoder a voice: for
-every field, which bytes it read and where they sit. The trace goes to your terminal and
-to Grafana, like everything else your client does.
+**In one sentence:** a decode trace is the decoder's own account of what it did: for every
+field, which bytes it read and where they sit.
 
-## New words
+Move `export_count` to any place in the record and watch the trace recompute on the real
+bytes. The lines that read the wrong bytes turn red, and the first field whose bytes line
+up again is named.
 
-- **Decode trace.** A list of every field a decoder read, with where its bytes were.
-  (Not a block trace, the recorded run of blocks you'll meet in [lesson 5.1](../05-hashing-and-signatures/01-hashes.md).) *Example:*
-  `0..4 service`.
-- **Field path.** A field's place inside a value, from the outside in, with dots.
-  *Example:* `import_segments.0.index`: the index of the first imported segment.
-- **Innermost field.** A field with no fields inside it: a number, a hash, a length.
-  *Example:* `service` is one; `import_segments` isn't.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<TraceShift />
 
 ## The idea
 
-A decode trace is a list of the *innermost fields* of a value, in the order they are
-read. Each says its path (`import_segments.0.index`), where its bytes start and end, and
-the bytes themselves. Lengths count as fields too (`import_segments.length`),
-so the trace covers every byte of the encoding exactly once. That's easy to test, and
-it's what makes a trace trustworthy: no byte sneaks past unreported.
+In [lesson 2.6](./06-the-first-test-vectors.md) you moved one field and three values went
+haywire. The test said *that* they were wrong. It could not say *where the bytes went*.
 
-The Reader does the work. A record names each field as it reads it, a sequence names each
-item by its index, and the Reader reports a field when nothing inside it was named.
+So give the decoder a voice. As it reads, it says what it read: this field, these bytes,
+from here to there. That list is a [*decode trace*](../glossary.md#decode-trace).
+
+Which fields go on the list? Only the ones with nothing inside them: a number, a hash, a
+length. A list's count is on it; the list itself is not, because its bytes are already
+there, item by item. It is like a till receipt: every item on its own line, and the lines
+add up to the total. Glue the bytes of every line together and you get the whole encoding
+back, each byte exactly once. That is easy to test, and it is what makes a trace
+trustworthy: no byte gets past unreported.
+
+This lesson teaches the Reader to report, and builds a program that prints the trace for
+any vector, in your terminal and in Grafana.
 
 ## What the Reader reports to
+
+Each line of the trace is an [*innermost field*](../glossary.md#innermost-field), with its
+[*field path*](../glossary.md#field-path): its place inside the value, from the outside
+in, with dots, such as `import_segments.0.index`. Lengths count as fields too
+(`import_segments.length`). (A decode trace is not a block trace, the recorded run of
+blocks you'll meet in [lesson 5.1](../05-hashing-and-signatures/01-hashes.md).)
+
+A record names each field as it reads it, a sequence names each item by its index, and the
+Reader reports a field when nothing inside it was named.
 
 The Reader shouldn't depend on the observability stack: it is part of the codec, and the
 codec is part of everything. So it reports to anything with an `event` method. A `Run`
@@ -163,8 +173,7 @@ A sequence names its length `length` and its items `0`, `1`, `2`.
 ## The tests
 
 The second test is the promise that matters: the trace covers every byte, once, in
-order. Glue the bytes of every reported field back together and you get the whole
-encoding.
+order.
 
 **New file** `test/trace.test.ts`
 
@@ -236,9 +245,9 @@ reported 23 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=
 
 ## Bytes in events
 
-One snag before the program: `JSON.stringify` has never heard of bytes. Hand it a
-`Uint8Array` and you get `{"0":4,"1":3,"2":2,"3":1}`, which is accurate and completely
-useless. Teach `line` to write bytes the way the test vectors do:
+`JSON.stringify` has never heard of bytes. Hand it a `Uint8Array` and you get
+`{"0":4,"1":3,"2":2,"3":1}`, which is accurate and useless. Teach `line` to write bytes
+the way the test vectors do:
 
 **Replace in** `src/obs.ts`
 
@@ -299,7 +308,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-What flows through it — bytes in, a trace of named fields out:
+What flows through it, bytes in, a trace of named fields out:
 
 ::: code-group
 
@@ -386,12 +395,8 @@ first two bytes of the refine gas limit, and both gas limits then started two by
 late. `payload` starts at 54 either way, which is why everything after
 it still decoded correctly. Put `export_count` back afterwards.
 
-Or move it here, to any place in the record, and watch the trace recompute on the real
-bytes: the lines that read the wrong bytes turn red, and the first field whose bytes
-line up again is named. Move it below `payload` and a length read from the wrong place
-runs the trace off the end of the file.
-
-<TraceShift />
+Try the other places [at the top](#try-it). Move it below `payload` and a length read from
+the wrong place runs the trace off the end of the file.
 
 This is how you debug every failing vector from here on: don't stare at what your client
 got wrong, watch what it *read*.
@@ -418,49 +423,59 @@ step traces of later parts, say *which step* made it wrong, while it happens.
 ## Check your understanding
 
 ::: check
-**The trace's first line is `0..4 service 0x04030201`. What is `0..4`?**
+**A test fails: two decoded values differ from the vector's. What does a decode trace add?**
 
-- [ ] Bytes 0 to 4, so five bytes
-  > No: the bytes shown are four, `04 03 02 01`. The second number is where the field
-  > stops, not its last byte.
-- [x] Where its bytes start and stop: offsets 0, 1, 2 and 3, and the next field starts at 4
-  > Yes: `code_hash` is `4..36`, starting exactly where `service` stopped. 4 − 0 = 4
-  > bytes for ℰ₄.
-- [ ] The service's number, from 0 to 4
-  > No: the service is 16909060, the bytes `04 03 02 01`. `0..4` is where those bytes
-  > sit in the file.
+- [ ] The right values, so you can copy them in
+  > No: the vector's JSON already has the right values. The trace is about your decoder,
+  > not the answer.
+- [x] Which bytes each field read, and where they sit in the file
+  > Yes: the test says that values differ. The trace says where the bytes went, field by
+  > field, so you can see the first one that read from the wrong place.
+- [ ] A fix: the decoder moves the fields back into step
+  > No: nothing is fixed. The trace only reports what was read.
 
 **The trace lists `import_segments.0.index`, but never `import_segments` itself. Why?**
 
-- [ ] `import_segments` is a list, and lists aren't decoded, only their items
-  > No: the list is decoded, length and all. The trace just reports it through its parts:
+- [ ] A list isn't decoded, only its items are
+  > No: the list is decoded, length and all. The trace reports it through its parts:
   > `import_segments.length`, then each item's fields.
 - [ ] It's a mistake the second test would catch
   > No: the second test passes. Every byte is covered, once, by the fields that are
   > listed.
 - [x] Only innermost fields are reported, and their bytes already cover the whole list
-  > Yes: `import_segments` is bytes 60 to 163, every one of them already shown in its
-  > length and items. Reporting it too would show those bytes twice.
+  > Yes: every byte of the list is already shown in its length and its items. Reporting
+  > the list too would show those bytes twice.
 
-**With `export_count` moved up, `refine_gas_limit` reads `0x0000000000002a00`. Where did those 8 bytes come from?**
+**Why does the trace count a list's length as a field?**
 
-- [x] The last six bytes of the real refine gas limit, then the first two of the accumulate gas limit
-  > Yes: `export_count` took bytes 36 to 38, `2a 00`, so refine read 38 to 46: six
-  > zeros from the real refine limit, then `2a 00` from the accumulate limit.
-- [ ] They're the real refine gas limit, written backwards
-  > No: nothing was reversed. The decoder read the right bytes the right way, from the
-  > wrong place: two bytes late.
-- [ ] The decoder filled in zeros where it couldn't read
-  > No: every byte is really in the file. The trace shows exactly which, 38 to 46, and
-  > the decoder never makes one up.
+- [x] So the trace covers every byte of the encoding exactly once
+  > Yes: the length is bytes in the file too. With it listed, the fields' bytes glued
+  > together are the whole encoding, and a test can check that.
+- [ ] Because a service sets it, like any other field
+  > No: the length is not a field of the structure. It is there because the encoding puts
+  > a count in front of a list.
+- [ ] So the decoder can check the list against it
+  > No: the decoder uses the length to know how many items to read. Listing it is for the
+  > person reading the trace.
 
-**After the move, why does `payload` still decode correctly?**
+**Why does the Reader report to "anything with an `event` method", not to a `Run`?**
+
+- [ ] A `Run` is too slow to call for every field
+  > No: speed is not the reason. A `Run` has an `event` method and works as the trace.
+- [ ] Grafana can't show bytes
+  > No: bytes go out as hex once `line` is taught to write them, and the *Decode trace*
+  > panel shows them.
+- [x] The codec is part of everything, so it shouldn't depend on the observability stack
+  > Yes: a test hands the Reader a plain object that collects what it's given. A trace is
+  > something that listens, nothing more.
+
+**With `export_count` moved above the gas limits, three fields read wrong bytes, yet `payload` still decodes correctly. Why?**
 
 - [ ] The decoder finds the start of the next blob and catches up
   > No: nothing in the bytes marks where a field starts. The decoder only ever reads on
   > from where the last field stopped.
-- [x] The three moved fields take 2 + 8 + 8 = 18 bytes in either order, so `payload` starts at 54 both times
-  > Yes: the wrong reads stay inside bytes 36 to 54. From 54 on, every field is read from
+- [x] The three moved fields take 2 + 8 + 8 = 18 bytes in either order, so `payload` starts at the same byte
+  > Yes: the wrong reads stay inside those 18 bytes. After them, every field is read from
   > the same place as before.
 - [ ] The payload is checked against its hash, which fixes it
   > No: nothing is checked or fixed. The payload is right only because it starts at the
