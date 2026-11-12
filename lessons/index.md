@@ -3,8 +3,8 @@
 **In one sentence:** you build a JAM client in TypeScript, _from scratch_, one guided
 step at a time, until it passes the official test vectors _byte for byte_.
 
-The rules come from the [Gray Paper](https://graypaper.com/), JAM's specification. Every
-line is yours except the cryptography: a few hashes, signatures and VRFs come from
+The rules come from the [Gray Paper](https://graypaper.com/), JAM's specification.
+Every line is yours except the cryptography: a few hashes, signatures and VRFs come from
 open-source libraries, listed in the [cryptography appendix](./cryptography.md).
 
 The Gray Tutor is a JAM blockchain client built for learning and observability. At its core, AI offers _less truth, more trust_. That is why the solutions we build with AI need to keep the human in the loop. The Gray Tutor exists to show that this is possible, and that AI-assisted development can be more transparent than development before AI. Our goal is to make JAM approachable for new protocol developers.
