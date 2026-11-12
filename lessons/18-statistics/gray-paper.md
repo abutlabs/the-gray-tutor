@@ -66,7 +66,7 @@ lambda."
 **In plain words.** The statistics π are four tallies. Two are for validators: π_V, the
 epoch in progress, and π_L, the epoch before, finished. Each holds one record per
 validator, in the same order as the validator keys, κ for this epoch's and λ for last
-epoch's, so validator v's record is at index v. A record has six counts: b, blocks
+epoch's. So validator v's record is at index v. A record has six counts: b, blocks
 made; t and p, tickets and preimages put in them; d, the preimages' bytes; g, guarantees
 signed; and a, assurances made. The other two, π_C and π_S, are (13.7) and (13.8).
 
@@ -170,9 +170,9 @@ kappa prime is among the reporters G."
    more a. A true condition counts as 1 and a false one as 0, which is how "plus (there
    exists …)" adds one or nothing.
 2. **(13.5), a new epoch turns the page.** e and e′ are the epochs of the parent's slot
-   and this block's. If they differ, this block starts a new epoch: the tally in progress,
-   assurances included, becomes π_L′, and a fresh one of zeros begins. The old π_L is
-   dropped. If they're the same, nothing moves.
+   and this block's. If they differ, this block starts a new epoch. The tally in
+   progress, assurances included, becomes π_L′, and a fresh one of zeros begins. The old
+   π_L is dropped. If they're the same, nothing moves.
 3. **(13.6), then the rest.** The author H_I gets one more b, and as many t, p and d as
    the block's tickets, preimages and preimage bytes. Every validator in 𝐆, the reporters
    who signed this block's guarantees, gets one more g, once however many guarantees it
@@ -512,9 +512,9 @@ code](./02-what-cores-and-services-did.md#the-code); its `active` set is (13.14)
 
 The statistics are four tallies (13.1): this epoch's and last epoch's validator records,
 six counts each, one per validator (13.2, 13.3), and one block's cards for cores and
-services (13.7, 13.8). Each block, assurances count first (13.4), a new epoch moves the
-tally in progress to last epoch's and starts from zero (13.5), then the author's block,
+services (13.7, 13.8). Each block, assurances count first (13.4). A new epoch moves the
+tally in progress to last epoch's and starts from zero (13.5). Then the author's block,
 tickets and preimages and the reporters' guarantees count (13.6). Each core's card adds up
 the work it took on, the data it must now keep, and the assurances that name it (13.9 to
-13.12); each active service's card adds up its digests, its preimages and its
+13.12). Each active service's card adds up its digests, its preimages and its
 accumulation (13.13 to 13.17).

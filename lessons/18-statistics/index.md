@@ -1,9 +1,11 @@
 # Part 18 · Statistics
 
-The chain keeps score: which validators made blocks, guaranteed work and confirmed they
-hold data, and how much work each core and each service did. JAM itself pays nobody; the
-tallies are there so that whoever does pay can see who earned it. This part builds them,
-validators first.
+**In one sentence:** the chain keeps score of what each validator, each core and each
+service did, and this part builds those tallies.
+
+Which validators made blocks, guaranteed work and confirmed they hold data? How much
+work did each core and each service do? JAM itself pays nobody. The tallies are there so
+that whoever does pay can see who earned it. This part builds them, validators first.
 
 By the end of this part your client keeps all three scorecards, the validators', the
 cores' and the services', matching every reports and preimages vector.
