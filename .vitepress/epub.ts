@@ -3,7 +3,7 @@
 // makes print.html. One chapter a page, in reading order.
 //
 // What an e-reader can't do decides what changes:
-// - the code is folded away, as the site's Concepts only does (theme/concepts.ts): the byte
+// - the code is folded away, as the site does with its Code switch off (theme/code.ts): the byte
 //   tables and a run's output stay, the snippets and the lasair folds go;
 // - Grafana screenshots go: dark dashboards are noise in greyscale, and about the running
 //   client, not the concepts;
@@ -196,7 +196,7 @@ export function chapterBody(text: string, address: string, book: Book, n: number
   });
   $(".run-widget-title").each((_, t) => { $(t).html(($(t).html() ?? "").replace(/^▶\s*/, "")); });
   $(".run-widget-anchor").remove();
-  // the code, as Concepts only folds it: the byte tables and outputs (language-text) stay
+  // the code, as the site folds it with its Code switch off: the byte tables and outputs (language-text) stay
   $('div[class*="language-"]').not(".language-text").remove();
   $("p.snippet-label").not(".output").remove();
   $("details.lasair").remove();

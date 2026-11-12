@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 10](./index.md)'s appendix: every formula of §10, *Disputes, Verdicts and Judgments*, read for
-someone who doesn't read math. There are eleven blocks, (10.1) to (10.19): what the state
+[Part 10](./index.md)'s appendix: every formula of §10, *Disputes, Verdicts and Judgments*, explained. There are eleven blocks, (10.1) to (10.19): what the state
 keeps, what a block carries, how a verdict is counted and recorded, what it does to the
 cores, who is named an offender, and the rules of order. [The part's
 page](./index.md#the-big-picture) tells the rest: the trial happens off the chain, and

@@ -232,18 +232,28 @@
 .widget .tile-label { font-size: 12px; color: var(--vp-c-text-2); }
 .widget .tile-value { font-family: var(--vp-font-family-mono); font-size: 24px; font-weight: 600; line-height: 1.3; min-width: 6ch; } /* 16383 and 0x812c both fit: the tiles never resize */
 
-/* Concepts only (concepts.ts): code folded away, the ideas left. A snippet keeps its label,
-   which a tap opens; byte tables (text blocks) and a run's output stay. */
-html.concepts .vp-doc div[class*="language-"]:not(.language-text),
-html.concepts .vp-doc details.lasair { display: none; }
-html.concepts .vp-doc p.snippet-label.shown + div[class*="language-"] { display: block; }
-html.concepts .vp-doc p.snippet-label.shown + div.showing-step { display: none; }
-html.concepts .vp-doc p.snippet-label.shown + div.showing-step + div.step-only { display: block; }
-html.concepts .vp-doc p.snippet-label:not(.output) { cursor: pointer; border-radius: 8px; opacity: 0.75; }
-html.concepts .vp-doc p.snippet-label:not(.output)::before { content: "▸ "; color: var(--vp-c-text-3); }
-html.concepts .vp-doc p.snippet-label.shown { opacity: 1; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-html.concepts .vp-doc p.snippet-label.shown::before { content: "▾ "; }
-html.concepts .vp-doc p.snippet-label a { pointer-events: none; }
+/* Code off, the default (code.ts): every labelled snippet folded to its label, which a tap
+   opens; lasair's folds go too. Byte tables and a run's output (text blocks) stay, and so
+   does a block with no label, which is part of the prose around it. Nothing here applies
+   without the <head> script, so a reader with scripts off sees all the code. With the
+   picker on another client, ours folds the same way and that client's blocks show
+   (code-link.ts, CLIENT_CSS). */
+.vp-doc .client-code { display: none; }
+html.code-folded .vp-doc details.lasair { display: none; }
+html.code-folded .vp-doc p.snippet-label:not(.output):not(.shown) + div[class*="language-"],
+html.code-folded .vp-doc p.snippet-label:not(.output):not(.shown) + div[class*="language-"] + div.step-only,
+html.other-client .vp-doc p.snippet-label:not(.client-code > *):not(.output):not(.shown) + div[class*="language-"],
+html.other-client .vp-doc p.snippet-label:not(.client-code > *):not(.output):not(.shown) + div[class*="language-"] + div.step-only { display: none; }
+html.code-folded .vp-doc p.snippet-label:not(.output),
+html.other-client .vp-doc p.snippet-label:not(.client-code > *):not(.output) { cursor: pointer; border-radius: 8px; opacity: 0.75; }
+html.code-folded .vp-doc p.snippet-label:not(.output)::before,
+html.other-client .vp-doc p.snippet-label:not(.client-code > *):not(.output)::before { content: "▸ "; color: var(--vp-c-text-3); }
+html.code-folded .vp-doc p.snippet-label.shown,
+html.other-client .vp-doc p.snippet-label.shown:not(.client-code > *) { opacity: 1; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+html.code-folded .vp-doc p.snippet-label.shown::before,
+html.other-client .vp-doc p.snippet-label.shown:not(.client-code > *)::before { content: "▾ "; }
+html.code-folded .vp-doc p.snippet-label a,
+html.other-client .vp-doc p.snippet-label:not(.client-code > *) a { pointer-events: none; }
 
 /* The top bar's eight links need 634 px, which a bar 768 to 999 px wide hasn't got beside the
    title and search: the page scrolled sideways. Below 1,000 px they fold into the ☰ menu,
@@ -254,7 +264,7 @@ html.concepts .vp-doc p.snippet-label a { pointer-events: none; }
   .VPNavScreen { display: block !important; }
 }
 
-/* On a phone the title's words, the search, the Concepts toggle and the ☰ need 413 px: the
+/* On a phone the title's words, the search, the Code switch and the ☰ need 413 px: the
    page scrolled sideways. Below 430 px the logo stands for the title. */
 @media (max-width: 429px) {
   .VPNavBarTitle .title span { display: none; }
@@ -281,8 +291,6 @@ html.concepts .vp-doc p.snippet-label a { pointer-events: none; }
 .vp-doc .run-widget-title code { font-size: 14px; }
 .vp-doc .run-widget-anchor { margin-left: 6px; font-weight: 400; color: var(--vp-c-text-3); text-decoration: none; }
 .vp-doc .run-widget .vp-code-group { margin: 0 0 10px; }
-/* Concepts only folds code away; a run's tabs stay readable, each as its tab shows it */
-html.concepts .vp-doc .run-widget .vp-code-group div[class*="language-"].active { display: block; }
 
 /* The Gray Paper's own words (../gray-paper.ts fills nothing; tools/gray-paper-text.ts fills
    the block from the paper's tex): set apart as the paper sets itself, in a serif face, so
@@ -310,7 +318,39 @@ html.concepts .vp-doc .run-widget .vp-code-group div[class*="language-"].active 
 .vp-doc .gray-paper h4 { margin: 0.3rem 0 0.4rem; font-family: inherit; }
 .vp-doc .gray-paper p { line-height: 1.65; }
 .vp-doc .gray-paper table { font-size: 0.85em; }
-.vp-doc .gray-paper mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; font-size: 1.1em; }
+.vp-doc .gray-paper mjx-container[display="true"] { font-size: 1.1em; }
+/* Without the script (print.html, a reader with scripts off) a formula wider than its box
+   scrolls inside the box instead of running over the page. */
+.vp-doc .gray-paper { overflow-x: auto; }
+/* A displayed formula wider than its column is drawn smaller to fit (theme/fit-formulas.ts
+   sets --fit and zoom); a click opens it full size. The corner mark keeps its own size
+   however small the formula is drawn. */
+.vp-doc mjx-container[data-fit] { position: relative; cursor: zoom-in; }
+.vp-doc mjx-container[data-fit]:focus-visible { outline: calc(2px / var(--fit, 1)) solid var(--vp-c-brand-1); }
+.vp-doc mjx-container[data-fit]::after {
+  content: "⤢ full size";
+  position: absolute; top: 0; right: 0; transform: translateY(-70%);
+  padding: calc(1px / var(--fit, 1)) calc(8px / var(--fit, 1));
+  border: calc(1px / var(--fit, 1)) solid var(--vp-c-divider); border-radius: calc(10px / var(--fit, 1));
+  background: var(--vp-c-bg); color: var(--vp-c-text-2);
+  font-family: var(--vp-font-family-base); font-size: calc(12px / var(--fit, 1)); line-height: 1.6;
+  white-space: nowrap; pointer-events: none;
+}
+.vp-doc mjx-container[data-fit]:hover::after { color: var(--vp-c-brand-1); border-color: var(--vp-c-brand-1); }
+@media print { .vp-doc mjx-container[data-fit]::after { display: none; } }
+#formula-zoom {
+  width: min(96vw, 1500px); max-width: 96vw; max-height: 92vh; padding: 12px 16px 16px;
+  border: 1px solid var(--vp-c-divider); border-radius: 12px;
+  background: var(--vp-c-bg); color: var(--vp-c-text-1); box-shadow: var(--vp-shadow-3);
+}
+#formula-zoom::backdrop { background: rgba(0, 0, 0, 0.6); }
+#formula-zoom .close {
+  display: block; margin: 0 0 8px auto; min-height: 32px; padding: 2px 14px;
+  border: 1px solid var(--vp-c-divider); border-radius: 16px; font-size: 13px; font-weight: 600;
+}
+#formula-zoom .close:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-brand-1); }
+#formula-zoom .formula { overflow: auto; max-height: calc(92vh - 80px); padding: 8px 4px; }
+#formula-zoom .formula mjx-container { margin: 0 !important; }
 /* the key under a formula: the tutor's words, so the tutor's face, small */
 .vp-doc .gray-paper .gp-key { font-family: var(--vp-font-family-base); font-size: 0.9em; }
 .vp-doc .gray-paper .gp-key table { margin: 0.4rem 0 0.8rem; }

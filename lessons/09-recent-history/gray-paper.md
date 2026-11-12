@@ -1,7 +1,7 @@
 # The formulas, in plain words
 
 [Part 9](./index.md)'s appendix: every formula of §7, *Recent History*, and of Appendix E.2, *Merkle
-Mountain Ranges and Belts*, read for someone who doesn't read math. There are seven
+Mountain Ranges and Belts*, explained. There are seven
 blocks: what the state remembers (7.1 to 7.4), the blank filled in (7.5), the belt's
 append, bytes and super-peak (E.8 to E.10), what each block appends to it (7.6, 7.7), and
 the new entry (7.8). [The part's page](./index.md#the-big-picture) tells the rest, what

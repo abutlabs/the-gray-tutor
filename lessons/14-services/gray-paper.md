@@ -1,7 +1,7 @@
 # The formulas, in plain words
 
 [Part 14](./index.md)'s appendix: every formula of §9, *Service Accounts*, and of §12.4, *Preimage
-Integration*, read for someone who doesn't read math. There are nine: what an account is
+Integration*, explained. There are nine: what an account is
 made of (9.1) to (9.3), where its code is (9.4), how refine looks a preimage up at a past
 slot (9.5) to (9.7), what its storage costs (9.8), and how a block hands preimages over
 (12.34) to (12.37). [The part's page](./index.md#the-big-picture) tells the rest, what a

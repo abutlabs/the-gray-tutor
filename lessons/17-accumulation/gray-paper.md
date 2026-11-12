@@ -1,7 +1,7 @@
 # The formulas, in plain words
 
 This part's appendix: every formula of §12, *Accumulation*, and of §9.4, *Service
-Privileges*, read for someone who doesn't read math. There are twenty-one blocks of them,
+Privileges*, explained. There are twenty-one blocks of them,
 more than any other part, because accumulation is where queues, rounds, privileges and
 preimages meet; [the part's page](./index.md#the-big-picture) tells the story first, on one
 real block. Each formula comes with its key, then the same four steps: read it aloud, say

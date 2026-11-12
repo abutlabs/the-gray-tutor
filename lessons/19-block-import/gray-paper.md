@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 19](./index.md)'s appendix: the two formulas of §4, *Overview*, that [Part 19](./index.md) quotes, read for
-someone who doesn't read math. (4.2) and (4.3) say what a block is; (4.5) to (4.20), one
+[Part 19](./index.md)'s appendix: the two formulas of §4, *Overview*, that [Part 19](./index.md) quotes, explained. (4.2) and (4.3) say what a block is; (4.5) to (4.20), one
 block of sixteen lines, say what every new piece of state is made from, and so in what
 order a client can make them. The rest of §4's formulas, the state transition (4.1) and
 the state (4.4) among them, are [Part 0's appendix](../00-start/gray-paper.md). Each comes

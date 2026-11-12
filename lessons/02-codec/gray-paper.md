@@ -1,7 +1,7 @@
 # The formulas, in plain words
 
 [Part 2](./index.md)'s appendix: every formula of Appendix C, *Serialization Codec*, that this part
-quotes, read for someone who doesn't read math. There are eleven displayed blocks, (C.1)
+quotes, explained. There are eleven displayed blocks, (C.1)
 to (C.7) and (C.10) to (C.15), and between them they say how any JAM value becomes bytes;
 [the part's page](./index.md) says why that matters (one byte off, and every hash
 differs). Each comes with its key, then the same four steps: read it aloud, say it in

@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 0](./index.md)'s appendix: every formula of §4, *Overview*, that [Part 0](./index.md) and the map pages quote,
-read for someone who doesn't read math. There are nine blocks: the state transition, the
+[Part 0](./index.md)'s appendix: every formula of §4, *Overview*, that [Part 0](./index.md) and the map pages quote, explained. There are nine blocks: the state transition, the
 state's seventeen parts, a balance, the PVM and its gas and memory, and a timeslot. §4's
 block and dependency graph are [Part 19's appendix](../19-block-import/gray-paper.md).
 Each formula comes with its key, then the same four steps: read it aloud, say it in plain

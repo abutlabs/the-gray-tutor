@@ -1,6 +1,6 @@
 # The formulas, in plain words
 
-[Part 6](./index.md)'s appendix: every formula this part quotes, read for someone who doesn't read math.
+[Part 6](./index.md)'s appendix: every formula this part quotes, explained.
 They say how the whole state becomes one 32-byte root: (4.4) lists what the state is,
 (5.9) puts its root in every header, and Appendix D does the work, (D.1) and (D.2) cutting
 the state into keys and values, (D.3) to (D.6) hashing those into a trie. Then comes

@@ -6,6 +6,14 @@ report: all of it, behind one hash. Change a single byte anywhere, and the root 
 How do you hash a whole world, and still be able to prove one small piece of it later?
 With a *trie*. This lesson builds one and checks it against 400 real states.
 
+Play with one first. Three keys, each with a value, and every node's real hash. Flip a
+key's bits, or change a value, and watch which hashes change: the root, at the top, always
+does.
+
+<a id="try-it"></a>
+
+<TrieBuilder />
+
 ## New words
 
 - **Trie.** A tree that files entries by the bits of their keys: 0 goes left, 1 goes
@@ -225,16 +233,17 @@ official traces start from has 21 entries, which make 21 leaves and 22 branches 
 an empty side), the deepest leaf 11 bits down. Its 12 values over 32 bytes are hashed
 first, so its root takes 55 hashes.
 
-Try it below, starting from the same three keys, each with a value to type: text, or hex
-from `0x`. Every node shows its real hash, made as your client's `merkle` makes it. Flip a
-key's bits and watch its leaf move to its new route. Make two keys that differ only in
-their last bit, and the trie needs all eight bits to part them: a chain of branches with
-empty sides. Then change a value. Only the hashes on that leaf's path change, but the path
-always ends at the root. Make a value longer than 32 bytes and the leaf doesn't split or
-move: it keeps its place and holds the value's hash, while the value is kept outside the
-trie.
+Now go back to [the trie at the top](#try-it), which starts from the same three
+keys, and try each rule on it. A value is text, or hex from `0x`, and every node shows its
+real hash, made as your client's `merkle` makes it.
 
-<TrieBuilder />
+- **Flip a key's bits.** Its leaf moves to its new route.
+- **Make two keys that differ only in their last bit.** The trie needs all eight bits to
+  part them: a chain of branches with empty sides.
+- **Change a value.** Only the hashes on that leaf's path change, but the path always ends
+  at the root.
+- **Make a value longer than 32 bytes.** The leaf doesn't split or move: it keeps its place
+  and holds the value's hash, while the value is kept outside the trie.
 
 Why hash a branch whose other side is empty, 32 zero bytes? Because M splits on one bit
 per level, always, even when every key goes the same way. That keeps the trie simple: a

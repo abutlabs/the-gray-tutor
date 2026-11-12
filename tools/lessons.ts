@@ -11,11 +11,13 @@
 // A ```text block right after a Run block is its output, checked against the real run
 // (tools/output.ts).
 //
-// Paths are relative to client/. A code block without a label is only for reading.
+// Paths are relative to client/. A code block without a label is only for reading, and so
+// is everything in a `::: client <id>` block: another client's code for the same step.
 
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { CLIENT_BLOCK, clientBlockEnd } from "../.vitepress/clients.ts";
 
 /** A quote of the Gray Paper (tools/gray-paper-text.ts): the paper's words, filled from its
  *  tex, so the checks of the tutorial's own prose (spelling, units, keys) pass over it. */
@@ -91,8 +93,11 @@ export function titleOf(markdown: string, where: string): string {
   return h1[1].trim();
 }
 
-export function parseLesson(id: string, file: string): Lesson {
-  const text = readFileSync(join(LESSONS, file), "utf8");
+/** A lesson's steps for the client the lessons build. Another client's code for a step sits
+ *  in a `::: client <id>` block (.vitepress/clients.ts): its labels are that client's, not
+ *  steps of ours, so they are passed over. `source` is the lesson's text, for a test. */
+export function parseLesson(id: string, file: string, source?: string): Lesson {
+  const text = source ?? readFileSync(join(LESSONS, file), "utf8");
   const lines = text.split("\n");
   const steps: Step[] = [];
   const fail = (line: number, why: string): never => {
@@ -108,6 +113,12 @@ export function parseLesson(id: string, file: string): Lesson {
     const open = /^(`{3,}|~{3,})/.exec(line);
     if (open) {
       fence = { marker: open[1], start: i };
+      continue;
+    }
+    if (CLIENT_BLOCK.test(line)) {
+      const close = clientBlockEnd(lines, i);
+      if (close < 0) fail(i + 1, "the ::: client block never closes");
+      i = close;
       continue;
     }
     if (!LOOKS_LIKE_LABEL.test(line)) continue;

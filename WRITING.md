@@ -160,10 +160,14 @@ stand without it: VS Code's preview shows nothing there, and print.html only its
 state. *Why:* a reader stuck on a step can poke at it until it clicks (Aodh, on 127 being
 `01111111`). A widget works on a phone: 375 px wide with no sideways scroll, nothing
 behind a hover, buttons at least 32 px. Concept widgets teach a Gray Paper idea, not the
-code: a reader can learn Parts 2 to 19 on a phone with *Concepts only* on (the switch in
-the site's header folds the code away, `theme/concepts.ts`; off by default, kept for the
-visit; a link ending `?concepts` opens a lesson that way), so a lesson's idea must come
-across in its prose, its diagrams and its widgets alone.
+code: a lesson opens with its code folded, and a reader can learn Parts 2 to 19 on a phone
+that way (the *Code* switch in the site's header shows the code, `theme/code.ts`; off by
+default, kept on the reader's browser; a link ending `?code` opens a lesson with its code
+showing), so a lesson's idea must come across in its prose, its diagrams and its widgets
+alone. Folded, a labelled snippet is its label, which a tap opens; a block with no label
+stays, as part of the prose around it. A formula wider than the column is drawn smaller to
+fit, and a click opens it full size (`theme/fit-formulas.ts`): quote the paper's formula as
+it is, never reflow it to make it fit.
 
 The PVM playground (`lessons/pvm-playground.md`) runs the lessons' own PVM, not a copy of its
 rules: `.vitepress/theme/pvm-engine/` is tangled from the lessons, because the site is built
@@ -224,7 +228,7 @@ draws in MathJax, and every symbol of a quoted formula is explained.
   call*) goes in `tools/glosses/terms.ts`: underlined where a page first quotes it, its
   meaning on hover or tap, and a pop-up note on a Kindle.
 - **A Part's appendix**, `NN-part/gray-paper.md` (*13.A The formulas, in plain words*), takes
-  every formula the Part quotes, for a reader who doesn't read math: the formula again
+  every formula the Part quotes, explained: the formula again
   (`gray-paper-eq`), then **Read it aloud**, **In plain words**, **On a real value** (a
   vector's real values, worked one step at a time) and **In your client**, ending with
   *Say it in one breath*. A quoted formula links to its explanation there.
@@ -266,6 +270,14 @@ from the lessons (`tools/launcher.ts`), so a lesson that adds a script runs it a
 tests ask for the files remade.
 
 ## Shape
+
+**The example first.** A lesson opens on something to try: right under its opening
+paragraph, before *New words*, its widget on real values, with two or three sentences
+saying what to do with it (Parts 4 and 6 are the models: 6.3 opens the state's rows before
+it quotes (D.2), the formula that defines them). The widget is placed once, under
+`<a id="try-it"></a>`, and the plain-words explanation further down sends the reader back
+to it (`[at the top](#try-it)`) instead of repeating it. *Why:* a reader who has already
+opened τ's four bytes reads the paper's formula as a description of something they know.
 
 0. **New words**: right under the opening paragraph, every term the lesson uses for the
    first time (a JAM word, a Gray Paper symbol, a programming word a newcomer may not
@@ -454,6 +466,38 @@ line stands for anything; times, durations, run ids and paths into the client ar
 on both sides. Paste real output from `.verify-output/<lesson>/line-<n>.txt`, which verify
 writes for every run. A Run with an Output block needs no `# prints:` lines, so its block
 is pure commands.
+
+## Clients
+
+The lessons build one client, in TypeScript, and the site can show others beside it: the
+picker next to the *Code* switch says whose code is on show (`CLIENTS` in
+`.vitepress/theme/code-link.ts`; the reader's choice is kept, and `?client=lasair` in a link
+picks one). Today the second client is lasair, quoted in its `<details>` folds.
+
+- **Our client's snippets are the plain labelled blocks**, as ever: tangle assembles them,
+  verify runs them, and every check in this file is about them.
+- **Another client's code for the same step** goes right after ours, in a block of its own
+  (`.vitepress/clients.ts`), with the same labels, paths relative to that client's folder:
+
+  ```text
+  ::: client lasair
+  **New file** `lib/trie.ml`
+  (its code block)
+  :::
+  ```
+
+  The site shows the block only while the picker is on that client, and folds ours to its
+  labels then. `tools/lessons.ts` passes over the block, so its labels are never steps of
+  our client. The build stops on a `::: client` that names no client in `CLIENTS`.
+- **A new client** is a row in `CLIENTS` (an id that never changes, its language, its name),
+  then its blocks, lesson by lesson. A lesson with no block for the chosen client shows its
+  prose and ours, folded: partial is honest. Checking another client's snippets (its own
+  tangle and verify) comes with the first client that is built here, not before.
+- **The prose stays one.** A lesson's words explain the Gray Paper's rule, not a language:
+  what is true only of the TypeScript goes beside the TypeScript, in a comment or a note.
+
+*Why:* JAM wants many clients in many languages, and a reader who builds in Rust should
+read the same lesson, see the same example, and find their own language under the label.
 
 ## Albert
 

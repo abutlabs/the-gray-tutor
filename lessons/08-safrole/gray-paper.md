@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 8](./index.md)'s appendix: every formula of §6 that the part quotes, and the two of Appendix G,
-read for someone who doesn't read math. They come in the paper's order, which is not the
+[Part 8](./index.md)'s appendix: every formula of §6 that the part quotes, and the two of Appendix G, explained. They come in the paper's order, which is not the
 lessons' order: §6.2 names Safrole's state, §6.3 rotates the validators, §6.4 seals the
 block and stirs the randomness, §6.5 seats the sealers, §6.6 writes the two marks, §6.7
 enters the tickets, and Appendix G says what a VRF signature and a ring proof are. (§6.1's

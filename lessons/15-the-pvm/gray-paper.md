@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 15](./index.md)'s appendix: every formula of Appendix A, *Polkadot Virtual Machine*, read for
-someone who doesn't read math. There are 65 numbered equations in 54 displayed blocks,
+[Part 15](./index.md)'s appendix: every formula of Appendix A, *Polkadot Virtual Machine*, explained. There are 65 numbered equations in 54 displayed blocks,
 plus thirteen tables of instructions and one table of prices, and they are the whole
 machine: how a program blob is cut up (A.1, A.2), how one instruction is read (A.2 to
 A.5), what one step does (A.4), what each instruction does (A.5), how a host and a

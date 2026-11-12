@@ -61,6 +61,13 @@ Each lesson builds on the ones before, and your client grows with
 them. Each part's page says what your client can do at its end, and links self-test
 for that part of the Gray Paper on our [JAM learning Site](https://abutlabs.github.io/jam-learning/lasair/exam.html).
 
+Every lesson opens on its ideas: the examples to try, the pictures, and the Gray Paper's
+own words, with the code folded to its labels. Tap a label to open that one snippet. To
+build the client, turn on **Code** in the top bar (on a phone, in the ☰ menu): every
+snippet opens, and stays open on your next visit. The list beside the switch says whose
+code shows: the TypeScript client these lessons build, or lasair's OCaml where a lesson
+quotes it.
+
 There's no wrong way to read it, though. To start further in, or to catch up after a
 break, run `npm run catch-up -- 14.2` at the repo root: it makes your client the client
 after [lesson 14.2](./14-services/02-the-service-account.md), your own files saved to

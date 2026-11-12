@@ -4,6 +4,13 @@ You know where everything in the state lives ([lesson 6.2](./02-state-keys.md)).
 value is an encoding, so [Part 2](../02-codec/index.md)'s codecs read it. This lesson reads three components,
 the time, the entropy and the validators, and checks each against the blocks themselves.
 
+Open a few yourself first. Every row is one entry of a real state: a key from
+[lesson 6.2](./02-state-keys.md), and the bytes stored under it.
+
+<a id="try-it"></a>
+
+<StateRows />
+
 ## New words
 
 - **Validator key.** Everything the chain knows about one validator: three keys for three
@@ -209,8 +216,9 @@ $$
 
 :::
 
-In plain words, (D.2) is a table: on the left a key, from [lesson 6.2](./02-state-keys.md)'s
-C, and on the right the encoding stored under it. The paper's second note is the rule of
+In plain words, (D.2) is a table, the one you opened [at the top](#try-it),
+row for row: on the left a key, from [lesson 6.2](./02-state-keys.md)'s C, and on the
+right the encoding stored under it. The paper's second note is the rule of
 thumb for reading one: a number in the state is written fixed-width, ℰ₄ or ℰ₈, unless it
 is a length or a discriminator in front of something. This lesson reads three rows:
 

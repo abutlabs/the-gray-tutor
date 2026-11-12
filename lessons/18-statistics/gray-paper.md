@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 18](./index.md)'s appendix: every formula of §13, *Statistics*, read for someone who doesn't read
-math. There are five blocks: what the validators' tallies are (13.1) to (13.3) and how a
+[Part 18](./index.md)'s appendix: every formula of §13, *Statistics*, explained. There are five blocks: what the validators' tallies are (13.1) to (13.3) and how a
 block moves them on (13.4) to (13.6); what the cores' and services' tallies are (13.7) and
 (13.8), and how each block fills them (13.9) to (13.17). They are all counting: nothing
 here decides anything, but every count goes into the state root.

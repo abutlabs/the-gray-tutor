@@ -1,6 +1,6 @@
 # The formulas, in plain words
 
-[Part 4](./index.md)'s appendix: every formula this part quotes, read for someone who doesn't read math.
+[Part 4](./index.md)'s appendix: every formula this part quotes, explained.
 They come from three places: §4.1 says what a block is made of, §5 what its header holds,
 and Appendix C how all of it is written as bytes. There are eight displayed blocks, and
 the last one, Appendix C's *Block Serialization*, holds twenty-two equations, (C.16) to

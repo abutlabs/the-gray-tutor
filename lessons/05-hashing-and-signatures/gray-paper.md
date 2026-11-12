@@ -1,6 +1,6 @@
 # The formulas, in plain words
 
-[Part 5](./index.md)'s appendix: every formula this part quotes, read for someone who doesn't read math.
+[Part 5](./index.md)'s appendix: every formula this part quotes, explained.
 §3.8, where the paper names its hash and its signatures, has no formulas of its own, only
 sentences, and [5.1](./01-hashes.md#what-the-gray-paper-says) and
 [5.3](./03-signatures.md#what-the-gray-paper-says) say them in plain words. What is left

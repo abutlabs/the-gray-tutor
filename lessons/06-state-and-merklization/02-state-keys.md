@@ -6,6 +6,13 @@ JAM state is made by one of three recipes, which the Gray Paper calls C. Learn t
 recipes, and you know where to find anything: the validators, the clock, a service's
 code.
 
+Make a few keys first. Pick a recipe and type what goes in: each of the 31 bytes is
+coloured by where it came from.
+
+<a id="try-it"></a>
+
+<StateKeyWeave />
+
 ## New words
 
 - **State key.** The 31-byte key an entry of the state is filed under. *Example:* `0x0b`
@@ -79,12 +86,10 @@ every service's account is C(255, s).
 (In the last row, n = ℰ₄(s) and a = H(h): the service's four bytes take turns with the
 hash's first four, then 23 more bytes of the hash follow.)
 
-Pick a recipe below and type what goes in. Each of the 31 bytes is coloured by where it
-came from. Make service `0x04030201`'s account, then weave a different service into the
-same hash: only the four service bytes move. The widget doesn't hash, so for C(s, h) you
-type the hash's bytes yourself. They start as the ones in a key from [lesson 6.1](./01-the-state-trie.md).
-
-<StateKeyWeave />
+Try each row on [the keys at the top](#try-it). Make service `0x04030201`'s account,
+then weave a different service into the same hash: only the four service bytes move. The
+widget doesn't hash, so for C(s, h) you type the hash's bytes yourself. They start as the
+ones in a key from [lesson 6.1](./01-the-state-trie.md).
 
 The state has **16 components**, C(1) to C(16), each a Greek letter in the Gray Paper.
 Here they are, with their sizes in the state you met in [lesson 6.1](./01-the-state-trie.md):

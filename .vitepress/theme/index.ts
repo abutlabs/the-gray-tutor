@@ -5,10 +5,11 @@ import { listenForKeys, revealActiveLesson } from "./keys.ts";
 import { listenForZoom, makePicturesFocusable } from "./zoom.ts";
 import { listenForResize, placeSideArrows } from "./side-arrows.ts";
 import { reloadOnStaleBuild } from "./stale.ts";
-import { listenForSnippetTaps } from "./concepts.ts";
+import { listenForSnippetTaps } from "./code.ts";
 import { listenForEyeTaps } from "./eye.ts";
 import { listenForGlossTaps } from "./gray-paper.ts";
-import ConceptsToggle from "./ConceptsToggle.vue";
+import { fitFormulas, listenForFormulas } from "./fit-formulas.ts";
+import CodeToggle from "./CodeToggle.vue";
 import BitPlaces from "./BitPlaces.vue";
 import CompactNatural from "./CompactNatural.vue";
 import TwoBytes from "./TwoBytes.vue";
@@ -64,6 +65,7 @@ import MaybeExactly from "./MaybeExactly.vue";
 import BlockStrip from "./BlockStrip.vue";
 import HashChain from "./HashChain.vue";
 import ValidatorKeyMap from "./ValidatorKeyMap.vue";
+import StateRows from "./StateRows.vue";
 import EpochTurn from "./EpochTurn.vue";
 import ShuffleSteps from "./ShuffleSteps.vue";
 import EntropyStairs from "./EntropyStairs.vue";
@@ -155,13 +157,13 @@ import "./custom.css";
 
 export default {
   extends: DefaultTheme,
-  // the concepts-only switch in the header and the phone menu, riding along from page to
-  // page like the theme switch (concepts.ts); at the top of every lesson, the Gray Paper
-  // sections it covers
+  // the Code switch and the client picker in the header and the phone menu, riding along
+  // from page to page like the theme switch (code.ts); at the top of every lesson, the Gray
+  // Paper sections it covers
   Layout: () =>
     h(DefaultTheme.Layout, null, {
-      "nav-bar-content-after": () => h(ConceptsToggle),
-      "nav-screen-content-after": () => h(ConceptsToggle, { screen: true }),
+      "nav-bar-content-after": () => h(CodeToggle),
+      "nav-screen-content-after": () => h(CodeToggle, { screen: true }),
       "doc-before": () => h(GrayPaperRefs),
     }),
   enhanceApp({ app, router }) {
@@ -205,6 +207,7 @@ export default {
     app.component("BlockStrip", BlockStrip); // 4.7
     app.component("HashChain", HashChain); // 5.1
     app.component("ValidatorKeyMap", ValidatorKeyMap); // 6.3
+    app.component("StateRows", StateRows); // 6.3
     app.component("EpochTurn", EpochTurn); // 7.1
     app.component("ShuffleSteps", ShuffleSteps); // 7.2
     app.component("EntropyStairs", EntropyStairs); // 8.1
@@ -317,6 +320,7 @@ export default {
     listenForGlossTaps();
     listenForKeys();
     listenForZoom();
+    listenForFormulas();
     listenForResize();
     router.onAfterRouteChange = () => { revealActiveLesson(); };
   },
@@ -326,11 +330,13 @@ export default {
       revealActiveLesson();
       makePicturesFocusable();
       placeSideArrows();
+      fitFormulas();
     });
     // after each new page is in the DOM
     watch(() => route.path, () => {
       makePicturesFocusable();
       placeSideArrows();
+      fitFormulas();
     }, { flush: "post" });
   },
 } satisfies Theme;

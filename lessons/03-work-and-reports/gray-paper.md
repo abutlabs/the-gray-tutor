@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 3](./index.md)'s appendix: every formula of the paper the part quotes, read for someone who
-doesn't read math. The first half is the shapes your client decodes: a package and its
+[Part 3](./index.md)'s appendix: every formula of the paper the part quotes, explained. The first half is the shapes your client decodes: a package and its
 items (§14.3), a context (§11.1.2), a digest (§11.1.4) and a report with its availability
 specification (§11.1.1, §11.1.3). The second half is the rest of §14, what the guarantors
 do in-core to turn a package into a report: your client never runs it, but a report's

@@ -16,7 +16,8 @@ import { runViews } from "./run-views.ts";
 import { lineRanges, linesOf, stepView } from "./whole.ts";
 import { EPUB_FILE, writeEpub } from "./epub.ts";
 import { execSync } from "node:child_process";
-import { HEAD as CONCEPTS_HEAD } from "./theme/concepts-link.ts";
+import { CLIENT_CSS, HEAD as CODE_HEAD } from "./theme/code-link.ts";
+import { clientBlocks } from "./clients.ts";
 import { BESIDE, cited, grayPaperQuotes, label, SECTIONS, sorted } from "./gray-paper.ts";
 import { unitCodes } from "./units.ts";
 import { snippetNumbers, wholeFiles } from "../tools/snapshots.ts";
@@ -96,10 +97,12 @@ export default defineConfig({
   // Grafana and the stack are on localhost on purpose; every other link must resolve
   ignoreDeadLinks: [/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/],
   lastUpdated: false,
-  // concepts-only mode (theme/concepts.ts), from the link or the saved choice, applied
-  // before the page draws so code never flashes
+  // the Code switch and the client picker (theme/code.ts), from the link or the saved
+  // choice, applied before the page draws so code never flashes; and the rules that show
+  // another client's blocks while it is the chosen one
   head: [
-    ["script", {}, CONCEPTS_HEAD],
+    ["script", {}, CODE_HEAD],
+    ["style", {}, CLIENT_CSS],
     // the professor in the browser tab; head links don't get the base added for them
     ["link", { rel: "icon", type: "image/svg+xml", href: `${base}logo.svg` }],
   ],
@@ -108,7 +111,7 @@ export default defineConfig({
   markdown: {
     // the Gray Paper's longest formulas (Ψ_A's type, B.4) need more room than MathJax's default
     math: { tex: { maxBuffer: 50 * 1024 } },
-    config: (md) => { grayPaperQuotes(md); snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
+    config: (md) => { grayPaperQuotes(md); clientBlocks(md); snippetLabels(md); stepViews(md); albert(md); textSymbols(md); unitCodes(md); checkBlocks(md); runViews(md); },
     codeTransformers: [shellComments()],
   },
   // the dev server sends a moved address on too (the built site has a page there instead)
@@ -202,10 +205,11 @@ function snippetLabels(md: MarkdownIt): void {
   };
   md.core.ruler.push("snippet-labels", (state) => {
     const t = state.tokens;
-    // lasair's folds are code too: concepts-only mode (theme/concepts.ts) hides them
+    // lasair's folds are code too, and lasair's: they go with the code when it is folded,
+    // and open while the picker is on lasair (theme/code.ts)
     for (const token of t) {
       if (token.type === "html_block" && /^<details>\s*<summary>lasair/.test(token.content)) {
-        token.content = token.content.replace("<details>", '<details class="lasair">');
+        token.content = token.content.replace("<details>", '<details class="lasair" data-client="lasair">');
       }
     }
     for (let i = 0; i + 3 < t.length; i++) {

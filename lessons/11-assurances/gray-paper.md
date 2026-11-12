@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 11](./index.md)'s appendix: every formula of §11.1 and §11.2 the part quotes, read for someone who
-doesn't read math. There are seven blocks, (11.1) and (11.11) to (11.18): what a core
+[Part 11](./index.md)'s appendix: every formula of §11.1 and §11.2 the part quotes, explained. There are seven blocks, (11.1) and (11.11) to (11.18): what a core
 holds, what an assurance is, the five rules it keeps, when a report becomes available,
 and when a core lets go. [The part's page](./index.md#the-big-picture) tells who makes the
 shards and the assurances; all of this is the chain's side, on every validator, your

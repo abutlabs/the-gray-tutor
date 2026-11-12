@@ -56,7 +56,7 @@ test("the map page is published and linked from the start page, and the site sho
   assert.match(config, /text: `\$\{p\.title\}\$\{sectionsLine\(p\.dir\)\}`/);
   const theme = readFileSync(join(ROOT, ".vitepress/theme/index.ts"), "utf8");
   assert.match(theme, /"doc-before": \(\) => h\(GrayPaperRefs\)/);
-  // the concepts-only switch rides in the header and the phone menu, not the lesson body
-  assert.match(theme, /"nav-bar-content-after": \(\) => h\(ConceptsToggle\)/);
-  assert.match(theme, /"nav-screen-content-after": \(\) => h\(ConceptsToggle, \{ screen: true \}\)/);
+  // the Code switch rides in the header and the phone menu, not the lesson body
+  assert.match(theme, /"nav-bar-content-after": \(\) => h\(CodeToggle\)/);
+  assert.match(theme, /"nav-screen-content-after": \(\) => h\(CodeToggle, \{ screen: true \}\)/);
 });

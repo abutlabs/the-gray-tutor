@@ -1,7 +1,6 @@
 # The formulas, in plain words
 
-[Part 16](./index.md)'s appendix: every formula of Appendix B, *Virtual Machine Invocations*, read for
-someone who doesn't read math, and its three tables of host calls, row by row. The
+[Part 16](./index.md)'s appendix: every formula of Appendix B, *Virtual Machine Invocations*, explained, and its three tables of host calls, row by row. The
 formulas are (B.1) to (B.21). Your client builds some of them: Ψ_A, accumulation, and the
 host calls it answers. It never runs the others, Is-Authorized and refine, because a
 core's guarantors run those in-core; each section says which kind it is.

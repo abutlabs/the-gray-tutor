@@ -1,6 +1,6 @@
 # The formulas, in plain words
 
-[Part 12](./index.md)'s appendix: every formula the part quotes, read for someone who doesn't read math.
+[Part 12](./index.md)'s appendix: every formula the part quotes, explained.
 They come from §11.3 to §11.5, with two limits from §11.1: who guarantees which core
 (11.19 to 11.23), what a guarantee is (11.24), the rules a guarantee keeps (11.25 to
 11.33), the rules its report keeps against the chain (11.3, 11.8 and 11.34 to 11.45), and
