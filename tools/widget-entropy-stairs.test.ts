@@ -44,8 +44,10 @@ test("the new-epoch vector is the lesson's entropy run, line for line, and the s
   assert.match(raw.replace(/\s+/g, " "), /jumps from slot 10 to slot 46, straight over two whole epochs/);
 });
 
-test("lesson 8.1 places the widget once, in Watch it after the staircase paragraph", () => {
+test("lesson 8.1 places the widget once, at the top, and the rule sends the reader back to it", () => {
   const at = raw.indexOf("<EntropyStairs />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<EntropyStairs />"), "placed once");
-  assert.ok(at > raw.indexOf("shows the same staircase.") && at < raw.indexOf("<details>", raw.indexOf("## Watch it")));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.match(raw, /\[The stairs at the top\]\(#try-it\)/);
+  assert.match(raw, /shows the same staircase\./);
 });

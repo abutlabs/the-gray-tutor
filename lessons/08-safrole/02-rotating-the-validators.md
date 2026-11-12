@@ -1,19 +1,38 @@
 # Rotating the validators
 
-JAM's validators work in shifts, an epoch at a time, with a queue: who's on now, who's
-up next, who's after that, and who just finished. At each new epoch everyone steps one
-along. A validator caught cheating ([lesson 4.4](../04-blocks/04-disputes.md)'s disputes) doesn't step up: its keys
-are swapped for zeros.
+**In one sentence:** validators serve in shifts of one epoch, and at each new epoch every
+list of them steps one place along a queue, with anyone caught cheating swapped for a
+blank on the way in.
 
-## New words
+Start the new epoch and watch four lists change places. Mark an offender in the top one
+first, and see what arrives in its place.
 
-- **Validator sets.** Four lists of validators: κ the active ones, λ last epoch's, γ_P the
-  next epoch's (pending), and ι the ones queued after that (staging). *Example:* at a new
-  epoch, γ_P becomes κ.
-- **Offender.** A validator convicted in a dispute: its keys are kept out of the sets
-  that come next. *Example:* ψ_O, the state's list of offenders' Ed25519 keys.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md).
+<Rotation />
+
+## The idea
+
+Who are the validators? The answer has to be able to change. But not in the middle of a
+shift: every node must know whose signatures to expect.
+
+So JAM changes the cast only when an epoch turns, and keeps a queue of four lists, the
+[*validator sets*](../glossary.md#validator-sets):
+
+- who is on now;
+- who is up next;
+- who comes after that;
+- who just finished.
+
+At each new epoch, every list steps one along. It works like a roster pinned to the wall:
+next shift's names are up before this shift ends. The list that just finished is kept for
+one more epoch, because what it signed still has to be checked.
+
+One thing stops a validator from stepping up. An [*offender*](../glossary.md#offender) is
+a validator convicted in a dispute ([lesson 4.4](../04-blocks/04-disputes.md)). Its place
+in the list is kept, but its keys are swapped for zeros.
+
+This lesson builds the step and the swap.
 
 ## What the Gray Paper says
 
@@ -134,7 +153,7 @@ $$
 
 :::
 
-In plain words, §6.3 (*Key Rotation*). The state holds four sets of validator keys:
+§6.3 (*Key Rotation*). The state holds four sets of validator keys:
 
 | Set | Name | Who they are |
 | --- | --- | --- |
@@ -144,28 +163,33 @@ In plain words, §6.3 (*Key Rotation*). The state holds four sets of validator k
 | λ | previous | last epoch's, still needed to check what they signed |
 
 Each set is a list of validator key sets, a multiple of 3 long, from 6 to 3C: always 6 on
-tiny, and 1,023 on full, the most it allows. Each key set is 336 bytes: the Bandersnatch key (bytes 0 to 31), the Ed25519 key
-(32 to 63), the BLS key (64 to 207) and the metadata (208 to 335).
+tiny, and 1,023 on full, the most it allows. Each key set is 336 bytes:
+
+| Bytes | What they hold |
+| --- | --- |
+| 0 to 31 | the Bandersnatch key |
+| 32 to 63 | the Ed25519 key |
+| 64 to 207 | the BLS key |
+| 208 to 335 | the metadata |
 
 At a new epoch, everyone moves along one: κ′ = γ_P, λ′ = κ, and γ′_P = Φ(ι). ι itself
 stays, since only that privileged service changes it. In any other block, nothing moves.
 
-**Φ** is the bouncer at the door. It goes through ι, and every validator whose Ed25519
-key is among the *offenders* (ψ′_O, the keys convicted in disputes) gets replaced by a
-key of all zeros: 336 zero bytes. The slot is kept, so everyone else keeps their place
-in the list, but the key is useless. Nobody can sign with a zero key.
+**Φ** is the bouncer at the door. It goes through ι. Every validator whose Ed25519 key is
+among the offenders (ψ′_O, the keys convicted in disputes) is replaced by a key of all
+zeros: 336 zero bytes. The place is kept, so everyone else keeps theirs, but the key is
+useless. Nobody can sign with a zero key. Try it [at the top](#try-it): mark an offender,
+then start the epoch.
 
-<Rotation />
-
-(The new pending set also gets a fresh Bandersnatch *ring root*, γ′_Z, which lets
+The new pending set also gets a fresh Bandersnatch *ring root*, γ′_Z, which lets
 validators prove they're in the set without saying who they are. That needs Bandersnatch's
-arithmetic: [lesson 8.8](./08-the-ring-root.md).)
+arithmetic: [lesson 8.8](./08-the-ring-root.md).
 
 ## The tests
 
-The safrole tests are about to get a second user of the same bookkeeping, every
-accepted vector and whether its block starts a new epoch, so the file gets a helper,
-`acceptedVectors`, and both tests use it. That's a rewrite of the whole file:
+Two tests now need the same list: every accepted vector, and whether its block starts a
+new epoch. A helper, `acceptedVectors`, makes it, and the whole file is rewritten around
+it:
 
 **Rewrite** `test/safrole.test.ts`
 
@@ -255,9 +279,10 @@ test("at a new epoch the validator sets move along one, with offenders zeroed", 
 });
 ```
 
-The vectors name the sets in Greek: `iota`, `gamma_k`, `kappa`, `lambda`. (`gamma_k` is
-γ_P: older Gray Papers called it γ_k, and the vectors kept the name.) `validatorSets` gives them your client's names.
-`post_offenders` is ψ′_O, the offenders *after* this block's disputes.
+The vectors name the sets in Greek: `iota`, `gamma_k`, `kappa`, `lambda`. `gamma_k` is
+γ_P: older Gray Papers called it γ_k, and the vectors kept the name. `validatorSets` gives
+them your client's names. `post_offenders` is ψ′_O, the offenders *after* this block's
+disputes.
 
 ## The code
 
@@ -301,8 +326,8 @@ export function rotateValidators(sets: ValidatorSets, offenders: Bytes[]): Valid
 ```
 
 `withoutOffenders` puts the offenders' keys in a `Set` of hex strings first, so checking
-each validator is a quick lookup. (Two `Uint8Array` values with the same bytes aren't `===`, but
-their hex strings are.)
+each validator is a quick lookup. Two `Uint8Array` values with the same bytes aren't
+`===`, but their hex strings are.
 
 **Run**
 
@@ -373,9 +398,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The vector fields the program reads (each entry of the four
-sets is really a whole 336-byte validator key; the program shows its Ed25519 part's
-first four hex digits), what it computes, and what it prints:
+What flows through it. Each entry of the four sets is really a whole 336-byte validator
+key; the program shows the first four hex digits of its Ed25519 part:
 
 ::: code-group
 
@@ -412,10 +436,10 @@ active    ab00 f30a 8b8c 4418 ad93 cab2  →  4418 ad93 cab2 f30a 8b8c ab00
 
 :::
 
-Read the input into the output: `slot` 48 against `tau` 45 turns the epoch, so each set's
-*after* is the set above's *before* — `pending`'s new row is `iota`'s old one, `active`'s
-is `pending`'s. The one exception comes from `post_offenders`: its key is `ab00…`, so
-where `iota`'s row slides into `pending`, that tile arrives as `0000`.
+`slot` 48 against `tau` 45 turns the epoch, so each set's *after* is the *before* of the
+set above it: `pending` gets `iota`'s old row, `active` gets `pending`'s. One tile
+differs. `post_offenders` holds the key `ab00…`, so where `iota`'s row slides into
+`pending`, that tile arrives as `0000`.
 
 **Run**
 
@@ -470,51 +494,55 @@ quick as your `Set`.
 ## Check your understanding
 
 ::: check
-**At a new epoch, which set becomes κ′, the active validators?**
+**Why keep a pending set at all, instead of making new validators active the moment they are chosen?**
 
-- [ ] ι, the staging set
-  > No: ι is two steps away. It moves into pending, minus offenders, and is active only an
-  > epoch later.
-- [x] γ_P, the pending set
-  > Yes: κ′ = γ_P. Pending means "active from the next epoch", and the next epoch has just
-  > begun.
-- [ ] κ itself: the active set stays until a dispute removes it
-  > No: validators serve an epoch at a time. κ moves on to λ, the previous set.
+- [ ] To give a convicted validator an epoch to appeal
+  > No: nothing in the rotation hears appeals. An offender's keys are zeroed as the
+  > staging set is copied into pending.
+- [x] The next epoch's validators must be known an epoch ahead: their keys make the ring root that lets them into the lottery for that epoch's slots
+  > Yes: §6.3 says the pending keys "determine the Bandersnatch ring root which authorizes
+  > tickets into the slot-sealer contest for the next epoch". At the new epoch, pending
+  > becomes active: κ′ = γ_P.
+- [ ] So that last epoch's validators can finish what they were signing
+  > No: that is what λ, the previous set, is for. Pending looks forward, not back.
 
-**And what happens to ι at the new epoch?**
+**Who decides the staging set, ι, and who moves the other three?**
 
-- [ ] It moves on to λ, closing the circle
-  > No: the sets aren't a circle. λ′ is the old κ, and the old λ is dropped.
-- [x] It stays as it is: only a privileged service changes it
-  > Yes: a copy of it, minus offenders, becomes γ′_P, but ι itself is untouched. In the
-  > vector, staging reads `cab2 ab00 4418 8b8c ad93 f30a` before and after.
-- [ ] It's emptied, ready for new validators
-  > No: nothing empties it. If the privileged service does nothing, the same validators
-  > come round again.
+- [ ] The active validators vote on all four
+  > No: there is no vote in §6.3. The three later sets follow from ι and the epoch, by
+  > rule.
+- [ ] Each new epoch empties ι, and whoever applies first fills it
+  > No: a new epoch leaves ι as it is. If nothing changes it, the same validators come
+  > round again.
+- [x] A privileged service sets ι; every node moves the rest along at each new epoch, by the same rule
+  > Yes: γ′_P = Φ(ι), κ′ = γ_P, λ′ = κ. ι itself stays until that service changes it, and
+  > the old λ is dropped.
 
-**`ab00` is an offender in ι. Why does it arrive in pending as `0000`, in its old place, instead of being taken out?**
+**An offender is in ι. Why does it arrive in pending as zeros, in its old place, instead of being taken out?**
 
 - [x] So everyone else keeps their place in the list, and nobody can sign with a zero key
-  > Yes: Φ swaps its 336 bytes for zeros. The list stays six long, every other validator
-  > keeps its position, and the key in `ab00`'s place is useless.
-- [ ] It is taken out; `0000` is just how `bin/rotation.ts` shows a gap
-  > No: the key is really there, 336 zero bytes, and pending still holds six.
+  > Yes: Φ swaps its 336 bytes for zeros. The list stays as long as it was, every other
+  > validator keeps its position, and the key in the offender's place is useless.
+- [ ] It is taken out; the zeros are only how a program shows a gap
+  > No: the key is really there, 336 zero bytes. In the vector, pending still holds six.
 - [ ] So that what it signed in earlier epochs stops checking out
-  > No: Φ only touches the new pending set. `ab00` is still in κ′ and λ′, where it was.
+  > No: Φ only touches the new pending set. In the vector, `ab00` is still in κ′ and λ′,
+  > where it was.
 
-**Why keep λ, last epoch's validators?**
+**What would break without λ, last epoch's validators?**
 
-- [ ] They stand by, ready to step in if active validators go offline
+- [ ] Nobody could step in when an active validator goes offline
   > No: nothing in Safrole calls them back. They're kept for checking.
-- [ ] The next ring root is made from them
-  > No: the ring root is made for the new pending set, γ′_P.
-- [x] Work they signed last epoch still needs checking, and that takes their keys
+- [x] Work they signed last epoch could no longer be checked: that takes their keys
   > Yes: λ is "last epoch's, still needed to check what they signed".
+- [ ] The next ring root couldn't be made
+  > No: the ring root is made for the new pending set, γ′_P.
 :::
 
 ## What you have
 
-Validator sets that change hands at every epoch, with cheaters left at the door. The new set has to seal the
-epoch's blocks; when the lottery doesn't fill every slot, [lesson 8.3](./03-the-fallback-sealers.md)'s Plan B does.
+Validator sets that change hands at every epoch, with cheaters left at the door. The new
+set has to seal the epoch's blocks. When the lottery doesn't fill every slot,
+[lesson 8.3](./03-the-fallback-sealers.md)'s Plan B does.
 
 Next: [8.3 The fallback sealers](./03-the-fallback-sealers.md)

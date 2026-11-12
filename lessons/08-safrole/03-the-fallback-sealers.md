@@ -1,20 +1,34 @@
 # The fallback sealers
 
-Every slot of an epoch needs a *sealer*: the one validator allowed to make that slot's
-block. Normally a lottery decides, with secret tickets ([lesson 8.4](./04-the-lotterys-winners.md)). But lotteries can
-fizzle: too few tickets get entered, or no blocks arrive in the epoch's closing slots
-when the lottery would close, or the chain skips whole epochs. JAM never
-lets a slot go unclaimed, so there's a Plan B: pick the sealers straight from the
-validators, by hash — one throw of the dice per slot, except the dice is a hash, so every
-node throws the same numbers and fills in the same list. Everyone can work it out, so it
-isn't secret, but nobody could have steered it. This lesson builds Plan B.
+**In one sentence:** when the lottery can't fill an epoch, each slot's block maker is drawn
+from the validators by a hash that every node works out the same way.
 
-## New words
+Tap a slot and follow its draw, step by step. Then read the shares at the bottom: one
+draw per slot, and luck does the rest.
 
-- **Sealer.** The one validator allowed to make a slot's block. *Example:* the fallback
-  sealers, picked from the entropy when the lottery didn't fill the epoch.
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md).
+<FallbackSealer />
+
+## The idea
+
+Every slot of an epoch needs a [*sealer*](../glossary.md#sealer): the one validator
+allowed to make that slot's block. Normally a lottery decides, with secret tickets
+([lesson 8.4](./04-the-lotterys-winners.md)). But a lottery can fizzle:
+
+- too few tickets get entered;
+- no blocks arrive in the epoch's closing slots, when the lottery would close;
+- the chain skips whole epochs.
+
+JAM never lets a slot go unclaimed, so there is a Plan B: throw a die for each slot. The
+die is a hash, so every node throws the same numbers and fills in the same list.
+
+Two things go into the hash: some randomness, and the slot's number. A number comes out,
+and it picks a validator. The randomness was fixed before the epoch began, so nobody
+could have steered the draw. But anyone can run the hash, so the list is no secret. That
+is what Plan B gives up.
+
+This lesson builds Plan B.
 
 ## What the Gray Paper says
 
@@ -69,28 +83,33 @@ $$
 
 :::
 
-In plain words, §6.5 (*The Slot-Sealer Sequence*). γ_S holds the sealers of the current epoch, one per
+§6.5 (*The Slot-Sealer Sequence*). γ_S holds the sealers of the current epoch, one per
 slot, and changes only when a new epoch begins. Then it becomes either the lottery's
-tickets (8.4) or, otherwise, the **fallback** sequence F(η′₂, κ′), (6.27) above: slot
-i's sealer is the Bandersnatch key of validator ℰ₄⁻¹(H(η′₂ ⌢ ℰ₄(i))₀…₄) of κ′, counted
-round κ′.
+tickets ([lesson 8.4](./04-the-lotterys-winners.md)) or, otherwise, the **fallback**
+sequence F(η′₂, κ′), (6.27) above.
 
-Step by step: for each slot number i, hash η′₂ with i, read the first four bytes as a number,
-and take that validator of the *new* active set, wrapping round with `mod`. Two inputs,
-both fixed before the epoch begins: η′₂, randomness from two epochs back ([lesson 8.1](./01-stirring-the-entropy.md)),
-and κ′, the validators who'll be active ([lesson 8.2](./02-rotating-the-validators.md)).
+For each slot number i:
+
+1. hash η′₂ with i;
+2. read the first four bytes as a number;
+3. take that validator of the *new* active set, wrapping round with `mod`. Its
+   Bandersnatch key seals the slot.
+
+Both inputs are fixed before the epoch begins: η′₂, randomness from two epochs back
+([lesson 8.1](./01-stirring-the-entropy.md)), and κ′, the validators who'll be active
+([lesson 8.2](./02-rotating-the-validators.md)).
 
 How far the `mod` wraps is however many validators the network runs: six on tiny, so every
-draw lands on 0 to 5; 1,023 on full. The same formula, counted round a bigger set. And at
-the moment the epoch turns, both inputs are already in the state under other names: η′₂ is
-the η₁ the old epoch left behind ([lesson 8.1](./01-stirring-the-entropy.md)'s shift), and
-κ′ is the pending set γ_P that just became active. `bin/sealers.ts` below reads them
-straight from those fields.
+draw lands on 0 to 5; 1,023 on full. And at the moment the epoch turns, both inputs are
+already in the state under other names:
 
-Here is F on the run's real epoch, one slot at a time:
+- η′₂ is the η₁ the old epoch left behind ([lesson 8.1](./01-stirring-the-entropy.md)'s
+  shift);
+- κ′ is the pending set γ_P that just became active.
 
-<FallbackSealer />
+`bin/sealers.ts` below reads them straight from those fields.
 
+[The draw at the top](#try-it) is F on the run's real epoch, one slot at a time.
 [Lesson 8.5](./05-one-step-of-safrole.md) has a tiny epoch you can drive: let its lottery
 close short, and watch this fallback seat the next epoch.
 
@@ -139,10 +158,11 @@ test("F: an epoch without a full lottery is sealed by keys picked from κ′ by 
 });
 ```
 
-*Which* new epochs fall back is [the next lesson](./04-the-lotterys-winners.md)'s question. This test checks every vector
-where the fallback happened: post_state's γ_S holds `keys` instead of `tickets`. It works
-out η′ and κ′ with lessons [8.1](./01-stirring-the-entropy.md) and [8.2](./02-rotating-the-validators.md)'s own functions, so your whole Safrole so far is on
-trial, not just F.
+*Which* new epochs fall back is [the next lesson](./04-the-lotterys-winners.md)'s
+question. This test checks every vector where the fallback happened: post_state's γ_S
+holds `keys` instead of `tickets`. It works out η′ and κ′ with lessons
+[8.1](./01-stirring-the-entropy.md) and [8.2](./02-rotating-the-validators.md)'s own
+functions, so your whole Safrole so far is on trial, not just F.
 
 A stub that hands every slot the same key, all zeros:
 
@@ -219,8 +239,8 @@ export function fallbackKeys(config: Config, r: Bytes, validators: ValidatorKey[
 }
 ```
 
-It's the same trick as [lesson 7.2](../07-time-and-shuffling/02-the-shuffle.md)'s numbers from a hash, with one hash per slot instead of
-eight numbers per hash.
+The same trick as [lesson 7.2](../07-time-and-shuffling/02-the-shuffle.md)'s numbers from
+a hash, with one hash per slot instead of eight numbers per hash.
 
 **Run**
 
@@ -282,8 +302,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** The vector fields the program reads, the values it computes,
-and the lines it prints:
+What flows through it:
 
 ::: code-group
 
@@ -320,11 +339,11 @@ the sealers match the vector: true
 
 :::
 
-Read the input into the output: the seed is `eta[1]` — the old η₁, which the epoch's turn
-makes η′₂ — and the keys dealt are `gamma_k`'s Bandersnatch ones, since at a new epoch the
-pending set becomes κ′. F picks one per slot: slot 0 gets `0x9326edb21e…`, which is
-`gamma_k[2]`'s key, so the program prints `validator 2`. The vector's own answer sheet is
-`post_state.gamma_s.keys`, and the last line says the twelve match.
+The seed is `eta[1]`: the old η₁, which the epoch's turn makes η′₂. The keys dealt are
+`gamma_k`'s Bandersnatch keys, since at a new epoch the pending set becomes κ′. F picks
+one per slot. Slot 0 gets `0x9326edb21e…`, which is `gamma_k[2]`'s key, so the program
+prints `validator 2`. The vector's own answer is `post_state.gamma_s.keys`, and the last
+line says the twelve match.
 
 **Run**
 
@@ -386,37 +405,48 @@ carries the old η₁.)
 ## Check your understanding
 
 ::: check
-**How is slot i's fallback sealer chosen?**
+**What is the fallback for?**
 
-- [ ] In turn: validator i mod 6, on tiny
-  > No: then every validator would get two of tiny's 12 slots. In the vector, validator 1
-  > gets five.
-- [x] Hash η′₂ with ℰ₄(i), read the first four bytes as a number, and take that validator of κ′, counted round
-  > Yes: one hash per slot, a fresh draw each time, from values fixed before the epoch
-  > began.
-- [ ] By the ticket lottery, best tickets first
-  > No: the fallback is for when the lottery didn't fill the epoch. It needs no tickets at
-  > all.
+- [ ] To replace a sealer who misses its slot
+  > No: γ_S changes only when a new epoch begins. F seats all of an epoch's slots at once,
+  > and doesn't react to what happens in them.
+- [ ] To pick the lottery's winners
+  > No: the winners come from tickets ([lesson 8.4](./04-the-lotterys-winners.md)). The
+  > fallback needs no tickets at all.
+- [x] To give every slot a sealer when the lottery didn't fill the epoch
+  > Yes: JAM never lets a slot go unclaimed. One hash per slot, a fresh draw each time,
+  > picks a validator of the new active set.
 
-**Why does F use η′₂, and not η₀?**
+**Why does F draw from η′₂, and not from η₀?**
 
 - [ ] η₀ isn't kept in the state
   > No: it is, in C(6), with the other three.
-- [ ] η₂ has been stirred the most, so it's the most random
-  > No: η′₂ stopped being stirred two epochs back. η₀ has been stirred more.
 - [x] η′₂ was fixed before the epoch began, so nobody could have steered it
   > Yes: η₀ changes with every block, so it depends on who made the latest ones. η′₂, like
   > κ′, was settled before anyone could aim at a slot.
+- [ ] η₂ has been stirred the most, so it's the most random
+  > No: η′₂ stopped being stirred two epochs back. η₀ has been stirred more.
 
-**In `enact-epoch-change-with-no-tickets-4`, validator 1 seals 5 of the 12 slots, and validators 2, 3 and 4 one each. Why so uneven?**
+**Who can work out an epoch's fallback sealers, and when?**
 
-- [x] Each slot is a fresh draw, so some validators get lucky
-  > Yes: that's what picking by hash does. Nobody is guaranteed a turn.
-- [ ] Validator 1 has more at stake, so it gets more slots
+- [x] Any node, as soon as the epoch begins: both inputs are in the state
+  > Yes: η′₂ and κ′ are in the state, so any node can run F. What the fallback gives up is
+  > secrecy, not fairness.
+- [ ] Only each sealer, for its own slots, until its block arrives
+  > No: that's the lottery, with its secret tickets. The fallback has no secrets.
+- [ ] Any node, but the validators of the epoch before could have arranged the result
+  > No: every node can work it out, but nobody could have steered it. Both inputs were
+  > settled before the epoch began.
+
+**In one fallback epoch of 12 slots, one validator of six seals 5 and three others seal one each. Is something wrong?**
+
+- [ ] Yes: each validator should get two of the twelve
+  > No: the vector agrees with your client, slot for slot. Nothing in F evens things out.
+- [ ] No: that validator has more at stake, so it gets more slots
   > No: F looks at nothing but the hash and the list. Every validator has the same chance
   > at every slot.
-- [ ] It's a bug: each validator should get two of the twelve
-  > No: the vector agrees with your client, slot for slot. Nothing in F evens things out.
+- [x] No: each slot is a fresh draw, so some validators get lucky
+  > Yes: that's what picking by hash does. Nobody is guaranteed a turn.
 
 **At a new epoch, F picks from κ′. Which set of the state before the block is that?**
 
@@ -425,22 +455,16 @@ carries the old η₁.)
 - [x] γ_P, the pending set, which has just become active
   > Yes: κ′ = γ_P ([lesson 8.2](./02-rotating-the-validators.md)). That's why `bin/sealers.ts` reads `pre_state.gamma_k`.
 - [ ] γ′_P, the set the epoch mark announces
-  > No: that set is for the epoch after. lasair once picked from it, and test data with
-  > identical sets hid the bug.
-
-**Is the fallback secret, as the lottery is?**
-
-- [ ] Yes: nobody learns who seals a slot until its block arrives
-  > No: that's the lottery, with its secret tickets. The fallback has no secrets.
-- [x] No: every node can work it out, but nobody could have steered it
-  > Yes: η′₂ and κ′ are in the state, so any node can run F. What it gives up is secrecy,
-  > not fairness.
+  > No: that set is for the epoch after. Where every set holds the same validators, the
+  > mistake gives the right answer, which is why
+  > [lesson 8.2](./02-rotating-the-validators.md)'s vectors, with their shuffled sets,
+  > matter.
 :::
 
 ## What you have
 
 A Plan B for every epoch: sealers chosen by hash from the new validators, the same on
-every node. Plan A is the lottery itself: [lesson 8.4](./04-the-lotterys-winners.md) seats its
-winners.
+every node. Plan A is the lottery itself: [lesson 8.4](./04-the-lotterys-winners.md) seats
+its winners.
 
 Next: [8.4 The lottery's winners](./04-the-lotterys-winners.md)

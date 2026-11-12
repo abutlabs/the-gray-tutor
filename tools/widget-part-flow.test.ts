@@ -183,7 +183,7 @@ test("Part 8's entropy, seating and vectors are its lessons'", () => {
   assert.deepEqual(outsideIn([1, 2, 3, 4, 5]), [1, 5, 2, 4, 3]);
   assert.deepEqual(outsideIn([1, 2, 3, 4]), [1, 4, 2, 3]);
   assert.ok(lessonCode("8.4").includes("assert.deepEqual(odd, [1, 5, 2, 4, 3])"));
-  assert.ok(textOf("8.2").includes("ι the ones queued after that"), "8.2 names the sets");
+  assert.ok(textOf("8.2").includes("| ι | staging | next in line"), "8.2 names the sets");
   assert.ok(textOf("8.6").includes("SHA-512"));
   assert.ok(textOf("8.8").includes("All 46 safrole vectors pass, whole."));
 });

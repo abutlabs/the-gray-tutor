@@ -39,8 +39,10 @@ test("η′₂ and κ′ are the vector's old η₁ and γ_K, and the keys its �
   assert.deepEqual(DRAWS.map((d) => d.key), post_state.gamma_s.keys);
 });
 
-test("lesson 8.3 places the widget once, after F's definition", () => {
+test("lesson 8.3 places the widget once, at the top, and F's steps send the reader back to it", () => {
   const at = raw.indexOf("<FallbackSealer />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<FallbackSealer />"));
-  assert.ok(at > raw.indexOf("take that validator of the *new* active set") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.ok(raw.indexOf("take that validator of the *new* active set") > raw.indexOf("## What the Gray Paper says"));
+  assert.match(raw, /\[The draw at the top\]\(#try-it\) is F on the run's real epoch/);
 });

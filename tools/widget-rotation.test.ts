@@ -34,8 +34,9 @@ test("Φ zeros an offender in place, and the rotation is the lesson's rotateVali
   assert.match(raw.replace(/\s+/g, " "), /`ab00` is an offender, and arrived in pending as `0000`/);
 });
 
-test("lesson 8.2 places the widget once, in What the Gray Paper says after Φ", () => {
+test("lesson 8.2 places the widget once, at the top, and Φ sends the reader back to it", () => {
   const at = raw.indexOf("<Rotation />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<Rotation />"), "placed once");
-  assert.ok(at > raw.indexOf("Nobody can sign with a zero key.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.match(raw, /Nobody can sign with a zero key\. Try it \[at the top\]\(#try-it\)/);
 });

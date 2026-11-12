@@ -1,25 +1,34 @@
 # Stirring the entropy
 
-[Part 8](./index.md) is *Safrole*, JAM's block-production engine: *who makes the next block?* A
-lottery whose winners stay secret until their slot comes, and a lottery is only as fair
-as its randomness. This lesson keeps that randomness, η, fresh, one block at a time.
+**In one sentence:** every block hashes a little randomness its author could not choose into
+a pool the whole chain shares, so nobody can predict or steer the lotteries drawn from it.
 
-## New words
+Apply a block and watch the pool change. Then try the block that starts a new epoch, and
+the one that jumps over two.
 
-- **Safrole.** JAM's way of choosing who makes each block: a lottery run one epoch ahead,
-  with a fallback when it fizzles. *Example:* this whole part, put together in
-  [lesson 8.5](./05-one-step-of-safrole.md).
-- **Entropy.** η. Randomness the chain gathers from every block, so that no one can
-  predict the future lotteries. *Example:* η₀, stirred by every block.
-- **VRF.** A signature whose output is random, yet can't be chosen by the signer: for a
-  given key and input (the Gray Paper's *context*) it comes out one way only, and anyone
-  can check it. *Example:*
-  the header's 96-byte `entropy_source`.
-- **Optional field.** A field written with a `?`, which an object may leave out; reading a
-  missing one gives `undefined`. *Example:* `output: { err?: string }`, a vector's output,
-  which carries an error or doesn't.
+<a id="try-it"></a>
 
-All four are in the [glossary](../glossary.md).
+<EntropyStairs />
+
+## The idea
+
+[Part 8](./index.md) is [*Safrole*](../glossary.md#safrole), JAM's block-production engine.
+It answers one question: who makes the next block? The answer is a lottery whose winners
+stay secret until their slot comes. A lottery is only as fair as its randomness.
+
+So where does a chain get randomness? Every node has to end up with the same value, so no
+node can roll its own dice. And it can't be anything a block's author is free to choose:
+the author would try values until one suited it.
+
+The trick is a signature of a special kind, a [*VRF*](../glossary.md#vrf). Its output looks
+random. The signer can't pick it. Anyone can check it. Every block carries one, and every
+block's output is hashed into the pool: the [*entropy*](../glossary.md#entropy). It is a
+pot that every cook must stir one spoonful into, from a jar they could not fill themselves.
+
+Once an epoch, the pool's value is set aside. Later rules use those older values, fixed
+before anyone could aim at them.
+
+This lesson builds the stir: one hash per block.
 
 ## What the Gray Paper says
 
@@ -55,17 +64,23 @@ $$
 
 :::
 
-In plain words, §6.4 (*Sealing and Entropy Accumulation*): every block stirs new
-randomness into η₀, the accumulator. The new η₀ is the hash of the old one followed by
-Y(H_V). H_V is the header's `entropy_source` ([lesson 4.6](../04-blocks/06-the-header.md)): a 96-byte Bandersnatch *VRF*
-signature by the block's author. Y(H_V) is its *output*, 32 bytes of randomness with a
-special property. The author can't choose it: for a given key and input (here, a fixed
-label and the block's seal), a VRF's output comes out one way only. Yet everyone can check it was made honestly. So
-nobody, not even the author, can steer what goes into η.
+§6.4 (*Sealing and Entropy Accumulation*) is the stir. η₀ is the pool, the accumulator.
+The new η₀ is the hash of the old one followed by Y(H_V).
 
-Computing Y is [lesson 8.6](./06-the-vrf-output.md)'s job. Until then, the `safrole` test vectors hand it to you,
-as `input.entropy`. And the rest of η′ is [lesson 7.1](../07-time-and-shuffling/01-epochs.md)'s
-history: moved along one at a new epoch, unchanged otherwise.
+- **H_V** is the header's `entropy_source` ([lesson 4.6](../04-blocks/06-the-header.md)): a
+  96-byte Bandersnatch VRF signature by the block's author.
+- **Y(H_V)** is its *output*: 32 bytes of randomness. For a given key and input (here, a
+  fixed label and the block's seal), it comes out one way only. The author can't choose
+  it, and everyone can check it was made honestly.
+
+So nobody, not even the author, can steer what goes into η.
+
+η₁, η₂ and η₃ are the values set aside: [lesson 7.1](../07-time-and-shuffling/01-epochs.md)'s
+history, moved along one at a new epoch, unchanged otherwise. [The stairs at the top](#try-it)
+show both moves.
+
+Computing Y is [lesson 8.6](./06-the-vrf-output.md)'s job. Until then, the `safrole` test
+vectors hand it to you, as `input.entropy`.
 
 ## The tests
 
@@ -122,10 +137,11 @@ test("η′: each block stirs its VRF output into η₀, and a new epoch moves t
 });
 ```
 
-Some vectors describe blocks that must be *rejected*: a bad slot, a bad ticket. Their
-`output` is an `err`, and their state doesn't change at all. Rejecting them takes checks
-this part can't make yet ([lesson 8.5](./05-one-step-of-safrole.md) says which), so for now the test skips them, and
-counts the rest: 15 on tiny, 18 on full.
+Some vectors hold a block that must be *rejected*: a bad slot, a bad ticket. Their `output`
+carries an `err`, an [*optional field*](../glossary.md#optional-field) the other vectors
+leave out, and their state doesn't change at all. The checks that reject them come in
+[lesson 8.5](./05-one-step-of-safrole.md), so for now the test skips them and counts the
+rest: 15 on tiny, 18 on full.
 
 A stub that stirs nothing in: the entropy comes back as it went.
 
@@ -175,8 +191,7 @@ test at test/safrole.test.ts:18:1
 ```
 
 Red on the first vector, and only in the first entry: η₀ should have been stirred. The
-other three are right by luck, because that block doesn't start an epoch, so they stay
-put anyway.
+other three are right by luck. That block doesn't start an epoch, so they stay put anyway.
 
 ## The code
 
@@ -262,8 +277,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** One run, three faces — the vector fields the program reads,
-the values it computes from them, and the lines the terminal prints:
+What flows through it:
 
 ::: code-group
 
@@ -302,11 +316,10 @@ VRF output 0x92e69aed566b11bf…
 
 :::
 
-Read the input into the output: `input.slot` 15 against `pre_state.tau` 10 crosses an
-epoch boundary — 12 slots an epoch on tiny — which is the `: a new epoch` on the first
-line. `input.entropy` is the block's VRF output, the only fresh randomness; `pre_state.eta`
-is the η the last block left. The program stirs η₀ with the output and, because the epoch
-turned, steps every old value down one row.
+`input.slot` 15 against `pre_state.tau` 10 crosses an epoch boundary (12 slots an epoch
+on tiny): that is the `: a new epoch` on the first line. `input.entropy` is the block's
+VRF output, the only fresh randomness. The program stirs it into η₀ and, because the
+epoch turned, steps every old value down one row.
 
 **Run**
 
@@ -327,14 +340,11 @@ VRF output 0x92e69aed566b11bf…
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=entropy-1791730462383
 ```
 
-Look at the four η lines: a staircase. Each old value steps down one row, η₀'s to η₁,
-η₁'s to η₂, and so on, while η₀ itself gets a brand-new hash and the oldest falls off the
-bottom. Try a vector without a new epoch, such as
+A staircase. Each old value steps down one row, and the oldest falls off the bottom. η₀
+gets a brand-new hash. Try a vector without a new epoch, such as
 `../vectors/stf/safrole/tiny/publish-tickets-no-mark-2.json`: only η₀ changes. The
-*Entropy* panel, on the **3 · Consensus** dashboard (where all of [Part 8](./index.md)'s panels are),
-shows the same staircase.
-
-<EntropyStairs />
+*Entropy* panel, on the **3 · Consensus** dashboard (where all of [Part 8](./index.md)'s
+panels are), shows the same staircase.
 
 ![Entropy panel](./images/01-entropy.png)
 
@@ -357,54 +367,68 @@ header and computes Y itself, with a Bandersnatch library. Your client will too,
 ## Check your understanding
 
 ::: check
-**η′₀ = H(η₀ ⌢ Y(H_V)). Why can't a block's author steer what goes into η?**
+**What is the entropy, η, for?**
+
+- [ ] It is a fingerprint of the state, so two nodes can tell whether they agree
+  > No: that is the state root of [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md).
+  > η is four hashes inside the state, and its job is to be unpredictable.
+- [x] It is the randomness Safrole's lotteries draw on, gathered from every block so nobody can predict them
+  > Yes: a lottery is only as fair as its randomness, so the chain keeps its own and
+  > stirs it every block.
+- [ ] It is each validator's private random number
+  > No: η is in the state, the same on every node. What is private is each author's key.
+
+**Why can't a block's author steer what goes into η?**
 
 - [ ] The author doesn't know η₀ when it makes the block
   > No: η₀ is in the state, which every node knows. The author knows it as well as anyone.
-- [x] Y(H_V) is a VRF output: for the author's key and its input, it comes out one way only
-  > Yes: the author makes the signature but can't pick its output, and everyone can check
-  > it was made honestly.
-- [ ] The hash H scrambles whatever the author puts in
+- [ ] The hash scrambles whatever the author puts in
   > No: a hash gives the same result for the same input. An author free to choose the
   > input could try one after another until it liked the result. The VRF takes that choice
   > away.
+- [x] What goes in is a VRF output: for the author's key and its input, it comes out one way only
+  > Yes: the author makes the signature but can't pick its output, and everyone can check
+  > it was made honestly.
 
-**In a block that doesn't start an epoch, which parts of η change?**
+**Who stirs η, and how often?**
 
-- [x] Only η₀
-  > Yes: every block stirs its VRF output into η₀. η₁ to η₃ move only at a new epoch.
-- [ ] All four, each moving along one
-  > No: that's a new epoch. In `publish-tickets-no-mark-2.json`, with no new epoch, only η₀
-  > changes.
-- [ ] None: entropy changes only at a new epoch
-  > No: every block stirs η₀. That's what keeps it fresh.
+- [x] Every node, for every block it accepts: one hash of the old η₀ and the block's VRF output
+  > Yes: η is part of the state, and every node works the new state out from the block. In
+  > a block that doesn't start an epoch, η₀ is the only one of the four that changes.
+- [ ] Only the block's author; the other nodes copy its result
+  > No: nobody takes the author's word. Each node hashes for itself and must reach the
+  > same η₀.
+- [ ] Every node, but only once an epoch
+  > No: once an epoch the history moves along. The stir is every block. That is what
+  > keeps η₀ fresh.
 
-**In `skip-epochs-1`, tiny jumps from slot 10 to slot 46, over two whole epochs. How far does the history move?**
+**The chain goes quiet and the next block arrives two whole epochs later. How far does the history move?**
 
 - [ ] Three places, one for each epoch boundary crossed
-  > No: the Gray Paper only asks *whether* a new epoch began. Slot 10 is in epoch 0 and
-  > slot 46 in epoch 3, so one did, and the history moves once.
-- [ ] Not at all: slot 46 isn't the first slot of an epoch
+  > No: the Gray Paper only asks *whether* a new epoch began. In `skip-epochs-1`, slot 10
+  > is in epoch 0 and slot 46 in epoch 3, so one did, and the history moves once.
+- [ ] Not at all: the block isn't in the first slot of an epoch
   > No: the rule compares epochs, not phases. Epoch 3 is greater than epoch 0.
 - [x] One place, as at any new epoch
   > Yes: η′₁ is the old η₀, η′₂ the old η₁, η′₃ the old η₂, once. Your η′ matches the
   > vector's.
 
-**A vector's `output` is an `err`. What does its block do to the state?**
+**A block breaks a rule and is refused. What does it do to η?**
 
 - [ ] It stirs η₀ anyway, since every block does
   > No: a refused block isn't part of the chain, so nothing in it counts, its randomness
   > included.
 - [x] Nothing: a refused block changes nothing
-  > Yes: its `post_state` is its `pre_state`, exactly. That's why the test can skip it for
-  > now.
+  > Yes: in the vectors, such a block's `post_state` is its `pre_state`, exactly. That's
+  > why the test can skip it for now.
 - [ ] Everything except the part that broke a rule
   > No: a block is taken whole or not at all.
 :::
 
 ## What you have
 
-The randomness at the heart of Safrole: stirred every block, set aside every epoch. A new epoch moves more than entropy:
-[lesson 8.2](./02-rotating-the-validators.md) moves the validator sets along with it.
+The randomness at the heart of Safrole: stirred every block, set aside every epoch. A new
+epoch moves more than entropy: [lesson 8.2](./02-rotating-the-validators.md) moves the
+validator sets along with it.
 
 Next: [8.2 Rotating the validators](./02-rotating-the-validators.md)
