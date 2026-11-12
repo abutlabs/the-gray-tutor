@@ -27,8 +27,10 @@ test("the check and the widget: \"hello\" is 00 a5 00 6f … for service 0 and 0
   assert.equal(historyBytes([5, 9]).map(hx).join(" "), "02 05 00 00 00 09 00 00 00");
 });
 
-test("lesson 19.3 places the widget once, after the three kinds", () => {
+test("lesson 19.3 places the widget once, at the top, and the three kinds send the reader back to it", () => {
   const at = raw.indexOf("<EntryKey />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<EntryKey />"));
-  assert.ok(at > raw.indexOf("with how many in front.") && at < raw.indexOf("So a host call that knows the key k"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<EntryKey />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("with how many in front."));
+  assert.ok(back > 0 && back < raw.indexOf("So a host call that knows the key k"));
 });

@@ -21,8 +21,10 @@ test("service 0's 154 entries, 171 in all", () => {
   assert.deepEqual([ACCOUNT_ENTRIES, TOTAL], [154, 171]);
 });
 
-test("lesson 19.2 places the widget once, before the accounts", () => {
+test("lesson 19.2 places the widget once, at the top, and the five new components send the reader back to it", () => {
   const at = raw.indexOf("<WholeState />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<WholeState />"));
-  assert.ok(at > raw.indexOf("the last block's accumulation outputs") && at < raw.indexOf("And the accounts: a service s"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<WholeState />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("the last block's accumulation outputs"));
+  assert.ok(back > 0 && back < raw.indexOf("And the accounts: a service s"));
 });

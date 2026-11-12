@@ -1,24 +1,38 @@
 # The order of things
 
-Eighteen parts, and you've built nearly every piece of a block import: the clock, Safrole,
-disputes, assurances, guarantees, accumulation, statistics. A real block runs them all.
-But in what order? Safrole's new state needs the new entropy, accumulation needs to know
-which reports became available, the statistics need what accumulation did. The Gray Paper
-answers with a list of what each new piece of state is made from. This lesson writes that
-list down, works out an order from it, and turns it into a map of the client you've built.
+**In one sentence:** a block changes the state in sixteen steps, and the Gray Paper's list
+of what each step is made from is enough to work out an order to run them in.
 
-## New words
+Here is every step of a block import, and what it is made from. Tap any value: what it's
+made from turns green, and what's made from it turns blue.
 
-- **Intermediate value.** A value halfway through a block, marked with a dagger. *Example:*
-  ρ† is the cores after the judgments, ρ‡ the cores after the assurances too, and ρ′ the
-  cores after the whole block.
-- **Dependency graph.** A list of what each value is made from. *Example:* γ′ is made
-  from the header, τ, the tickets, γ, ι, η′, κ′ and ψ′.
-- **Wave.** This client's name for a group of steps whose ingredients are all ready. Steps
-  in one wave don't need each other, so they could run side by side. *Example:* wave 1 is
-  everything made only from the block and the state before it.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<ImportWaves />
+
+## The idea
+
+You've built nearly every piece of a block import: the clock, Safrole, disputes,
+assurances, guarantees, accumulation, statistics. A real block runs them all. In what
+order?
+
+Think of cooking a dinner. The sauce needs the stock, so the stock comes first. The salad
+needs neither, so anyone can make it while the stock simmers. Nobody has to hand you an
+order. A list of what each dish is made from is enough.
+
+The Gray Paper gives that list: for each new piece of state, what it is made from.
+Safrole's new state needs the new entropy. Accumulation needs to know which reports
+became available. The statistics need what accumulation did. Such a list is a
+[*dependency graph*](../glossary.md#dependency-graph), and a value made halfway through
+a block is an [*intermediate value*](../glossary.md#intermediate-value).
+
+From the list, the order falls out. First, every step that needs only the block and the
+state before it. Then every step whose ingredients those made. And so on. Each group is a
+[*wave*](../glossary.md#wave). The steps in one wave don't need each other, so they could
+run side by side.
+
+This lesson writes the list down, works out the waves, and prints a map of the client
+you've built.
 
 ## What the Gray Paper says
 
@@ -97,38 +111,41 @@ $$
 
 :::
 
-In plain words: for every new piece of state, one line says what it's made from. Read
-`x ≺ (a, b, c)` as "x is made from a, b and c". Two of them, in plain English:
+For every new piece of state, one line says what it's made from. Read `x ≺ (a, b, c)` as
+"x is made from a, b and c". Two of them:
 
 - ρ‡ ≺ (E_A, ρ†): the cores after the assurances are made from the assurances, and the
   cores after the judgments.
 - γ′ ≺ (H, τ, E_T, γ, ι, η′, κ′, ψ′): Safrole's next state needs the new entropy, the new
   validators and the new offenders (so an offender can be kept out of the next set).
 
-A prime (′) is a value after the block, a dagger a value halfway through it. Anything
+A prime (′) is a value after the block. A dagger is a value halfway through it. Anything
 without one is either part of the block (the header H and the extrinsic's parts E_T, E_D,
 E_P, E_A, E_G) or the state before it, which is there from the start.
 
-Why write it this way? The paper's own reason, in 0.6's quote, is to help clients do the
-work in parallel by keeping the graph shallow: the fewer steps that wait for others, the
-more can run at once. Its last paragraph names the seven lines where one step hands a
-half-made value to the next, the daggers and three primes. The last two of them, (4.17)
-and (4.18), say accumulation is done before the preimages extrinsic touches the accounts,
-which is why δ′ is made from δ‡ and comes so late.
+Why a list, and not an order? The paper's reason, in
+[lesson 0.6](../00-start/06-how-a-block-is-imported.md#what-the-gray-paper-says)'s quote,
+is to help clients work in parallel by keeping the graph shallow: the fewer steps that
+wait for others, the more can run at once.
 
-Two things to watch for. The list is in the Gray Paper's order, not an order you can run:
-γ′ comes before η′, which it needs. And it's a summary: 𝐑*, the reports ready to
-accumulate, is listed as made from E_A and ρ† alone, but its full definition ([lesson 17.2](../17-accumulation/02-waiting-reports.md))
-also reads the ready queue ω. That's state from before the block, there from the start, so
-the order doesn't change.
+Its last paragraph names the seven lines where one step hands a half-made value to the
+next: the daggers and three primes. The last two, (4.17) and (4.18), say accumulation is
+done before the preimages extrinsic touches the accounts. That is why δ′ is made from δ‡
+and comes so late.
 
-Here is the whole list as a map. The block and the state before it sit at the top: they're
-wave 0. Tap any value. What it's made from turns green, what's made from it turns blue, and
-its wave is one more than its latest input's. Try γ′ to see what Safrole waits for. Then
-follow the reports from ρ† down, one tap a wave: that chain is what makes the list four
-waves deep.
+Two things to watch for:
 
-<ImportWaves />
+- **The list is not an order you can run.** It is in the Gray Paper's order: γ′ comes
+  before η′, which it needs.
+- **The list is a summary.** 𝐑*, the reports ready to accumulate, is listed as made from
+  E_A and ρ† alone. Its full definition ([lesson 17.2](../17-accumulation/02-waiting-reports.md))
+  also reads the ready queue ω. That is state from before the block, there from the
+  start, so the order doesn't change.
+
+[The map at the top](#try-it) is this list. The block and the state before it sit at the
+top: they're wave 0. A value's wave is one more than its latest input's. Tap γ′ to see
+what Safrole waits for. Then follow the reports from ρ† down, one tap a wave: that chain
+is what makes the list four waves deep.
 
 ## The tests
 
@@ -183,12 +200,11 @@ test("steps that wait for each other are caught", () => {
 });
 ```
 
-The second test pins down the waves. The first wave is seven steps that need nothing but
-the block and the old state. Safrole waits until wave 2, and the last wave is everything
-waiting for accumulation.
+The second test pins the waves: seven steps first, Safrole in wave 2, and everything
+waiting for accumulation last.
 
-A stub for the order: every step in one wave, as if the Gray Paper's list could simply run
-top to bottom. `Step` and `STEPS` are the real thing already:
+A stub for the order: every step in one wave, as if the list could run top to bottom.
+`Step` and `STEPS` are the real thing already:
 
 **New file** `src/import.ts`
 
@@ -266,10 +282,9 @@ test at test/import.test.ts:18:1
 ...
 ```
 
-One green and three red. The green is the first test: the list isn't a recipe, which is
-true whatever `waves` does. The reds are the order itself: one wave where there should be
-four (`1 !== 4`), steps that come before what they're made from, and a loop of steps that
-wait for each other going unnoticed.
+One green and three red. The first test is true whatever `waves` does. The reds are the
+order itself: one wave where there should be four (`1 !== 4`), steps that come before
+what they're made from, and a loop that goes unnoticed.
 
 ## The code
 
@@ -299,10 +314,10 @@ export function waves(steps: Step[]): Step[][] {
 }
 ```
 
-`waves` finds the order. `madeByAStep` is everything some step makes. Anything else (the
-block, the old state) counts as ready from the start. Each time round, every step whose
-ingredients are all ready forms the next wave. If a round finds nothing ready while steps
-are left, they're waiting for each other, and no order exists.
+`madeByAStep` is everything some step makes. Anything else (the block, the old state) is
+ready from the start. Each time round, every step whose ingredients are all ready forms
+the next wave. If nothing is ready while steps are left, they wait for each other, and no
+order exists.
 
 **Run**
 
@@ -355,7 +370,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** This program reads no vector — its input is `STEPS`, the
+**What flows through it.** This program reads no vector. Its input is `STEPS`, the
 dependency table you just wrote:
 
 ::: code-group
@@ -383,9 +398,8 @@ wave 2:
 
 :::
 
-A step's `from` is everything it's made of, and `waves` seats it as soon as all of that
-exists. So τ′, made only from the header, runs in wave 1, while γ′, which needs η′, κ′ and
-ψ′, waits for wave 2.
+`waves` seats a step as soon as everything in its `from` exists. So τ′, made only from
+the header, runs in wave 1. γ′ needs η′, κ′ and ψ′, and waits for wave 2.
 
 **Run**
 
@@ -450,6 +464,17 @@ One order, no waves running side by side: simpler, and fast enough. Note
 ## Check your understanding
 
 ::: check
+**Why does the Gray Paper give a list of what each value is made from, and not one fixed order of steps?**
+
+- [ ] Because the right order is different for every block
+  > No: the same sixteen lines hold for every block. What a step is made from never
+  > changes.
+- [ ] Because a client may leave out the steps it doesn't need
+  > No: the new state is everything the sixteen lines make. None of them is optional.
+- [x] So a client can see which steps don't wait for each other, and run those at once
+  > Yes: the paper's own reason is to help clients work in parallel. The fewer steps
+  > that wait for others, the more can run side by side.
+
 **Why can't a client just run the Gray Paper's list from top to bottom?**
 
 - [ ] The list leaves out some of the steps

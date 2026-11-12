@@ -1,22 +1,36 @@
 # The whole state
 
-Every part so far has read the few state components it needs. Importing a block needs all
-of them at once, and then all of them written back, byte for byte, because the state root
-fingerprints every byte. This lesson builds that: the whole state, σ, read from a real
-state's entries and written back. Five components get a codec for the first time, and
-every account comes along with everything it keeps. By the end of it, 80 real states from
-all eight block-import traces come back exactly as they went in.
+**In one sentence:** to import a block, a client holds the whole state at once, sixteen
+components and everything each service keeps, and writes it back without changing a byte.
 
-## New words
+Here is the whole state before a real block, part by part. Tap a part to see what it
+holds, how big it is, and which Part built it.
 
-- **Account entry.** One thing a service keeps in the state, under its own key: a storage
-  value, a preimage, or a request's history. *Example:* service 0 of the `storage` trace
-  keeps 154 entries before block 50.
-- **Dictionary encoding.** How the state writes a map: the number of pairs, then each pair,
-  sorted by key. *Example:* χ_Z, the always-accumulate services, each a service id and its
-  gas.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md).
+<WholeState />
+
+## The idea
+
+Every Part so far has read the few pieces of state it needed. A block needs all of them
+at once. Then all of them go back, and not nearly right: the state root is a fingerprint
+of every byte, so one byte off gives another root.
+
+Think of emptying a filing cabinet onto a desk, then putting every sheet back exactly
+where it was. If you don't know what a sheet is, you can't file it.
+
+The state comes as entries, a key and a value each. Sixteen are the components. The rest
+belong to the services: one record for each, and one entry for each thing it keeps. That
+is an [*account entry*](../glossary.md#account-entry): a storage value, a preimage, or a
+request's history.
+
+Some components are maps, and a map has no order of its own. So the state fixes one: how
+many pairs, then each pair, sorted by key. That is the
+[*dictionary encoding*](../glossary.md#dictionary-encoding). Every client writes the same
+bytes.
+
+This lesson reads the whole state and writes it back. 80 real states, from all eight
+block-import traces, come back exactly as they went in.
 
 ## What the Gray Paper says
 
@@ -34,17 +48,16 @@ service account. Most components already have a codec in your client. Five don't
 4. **ξ, C(15)**: for each slot, the work-packages accumulated in it.
 5. **θ, C(16)**: the last block's accumulation outputs ([lesson 17.11](../17-accumulation/11-what-a-service-yields.md)).
 
-The whole state before a real block, part by part:
-
-<WholeState />
+[The state at the top](#try-it) is one before a real block. Tap C(12) to C(16) to see
+these five.
 
 And the accounts: a service s has its record at C(255, s) ([lesson 14.2](../14-services/02-the-service-account.md)) and an entry for
 each thing it keeps, at C(s, …) with ℰ₄(s) woven into bytes 0, 2, 4 and 6 of the key. The
-rest of each key is a hash, of a storage key, a preimage's hash, or a request's hash and
+rest of each key is a hash: of a storage key, a preimage's hash, or a request's hash and
 length. A hash can't be undone, so from the state alone your client can't tell a storage
-value from a preimage. It doesn't need to yet: an account read from the state keeps its
-entries by their keys, as they come, and [lesson 19.3](./03-accounts-from-the-state.md) teaches the client to find things in
-them.
+value from a preimage. It doesn't need to yet. An account read from the state keeps its
+entries by their keys, as they come. [Lesson 19.3](./03-accounts-from-the-state.md)
+teaches the client to find things in them.
 
 ## The tests
 
@@ -97,9 +110,9 @@ test("each account: its record, and every entry it keeps, by its state key", () 
 });
 ```
 
-The first test is a round trip for the whole state: every 11th state of each trace, read
-and written back, must be the same entries. The second checks that reading leaves nothing
-out: sixteen components, one record per account, and every entry belongs to some account.
+The first test is a round trip: every 11th state of each trace, read and written back,
+must be the same entries. The second checks that reading leaves nothing out: sixteen
+components, one record per account, and every entry belongs to some account.
 
 ## The code
 
@@ -292,7 +305,7 @@ export function writeState(config: Config, state: State): KeyValue[] {
 ```
 
 `StateComponents` lists every component's codec by its number, and `State` gets its type
-from that list: `state[6]` is η, a list of four hashes. Reading decodes each component;
+from that list: `state[6]` is η, a list of four hashes. Reading decodes each component,
 then every account record, then every entry, each to its owner, found by `ownerOf`.
 Writing goes the other way.
 
@@ -459,15 +472,17 @@ values, as it did against the test vectors.
   > No: the root covers all sixteen components and every account's entries, read or
   > not.
 
-**Before block 50 of `storage`, the state has 171 entries. Where does 171 come from?**
+**What does the state hold besides its sixteen components?**
 
-- [ ] The state has 171 components
-  > No: it has sixteen, C(1) to C(16).
-- [ ] 154 storage values, then 17 preimages
-  > No: from the state alone, a storage value can't be told from a preimage. The 154
-  > are service 0's entries, of whatever kind.
-- [x] Sixteen components, service 0's record, and the 154 entries it keeps
-  > Yes: 16 + 1 + 154 = 171. The second test checks exactly that: nothing left over.
+- [ ] Nothing: the service accounts are inside one of the sixteen
+  > No: the components are C(1) to C(16), and none of them is the accounts. Each
+  > service has entries of its own, under its own keys.
+- [ ] A list of every storage value, then a list of every preimage
+  > No: from the state alone, a storage value can't be told from a preimage. A
+  > service's entries are kept by their keys, of whatever kind.
+- [x] For every service, its record and an entry for each thing it keeps
+  > Yes: before block 50 of `storage` that is 16 + 1 + 154 = 171 entries. The second
+  > test checks exactly that: nothing left over.
 
 **An entry's key is mostly a hash. How does your client know which service it belongs to?**
 
@@ -478,17 +493,17 @@ values, as it did against the test vectors.
 - [ ] It hashes every service's id and looks for a match
   > No: no hashing is needed. The id sits in the key in plain bytes.
 
-**χ_Z holds service 5 with gas 100, and service 2 with gas 50. In what order are they written?**
+**Why does the state write a map with its pairs sorted by key?**
 
-- [ ] Service 5 first, if it was added first
-  > No: a dictionary has no order of its own, so the order it was built in mustn't
-  > change its bytes.
-- [ ] Smallest gas first
-  > No: a dictionary is sorted by its key, and here the key is the service id, not the
+- [x] So that every client writes the same bytes, and gets the same root
+  > Yes: a dictionary has no order of its own. Sorted by key, χ_Z with services 5 and
+  > 2 is always the count, then service 2, then service 5, whoever writes it.
+- [ ] So that the pair added last comes last
+  > No: the order a dictionary was built in mustn't change its bytes. The key decides,
+  > not the time.
+- [ ] So that the largest gas comes first
+  > No: a dictionary is sorted by its key. In χ_Z the key is the service id, not the
   > gas.
-- [x] The count, 2, then service 2, then service 5
-  > Yes: `02`, then `02 00 00 00` and its gas, then `05 00 00 00` and its gas. Every
-  > client writes the same bytes, so every client gets the same root.
 :::
 
 ## What you have

@@ -264,7 +264,7 @@ test("Part 18's tallies are its lessons'", () => {
 test("Part 19's import is its lessons'", () => {
   assert.ok(textOf("19.6").includes("The first 100 blocks of all eight official block-import traces, 800 blocks"));
   assert.ok(textOf("19.6").includes("1,406 of the 1,428 official"));
-  for (const word of ["Wave.", "Dependency graph."]) assert.ok(textOf("19.1").includes(word), word);
+  for (const word of ["[*wave*](../glossary.md#wave)", "[*dependency graph*](../glossary.md#dependency-graph)"]) assert.ok(textOf("19.1").includes(word), word);
   assert.ok(textOf("19.4").includes(card(19, "checks").says.replace("Before anything else runs: ", "before anything else runs: ").replace(/\.$/, "")), "19.4's header checks");
 });
 

@@ -1,22 +1,35 @@
 # Accounts from the state
 
+**In one sentence:** everything a service keeps sits in the state under a key made by
+hashing, so a host call finds a thing by working out its key again, never by searching.
+
+Pick a kind of entry and a service. Watch what gets hashed, and where the service's id
+lands in the key.
+
+<a id="try-it"></a>
+
+<EntryKey />
+
+## The idea
+
 Real blocks mean real accounts, and those look nothing like the test vectors'. An account
 read from the state is its record and a bag of entries, each under a hashed key. The host
-calls you wrote in [Part 16](../16-host-calls/index.md) and [Part 17](../17-accumulation/index.md) look things up in the vectors' tidy accounts, so
-they'd find nothing. This lesson teaches them to find things in both: six small functions
-that know where each thing lives, and the host calls rewritten to use them, one at a time,
-without changing what they do.
+calls you wrote in [Part 16](../16-host-calls/index.md) and
+[Part 17](../17-accumulation/index.md) look things up in the vectors' tidy accounts. Here
+they'd find nothing.
 
-The idea is in *What the Gray Paper says*. The rest is a careful refactor: read it to build
-it, and skim it for the concepts.
+Think of a wall of lockers, where a locker's number is worked out from the name of the
+thing inside. Know the name, and you walk straight to the locker. Stand in front of a
+locker, and its number tells you nothing about the name.
 
-## New words
+A host call always knows the name: the service says which storage key, which hash, or
+which hash and length it wants. From that, the client works out where the entry is, and
+looks there. It can never go the other way. It never needs to.
 
-- **Helper function.** A small function that hides one detail, so the code that calls it
-  doesn't have to know it. *Example:* `storageValue` knows where an account keeps a storage
-  key's value; `read` just asks it.
-
-It's in the [glossary](../glossary.md).
+This lesson writes six small functions that know where each thing lives, in either kind
+of account. Each is a [*helper function*](../glossary.md#helper-function): it hides one
+detail from the code that calls it. Then the host calls are rewritten to use them, one at
+a time, without changing what they do.
 
 ## What the Gray Paper says
 
@@ -27,7 +40,7 @@ Appendix D, the last three rows of T(σ): service s keeps
 - its request for h, l bytes long, at C(s, ℰ₄(l) ⌢ h), as the request's history encoded:
   the slots, four bytes each, with how many in front.
 
-<EntryKey />
+Try all three on [the key at the top](#try-it).
 
 So a host call that knows the key k, the hash h or the length l can work out exactly
 where the entry is, and look it up. It can never go the other way, from an entry back to
@@ -136,7 +149,7 @@ export function setRequest(a: Account, s: number, h: string, l: bigint, slots?: 
 ```
 
 Each one asks the same question first: was this account read from the state? If so, its
-`items` has the entry under its state key; if not, the old map has it under its own key.
+`items` has the entry under its state key. If not, the old map has it under its own key.
 A request's history is stored encoded, so `requestOf` decodes it and `setRequest` encodes
 it.
 
@@ -161,7 +174,7 @@ npm test
 
 Now the refactor. Every host call that reads or changes an account's storage, preimages or
 requests swaps its own lookup for a helper's, and nothing else. After each swap the tests
-still pass, since the test vectors' accounts are found where they always were.
+still pass: the test vectors' accounts are found where they always were.
 
 `read` and `write`, for storage:
 
@@ -559,7 +572,7 @@ reported 643 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client
 ...
 ```
 
-Green, and every accumulate vector passes as before: the refactor changed where things are
+Green, and every accumulate vector passes as before. The refactor changed where things are
 looked up, not what any call does. Whether services run right on accounts from the state
 is [lesson 19.4](./04-importing-a-block.md)'s test, on real blocks.
 
