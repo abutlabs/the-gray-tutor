@@ -1,10 +1,11 @@
 # Part 3 · Work and reports
 
-What sets JAM apart from other blockchains is its **in-core** processing, which this part
-lays the foundation for. Services send jobs to the chain's cores, the cores compute, and
-the results come back as reports that every validator can check. This part encodes the
-paperwork of that journey, from the parcel that goes in to the report that comes out,
-each piece checked against the official vectors.
+**In one sentence:** work goes into JAM as a parcel for one core and comes back as a receipt
+for every validator, and this part teaches your client to read both.
+
+What sets JAM apart from other blockchains is where the work happens: **in-core**, on one
+core's guarantors, while every other validator checks a report of it. This part encodes
+the paperwork of that journey, each piece checked against the official vectors.
 
 By the end of this part your client encodes and decodes a work-package, its digests and
 the work-report that binds them.

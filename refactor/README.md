@@ -77,9 +77,14 @@ glossary against it). Leave the glossary entry itself alone unless it is wrong.
    next batch. Go on until the issue is closed or you have done four batches, whichever
    comes first; never start a second issue in the same run. The Part's own page
    (`index.md`) and its appendix (`gray-paper.md`) count as lessons, done last: the page
-   gets one sentence and a tighter big picture; the appendix loses "in plain words" in
-   our own prose and gets shorter sentences, quotes untouched.
+   gets one sentence and a tighter big picture; the appendix gets shorter sentences in our own
+   prose, quotes untouched. Leave the appendix's step labels (`**In plain words.**`) and
+   the generated "Its symbols, in plain words" as they are: tests and a generator own
+   them, and issue #88 changes them everywhere at once.
 4. Rewrite each. Then `bash refactor/check.sh`: fix until it says "no new failures".
+   Read its output before you commit: never chain the commit after a pipe that hides its
+   exit status. A sentence a test matches must stay on one line where the test's pattern
+   has a plain space.
 5. Commit as abutlabs, with no co-author or session trailer:
    `git -c user.name=abutlabs -c user.email=abutlabs@gmx.com commit -m "<what changed, one sentence>"`,
    then `git fetch origin main && git rebase origin/main && git push origin HEAD:main`.
