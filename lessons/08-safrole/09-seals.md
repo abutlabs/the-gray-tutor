@@ -1,19 +1,38 @@
 # Seals
 
-Every block is signed twice by its author, with Bandersnatch VRF signatures. The *seal*
-proves the author may make a block in this slot; the *entropy source* is the randomness
-[lesson 8.6](./06-the-vrf-output.md) reads. Until now your client has believed both. This lesson checks them,
-Safrole's last rules: a forged seal, a stranger's block, or a block sealed without the
-slot's ticket is refused, and 198 real blocks pass.
+**In one sentence:** every block carries two signatures by its author, and checking them
+shows that the author is the validator allowed to make a block in that slot.
 
-## New words
+Here is a real block, with its seal checked. Try a forgery, and see which check catches
+it.
 
-- **Unsigned header.** ℰ_U(H). The header's bytes without the seal at the end: what the
-  seal signs. *Example:* most of the `safrole` trace's headers are 297 bytes, so 201 unsigned.
-- **Ticket-sealed block.** A block sealed by the holder of the slot's winning ticket,
-  rather than by a fallback key. *Example:* blocks 48 to 83 of the `safrole` trace.
+<a id="try-it"></a>
 
-Both are in the [glossary](../glossary.md). (The *seal* itself is from [lesson 8.3](./03-the-fallback-sealers.md).)
+<SealCheck />
+
+## The idea
+
+The lottery and the fallback say who may make the block in each slot. But anyone can
+send a block. How does a node know this one came from the right validator?
+
+The author signs it. That signature is the *seal* ([lesson 8.3](./03-the-fallback-sealers.md)).
+What it signs is the [*unsigned header*](../glossary.md#unsigned-header): the header
+without the seal, since a signature can't sign itself.
+
+Which key must sign depends on how the slot was filled:
+
+- **By the fallback.** The slot has a key, in the open. The seal must be made with it.
+- **By the lottery.** The slot has a ticket, and nobody knows whose. The author seals with
+  the key that made the ticket, on the same input, and the seal's output comes out equal
+  to the ticket's id. No other key gives that output. It is a cloakroom ticket torn in
+  two: only the other half fits. Such a block is a
+  [*ticket-sealed block*](../glossary.md#ticket-sealed-block).
+
+The author signs a second time, to make the block's randomness
+([lesson 8.6](./06-the-vrf-output.md)): the *entropy source*. It is chained to the seal.
+
+Until now your client has believed both signatures. This lesson checks them, Safrole's
+last rules, on 198 real blocks.
 
 ## What the Gray Paper says
 
@@ -93,8 +112,9 @@ $$
 
 :::
 
-In plain words, §6.4, *Sealing and Entropy Accumulation*. Let i be the slot's entry in γ′_S, the sealers
-after this block ([lesson 8.4](./04-the-lotterys-winners.md)), and H_A the author's Bandersnatch key, κ′[H_I]. Then:
+§6.4, *Sealing and Entropy Accumulation*. Let i be the slot's entry in γ′_S, the sealers
+after this block ([lesson 8.4](./04-the-lotterys-winners.md)), and H_A the author's
+Bandersnatch key, κ′[H_I]. Then:
 
 1. **A ticket-sealed slot** (γ′_S holds tickets): H_S is H_A's signature on ℰ_U(H), for the
    context X_T ⌢ η′₃ ⌢ i's attempt, and 𝒴(H_S) must be i's id. Only the validator who
@@ -107,13 +127,11 @@ after this block ([lesson 8.4](./04-the-lotterys-winners.md)), and H_A the autho
 
 η′₃ is the entropy as it was three epochs ago: fixed long before the epoch's tickets.
 It is the very value the tickets were entered with. They were entered last epoch, against
-η′₂ ([lesson 8.7](./07-entering-tickets.md)); at the epoch change the history moved along one place, so that η′₂ is
-η′₃ now.
+η′₂ ([lesson 8.7](./07-entering-tickets.md)). At the epoch change the history moved along
+one place, so that η′₂ is η′₃ now.
 
 Notice the order: H_V comes before H_S in the header, so the seal signs the entropy source
-too. Change one bit of H_V and the seal fails first.
-
-<SealCheck />
+too. Change one bit of H_V and the seal fails first. Try it [at the top](#try-it).
 
 To find γ′_S in a real state, your client reads Safrole's own state component, C(4), whole
 (Appendix D): γ_P, γ_Z, then γ_S (a 0 and E tickets, or a 1 and E keys), then γ_A.
@@ -337,7 +355,8 @@ export function sealError(
 ```
 
 The seal is the header's last field and always 96 bytes, so the unsigned header is the
-encoded header without its last 96 bytes.
+encoded header without its last 96 bytes. Most of the `safrole` trace's headers are 297
+bytes, so 201 unsigned.
 
 **Run**
 
@@ -396,9 +415,9 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** Real blocks again: each trace file holds a block, and the
-*next* file holds the state after it, where the author's key, γ′_S and η′₃ live. Block
-46's share, what the program computes, and what it prints:
+What flows through it. Real blocks again: each trace file holds a block, and the *next*
+file holds the state after it, where the author's key, γ′_S and η′₃ live. Here is block
+46:
 
 ::: code-group
 
@@ -432,11 +451,11 @@ block 46, slot 46: validator 5 (0x21056509…), by a fallback key: seal and entr
 
 :::
 
-Read the input into the output: `author_index` 5 names the sealer, and the state after
-the block (`../vectors/traces/safrole/00000046.json` is the block; 47's file holds that
-state) gives κ′[5]'s Bandersnatch key, the `0x2105…` in the line. γ′_S for slot 46 holds
-a fallback *key*, so the 96-byte `seal` must be that validator's VRF over X_F ⌢ η′₃, and
-`entropy_source` must sign X_E ⌢ the seal's own output — the chain this lesson built.
+`author_index` 5 names the sealer. The state after the block gives κ′[5]'s Bandersnatch
+key, the `0x2105…` in the line (the block is `../vectors/traces/safrole/00000046.json`;
+47's file holds that state). γ′_S for slot 46 holds a fallback *key*, so the 96-byte
+`seal` must be that validator's VRF signature over X_F ⌢ η′₃. And `entropy_source` must
+sign X_E ⌢ the seal's own output.
 
 **Run**
 
@@ -493,15 +512,17 @@ identity check in step 2, catching a stranger.
 ## Check your understanding
 
 ::: check
-**Most `safrole` trace headers are 297 bytes. How many of them does the seal sign, and why?**
+**What does a block's seal prove?**
 
-- [x] 201: everything but the seal, the last 96 bytes
-  > Yes: ℰ_U(H) is the header without its seal. A signature can't sign itself.
-- [ ] 297: the whole header
-  > No: the seal is part of the header, and it can't sign its own bytes before they exist.
-- [ ] 105: everything but the seal and the entropy source
-  > No: the entropy source comes before the seal, so the seal signs it too.
-  > 297 − 96 − 96 = 105 would leave it out.
+- [x] That the block was made by the one validator allowed to make a block in its slot
+  > Yes: the seal is checked against the slot's entry in γ′_S, a winning ticket or a
+  > fallback key, and against the author's Bandersnatch key.
+- [ ] That the block was made by some validator of the active set
+  > No: being active isn't enough. Each slot has one sealer, and a good signature by any
+  > other validator is refused.
+- [ ] That everything in the block is valid
+  > No: a signature only shows who signed. The rest of the block is checked by its own
+  > rules.
 
 **In a ticket-sealed slot, how does the seal prove its author holds the winning ticket?**
 
@@ -514,7 +535,7 @@ identity check in step 2, catching a stranger.
   > No: tickets are anonymous; that's what the ring proof is for. Nothing says who holds
   > one until the seal shows it.
 
-**Flip one bit of a block's entropy source. Which check fails?**
+**Someone flips one bit of a block's entropy source. Which check fails?**
 
 - [ ] The entropy source's own check: `bad_entropy_source`
   > No: that check comes second. The seal signs the header, entropy source included, so
@@ -526,23 +547,33 @@ identity check in step 2, catching a stranger.
   > No: it must be the author's signature too, on X_E ⌢ the seal's output, and the seal
   > covers it.
 
-**In a fallback slot, validator 5 makes a perfectly good seal with its own key, but F gave the slot to validator 0. What happens?**
+**In a fallback slot, a validator makes a perfectly good seal with its own key, but F gave the slot to another. What happens?**
 
-- [x] Refused, `bad_seal`: the slot's key in γ′_S must be the author's
-  > Yes: that check needs no cryptography at all. The official fuzzer sent lasair just
-  > such a block: "author 5 claims slot 1, which F assigns to validator 0".
 - [ ] Accepted: the signature checks out
   > No: a good signature only shows who signed. What matters is whether that validator
   > may seal this slot.
 - [ ] Accepted, but its randomness doesn't count
   > No: a block is valid or it isn't. This one isn't.
+- [x] Refused, `bad_seal`: the slot's key in γ′_S must be the author's
+  > Yes: and that check needs no cryptography at all. The slot's key and the author's key
+  > are compared, byte for byte.
+
+**Why does the seal sign the header without its last field?**
+
+- [ ] The last field is the entropy source, which isn't known until the block is sealed
+  > No: the entropy source comes before the seal, so the seal signs it too.
+- [x] The last field is the seal itself, and a signature can't sign its own bytes
+  > Yes: ℰ_U(H) is the header without its seal: everything but the last 96 bytes.
+- [ ] To leave room for other validators to add their signatures
+  > No: a header has one seal, its author's, always 96 bytes.
 :::
 
 ## What you have
 
 All of Safrole: the entropy, the validators, the sealers, the lottery with its tickets and
 proofs, the ring root, and every block's seal and entropy source checked. Your client no
-longer takes a block's word for anything Safrole decides. [Part 9](../09-recent-history/index.md) builds the other
-memory every block updates: the recent history of the chain itself.
+longer takes a block's word for anything Safrole decides.
+[Part 9](../09-recent-history/index.md) builds the other memory every block updates: the
+recent history of the chain itself.
 
 Next: [Part 9 · Recent history](../09-recent-history/index.md)

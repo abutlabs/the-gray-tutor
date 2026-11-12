@@ -1,25 +1,37 @@
 # The ring root
 
-Two things in Safrole need real cryptography, not just a hash. Every ticket carries a
-*ring proof*, which says "one of these validators made me" without saying which, and it
-must be checked. And the set of validators it's checked against, the *ring*, is
-summed up in γ_Z, the ring root, which changes whenever the validators do. Both need the
-Bandersnatch curve's arithmetic, so this lesson brings in a library that has it. By the end
-of it your client checks every ticket's proof, makes each new epoch's ring root, and passes
-all 46 safrole vectors.
+**In one sentence:** the ring root is a short commitment to the next validators' keys,
+and a ticket's proof is checked against it to show that one of them made the ticket,
+without showing which.
 
-## New words
+Here is a real ring of six validators, and its real root. Tap a seat to zero its key,
+and watch the root answer.
 
-- **Ring root.** γ_Z, 144 bytes. A commitment to a list of Bandersnatch keys, the ring:
-  short to keep, and enough to check a ring proof against. *Example:* a new one at every
-  epoch, from the validators just rotated into γ_P.
-- **Padding point.** The stand-in for a missing key in a ring, or for one that isn't a point on
-  the curve. *Example:* an offender's key, zeroed by [lesson 8.2](./02-rotating-the-validators.md), becomes padding.
-- **WebAssembly.** A compact program format that JavaScript engines run at close to native
-  speed, so a library written in Rust can run in Node. *Example:* the Bandersnatch library
-  this lesson installs.
+<a id="try-it"></a>
 
-All three are in the [glossary](../glossary.md).
+<RingRoot />
+
+## The idea
+
+A ticket must not say whose it is, or the lottery hides nothing. But it must come from a
+validator. How do you prove you are on a list without saying which name is yours?
+
+That is what a *ring proof* does. The list is the *ring*: one Bandersnatch key for each
+of the next epoch's validators. A ticket's proof says "one of these validators made me",
+and nothing more. It is a door that checks you hold a membership card without reading
+the name on it.
+
+The ring is summed up in a short commitment, the [*ring root*](../glossary.md#ring-root).
+You already built a commitment like this. [Lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s state root
+squeezes the whole state into 32 bytes you can check facts against. The ring root
+squeezes the validator list into 144 bytes you can check *membership* against,
+anonymously, which a plain hash can't offer.
+
+The ring changes whenever the validators do, so each new epoch makes a new root.
+
+Both jobs need the Bandersnatch curve's arithmetic, so this lesson brings in a library
+that has it. By the end your client checks every ticket's proof, makes each new epoch's
+ring root, and passes all 46 safrole vectors.
 
 ## What the Gray Paper says
 
@@ -98,14 +110,14 @@ $$
 
 :::
 
-In plain words, step by step:
+Step by step:
 
 1. **The ring root.** At a new epoch, γ′_Z = 𝒪(the Bandersnatch keys of γ′_P): the ring
    root of the validators who will be active in the *next* epoch. Tickets entered this
    epoch are for that epoch, so they're checked against its validators. Within an epoch,
    γ′_Z = γ_Z.
 2. **The ring has a fixed size.** A key that isn't a point on the curve becomes the
-   *padding point*, and the ring is filled up with padding to the chain's validator count:
+   [*padding point*](../glossary.md#padding-point), and the ring is filled up with padding to the chain's validator count:
    6 on tiny, 1,023 on full.
 3. **A ticket's proof** must check out against γ′_Z, for the input X_T ⌢ η′₂ ⌢ its attempt
    (X_T is "jam_ticket_seal", the same `$` rule as [lesson 5.3](../05-hashing-and-signatures/03-signatures.md)'s "jam_available"). η′₂ is two
@@ -114,17 +126,13 @@ In plain words, step by step:
 
 That's [lesson 8.7](./07-entering-tickets.md)'s last missing rule.
 
-You already built a commitment like this: [lesson 6.1](../06-state-and-merklization/01-the-state-trie.md)'s state root squeezes the whole
-state into 32 bytes you can check facts against. γ_Z squeezes the validator list into 144
-bytes you can check *membership* against, anonymously, which a plain hash can't offer.
-Here is the real ring the tiny vector `enact-epoch-change-with-padding-1.json` rotates in,
-and its real γ′_Z. Tap a seat to zero its key, the way [lesson 8.2](./02-rotating-the-validators.md) zeroes an offender's,
-and the root answers:
-
-<RingRoot />
+[The ring at the top](#try-it) is the real ring the tiny vector
+`enact-epoch-change-with-padding-1.json` rotates in, and its real γ′_Z. Tap a seat to
+zero its key, the way [lesson 8.2](./02-rotating-the-validators.md) zeroes an offender's,
+and the root answers.
 
 One seat is strange on purpose: validator 3's key isn't a point on the curve at all, so
-the ring holds the padding point there whether you zero it or not: the vector exists to
+the ring holds the padding point there whether you zero it or not. The vector exists to
 test exactly that. And the root's last 48 bytes never move: that third point comes from
 the fixed setup, not from the keys.
 
@@ -132,15 +140,20 @@ the fixed setup, not from the keys.
 
 Making a ring root and checking a ring proof is serious cryptography: elliptic curves,
 pairings, and a structured reference string of 590 KB. Writing it would be its own
-tutorial, and getting it one byte wrong would make every check fail. So your client uses
-`@typeberry/native`, a library made by another JAM team, Fluffy Labs, for their client,
-typeberry. It wraps ark-vrf, the Rust library the Gray Paper points to, as native code and
-as WebAssembly. Your client calls three of its functions: `ringCommitment`,
-`batchVerifyTickets`, and in [lesson 8.9](./09-seals.md), `verifySeal`.
+tutorial, and getting it one byte wrong would make every check fail.
 
-Two honest notes. The library makes rings of 6 or 1,023 keys only, the two sizes the
-official networks use; that's all your client needs. And it checks a block's ring proofs
-all together, in one go: when one fails it can't say which, so neither can your client.
+So your client uses `@typeberry/native`, a library made by another JAM team, Fluffy
+Labs, for their client, typeberry. It wraps ark-vrf, the Rust library the Gray Paper
+points to, as native code and as [*WebAssembly*](../glossary.md#webassembly). Your client
+calls three of its functions: `ringCommitment`, `batchVerifyTickets`, and in
+[lesson 8.9](./09-seals.md), `verifySeal`.
+
+Two honest notes:
+
+- The library makes rings of 6 or 1,023 keys only, the two sizes the official networks
+  use. That's all your client needs.
+- It checks a block's ring proofs all together, in one go. When one fails it can't say
+  which, so neither can your client.
 
 The wrapper is the only borrowed part, and it's small. lasair, an OCaml client, writes
 its own: a hundred lines of FFI glue calling the same ark-vrf, compiled to native code
@@ -270,7 +283,8 @@ test("a forged ring proof: bad_ticket_proof", () => {
 });
 ```
 
-[Lesson 8.5](./05-one-step-of-safrole.md)'s whole-step test now checks γ′_Z too, since γ_Z is about to join your `Safrole`.
+[Lesson 8.5](./05-one-step-of-safrole.md)'s whole-step test now checks γ′_Z too, since γ_Z
+is about to join your `Safrole`.
 
 ## The code
 
@@ -316,7 +330,7 @@ const library = await bandersnatch.default();
 ```
 
 The library loads its native code (or its WebAssembly, where there's none for your
-computer) when it starts, which takes a moment, so it starts once, when the file is first
+computer) when it starts, which takes a moment. So it starts once, when the file is first
 imported. `await` at the top of a module waits for it before anything uses it.
 
 ```ts
@@ -324,7 +338,8 @@ imported. `await` at the top of a module waits for it before anything uses it.
 ```
 
 Each answer starts with a status byte: 0 for done. A *Buffer* is Node's own kind of byte
-array; your tests compare plain `Uint8Array` values, so `ringRoot` copies the root into one.
+array. Your tests compare plain `Uint8Array` values, so `ringRoot` copies the root into
+one.
 
 Then Safrole keeps γ_Z:
 
@@ -486,7 +501,8 @@ export function safroleError(
 ```
 
 At a new epoch the ring is the one this block makes, and η′₂ is η₁, moved along one
-([lesson 8.1](./01-stirring-the-entropy.md)). It needs the offenders now, for γ′_P, so it takes them as its last argument.
+([lesson 8.1](./01-stirring-the-entropy.md)). The check needs the offenders now, for
+γ′_P, so it takes them as its last argument.
 
 **Run**
 
@@ -574,7 +590,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-What flows through these two runs — what each block brings, the ring root and checks your rules work out, and the lines printed:
+What flows through these two runs:
 
 ::: code-group
 
@@ -642,16 +658,19 @@ refused: bad_ticket_proof (the vector says: bad_ticket_proof)
 reported to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=safrole-1791771413261
 ```
 
-A new epoch, a new ring root; and three tickets whose ids are in order and whose attempts
+A new epoch, a new ring root. And three tickets whose ids are in order and whose attempts
 are fine, refused anyway: their proofs don't check out.
 
 ## The scoreboard
 
 With ticket proofs checked, Safrole can run its family whole. `stf/safrole` is the first
-of the state-transition families, and they all share a shape: `pre_state` is the part of
-the state the rule reads, `input` the part of the block, and what comes out is
-`post_state` and `output`. The output is `ok`, with what the rule says back (here, the
-header's two marks), or `err`, the name of the rule a refused block breaks.
+of the state-transition families, and they all share a shape:
+
+- `pre_state` is the part of the state the rule reads;
+- `input` is the part of the block;
+- `post_state` and `output` are what comes out. The output is `ok`, with what the rule
+  says back (here, the header's two marks), or `err`, the name of the rule a refused
+  block breaks.
 
 Run whole means all of it. A refused block must be refused for the vector's reason, and
 then it changes nothing. An accepted block must leave every part of the state as the
@@ -836,12 +855,24 @@ fuzzer.
 ## Check your understanding
 
 ::: check
-**γ′_Z is the ring root of which validators?**
+**What is the ring root for?**
 
-- [ ] κ′, the validators active this epoch
+- [ ] It hides the validators' keys from everyone outside the set
+  > No: the keys are in the state for all to read. What a ring proof hides is *which* of
+  > them made a ticket.
+- [ ] It is the hash every header carries, so nodes can compare their states
+  > No: that is the state root. The ring root commits to one list, the pending
+  > validators' Bandersnatch keys.
+- [x] It lets a ticket's proof be checked against a whole set of validators at once, without the proof saying which one made it
+  > Yes: 144 bytes, short to keep, and enough to check a ring proof against. A plain hash
+  > of the list couldn't offer that.
+
+**The ring root is made from which validators, and why those?**
+
+- [ ] κ′, the validators active this epoch, since they make this epoch's blocks
   > No: tickets entered this epoch win slots in the next one, so they're checked against
   > the next epoch's validators.
-- [x] γ′_P, the validators who'll be active next epoch
+- [x] γ′_P, the validators who'll be active next epoch: this epoch's tickets are for that epoch's slots
   > Yes: a ticket proves "one of next epoch's validators made me", so the ring is theirs.
 - [ ] Every validator in all four sets
   > No: one ring, one set: γ′_P, the newly pending validators.
@@ -858,32 +889,35 @@ fuzzer.
   > No: assurances are, against κ's Ed25519 keys ([lesson 6.3](../06-state-and-merklization/03-reading-the-state.md)). But an ordinary
   > signature says who signed, and a ticket mustn't.
 
-**On tiny, one validator's key in γ′_P is an offender's, zeroed. What does the ring hold in its place?**
+**An offender's key in the pending set has been zeroed. What does the ring hold in its place?**
 
-- [ ] Nothing: the ring shrinks to 5 keys
-  > No: the ring has a fixed size, the chain's validator count, 6 on tiny.
+- [ ] Nothing: the ring gets one key shorter
+  > No: the ring has a fixed size, the chain's validator count: 6 on tiny.
 - [ ] The 32 zero bytes, as they are
   > No: a ring is made of points on the curve. A key that isn't one is swapped out.
 - [x] The padding point
-  > Yes: a key that isn't a point on the curve becomes padding, and the ring stays at 6.
+  > Yes: a key that isn't a point on the curve becomes padding, and the ring keeps its
+  > size.
 
-**A ticket's proof is made for X_T ⌢ η′₂ ⌢ its attempt. Why η′₂?**
+**A ticket's proof is made for X_T ⌢ η′₂ ⌢ its attempt. What would go wrong with η₀ in place of η′₂, or with no entropy at all?**
 
-- [ ] It shouldn't matter: any entropy would do, even η₀
+- [ ] Nothing: any entropy would do
   > No: η₀ changes with every block. A proof made for one η₀ would stop checking out a
   > block later, and block authors stir it.
-- [x] It's entropy from two epochs back, fixed before anyone could make a ticket for it
-  > Yes: nobody could have shaped it to suit their tickets, and it stays the same for the
-  > whole epoch the tickets are entered in.
-- [ ] No entropy is needed: the attempt alone would do
-  > No: a VRF's output depends only on its key and input. Without entropy, each validator's
-  > ids would be the same every epoch, and so would the lottery's result.
+- [x] η₀ moves every block and authors stir it; with none, every epoch's ids would repeat. η′₂ was fixed before anyone could make a ticket for it
+  > Yes: nobody could have shaped η′₂ to suit their tickets, and it stays the same for the
+  > whole epoch the tickets are entered in. A VRF's output depends only on its key and
+  > input, so without entropy each validator's ids would be the same every epoch.
+- [ ] The proofs would get too long
+  > No: a ring proof is 784 bytes whatever its input. The entropy decides what the ids
+  > are, not how big the proof is.
 :::
 
 ## What you have
 
 Safrole with real cryptography: ring roots for each new set of validators, and ticket
-proofs checked against them. All 46 safrole vectors pass, whole. One check is left, on every
-block rather than every ticket: is the block's seal real? [Lesson 8.9](./09-seals.md).
+proofs checked against them. All 46 safrole vectors pass, whole. One check is left, on
+every block rather than every ticket: is the block's seal real?
+[Lesson 8.9](./09-seals.md).
 
 Next: [8.9 Seals](./09-seals.md)

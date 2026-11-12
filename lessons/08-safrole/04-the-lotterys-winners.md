@@ -35,8 +35,7 @@ inwards.
 
 This lesson builds the lottery's end: closing it, announcing the winners, seating them.
 Entering a ticket waits for [lesson 8.7](./07-entering-tickets.md), and checking its ring
-proof for [lesson 8.8](./08-the-ring-root.md). The winners are already in the state, so
-everything here works today.
+proof for [lesson 8.8](./08-the-ring-root.md).
 
 ## What the Gray Paper says
 

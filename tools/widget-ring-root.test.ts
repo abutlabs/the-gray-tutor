@@ -60,9 +60,12 @@ test("maskOf and describeRing say what the widget shows", () => {
   );
 });
 
-test("the lesson shows the widget, between the rules and the library", () => {
-  assert.match(raw, /<RingRoot \/>/);
-  assert.ok(raw.indexOf("<RingRoot />") < raw.indexOf("### A library, not code of your own"));
+test("the lesson shows the widget once, at the top, and the rules send the reader back to it", () => {
+  const at = raw.indexOf("<RingRoot />");
+  assert.ok(at > 0 && at === raw.lastIndexOf("<RingRoot />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("[The ring at the top](#try-it)");
+  assert.ok(back > raw.indexOf("4. **A proof that fails**") && back < raw.indexOf("### A library, not code of your own"));
   assert.match(raw.replace(/\s+/g, " "), /the real ring the tiny vector `enact-epoch-change-with-padding-1\.json` rotates in/);
   assert.match(raw.replace(/\s+/g, " "), /validator 3's key isn't a point on the curve/);
 });

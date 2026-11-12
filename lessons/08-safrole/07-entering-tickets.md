@@ -1,18 +1,41 @@
 # Entering tickets
 
-The lottery has run without anyone entering it: a ticket's id is a VRF output, which
-[lesson 8.6](./06-the-vrf-output.md) can read now. This lesson lets tickets in: it checks a block's tickets as the
-Gray Paper says, refuses the block if they break a rule, and merges the good ones into the
-lottery. By the end your client runs Safrole for every safrole vector but two.
+**In one sentence:** a block may bring a few tickets into the lottery, and every node
+checks them against the lottery's rules first, refusing the whole block if one is broken.
 
-## New words
+Give a block some tickets and read the verdict. Then break a rule: move the block past
+the close, or put its tickets out of order.
 
-- **Attempt, attempts allowed.** n. Which of its tickets a validator is entering, from 0 up
-  to n − 1; n = ⌈2E / |γ′_P|⌉ is how many it may enter. *Example:* 4 each on tiny,
-  attempts 0 to 3; 2 each on full.
+<a id="try-it"></a>
 
-It's in the [glossary](../glossary.md). A block that breaks a rule is a *rejected block*,
-as in [lesson 11.3](../11-assurances/03-bad-assurances.md), and the vectors give its error name.
+<TicketRules />
+
+## The idea
+
+The lottery of [lesson 8.4](./04-the-lotterys-winners.md) has run without anyone entering
+it. Now tickets come in, a few in each block. What must be checked before one gets in?
+
+Think of a raffle with a strict door:
+
+- the door shuts before the draw: once the lottery has closed, no more tickets;
+- a block may carry only so many;
+- each validator gets a fixed number of entries, its
+  [*attempts allowed*](../glossary.md#attempts-allowed), and each entry is one numbered
+  [*attempt*](../glossary.md#attempt). Fewer validators get more entries each, so the
+  lottery can always fill;
+- no ticket comes twice.
+
+A ticket's score is not written on it. Every node works it out from the ticket's proof
+([lesson 8.6](./06-the-vrf-output.md)), so nobody can claim a better score than they
+drew.
+
+A block that breaks a rule is a *rejected block*, as in
+[lesson 11.3](../11-assurances/03-bad-assurances.md): it is refused whole, and the
+vectors give its error name. Tickets that pass join the pile, and the pile keeps only
+the best.
+
+This lesson builds the checks and the merge. By the end your client runs Safrole for
+every safrole vector but two.
 
 ## What the Gray Paper says
 
@@ -181,8 +204,8 @@ $$
 
 :::
 
-In plain words, §6.7, *The Extrinsic and Tickets*. A block's tickets extrinsic is a list of (attempt, ring
-proof). In plain steps:
+§6.7, *The Extrinsic and Tickets*. A block's tickets extrinsic is a list of (attempt, ring
+proof). The rules, in steps:
 
 1. **Only while the lottery is open, and only K at a time.** Once the block's phase m′ is
    Y or more, the block may bring no tickets; before that, at most K (3 on tiny, 16 on
@@ -203,23 +226,31 @@ through the pipe:
 
 <TicketBudget />
 
-The test vectors name what's broken: `bad_slot` (the block's slot isn't after the last
-one's, from [lesson 7.1](../07-time-and-shuffling/01-epochs.md)), `unexpected_ticket` (step 1), `bad_ticket_attempt` (step 2),
-`bad_ticket_order` (step 4), `duplicate_ticket` (step 5). The Gray Paper itself names no
-errors: a block that breaks a rule is simply invalid.
+The test vectors name what's broken:
 
-<TicketRules />
+- `bad_slot`: the block's slot isn't after the last one's
+  ([lesson 7.1](../07-time-and-shuffling/01-epochs.md));
+- `unexpected_ticket`: step 1;
+- `bad_ticket_attempt`: step 2;
+- `bad_ticket_order`: step 4;
+- `duplicate_ticket`: step 5.
 
-Two honest notes. The vectors' README still says each validator gets 3 tickets; Gray Paper
-0.8.0 changed that to n (pull request 514), and the vectors follow the paper. And step 3
-has a second half, the proof itself must check out against the ring root, which needs
-Bandersnatch's arithmetic: [lesson 8.8](./08-the-ring-root.md). Until then a forged proof gets in, and the two
-`bad_ticket_proof` vectors wait.
+The Gray Paper itself names no errors: a block that breaks a rule is simply invalid.
+Break each rule [at the top](#try-it) and read its name.
+
+Two honest notes:
+
+- The vectors' README still says each validator gets 3 tickets. Gray Paper 0.8.0 changed
+  that to n (pull request 514), and the vectors follow the paper.
+- Step 3 has a second half: the proof itself must check out against the ring root. That
+  needs Bandersnatch's arithmetic: [lesson 8.8](./08-the-ring-root.md). Until then a
+  forged proof gets in, and the two `bad_ticket_proof` vectors wait.
 
 ## The tests
 
-Blocks with tickets get a test of their own. [Lesson 8.5](./05-one-step-of-safrole.md)'s still skips them, and its
-comment says why it had to: that half of the job was waiting for Bandersnatch.
+Blocks with tickets get a test of their own. [Lesson 8.5](./05-one-step-of-safrole.md)'s
+still skips them, and its comment says why it had to: that half of the job was waiting
+for Bandersnatch.
 
 **Add to** `test/safrole.test.ts`
 
@@ -313,7 +344,7 @@ npm test
 ```
 
 Two reds, each about the rule. The tickets never reach the lottery, so the state after
-is wrong; and the stub refuses nothing, where the vectors expect a reason.
+is wrong. And the stub refuses nothing, where the vectors expect a reason.
 
 ## The code
 
@@ -456,7 +487,8 @@ export function safroleStep(
   const accumulator = [...kept, ...entered].sort(byId).slice(0, config.epoch_length);
 ```
 
-`tickets` comes last, and defaults to none, so [lesson 8.5](./05-one-step-of-safrole.md)'s calls still work unchanged.
+`tickets` comes last, and defaults to none, so
+[lesson 8.5](./05-one-step-of-safrole.md)'s calls still work unchanged.
 
 **Run**
 
@@ -538,7 +570,7 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-What flows through these two runs — the tickets each block carries, the ids and checks your rules work out, and the lines printed:
+What flows through these two runs:
 
 ::: code-group
 
@@ -582,8 +614,8 @@ refused: bad_ticket_order (the vector says: bad_ticket_order)
 :::
 
 A ticket's id isn't in the block: your rules work it out from the proof, the VRF output
-of [lesson 8.6](./06-the-vrf-output.md). The first block's ids climb, so all three join the lottery; the second's
-fall, so the block is refused before any state moves.
+of [lesson 8.6](./06-the-vrf-output.md). The first block's ids climb, so all three join
+the lottery. The second's fall, so the block is refused before any state moves.
 
 **Run**
 
@@ -645,52 +677,63 @@ rule in every vector, so the order of the checks never shows.
 ## Check your understanding
 
 ::: check
-**On tiny, how many tickets may each validator enter, and with which attempts?**
+**Why does a validator on tiny get more tickets than one on full?**
 
-- [ ] 3, attempts 0 to 2, as the vectors' README says
+- [ ] Tiny is a test network, so its limits are looser
+  > No: both sizes use the same formula. Only the numbers that go in differ.
+- [x] Fewer validators must still be able to fill the lottery, so each is allowed more: n = ⌈2E / |γ′_P|⌉
+  > Yes: on tiny that is 4, attempts 0 to 3: ⌈2 × 12 / 6⌉. Six validators with four tickets
+  > each can fill the 12-ticket lottery twice over. On full it is ⌈1200 / 1023⌉ = 2.
+- [ ] It doesn't: every validator gets 3, as the vectors' README says
   > No: that's the old fixed number. Gray Paper 0.8.0 made it n, and the vectors follow
   > the paper.
-- [x] 4, attempts 0 to 3: ⌈2 × 12 / 6⌉
-  > Yes: n = ⌈2E / |γ′_P|⌉ = ⌈24 / 6⌉ = 4. Six validators with four tickets each can fill
-  > the 12-ticket lottery twice over.
-- [ ] 2, attempts 0 and 1, the same as on full
-  > No: full's 2 is ⌈1200 / 1023⌉. Tiny has fewer validators, so each gets more.
 
-**A block brings tickets whose ids start `0xd6fe`, `0x5af4` and `0x3434`. Why is it refused?**
+**Why must a block list its tickets with their ids going strictly up?**
 
-- [ ] Their ids are too high to win
+- [x] So that no ticket can come twice in one block
+  > Yes: two equal ids can't both go strictly up. A block that breaks the order is
+  > refused: `bad_ticket_order`.
+- [ ] So that the best tickets get in first if the block is cut short
+  > No: a block is never cut short. It is taken whole or refused whole.
+- [ ] Because tickets with high ids can't win
   > No: a high ticket still gets in if the lottery has room. What breaks the rule is the
   > order.
-- [ ] Attempt 3 is too high on tiny
-  > No: tiny allows attempts 0 to 3, so 3 is fine.
-- [x] The ids don't go strictly up: `0x5af4…` comes after `0xd6fe…`
-  > Yes: `bad_ticket_order`. Strictly up also means no ticket can come twice.
 
-**In `publish-tickets-no-mark-7`, a tiny block at slot 10 brings tickets. What happens?**
+**A block arrives after the lottery has closed, and brings a ticket. What happens?**
 
-- [x] It's refused: `unexpected_ticket`
-  > Yes: phase 10 is Y, and once m′ ≥ Y the lottery is closed. A block may bring no
-  > tickets at all.
-- [ ] They enter the lottery, as long as there are no more than K = 3
-  > No: K is the limit while the lottery is open. From phase 10 on, the limit is 0.
-- [ ] They're kept for the next epoch's lottery
+- [ ] The ticket enters, as long as the block brings no more than K
+  > No: K is the limit while the lottery is open. From phase Y on, the limit is 0.
+- [ ] The ticket is kept for the next epoch's lottery
   > No: nothing carries over. A block that breaks a rule is refused whole.
+- [x] The block is refused: `unexpected_ticket`
+  > Yes: once m′ ≥ Y the lottery is closed, and a block may bring no tickets at all. In
+  > `publish-tickets-no-mark-7`, a tiny block at slot 10 tries: phase 10 is Y.
 
-**Tiny's lottery holds 12 tickets, and a block brings 2, both with lower ids than the lottery's worst two. What does it hold afterwards?**
+**The lottery is full, and a block brings 2 tickets, both with lower ids than the lottery's worst two. What does it hold afterwards?**
 
-- [ ] 14 tickets
+- [ ] Two more tickets than before
   > No: it keeps at most E, 12 on tiny.
-- [ ] The same 12: a full lottery takes no more tickets
-  > No: a full lottery still takes better ones. The worst drop out to make room.
-- [x] 12: the 2 new ones in, the 2 worst old ones out
+- [x] As many as before: the 2 new ones in, the 2 worst old ones out
   > Yes: it keeps the E lowest ids, old and new together.
+- [ ] The same tickets as before: a full lottery takes no more
+  > No: a full lottery still takes better ones. The worst drop out to make room.
+
+**Who decides a ticket's id?**
+
+- [x] Nobody: every node works it out from the ticket's proof, as its VRF output
+  > Yes: a block carries each ticket's attempt and its proof, not its id. Every node hashes
+  > the proof's output point and gets the same id.
+- [ ] The validator who made the ticket writes it in
+  > No: if validators chose their own ids, a cheat would always pick a low one.
+- [ ] The block's author numbers the tickets as it packs them
+  > No: the author only puts them in order. The ids come from the proofs.
 :::
 
 ## What you have
 
 Tickets entering the lottery, checked by every rule but one, and refused blocks named as
 the vectors name them: 33 accepted blocks and 11 refusals. The rule left is the proof
-itself, and it needs the real curve: [lesson 8.8](./08-the-ring-root.md) brings in a Bandersnatch library, for
-the ring root and the proofs.
+itself, and it needs the real curve: [lesson 8.8](./08-the-ring-root.md) brings in a
+Bandersnatch library, for the ring root and the proofs.
 
 Next: [8.8 The ring root](./08-the-ring-root.md)

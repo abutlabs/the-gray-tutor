@@ -43,8 +43,9 @@ test("the two runs' tickets are the lesson's Output, and the lottery keeps the E
   assert.deepEqual(after.slice(0, 2), [ENTERING[0].id, ENTERING[1].id]);
 });
 
-test("lesson 8.7 places the widget once, in What the Gray Paper says after the error names", () => {
+test("lesson 8.7 places the widget once, at the top, and the error names send the reader back to it", () => {
   const at = raw.indexOf("<TicketRules />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<TicketRules />"), "placed once");
-  assert.ok(at > raw.indexOf("a block that breaks a rule is simply invalid.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.match(raw, /a block that breaks a rule is simply invalid\.\nBreak each rule \[at the top\]\(#try-it\)/);
 });

@@ -42,6 +42,6 @@ test("the sentences name the trap and the pipe", () => {
 test("the lesson shows the widget after the six steps, naming the trap", () => {
   assert.match(raw, /<TicketBudget \/>/);
   assert.ok(raw.indexOf("6. **The lottery keeps the E lowest ids**") < raw.indexOf("<TicketBudget />"));
-  assert.ok(raw.indexOf("<TicketBudget />") < raw.indexOf("<TicketRules />"));
+  assert.ok(raw.indexOf("<TicketBudget />") < raw.indexOf("The test vectors name what's broken:"));
   assert.match(raw.replace(/\s+/g, " "), /two of them both read as "max tickets": n is what one \*validator\* may make for the epoch, K is what one \*block\* may carry/);
 });

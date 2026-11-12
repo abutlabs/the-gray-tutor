@@ -40,7 +40,7 @@ test("the forgeries: a flipped seal, a stranger's key and a flipped entropy sour
   assert.match(raw.replace(/\s+/g, " "), /Change one bit of H_V and the seal fails first/);
 });
 
-test("the byte bar: 297 bytes, 201 signed, the seal the last 96, as the lesson's New words say", () => {
+test("the byte bar: 297 bytes, 201 signed, the seal the last 96, as the lesson says", () => {
   assert.match(raw.replace(/\s+/g, " "), /headers are 297 bytes, so 201 unsigned/);
   assert.deepEqual([HEADER_BYTES, UNSIGNED_BYTES, SEAL_BYTES], [297, 201, 96]);
   assert.equal(FIELDS.at(-1)!.name, "seal");
@@ -49,8 +49,9 @@ test("the byte bar: 297 bytes, 201 signed, the seal the last 96, as the lesson's
   assert.ok(source.to <= UNSIGNED_BYTES, "the entropy source is inside what the seal signs");
 });
 
-test("lesson 8.9 places the widget once, in What the Gray Paper says after the order note", () => {
+test("lesson 8.9 places the widget once, at the top, and the order note sends the reader back to it", () => {
   const at = raw.indexOf("<SealCheck />");
   assert.ok(at > 0 && at === raw.lastIndexOf("<SealCheck />"), "placed once");
-  assert.ok(at > raw.indexOf("Change one bit of H_V and the seal fails first.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  assert.match(raw, /Change one bit of H_V and the seal fails first\. Try it \[at the top\]\(#try-it\)\./);
 });
