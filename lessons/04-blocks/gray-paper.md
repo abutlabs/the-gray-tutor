@@ -1,11 +1,17 @@
 # The formulas, in plain words
 
-[Part 4](./index.md)'s appendix: every formula this part quotes, explained. Eight blocks
-from three places: §4.1, what a block is made of; §5, what its header holds; Appendix C, how
-it is written as bytes. The last, *Block Serialization*, holds (C.16) to (C.37), so each
-group of lines gets a heading. Real values: the codec vectors (`vectors/codec/tiny`) and the
-`fallback` trace. The rest of Appendix C is in [2.A](../02-codec/gray-paper.md). Each
-formula: its key, then read aloud, in plain words, on a real value, in your client.
+[Part 4](./index.md)'s appendix: every formula this part quotes, explained. There are
+eight blocks, from three places:
+
+- §4.1: what a block is made of;
+- §5: what its header holds;
+- Appendix C: how it is written as bytes.
+
+The last block, *Block Serialization*, holds (C.16) to (C.37), so each group of its lines
+gets a heading. The rest of Appendix C is in [2.A](../02-codec/gray-paper.md).
+
+Each formula: its key, then read aloud, in plain words, on a real value, in your client.
+The real values are the codec vectors (`vectors/codec/tiny`) and the `fallback` trace.
 Notation: [Reading the Gray Paper](../reading-the-gray-paper.md).
 
 ## (4.2) and (4.3): a block, and its five bags
@@ -42,11 +48,10 @@ $$
 **Read it aloud.** "B is defined as the tuple of H and E. E is defined as the tuple of E
 sub T, E sub D, E sub P, E sub A and E sub G."
 
-**In plain words.** A block is two things: a header, the few hundred bytes every node
-reads first, and an extrinsic, the data the block brings in from outside the chain. The
-extrinsic is five bags: tickets, disputes, preimages, assurances and guarantees. These
-two lines name the parts and nothing more; Appendix C's (C.16) decides the byte order,
-which is not this one.
+**In plain words.** A block is two things. The header is the few hundred bytes every node
+reads first. The extrinsic is the data the block brings in from outside the chain, in five
+bags: tickets, disputes, preimages, assurances and guarantees. These two lines name the
+parts and nothing more. Appendix C's (C.16) decides the byte order, which is not this one.
 
 **On a real value.** The tiny `block.json`:
 
@@ -100,7 +105,7 @@ E, H sub W, H sub O, H sub I, H sub V and H sub S."
 **In plain words.** The header's ten fields, by their letters: the parent's hash (P), the
 prior state root (R), the extrinsic hash (X), the timeslot (T), the epoch mark (E), the
 winning-tickets mark (W), the offenders mark (O), the author's index (I), the VRF
-signature (V) and the seal (S). Like (4.3), this is a list of names; Appendix C's (C.23)
+signature (V) and the seal (S). Like (4.3), this is a list of names. Appendix C's (C.23)
 writes them in another order, I and V before O.
 
 **On a real value.** `header_1`, field by field, in the paper's order:
@@ -155,11 +160,15 @@ $$
 **Read it aloud.** "H sub T is in N sub T; the parent of H's T is less than H sub T, and H
 sub T times P is at most T," the last T being the wall clock.
 
-**In plain words.** Two rules for a header's slot. It comes after its parent's slot, so
-the chain only moves forward in time (a slot may be skipped, never repeated). And it is
-not in the future: the slot's start, slot × 6 seconds from JAM's clock start, must have
-come. A block that breaks the second rule isn't wrong forever, only early: the paper's
-next line says it becomes valid as the clock moves on.
+**In plain words.** Two rules for a header's slot.
+
+- It comes after its parent's slot. The chain only moves forward in time: a slot may be
+  skipped, never repeated.
+- It is not in the future. The slot's start, slot × 6 seconds from JAM's clock start, must
+  have come.
+
+A block that breaks the second rule isn't wrong forever, only early: the paper's next
+line says it becomes valid as the clock moves on.
 
 **On a real value.** Block 2 of the `fallback` trace:
 
@@ -205,10 +214,10 @@ $$
 **Read it aloud.** "H sub I is in N sub the size of kappa prime; H sub A is defined as
 kappa prime at H sub I, its b."
 
-**In plain words.** The header names its author by a number, a position in κ′, this
-epoch's validators after the block: 0 to 5 on tiny, 0 to 1,022 on full. H_A, the author's
-Bandersnatch key, is the b part (the first 32 bytes) of that validator's entry. It is
-looked up, never written: two bytes in the header stand for a 32-byte key.
+**In plain words.** The header names its author by a number: a position in κ′, this
+epoch's validators after the block. That is 0 to 5 on tiny, 0 to 1,022 on full. H_A, the
+author's Bandersnatch key, is the b part (the first 32 bytes) of that validator's entry.
+It is looked up, never written: two bytes in the header stand for a 32-byte key.
 
 **On a real value.** Block 3 of the `fallback` trace:
 
@@ -259,12 +268,16 @@ $$
 pairs of an H tilde and an H bar; or nothing. H sub W is in: a sequence of exactly E
 tickets, or nothing. H sub O is in: a sequence of H bars."
 
-**In plain words.** The types of the three markers. The epoch mark, when there is one,
-holds two 32-byte entropy hashes and the next epoch's validators, each as a Bandersnatch key
-and an Ed25519 key, as many as there are validators (the 𝕍 says the count may vary). The
-winning-tickets mark, when there is one, holds exactly E tickets, one for each slot of
-the next epoch. The offenders mark is always there, a list of Ed25519 keys, usually
-empty. The ? on the first two is what makes them optional: on the bytes, the ¿ of (C.8).
+**In plain words.** The types of the three markers.
+
+- **The epoch mark**, when there is one, holds two 32-byte entropy hashes and the next
+  epoch's validators. Each validator is a Bandersnatch key and an Ed25519 key, and there
+  are as many as there are validators (the 𝕍 says the count may vary).
+- **The winning-tickets mark**, when there is one, holds exactly E tickets, one for each
+  slot of the next epoch.
+- **The offenders mark** is always there: a list of Ed25519 keys, usually empty.
+
+The ? on the first two is what makes them optional: on the bytes, the ¿ of (C.8).
 
 **On a real value.** `header_0` and `header_1` show all three:
 
@@ -310,10 +323,10 @@ $$
 
 **Read it aloud.** "Maybe x is defined as: 0, if x is nothing; otherwise, the tuple 1, x."
 
-**In plain words.** A value that may be missing gets one byte in front: 0 for "nothing
-here", and nothing follows; or 1, then the value. The 0 and the 1 are naturals, so they
-are written as compact naturals, `00` and `01`. Without the byte, a reader could not tell
-"nothing" from the first byte of a value.
+**In plain words.** A value that may be missing gets one byte in front. It is 0 for
+"nothing here", and nothing follows. Or it is 1, and then the value. The 0 and the 1 are
+naturals, so they are written as compact naturals, `00` and `01`. Without the byte, a
+reader could not tell "nothing" from the first byte of a value.
 
 **On a real value.** `header_1`, at bytes 100 and 101:
 
@@ -366,8 +379,8 @@ smaller of 8 and the size of b, of b sub i times 2 to the i, concatenated with E
 8 on."
 
 **In plain words.** Bits go eight to a byte. The first eight bits make the first byte:
-bit 0 is worth 1, bit 1 worth 2, up to bit 7 worth 128, so the first bit is the byte's
-*lowest*. Then the same with the next eight, until none are left; a last byte with fewer
+bit 0 is worth 1, bit 1 worth 2, up to bit 7 worth 128. So the first bit is the byte's
+*lowest*. Then the same with the next eight, until none are left. A last byte with fewer
 than eight bits is padded with zeros at the top. Careful: the state trie of
 [Part 6](../06-state-and-merklization/index.md) reads a key's bits the other way round,
 highest first. Two rules, two orders.
@@ -643,9 +656,12 @@ $$
 
 One formula, twenty-two lines. They come in five groups: the block, its five bags, its
 header, the work a guarantee carries, and a few small structures other Parts meet.
-Everything in them is built from [2.A](../02-codec/gray-paper.md)'s rules: ℰ₄ and ℰ₂ are
-fixed-width numbers, a bare letter for a hash or a signature is itself, ↕ is a length in
-front, and ¿ is maybe.
+Everything in them is built from [2.A](../02-codec/gray-paper.md)'s rules:
+
+- ℰ₄ and ℰ₂ are fixed-width numbers;
+- a bare letter for a hash or a signature is itself;
+- ↕ is a length in front;
+- ¿ is maybe.
 
 ### (C.16): the block
 
@@ -653,8 +669,8 @@ front, and ¿ is maybe.
 of E sub G, E sub A of E sub A, E sub D of E sub D."
 
 **In plain words.** A block's bytes are its header's, then the five bags', in this order:
-tickets, preimages, guarantees, assurances, disputes. Not (4.3)'s order: the encoding's
-order is the one that counts on the wire.
+tickets, preimages, guarantees, assurances, disputes. That is not (4.3)'s order. The
+encoding's order is the one that counts on the wire.
 
 **On a real value.** The tiny `block.bin`, 5,150 bytes:
 
@@ -716,12 +732,14 @@ of: H sub P, H sub R, H sub X, E sub 4 of H sub T, E sub E of H sub E, maybe H s
 sub 2 of H sub I, H sub V, up-down-arrow H sub O. E sub E of nothing equals E of 0. E sub
 E of eta zero, eta one, k, equals E of 1, eta zero, eta one, up-down-arrow k."
 
-**In plain words.** ℰ_U is the header without its seal, the bytes the author signs; the
+**In plain words.** ℰ_U is the header without its seal: the bytes the author signs. The
 full header is those bytes and then the seal. The fields go in this order: three hashes,
 the slot in 4 bytes, the epoch mark, the tickets mark with ¿, the author in 2 bytes, the
-VRF signature, the offenders with their length. The epoch mark has its own little rule
-that works like ¿: `00` for none, or `01`, the two entropy hashes, and the validators' keys with
-their length (the count may change, so it is written).
+VRF signature, the offenders with their length.
+
+The epoch mark has its own little rule, which works like ¿. It is `00` for none. Or it is
+`01`, the two entropy hashes, and the validators' keys with their length (the count may
+change, so it is written).
 
 **On a real value.** `header_0`, 778 bytes:
 
@@ -760,12 +778,15 @@ in w sub x.
 **In plain words.** These are the structures of [Part 3](../03-work-and-reports/index.md)
 and [4.3](./03-guarantees.md): what a core computed, and what it reports. They are in this
 formula because a guarantee carries a whole work-report, so the block's bytes include
-them. Two things to see in them. Hashes go bare, and most numbers get a width. But the
-five numbers at the end of a work digest (C.28), the gas used and the counts of imports,
-extrinsics, their size and exports, have no ℰ₄ or ℰ₈: they are compact naturals, small
-numbers in few bytes. So are a report's core index and gas in (C.29). A guarantee (C.30) is the report, the
-slot in 4 bytes, and its signatures with their length, each the validator in 2 bytes and
-64 bytes of Ed25519.
+them.
+
+Two things to see in them. Hashes go bare, and most numbers get a width. But some numbers
+have no ℰ₄ or ℰ₈: they are compact naturals, small numbers in few bytes. The five at the
+end of a work digest (C.28) are: the gas used and the counts of imports, extrinsics, their
+size and exports. So are a report's core index and gas in (C.29).
+
+A guarantee (C.30) is the report, the slot in 4 bytes, and its signatures with their
+length. Each signature is the validator in 2 bytes and 64 bytes of Ed25519.
 
 **On a real value.** The tiny `work_result_0`, a work digest of 86 bytes:
 
@@ -803,12 +824,12 @@ the 15, if h is r boxed."
 - **a deferred transfer** (C.34) and **an operand tuple** (C.35): what a service's
   accumulate reads as its inputs. Each starts with a 1 or a 0, a discriminator that says
   which kind it is, since both arrive in one list.
-- **a work result** (C.36), O: the output with a `00` in front, or one byte naming what went
-  wrong: 1 out of gas, 2 a panic, 3 a bad export count, 4 too big, 5 the code
+- **a work result** (C.36), O: the output with a `00` in front. Or one byte naming what
+  went wrong: 1 out of gas, 2 a panic, 3 a bad export count, 4 too big, 5 the code
   unavailable (BAD), 6 the code too big (BIG).
 - **an import reference** (C.37), I: which segment a work item reads, as a 32-byte root and
-  a 2-byte index. If the hash is a work-package's hash rather than a segment root (the ⊞
-  mark), the index gets 2^15 added: its top bit set, so 2 bytes say both.
+  a 2-byte index. The hash may be a work-package's hash and not a segment root (the ⊞
+  mark). Then the index gets 2^15 added: its top bit is set, so 2 bytes say both.
 
 **On a real value.** `header_1`'s first winning ticket, (C.33):
 
@@ -818,8 +839,8 @@ the 15, if h is r boxed."
                           33 bytes
 ```
 
-And O on the work digest above: its result is `ok` with `0xaabbcc`, so `00 03 aa bb cc`; a
-digest whose program ran out of gas would hold the single byte `01` there instead.
+And O on the work digest above: its result is `ok` with `0xaabbcc`, so `00 03 aa bb cc`.
+A digest whose program ran out of gas would hold the single byte `01` there instead.
 
 **In your client.** `TicketBody` ([4.6](./06-the-header.md#the-code)), `WorkResult`
 ([3.2](../03-work-and-reports/02-work-digests.md#the-code)), `ImportSpec`
@@ -829,10 +850,11 @@ digest whose program ran out of gas would hold the single byte `01` there instea
 
 ## Say it in one breath
 
-A block is a header and five bags (4.2, 4.3); a header is ten fields (5.1), among them a
-slot that only moves forward and never ahead of the clock (5.8), an author named by its
-place in κ′ (5.10), and three markers, two of them optional (5.11). On the bytes, a maybe
-is `00` or `01` and the value (C.8), and bits go eight to a byte, lowest first (C.9).
+A block is a header and five bags (4.2, 4.3). A header is ten fields (5.1). Among them
+are a slot that only moves forward and never ahead of the clock (5.8), an author named by
+its place in κ′ (5.10), and three markers, two of them optional (5.11). On the bytes, a
+maybe is `00` or `01` and the value (C.8), and bits go eight to a byte, lowest first (C.9).
 Appendix C's block lines (C.16 to C.37) put it all in one order: the header without its
-seal, then the seal, then tickets, preimages, guarantees, assurances, disputes, each a
-list with its length in front, every number at its own width and every hash as itself.
+seal, then the seal, then tickets, preimages, guarantees, assurances, disputes. Each bag is
+a list with its length in front, every number is at its own width, and every hash is
+itself.
