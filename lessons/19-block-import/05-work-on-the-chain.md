@@ -1,20 +1,60 @@
 # Work on the chain
 
+**In one sentence:** blocks with real work in them show two rules no test vector could: a
+report is checked against a history that already knows the parent's state root, and a set
+is always written sorted.
+
+This block carries a report anchored on its parent. Check it against the history as the
+state has it. Then fill in the parent's state root, and check again.
+
+<a id="try-it"></a>
+
+<BetaDagger />
+
+## The idea
+
 The `fallback` and `safrole` traces carry no work: no reports, no accumulation. The
 `storage` and `preimages` traces do. Real services refine, guarantee and accumulate in
-them, write storage and ask for preimages. This lesson runs your importer on them, and the
-traces find two things it gets wrong, neither of which any test vector could show. By the
-end of it all four traces with work import, chained, every root right.
+them, write storage and ask for preimages. Run your importer on them, and it goes wrong
+twice.
 
-## New words
+**A diary with one line still blank.** The state keeps a history of recent blocks, each
+with its state root. But nobody knows a block's state root until the next block names it,
+in its header. So the newest entry's root is blank. A report anchored on the newest block
+must be checked after that blank is filled in. The history with the blank filled is
+[*the recent history halfway*](../glossary.md#recent-history-halfway) through the block.
 
-- **β†.** The recent history halfway through a block: the newest block it remembers now
-  has its state root, the one this block's header gives. *Example:* a report anchored on
-  the parent block is checked against β†, which knows the parent's state root; β doesn't.
-- **Canonical order.** The one order a set is written in, so that every client writes it
-  the same: sorted. *Example:* the packages in each slot of ξ, smallest hash first.
+**A guest list.** Two people can write the same guests down in two orders. The guests are
+the same. The ink is not. The state root is a fingerprint of the bytes, so every client
+must write a set one way: sorted. That is its
+[*canonical order*](../glossary.md#canonical-order).
 
-Both are in the [glossary](../glossary.md).
+This lesson fixes both. By the end, all four traces with work import, chained, every root
+right.
+
+## What the Gray Paper says
+
+Two rules, each found by a trace.
+
+**The history a report is checked against.** §7, *Recent History*, and §4's dependency
+graph ([lesson 19.1](./01-the-order-of-things.md)), which lists β_H† as its own step: the
+history halfway through the block. Every block in β has its state root, but the newest
+one's is still zeros ([lesson 9.2](../09-recent-history/02-recent-blocks.md)). Nobody knew it until the next block, *this* block, named it
+in its header, as `parent_state_root`. β† is β with that root filled in, and §11's report
+checks use β†, not β. A report anchored on the parent block is the usual case, and
+against β it fails.
+
+Try both on [the report at the top](#try-it): against β it is refused, and against β† it
+is accepted.
+
+[Lesson 12.5](../12-guarantees/05-bad-reports.md)'s vectors never showed this: they hand over a history whose roots are all known.
+
+**The order a set is written in.** ξ holds *sets* of packages, one per slot. A set has no
+order of its own, but bytes do, so Appendix D writes every set in one order, sorted: the
+canonical order. Your `accumulateBlock` collects a slot's packages in the order they
+accumulated, which is right for accumulating and wrong for writing down.
+
+<SetOrder />
 
 ## The tests
 
@@ -56,20 +96,7 @@ npm test
 
 Block 1 of `storage_light` is refused with `bad_state_root`: a report's anchor block says
 its state root is one thing, and your client thinks it's another. The block is good. Your
-client is reading the wrong history.
-
-## What the Gray Paper says
-
-§7, *Recent History*, and §4's dependency graph ([lesson 19.1](./01-the-order-of-things.md)), which lists β_H† as its own step:
-the history halfway through the block. Every block in β has its state root, but the newest
-one's is still zeros ([lesson 9.2](../09-recent-history/02-recent-blocks.md)): nobody knew it until the next block, *this* block, named it
-in its header, as `parent_state_root`. β† is β with that root filled in, and §11's report
-checks use β†, not β. A report anchored on the parent block is the usual case, and
-against β it fails.
-
-<BetaDagger />
-
-[Lesson 12.5](../12-guarantees/05-bad-reports.md)'s vectors never showed this: they hand over a history whose roots are all known.
+client is reading the wrong history: β, where the report checks use β†.
 
 ## The code
 
@@ -134,16 +161,8 @@ npm test
 
 Further: block 6 imports, but its root isn't the trace's. A whole state is a lot of bytes
 to compare by eye, so compare the states component by component. The difference is in
-C(15), ξ: the same packages, in another order.
-
-## What the Gray Paper says, again
-
-ξ holds *sets* of packages, one per slot. A set has no order of its own, but bytes do, so
-Appendix D writes every set in one order, sorted: the *canonical order*. Your
-`accumulateBlock` collects a slot's packages in the order they accumulated, which is right
-for accumulating and wrong for writing down.
-
-<SetOrder />
+C(15), ξ: the same packages, in another order. That is the second rule: a set is written
+sorted.
 
 Sorting hex strings sorts their bytes, so:
 
@@ -274,8 +293,9 @@ block 1, slot 1: imported; root 0xcf7ecaf5… = the trace's
 
 :::
 
-The guarantee for core 1 is real work now, what this lesson brings onto the chain, and the root your client
-makes from it is the one the trace wrote down. The loop then hands that state to block 2.
+The guarantee for core 1 is real work, which this lesson brings onto the chain. The root
+your client makes from it is the one the trace wrote down. The loop then hands that state
+to block 2.
 
 **Run**
 

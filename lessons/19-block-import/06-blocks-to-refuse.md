@@ -1,23 +1,51 @@
 # Blocks to refuse
 
+**In one sentence:** a block importer must refuse every bad block and leave the state
+exactly as it was, because taking a bad block is as wrong as refusing a good one.
+
+A service asks to grow its heap. Ask for more than its gas can pay for, and compare what
+the two rules do with the gas.
+
+<a id="try-it"></a>
+
+<OogHeap />
+
+## The idea
+
 The last two traces come from the conformance fuzzer's own service: work-packages with
-random work, and in `fuzzy`, a few blocks that must be refused. An importer that takes a
-bad block is as wrong as one that refuses a good one. This lesson runs them, finds one
-last difference from the traces, in an out-of-gas rule [lesson 16.3](../16-host-calls/03-growing-the-heap.md) kept as the Gray Paper
-wrote it, and ends with your client importing the first 100 blocks of all eight traces,
-800 blocks, chained, and refusing exactly the three bad ones among them; the scoreboard
-checks all 1,000 steps, one at a time, and all seven bad blocks. That's a block importer, which is what JAM's first milestone is about.
+random work. Each is a [*fuzzy trace*](../glossary.md#fuzzy-trace), and in `fuzzy` a few
+blocks must be refused.
 
-## New words
+Think of a referee. Allowing a goal that should not stand is as wrong as ruling out a
+good one: either way, the score is not the true one. An importer is the same. Take a bad
+block, or refuse a good one, and your client's state is no longer everyone else's.
 
-- **Fuzzy trace.** A block-import trace made with a service that does random work, from the
-  conformance fuzzer's tool kit, with some blocks meant to be refused. *Example:* `fuzzy`
-  blocks 37 to 39, each refused with `bad_code_hash`.
-- **Worker thread.** A second program running beside the first in the same process, with
-  memory of its own, that talks to it by messages. *Example:* the scoreboard runs one per
-  processor, each checking vectors.
+Refusing is the easy half: a refused block changes nothing, so the root after it is the
+root before it. The hard half is agreeing on everything else. These traces find one last
+difference: a service that runs out of gas while it grows its heap. The Gray Paper's text
+leaves its gas as it was. The test vectors spend all of it.
 
-Both are in the [glossary](../glossary.md).
+This lesson follows the vectors. Then it puts all eight traces on the scoreboard: 1,000
+blocks, checked by one [*worker thread*](../glossary.md#worker-thread) per processor, and
+the seven bad ones refused. That's a block importer, which is what JAM's first milestone
+is about.
+
+## What the Gray Paper says
+
+`grow_heap` ([lesson 16.3](../16-host-calls/03-growing-the-heap.md)), when growing would cost more gas than is left. The paper
+and the vectors disagree:
+
+- **Gray Paper 0.8.0** stops the machine out of gas, with the gas as it was.
+- **The 0.8.0 test vectors, and the traces,** follow a later change to the paper (pull
+  request 533): the gas is spent, all of it, as for any other host call that runs out.
+
+[HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) listed this from [lesson 16.3](../16-host-calls/03-growing-the-heap.md) on, with
+exactly this case: "traces that run a service out of gas while it grows its heap".
+
+Your `charge` ([lesson 16.1](../16-host-calls/01-calling-the-host.md)) already spends gas the vectors' way: it takes the gas off
+first, and only then says whether there was enough. `growHeap` checked first, and took nothing.
+
+See both rules side by side on [the heap at the top](#try-it).
 
 ## The tests
 
@@ -68,19 +96,6 @@ npm test
 Block 31's root isn't the trace's. The component that differs is C(13), the statistics:
 one service used 1,545,786 gas, and the trace says 2,000,000, every drop it had. That
 service grew its heap without enough gas left to pay for it.
-
-## What the Gray Paper says
-
-`grow_heap` ([lesson 16.3](../16-host-calls/03-growing-the-heap.md)), when growing would cost more gas than is left: Gray Paper 0.8.0 stops
-the machine out of gas, with the gas as it was. The 0.8.0 test vectors, and the traces,
-follow a later change to the paper (pull request 533): the gas is spent, all of it, as for
-any other host call that runs out. [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md) listed this from [lesson 16.3](../16-host-calls/03-growing-the-heap.md) on, with
-exactly this case: "traces that run a service out of gas while it grows its heap".
-
-Your `charge` ([lesson 16.1](../16-host-calls/01-calling-the-host.md)) already spends gas that way: it takes the gas off first, and
-only then says whether there was enough. `growHeap` checked first, and took nothing.
-
-<OogHeap />
 
 ## The code
 
@@ -259,8 +274,8 @@ parentPort!.on("message", ({ folder, name }: { folder: string; name: string }) =
 });
 ```
 
-The scoreboard hands the vectors out and counts what comes back. The board it prints is
-the same as before; threads finish in any order, so the results are sorted first:
+The scoreboard hands the vectors out and counts what comes back. Threads finish in any
+order, so the results are sorted first, and the board it prints is the same as before:
 
 **Rewrite** `bin/scoreboard.ts`
 
@@ -522,16 +537,19 @@ Paper 0.8.0 says otherwise, and the vectors follow the paper's next version.
 
 A JAM block importer. The first 100 blocks of all eight official block-import traces, 800
 blocks, each imported into the state your client made from the one before, every state
-root right; on the scoreboard all 1,000 steps, one at a time; and every bad block refused,
-the state left as it was. On the scoreboard, 1,406 of the 1,428 official
-vectors pass whole, safrole's proofs and ring roots included. The ten preimages refusals
-are the [hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md)'s
-to add; the other twelve are erasure coding, which validators use to share a
-work-package's data and a block importer never needs. JAM's first milestone, M1, asks a
-client for the conformance tests and for importing blocks. On the official traces the
-second is done, and the first but for those ten. One thing is left: the official
-fuzzer doesn't run your tests, it talks to your client over a socket. [Part
-20](../20-facing-the-fuzzer/index.md) teaches it to listen.
+root right. On the scoreboard, all 1,000 steps, one at a time. And every bad block
+refused, the state left as it was.
+
+On the scoreboard, 1,406 of the 1,428 official vectors pass whole, safrole's proofs and
+ring roots included. The ten preimages refusals are the
+[hardening pass](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md)'s to
+add. The other twelve are erasure coding, which validators use to share a work-package's
+data and a block importer never needs.
+
+JAM's first milestone, M1, asks a client for the conformance tests and for importing
+blocks. On the official traces the second is done, and the first but for those ten. One
+thing is left: the official fuzzer doesn't run your tests, it talks to your client over a
+socket. [Part 20](../20-facing-the-fuzzer/index.md) teaches it to listen.
 
 **Say it out loud.** An importer that takes a bad block is as wrong as one that refuses a good one. The official vectors pass 1,406 of 1,428, and each of the 22 left has a name.
 

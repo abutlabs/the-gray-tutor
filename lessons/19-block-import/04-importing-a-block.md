@@ -1,22 +1,37 @@
 # Importing a block
 
+**In one sentence:** importing a block means giving the client the state before it and the
+block, and getting back the state after it, or the reason the block is refused.
+
+Here is one block going through every step of an import. Break something, and see where
+it stops.
+
+<a id="try-it"></a>
+
+<ImportSteps />
+
+## The idea
+
 This is [lesson 0.6](../00-start/06-how-a-block-is-imported.md)'s station 5, and with it
-stations 4 and 6, for real. Give Υ the state before a block and the block, and it gives
-back the state after, or the reason it refuses the block. Then the official traces check
-it: the state root after every block must be the trace's, every byte of the state
-accounted for. By the end of this lesson the `fallback` and `safrole` traces import, all
-200 blocks, every root right.
+stations 4 and 6, for real. Every Part built one step. Now they run in a row, on one
+block.
 
-## New words
+Think of a bank clerk with a cheque. First the clerk looks at the cheque itself: the
+right account, the right date. Only then does money move. And if anything is wrong, at
+any point, no money moves at all.
 
-- **Header checks.** The checks a header must pass before anything else runs: its parent is
-  the newest block the state remembers, its state root is the state's, its slot comes later,
-  and its extrinsic hash is its extrinsic's. *Example:* a block whose parent is some other
-  block is refused with `bad_parent`.
-- **Chained import.** Importing a trace block after block, each into the state your client
-  made from the one before, from the first state on. *Example:* `bin/import.ts`.
+A block is the same. Its header must pass four checks before anything else runs: its
+parent is the newest block the state remembers, its state root is the state's, its slot
+comes later, and its extrinsic hash is its extrinsic's. Those are the
+[*header checks*](../glossary.md#header-checks). Then each bag of the block's data goes
+to the step that reads it. If one step refuses, the whole block is refused.
 
-Both are in the [glossary](../glossary.md).
+How do you know the result is right? The official traces give the state root after every
+block. One wrong byte anywhere, and the root is wrong.
+
+The hardest test is a [*chained import*](../glossary.md#chained-import): each block goes
+into the state your client made from the one before. This lesson imports the `fallback`
+and `safrole` traces that way, all 200 blocks.
 
 ## What the Gray Paper says
 
@@ -67,12 +82,13 @@ $$
 
 :::
 
-In plain words: Υ(σ, 𝐁) = σ′ takes the block apart, header first, and each bag goes to
-the step that reads it. The block is valid only if every rule in every part holds, and the
-state after it is every step's result, in [lesson 19.1](./01-the-order-of-things.md)'s
-waves. Mind the order: the paper lists the bags tickets, disputes, preimages, assurances,
-guarantees, but the bytes of a block hold them in another order, and your client runs
-them in a third. In plain steps, as your client runs them:
+Υ(σ, 𝐁) = σ′ takes the block apart, header first, and each bag goes to the step that
+reads it. The block is valid only if every rule in every part holds. The state after it
+is every step's result, in [lesson 19.1](./01-the-order-of-things.md)'s waves.
+
+Mind the order. The paper lists the bags as tickets, disputes, preimages, assurances,
+guarantees. The bytes of a block hold them in another order. Your client runs them in a
+third:
 
 1. **The header** (§5): its parent and its state root, its slot after the state's τ, its
    extrinsic hash ([lesson 5.2](../05-hashing-and-signatures/02-the-extrinsic-hash.md)).
@@ -89,14 +105,12 @@ If any step refuses the block, the block is refused whole, and the state stays a
 ([lesson 11.3](../11-assurances/03-bad-assurances.md)'s rejected block). The traces name no errors, so the reasons are the vectors' names
 where a vector has one, and your client's own otherwise.
 
-Break something and see where Υ stops:
-
-<ImportSteps />
+Break each step on [the block at the top](#try-it), and see where Υ stops.
 
 ## The tests
 
-Each trace step has the state before a block, the block, and the state after. Importing
-one is the scoreboard's job too, at the end of this lesson, so the helper goes in
+Each trace step has the state before a block, the block, and the state after. The
+scoreboard imports them too, at the end of this lesson, so the helper goes in
 `test/families.ts`:
 
 **Add to** `test/families.ts`
@@ -418,9 +432,9 @@ function takeGuarantees(
   if (!sameValue(option(EpochMark), header.epoch_mark, step.epochMark)) {
 ```
 
-Safrole makes the marks this block's header must carry ([lesson 8.5](../08-safrole/05-one-step-of-safrole.md)), and the header carries
-its own. They must be the same, byte for byte, which `sameValue` compares: two `null` values
-encode the same, and so do two equal marks.
+Safrole makes the marks this block's header must carry ([lesson 8.5](../08-safrole/05-one-step-of-safrole.md)). The header carries
+its own. They must be the same, byte for byte. `sameValue` compares them: two `null`
+values encode the same, and so do two equal marks.
 
 The report checks need two things the test vectors used to hand over: the packages
 already on their way, and what each service needs:
@@ -553,9 +567,9 @@ function nextState(config: Config, state: State, block: Block, made: Made): Stat
 }
 ```
 
-`nextState` is the state after the block but for δ′'s preimages, which Υ adds last, on the
+`nextState` is the state after the block but for δ′'s preimages. Υ adds those last, on the
 entries: [lesson 14.1](../14-services/01-providing-preimages.md)'s `providePreimages` already works on them. The service ids in χ_Z and
-π_S go in order, as a dictionary encodes them; so does everything else, since each
+π_S go in order, as a dictionary encodes them. So does everything else, since each
 earlier part made its piece in the Gray Paper's order.
 
 **Run**
@@ -639,8 +653,8 @@ const link = await run.report();
 if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
-**What flows through it.** Its first block: after this
-one, the trace's states are never touched again, only its blocks:
+**What flows through it.** Its first block. After this one, the trace's states are never
+touched again, only its blocks:
 
 ::: code-group
 

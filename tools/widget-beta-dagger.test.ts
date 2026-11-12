@@ -31,8 +31,10 @@ test("the values are the trace's before storage_light block 1", { skip: !existsS
   assert.equal(`0x${beta.subarray(65, 97).toString("hex")}`, ZERO_ROOT, "its state root: zeros");
 });
 
-test("lesson 19.5 places the widget once, after the rule", () => {
+test("lesson 19.5 places the widget once, at the top, and the rule sends the reader back to it", () => {
   const at = raw.indexOf("<BetaDagger />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<BetaDagger />"));
-  assert.ok(at > raw.indexOf("against β it fails.") && at < raw.indexOf("## The code"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<BetaDagger />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("against β it fails."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

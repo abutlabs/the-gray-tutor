@@ -869,9 +869,9 @@ block remembered, its state root the state's, its slot later, its extrinsic hash
 **Chained import.** Importing a trace block after block, each into the state your client
 made from the one before. *Example:* `bin/import.ts`. ([19.4](./19-block-import/04-importing-a-block.md))
 
-**β†.** The recent history halfway through a block: the newest block it remembers has its
-state root now, from this block's header. *Example:* reports are checked against β†.
-([19.5](./19-block-import/05-work-on-the-chain.md))
+**Recent history halfway (β†).** The recent history halfway through a block: the newest
+block it remembers has its state root now, from this block's header. *Example:* reports
+are checked against β†. ([19.5](./19-block-import/05-work-on-the-chain.md))
 
 **Canonical order.** The one order a set is written in, so every client writes the same
 bytes: sorted. *Example:* each slot's packages in ξ. ([19.5](./19-block-import/05-work-on-the-chain.md))

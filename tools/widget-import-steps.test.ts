@@ -37,8 +37,10 @@ test("a refusal stops Υ there; nothing broken imports", () => {
   assert.match(raw, /If any step refuses the block, the block is refused whole, and the state stays as it was/);
 });
 
-test("lesson 19.4 places the widget once, after the refusal rule", () => {
+test("lesson 19.4 places the widget once, at the top, and the refusal rule sends the reader back to it", () => {
   const at = raw.indexOf("<ImportSteps />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<ImportSteps />"));
-  assert.ok(at > raw.indexOf("and your client's own otherwise.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<ImportSteps />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("and your client's own otherwise."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

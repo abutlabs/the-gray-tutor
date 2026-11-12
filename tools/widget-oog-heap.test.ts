@@ -25,8 +25,10 @@ test("the red: 1,545,786 under the old rule, all 2,000,000 under the vectors'", 
   assert.equal(grow(10, LEFT, "old").used, grow(10, LEFT, "vectors").used, "when it fits, the rules agree");
 });
 
-test("lesson 19.6 places the widget once, after the rule", () => {
+test("lesson 19.6 places the widget once, at the top, and the rule sends the reader back to it", () => {
   const at = raw.indexOf("<OogHeap />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<OogHeap />"));
-  assert.ok(at > raw.indexOf("`growHeap` checked first, and took nothing.") && at < raw.indexOf("## The code"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<OogHeap />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("`growHeap` checked first, and took nothing."));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });
