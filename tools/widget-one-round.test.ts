@@ -47,8 +47,10 @@ for (const sc of SCENARIOS) {
   });
 }
 
-test("lesson 17.1 places the widget once, after the Gray Paper's names and before the tests", () => {
+test("lesson 17.1 places the widget once, at the top, and the Gray Paper's names send the reader back to it", () => {
   const at = raw.indexOf("<OneRound />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<OneRound />"));
-  assert.ok(at > raw.indexOf("Now the Gray Paper's names for those steps.") && at < raw.indexOf("## The tests"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<OneRound />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("The Gray Paper's names for those steps:"));
+  assert.ok(back > 0 && back < raw.indexOf("## The tests"));
 });

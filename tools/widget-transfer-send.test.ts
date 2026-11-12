@@ -29,8 +29,10 @@ test("the tests: 30 to service 1 with 25 gas leaves 970 and 10,000 − 575 − 2
   }
 });
 
-test("lesson 17.3 places the widget once, after the price", () => {
+test("lesson 17.3 places the widget once, at the top, and the price sends the reader back to it", () => {
   const at = raw.indexOf("<TransferSend />");
-  assert.ok(at > 0 && at === raw.lastIndexOf("<TransferSend />"));
-  assert.ok(at > raw.indexOf("for the work the receiver will do with it.") && at < raw.indexOf("One more rule, from"));
+  assert.ok(at > 0 && at === raw.lastIndexOf("<TransferSend />"), "placed once");
+  assert.ok(at > raw.indexOf('<a id="try-it"></a>') && at < raw.indexOf("## The idea"));
+  const back = raw.indexOf("(#try-it)", raw.indexOf("for the work the receiver will do with it."));
+  assert.ok(back > 0 && back < raw.indexOf("One more rule, from"));
 });

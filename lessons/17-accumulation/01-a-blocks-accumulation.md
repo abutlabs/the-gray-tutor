@@ -1,32 +1,46 @@
 # A block's accumulation
 
-[Part 16](../16-host-calls/index.md) ran one service at a time. A real block brings work for many services at once,
-and every validator must accumulate all of it, the same way, to reach the same state.
+**In one sentence:** to accumulate a block, every validator runs each service the block
+has work for, once, all from the same starting state, and writes down what each one did.
+
+Here is one round from three real vectors. Step through it, and watch what each service
+starts from and what it keeps.
+
+<a id="try-it"></a>
+
+<OneRound />
+
+## The idea
+
+[Part 16](../16-host-calls/index.md) ran one service at a time. A real block brings work
+for many services at once, and every validator must accumulate all of it and reach the
+same state. So which service goes first? And does the second see what the first wrote?
+
+It doesn't matter, and it doesn't. The services run in a [*round*](../glossary.md#round),
+like an exam: everyone starts from the same paper, and nobody sees a neighbour's answers.
+Each service gets the accounts as they were before the round, and keeps its own account
+as its run leaves it. Two services that each write a key in the same round can't read
+each other's.
+
+After the round, each service that did anything gets a tally: how many digests it
+accumulated, how many transfers it received, how much gas it used. Those are its
+[*accumulation statistics*](../glossary.md#accumulation-statistics). The block's slot goes
+in its account record, as its
+[*last-accumulation slot*](../glossary.md#last-accumulation-slot).
+
+Not every report goes at once. One that names a
+[*prerequisite*](../glossary.md#prerequisite), a work-package that must be accumulated
+before it, waits.
+
 This lesson accumulates a whole block, in its simplest form, and checks it against 29
 official test vectors: every account, every statistic.
 
-## New words
-
-- **Prerequisite.** A work-package that a report says must be accumulated before it.
-  *Example:* if package B names package A as a prerequisite, B's report waits until A's
-  has been accumulated.
-- **Round.** Several services accumulated side by side, all starting from the same state.
-  None of them sees what the others do in that round. *Example:* two services each write
-  a key in the same round; neither can read the other's.
-- **Accumulation statistics.** For each service, per block: how many digests it
-  accumulated, how many transfers it received, and how much gas it used. *Example:* (1,
-  0, 29,643): one digest, no transfers, 29,643 gas.
-- **Last-accumulation slot.** The slot in which a service last accumulated, kept in its
-  account record. *Example:* a service that accumulates in slot 43 then says 43.
-
-All four are in the [glossary](../glossary.md), with the rest.
-
 ## What the Gray Paper says
 
-One round is the paper's Δ\*, the parallelized accumulation function. Its body is long
-because it also merges privileges, new and removed services and preimages, which later
-lessons build; this lesson needs its first lines, 𝐬 (which services run), Δ(s) (each one
-run once, from the same state 𝐞) and 𝐮 (the gas each used):
+One round is the paper's Δ\*, the parallelized accumulation function. Its body is long:
+it also merges privileges, new and removed services and preimages, which later lessons
+build. This lesson needs its first lines: 𝐬 (which services run), Δ(s) (each one run
+once, from the same state 𝐞) and 𝐮 (the gas each used).
 
 ::: gray-paper 12.2 14-15
 
@@ -254,7 +268,7 @@ $$
 
 :::
 
-In plain words, §12 is four steps:
+§12 is four steps:
 
 1. **Which reports go now.** Of the reports that just became available ([lesson 11.1](../11-assurances/01-available.md)),
    the ones with no prerequisites, and no segment-root lookups (another kind of
@@ -267,14 +281,14 @@ In plain words, §12 is four steps:
 4. **Afterwards.** Every service that did anything (accumulated a digest, or used gas)
    gets its statistics, and its last-accumulation slot becomes this block's slot.
 
-One case worth knowing: a service with a digest but no code to run (its code's preimage
-isn't there) runs nothing and uses no gas, but its digest still counts.
+A service with a digest but no code to run (its code's preimage isn't there) runs nothing
+and uses no gas. Its digest still counts.
 
 Step 1's reports come at the end of a long trip: guaranteed onto a core, vouched for by
-the validators, made available. [Lesson 11.2](../11-assurances/02-timeouts.md) lets you walk one report through that trip,
-block by block, until it lands here.
+the validators, made available. [Lesson 11.2](../11-assurances/02-timeouts.md) walks one
+report through that trip, block by block, until it lands here.
 
-When you read the Gray Paper, these are the same steps:
+The Gray Paper's names for those steps:
 
 | Here | Gray Paper |
 | --- | --- |
@@ -284,9 +298,9 @@ When you read the Gray Paper, these are the same steps:
 | the statistics | **S(s) = (N(s), T(s), G(s))** |
 | the last-accumulation slot | an account's **a**, set to **τ′** |
 
-One round from three real vectors, step by step:
-
-<OneRound />
+[The round at the top](#try-it) is these steps on three real vectors: two services that
+can't read each other, a service with no code, and an always-accumulate service with no
+digest.
 
 ## The tests
 
@@ -361,9 +375,9 @@ for (const name of BLOCK_CASES) {
 }
 ```
 
-`checkBlock` compares *everything* the vector records about the block's accounts: every
+`checkBlock` compares everything the vector records about the block's accounts: every
 account, not only the ones that ran (the others must come out untouched), and every
-service's statistics. Several vectors in the list have reports with prerequisites: they
+service's statistics. Several vectors in the list have reports with prerequisites. They
 pass only if those reports are left alone.
 
 ## The code
@@ -438,8 +452,8 @@ export function accumulateBlock(
 
 `codeOf` finds a service's code where the Gray Paper keeps it: among its own preimages,
 under its code hash. `accumulateBlock` is the four steps in order. Each service gets a
-fresh copy of the starting accounts, which is all "the same starting state" takes, and
-`after` collects each one's own account as it comes back.
+fresh copy of the starting accounts: that is all "the same starting state" takes. `after`
+collects each one's own account as it comes back.
 
 **Run**
 
@@ -515,7 +529,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** The default vector again, now as a block: both of its reports,
-one round, and what `accumulateBlock` hands back:
+one round, and what `accumulateBlock` hands back.
 
 ::: code-group
 
@@ -563,9 +577,9 @@ service 1730: 1 digest(s), 34413 gas
 :::
 
 That vector is the bin's default, `../vectors/stf/accumulate/tiny/same_round_storage_isolation-1.json`.
-1730's digest asks it to read 1729's `last` key. In one round every service starts from
-the accounts as they were, so it finds nothing and stores 0x00, while 1729 stores its
-own result: each keeps its own account, and the gas of both matches the vector.
+1730's digest asks it to read 1729's `last` key. Every service starts from the accounts
+as they were, so it finds nothing and stores 0x00. 1729 stores its own result. Each keeps
+its own account, and the gas of both matches the vector.
 
 **Run**
 
@@ -673,9 +687,8 @@ your fresh copy for each service.
 ## What you have
 
 A whole block's accumulation, in its simplest form, matching 29 official vectors on every
-account and every statistic. Reports with prerequisites were left alone: [lesson 17.2](./02-waiting-reports.md)
-gives them a queue to wait in.
-
-**Say it out loud.** Every service in a round starts from the same accounts, so none of them can see what another does in that round.
+account and every statistic. Every service in a round starts from the same accounts, so
+none sees what another does in it. Reports with prerequisites were left alone:
+[lesson 17.2](./02-waiting-reports.md) gives them a queue to wait in.
 
 Next: [17.2 Waiting reports](./02-waiting-reports.md)

@@ -1,26 +1,38 @@
 # Sending a transfer
 
+**In one sentence:** a service can send another money while it accumulates: the money
+leaves the sender at once, and reaches the receiver in a later round of the same block.
+
+Send from the tests' service 0. Change the receiver, the amount and the gas, and see
+which orders are refused and what each one costs.
+
+<a id="try-it"></a>
+
+<TransferSend />
+
+## The idea
+
 Services can pay each other. In one official vector, service 0 sends service 1 a hundred,
-with a note that says "gift". The money leaves service 0 at once, but it doesn't reach
-service 1 straight away: it arrives when service 1 accumulates next, in a later *round*
-of the same block. This lesson builds the sending half. [Lesson 17.4](./04-rounds.md) delivers it.
+with a note that says "gift". But the services in a round can't see each other
+([lesson 17.1](./01-a-blocks-accumulation.md)). So how does money get across?
 
-## New words
+Like a cheque in the post. The money leaves service 0's balance the moment it is sent.
+It reaches service 1 when service 1 accumulates next, in a later round of the same block.
+That is a [*deferred transfer*](../glossary.md#deferred-transfer).
 
-- **Deferred transfer.** Money one service sends another while it accumulates. The
-  sender pays now; the receiver gets it in the next round of the same block. *Example:*
-  service 0 sends service 1 a hundred.
-- **Memo.** A 128-byte note that travels with a transfer, for the receiver's code to
-  read. *Example:* the bytes of "gift", then 124 zeros.
-- **Outbox.** This client's name for what a run has sent so far, and for the part of it
-  the last checkpoint kept. *Example:* two transfers sent, one of them before the
-  checkpoint.
+Two things travel with it. One is a [*memo*](../glossary.md#memo): a short note for the
+receiver's code to read. The other is gas, which the sender pays up front, for the work
+the receiver will do with the money.
 
-All three are in the [glossary](../glossary.md).
+Until the run ends, what it has sent sits in a list. This client calls it the
+[*outbox*](../glossary.md#outbox). If the run panics, everything sent since its last
+checkpoint never happened, the money included.
+
+This lesson builds the sending half. [Lesson 17.4](./04-rounds.md) delivers it.
 
 ## What the Gray Paper says
 
-`transfer` is host call 21 (Appendix B.7, Ω_T). In plain steps:
+`transfer` is host call 21 (Appendix B.7, Ω_T). It has three steps:
 
 1. **Read the order.** The receiver's id is in φ₇, the amount in φ₈, the gas in φ₉, and
    the memo is the 128 bytes at φ₁₀ (unreadable memory: panic, as always).
@@ -34,13 +46,11 @@ All three are in the [glossary](../glossary.md).
 It costs 575 gas, plus the transfer's own gas when it's sent: the sender pays up front
 for the work the receiver will do with it.
 
-Send from the tests' service 0:
+Try each refusal on [the transfer at the top](#try-it).
 
-<TransferSend />
-
-One more rule, from [lesson 16.6](../16-host-calls/06-checkpoints.md): a checkpoint keeps *everything* the run has done so far,
-and the list of transfers is part of it. Send, then panic, and the transfer never
-happened, the money included.
+One more rule, from [lesson 16.6](../16-host-calls/06-checkpoints.md): a checkpoint keeps
+*everything* the run has done so far, and the list of transfers is part of it. Send, then
+panic, and the transfer never happened, the money included.
 
 What a transfer is made from, in §12.2, beside the operand tuple 𝕌 that a digest becomes
 ([lesson 16.7](../16-host-calls/07-a-services-inputs.md)):
@@ -112,11 +122,10 @@ $$
 
 :::
 
-In plain words, a transfer is (s, d, a, m, g): source, destination, amount, memo and
-gas. Transfers are the set **𝕏** (a blackboard X, not the context X), a memo is **W_T** =
-128 bytes long, and the run's list is the context's **𝐭**, one in X and one in Y, just
-like the accounts. A service's inputs are these two kinds side by side: transfers and
-operands.
+A transfer is (s, d, a, m, g): source, destination, amount, memo and gas. Transfers are
+the set **𝕏** (a blackboard X, not the context X). A memo is **W_T** = 128 bytes long.
+The run's list is the context's **𝐭**, one in X and one in Y, just like the accounts. A
+service's inputs are these two kinds side by side: transfers and operands.
 
 ## The tests
 
@@ -287,8 +296,8 @@ export function transfer(m: Machine, a: Accumulation, outbox: Outbox): HostExit 
 ```
 
 `charge` takes the transfer's gas only once the transfer is sure to go: a refusal costs
-just the 575. And `balance` is a `bigint`, so paying too much simply makes it negative,
-which is below any minimum: one check covers both.
+just the 575. `balance` is a `bigint`, so paying too much simply makes it negative, which
+is below any minimum: one check covers both.
 
 Then four small changes, so the outbox goes where it should. The host gets it, and
 answers call 21:
@@ -510,7 +519,7 @@ if (link) console.log(`reported to Grafana: ${link}`);
 ```
 
 **What flows through it.** The vector hands service 0 one work result whose output is its
-order: send service 1 a hundred, with 80,000 gas and a memo:
+order: send service 1 a hundred, with 80,000 gas and a memo.
 
 ::: code-group
 
@@ -645,24 +654,23 @@ trap again: from 2^63 up, an `int64` looks negative. A `bigint` has neither prob
   > Yes: a panic keeps only what the last checkpoint kept, and both the transfer and
   > the balance change came after it.
 
-**In the test, service 0 has 1,000 and must keep 170. It sends 900, with 25 gas, to a service that asks for at least 20. What does it get?**
+**A service has more than enough balance to cover a transfer, and `transfer` still answers `CASH`. Why?**
 
-- [ ] `OK`: 1,000 is more than 900
-  > No: having the money isn't enough. Paying must leave at least the minimum balance,
-  > and 1,000 − 900 = 100 is below 170.
-- [ ] `LOW`
-  > No: `LOW` is about the gas, and 25 is above the 20 the receiver asks for.
-- [x] `CASH`
-  > Yes: 100 would be left, below its 170. Nothing is sent, and the refusal costs just
-  > the 575.
+- [ ] The gas it sent along is below the least the receiver asks for
+  > No: that refusal is `LOW`. `CASH` is about the sender's balance, not the gas.
+- [x] Paying would leave it below its own minimum balance
+  > Yes: in the test, service 0 has 1,000 and must keep 170, so sending 900 would leave
+  > 100. Nothing is sent, and the refusal costs just the 575.
+- [ ] The receiver would end up above the most a service may hold
+  > No: the checks never look at the receiver's balance. They ask whether the receiver
+  > exists (`WHO`), whether the gas is enough (`LOW`), and what the sender would have left.
 :::
 
 ## What you have
 
-Services that pay each other: the money leaves at once, a failure takes it back, and eight
-official service runs that send transfers match their vectors. The money has left; it
-hasn't arrived. [Lesson 17.4](./04-rounds.md) delivers it, in a second round.
-
-**Say it out loud.** A transfer leaves the sender at once, with gas paid up front for the receiver, and a failure takes it back.
+Services that pay each other: the money leaves at once, with gas paid up front for the
+receiver, and a failure takes it back. Eight official service runs that send transfers
+match their vectors. The money has left. It hasn't arrived.
+[Lesson 17.4](./04-rounds.md) delivers it, in a second round.
 
 Next: [17.4 Rounds](./04-rounds.md)

@@ -251,7 +251,7 @@ test("Part 16's host calls are its lessons'", () => {
 
 test("Part 17's rounds, merge and outputs are its lessons'", () => {
   assert.ok(textOf("17.6").includes("the manager first, then the holder"));
-  assert.ok(textOf("17.3").includes("A 128-byte note that travels with a transfer"));
+  assert.ok(textOf("17.3").includes("A memo is **W_T** = 128 bytes long"));
   assert.ok(textOf("17.11").includes("committed to with a Keccak Merkle root"));
   assert.ok(textOf("17.13").includes("whole blocks that match all 63 official accumulate vectors"));
   for (const call of ["bless", "designate"]) assert.ok(textOf("17.13").includes(`\`${call}\``), call);

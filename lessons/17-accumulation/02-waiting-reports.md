@@ -1,27 +1,42 @@
 # Waiting reports
 
-Some work can't go until other work has gone. A report can name *prerequisites*: other
-work-packages that must be accumulated first. [Lesson 17.1](./01-a-blocks-accumulation.md) left those reports out. This
-lesson gives them somewhere to wait, a way to know when they're free, and the bookkeeping
-that keeps both straight from block to block. Seven more official vectors pass, every one
-of them about waiting.
+**In one sentence:** a report that depends on other work waits in a queue until that work
+has been accumulated, and is given up if the work doesn't come within an epoch.
 
-## New words
+Here is tiny's queue, with letters for packages. The next block brings D, which waits for
+A. Run it, then add A and run the next block.
 
-- **Dependency.** Anything a report waits for: its prerequisites, and any work-packages
-  named by its segment-root lookups. *Example:* report D depends on package A.
-- **Ready queue.** ω. Where reports with dependencies wait: one list for each slot of an
-  epoch, used like a ring. *Example:* a report arriving at slot 43 on tiny waits in list
-  43 mod 12 = 7.
-- **Accumulated history.** ξ. For each of the last E blocks, the set of work-packages that
-  were accumulated in it. *Example:* after the block at slot 44, its newest set holds A and D.
-- **Unlock.** A waiting report is free to go once its last dependency has been accumulated,
-  possibly earlier in the very same block. *Example:* A accumulates, so D, waiting for A,
-  goes right after it.
+<a id="try-it"></a>
 
-All four are in the [glossary](../glossary.md).
+<ReadyQueue />
+
+## The idea
+
+Some work can't go until other work has gone. [Lesson 17.1](./01-a-blocks-accumulation.md)
+left such reports out. Where do they wait, and how does the chain know when one is free?
+
+Each report says what it waits for: its prerequisites, and any work-packages named by its
+segment-root lookups. Each of those is a [*dependency*](../glossary.md#dependency). The
+chain keeps two records to settle them.
+
+- The [*accumulated history*](../glossary.md#accumulated-history) remembers which
+  packages were accumulated in each of the last blocks, an epoch's worth.
+- The [*ready queue*](../glossary.md#ready-queue) holds the reports that wait: one list
+  for each slot of an epoch, used like a ring.
+
+Think of a to-do list where some lines say "after A". When A is done, cross it off every
+line. A line with nothing left to wait for goes at once, in the same block. That is an
+[*unlock*](../glossary.md#unlock), and it can free other lines in turn.
+
+Nothing waits forever. When the ring comes back round to a report's list, an epoch
+later, the report is given up.
+
+This lesson builds the queue, the history and the unlocking. Seven more official vectors
+pass, every one of them about waiting.
 
 ## What the Gray Paper says
+
+§12.1, *History and Queuing*:
 
 ::: gray-paper 12.1
 
@@ -228,7 +243,7 @@ $$
 
 :::
 
-In plain words, §12.1, *History and Queuing*, is five steps:
+§12.1 is five steps:
 
 1. **Sort the new reports.** Those with no dependencies go now, as in [lesson 17.1](./01-a-blocks-accumulation.md). Each of the
    others joins the waiters with its set of dependencies, minus any package the history
@@ -236,19 +251,18 @@ In plain words, §12.1, *History and Queuing*, is five steps:
 2. **Line up everyone waiting.** The reports already in the queue, read around the ring
    starting from this block's slot, then the new waiters. Take out what the reports going
    now have just done.
-3. **Unlock, again and again.** Every waiter with nothing left to wait for goes; their
-   packages are now done, which may free others; repeat until nothing more is free.
+3. **Unlock, again and again.** Every waiter with nothing left to wait for goes. Their
+   packages are now done, which may free others. Repeat until nothing more is free.
 4. **Accumulate** the reports going now, then the unlocked ones in that order, in one
    round ([lesson 17.1](./01-a-blocks-accumulation.md)).
 5. **Remember.** The history moves on one block: the oldest set drops off, and a new set
    with everything just accumulated goes on the end. The queue's list for this slot is
-   replaced by this block's new waiters (what had waited there an epoch is given up), and
-   every other list loses whatever is now done. Lists for
-   slots the chain skipped since the last block are emptied: their reports have waited a
-   whole epoch, and are given up.
+   replaced by this block's new waiters: what had waited there an epoch is given up.
+   Every other list loses whatever is now done. Lists for slots the chain skipped since
+   the last block are emptied: their reports have waited a whole epoch too.
 
-Step 5 is in §12.3, *Final State Integration*, after the rounds have run, because only
-then is it known which reports went (the first n of R\*):
+Step 5 is in §12.3, *Final State Integration*, after the rounds have run. Only then is it
+known which reports went (the first n of R\*):
 
 ::: gray-paper 12.3 7-8
 
@@ -289,7 +303,7 @@ $$
 
 :::
 
-When you read the Gray Paper, these are the same things:
+The Gray Paper's names for these things:
 
 | Here | Gray Paper |
 | --- | --- |
@@ -303,12 +317,15 @@ When you read the Gray Paper, these are the same things:
 | the hashes of some reports | **P** |
 | everything that goes this block | **R\* = R! ⌢ Q(q)** |
 
-Try it on tiny, with letters for packages. It starts at the lesson's example: the next
-block brings D, which waits for A. Run it, and D waits in list 7. Now add A, waiting for
-nothing, and run the next block: both go. *The chain vectors* loads a queue where one A
-frees four waiters, one after another. Skip slots, or jump an epoch, to see waiters given up.
+Two examples, with letters for packages:
 
-<ReadyQueue />
+- **The queue.** Tiny's epoch is 12 slots, so ω has 12 lists: a report arriving at slot 43 on tiny waits in list 43 mod 12 = 7.
+- **The history.** D, in list 7, waits for A. A comes at slot 44 and both go: after the block at slot 44, its newest set holds A and D.
+
+That is the example [the queue at the top](#try-it) starts from. Run the first block, and
+D waits in list 7. Add A, waiting for nothing, and run the next block: both go. *The chain
+vectors* loads a queue where one A frees four waiters, one after another. Skip slots, or
+jump an epoch, to see waiters given up.
 
 ## The tests
 
@@ -567,7 +584,7 @@ export function accumulateBlock(
 ```
 
 The five steps are in order. The ring is read from this block's slot round to the one
-before it; afterwards, `at` walks back from this block's slot, one list at a time.
+before it. Afterwards, `at` walks back from this block's slot, one list at a time.
 
 The bin uses the block too, so it changes with it:
 
@@ -641,8 +658,8 @@ statistic, the ready queue and the history.
 
 ## Watch it
 
-**What flows through it.** A new default vector, with a queue: one report arrives, one
-was already waiting for it. What goes in, what the queue becomes, what prints:
+**What flows through it.** A new default vector, with a queue: one report arrives, and
+one was already waiting for it.
 
 ::: code-group
 
@@ -735,19 +752,17 @@ the rest with the newly done packages. Your `unlock` is the same recursion as a 
 ## Check your understanding
 
 ::: check
-**On tiny, report D arrives at slot 43, waiting for package A. Which of the queue's lists does it wait in?**
+**What is a report's dependency?**
 
-- [ ] List 11, the last: new waiters join the end of the queue
-  > No: the queue isn't one line. It's 12 lists, one for each slot of an epoch, and a
-  > waiter goes in the list for the slot it arrived at.
-- [x] List 7
-  > Yes: 43 mod 12 = 7. Tiny's epoch is 12 slots long, and the lists are used like a
-  > ring.
-- [ ] List 43
-  > No: there are only 12 lists, one for each slot of an epoch. Slot 43 wraps round
-  > to list 7.
+- [ ] Only a prerequisite: a work-package its report names to go first
+  > No: that is one kind. The work-packages named by its segment-root lookups are
+  > dependencies too, and the report waits for those as well.
+- [x] Any work-package it waits for: its prerequisites, and those its segment-root lookups name
+  > Yes: both kinds go in one set. The report is free when the set is empty.
+- [ ] The balance its service needs to pay for the gas
+  > No: balance doesn't come into it. A report waits for other work, and nothing else.
 
-**At slot 44, A arrives, waiting for nothing. When does D accumulate?**
+**On tiny, report D has waited since slot 43 for package A. At slot 44, A arrives, waiting for nothing. When does D accumulate?**
 
 - [ ] At slot 55, when the ring comes back round to list 7
   > No: every block reads every list, starting from its own slot. D's list is read at
@@ -785,9 +800,9 @@ the rest with the newly done packages. Your `unlock` is the same recursion as a 
 ## What you have
 
 Reports that wait for each other, unlocked in the right order, and a queue and history
-that match 36 official vectors. Services so far only touch their own accounts; [lesson
-17.3](./03-sending-a-transfer.md) lets one pay another.
-
-**Say it out loud.** A report can wait for other work. It sits in a ring of lists, one for each slot of an epoch, and if what it needs doesn't come within an epoch, it's given up.
+that match 36 official vectors. A report waits in a ring of lists, one for each slot of
+an epoch, and is given up if what it needs doesn't come within an epoch. Services so far
+only touch their own accounts: [lesson 17.3](./03-sending-a-transfer.md) lets one pay
+another.
 
 Next: [17.3 Sending a transfer](./03-sending-a-transfer.md)
