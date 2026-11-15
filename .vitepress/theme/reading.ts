@@ -31,8 +31,18 @@ export function listenForReadKey(): void {
   });
 }
 
-/** The service worker that lets the installed app open with no network (public/sw.js). */
+export type OfflineStatus = { offline: "saving" | "ready" | "failed"; done?: number; total?: number };
+
+/** The service worker that saves the whole site for reading with no network (public/sw.js).
+ *  Each time the site opens, it is asked to fetch whatever a newer build changed; what it
+ *  says of its progress goes to the page as an "offline-status" event (ReadToggle.vue). */
 export function registerServiceWorker(base: string): void {
   if (!("serviceWorker" in navigator)) return;
-  navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => {});
+  navigator.serviceWorker.addEventListener("message", (e) => {
+    window.dispatchEvent(new CustomEvent<OfflineStatus>("offline-status", { detail: e.data }));
+  });
+  navigator.serviceWorker.register(`${base}sw.js`, { scope: base })
+    .then(() => navigator.serviceWorker.ready)
+    .then((registration) => registration.active?.postMessage("save-offline"))
+    .catch(() => {});
 }

@@ -432,4 +432,19 @@ html.reading *::after { transition: none !important; animation: none !important;
   opacity: 0.85;
 }
 .read-toggle:hover, .read-toggle:focus-visible { opacity: 1; }
-@media print { .read-toggle { display: none; } }
+.offline-note {
+  position: fixed;
+  right: calc(max(16px, env(safe-area-inset-right, 0px)) + 64px);
+  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  max-width: calc(100vw - 112px);
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--vp-c-text-1);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 14px;
+  line-height: 20px;
+}
+@media print { .read-toggle, .offline-note { display: none; } }

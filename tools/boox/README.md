@@ -7,7 +7,9 @@ Three ways to read it, from least to most setup:
    lesson fills the screen, upright or on its side. ☰ brings the menus back.
 2. **As an app.** Open https://abutlabs.github.io/the-gray-tutor/ in Chrome, then
    ⋮ › *Install app* (or *Add to home screen*). The icon opens the tutorial full screen
-   in reading mode, and lessons you've opened still open with no network.
+   in reading mode. Once installed, the app saves the whole site in the background (the
+   corner says *Saving for offline… n / total*, then *Ready offline ✓*); after that every
+   lesson opens with no network. Each time it opens online it fetches what changed.
 3. **Served from the tablet, one tap.** For a whole copy that needs no network at all:
    - in Termux: `pkg install python curl unzip`
    - install Termux:Widget from the same place Termux came from (F-Droid or GitHub)

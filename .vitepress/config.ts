@@ -18,7 +18,7 @@ import { EPUB_FILE, writeEpub } from "./epub.ts";
 import { execSync } from "node:child_process";
 import { CLIENT_CSS, HEAD as CODE_HEAD, UNLISTED } from "./theme/code-link.ts";
 import { glossaryTerms } from "./glossary.ts";
-import { MANIFEST, writeApp } from "./app.ts";
+import { MANIFEST, writeApp, writeOfflineList } from "./app.ts";
 import { READ_HEAD } from "./theme/reading-head.ts";
 import { clientBlocks } from "./clients.ts";
 import { BESIDE, cited, grayPaperQuotes, label, SECTIONS, sorted } from "./gray-paper.ts";
@@ -134,6 +134,8 @@ export default defineConfig({
     // the same pages as an e-book, the concepts edition, for an e-reader (epub.ts): only
     // when asked (npm run epub), so a release carries it, not every build
     if (process.env.EPUB) writeEpub(site.outDir, site.site.base, printPages);
+    // the list of every file the installed app keeps for reading offline (app.ts, sw.js)
+    writeOfflineList(site.outDir, site.site.base);
   },
   themeConfig: {
     // the Gray Paper sections, for GrayPaperRefs.vue and GrayPaperMap.vue

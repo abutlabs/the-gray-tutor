@@ -3,11 +3,13 @@
 // The app opens on the tutorial's first page in reading mode (theme/reading.ts), full
 // screen, and the service worker (public/sw.js) lets it open with no network.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { join, relative } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 
 export const MANIFEST = "manifest.webmanifest";
+/** Every file the app keeps for reading with no network (public/sw.js fetches them all). */
+export const OFFLINE = "offline.json";
 const SIZES = [192, 512];
 
 /** The manifest, for a site served at `base`. */
@@ -33,6 +35,29 @@ export function manifest(base: string): object {
 /** The logo with room around it, so a launcher's round or squircle mask doesn't cut it. */
 export function iconSvg(logo: string): string {
   return logo.replace(/viewBox="[^"]*"/, 'viewBox="-14 -14 92 92"');
+}
+
+/** The addresses a page or file is asked for at: a page with no .html (cleanUrls), an
+ *  index.html as its folder; the e-book, the print page and source maps are left out,
+ *  being large and not needed to read the lessons. */
+export function offlineUrls(files: string[], base: string): string[] {
+  return files
+    .filter((f) => !/\.(epub|pdf|map|zip)$/.test(f) && f !== "print.html" && f !== OFFLINE)
+    .map((f) => base + f.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, ""))
+    .sort();
+}
+
+function walk(dir: string, root = dir): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    return statSync(path).isDirectory() ? walk(path, root) : [relative(root, path).split("\\").join("/")];
+  });
+}
+
+/** Written last of all, once every other file of the build is in place. */
+export function writeOfflineList(outDir: string, base: string): void {
+  const urls = offlineUrls(walk(outDir), base);
+  writeFileSync(join(outDir, OFFLINE), JSON.stringify({ built: new Date().toISOString(), urls }));
 }
 
 export function writeApp(outDir: string, base: string, logo: string): void {

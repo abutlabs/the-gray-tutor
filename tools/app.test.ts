@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { iconSvg, manifest } from "../.vitepress/app.ts";
+import { iconSvg, manifest, offlineUrls } from "../.vitepress/app.ts";
 import { READ_CLASS, READ_HEAD } from "../.vitepress/theme/reading-head.ts";
 
 test("the app opens on the site's start, in reading mode, and stays inside the site", () => {
@@ -41,4 +41,12 @@ test("reading mode: the address first, then the saved choice, then an installed 
   assert.equal(headFor("", "off", true).on, false);
   assert.equal(headFor("", null, true).on, true);
   assert.equal(headFor("", null).on, false);
+});
+
+test("the offline list: pages at their clean addresses, without the e-book or the print page", () => {
+  const files = ["index.html", "13-authorization/index.html", "13-authorization/1-pools.html", "assets/app.abc.js",
+    "the-gray-tutor-concepts.epub", "print.html", "assets/app.abc.js.map", "offline.json", "icons/icon-192.png"];
+  assert.deepEqual(offlineUrls(files, "/g/"), [
+    "/g/", "/g/13-authorization/", "/g/13-authorization/1-pools", "/g/assets/app.abc.js", "/g/icons/icon-192.png",
+  ]);
 });
