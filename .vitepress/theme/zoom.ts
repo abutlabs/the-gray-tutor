@@ -1,5 +1,6 @@
 // Pictures open full size, as in mdBook: click one, or tab to it and press Enter or Space.
-// A click or Esc closes it. The Grafana screenshots are dense: this is how to read them.
+// A click or Esc closes it. The Grafana screenshots and the diagrams are dense: this is how
+// to read them.
 
 let viewer: HTMLDialogElement | undefined;
 
@@ -13,6 +14,11 @@ function enlarge(picture: HTMLImageElement): void {
   const big = new Image();
   big.src = picture.currentSrc || picture.src;
   big.alt = picture.alt;
+  // The diagrams are SVGs with a viewBox and no width or height: alone in the dialog they have
+  // no size of their own and shrank to nothing, leaving only the dark backdrop. They open at
+  // the shape they have on the page, as large as the screen allows.
+  const { width, height } = picture.getBoundingClientRect();
+  if (width > 0 && height > 0) big.style.setProperty("--ratio", String(width / height));
   viewer.replaceChildren(big);
   viewer.showModal();
 }

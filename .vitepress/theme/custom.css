@@ -98,7 +98,22 @@
   cursor: zoom-out;
 }
 #picture-zoom::backdrop { background: rgba(0, 0, 0, 0.8); }
-#picture-zoom img { display: block; max-width: 96vw; max-height: 94vh; object-fit: contain; border-radius: 8px; }
+/* --ratio is the picture's shape on the page (zoom.ts): an SVG has no size of its own. Its
+   background is the page's, as on the page: a diagram is drawn on transparent. */
+#picture-zoom img {
+  display: block;
+  width: min(96vw, calc(94vh * var(--ratio, 1.5)));
+  height: auto;
+  max-width: 96vw;
+  max-height: 94vh;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+}
+/* Full screen is for e-ink: a page-coloured backdrop, not a dark grey wash to ghost */
+html.reading #picture-zoom::backdrop { background: #fff; }
+html.reading #picture-zoom img { border: 2px solid #000; border-radius: 0; }
+html.reading.dark #picture-zoom::backdrop { background: #1b1b1f; }
 
 /* An Add to / Replace in step (../whole.ts, theme/eye.ts): the whole file after it, the
    step's lines highlighted with a bar and the rest dimmed; long unchanged runs fold to a bar
