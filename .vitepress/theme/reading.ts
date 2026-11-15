@@ -16,6 +16,9 @@ export function setReading(on: boolean): void {
     localStorage.setItem(READ_KEY, on ? "on" : "off");
   } catch {} // no storage (a private window): it lasts until the page is closed
   window.dispatchEvent(new CustomEvent("reading-change"));
+  // the text's width changed: what fits itself to it on a resize (the formulas, the side
+  // arrows, the widgets) fits again
+  window.dispatchEvent(new Event("resize"));
 }
 
 /** R switches reading mode, unless the key is someone else's (typing, a shortcut). */

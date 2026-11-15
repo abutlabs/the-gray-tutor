@@ -338,8 +338,6 @@ export default {
       fitFormulas();
       // only on the built site, where the files it keeps have settled names
       if (import.meta.env.PROD) registerServiceWorker(import.meta.env.BASE_URL);
-      // the text's width changes when the menus come and go
-      window.addEventListener("reading-change", () => { placeSideArrows(); fitFormulas(); });
     });
     // after each new page is in the DOM
     watch(() => route.path, () => {
