@@ -1,0 +1,81 @@
+# npm run verify, for a writer with no machine at hand (a cloud session has no Node 26, no
+# packages, no vectors and no observability stack). Run by hand: Actions, "verify", Run
+# workflow; or `gh workflow run verify.yml -f from=21.1 -f to=21.1`. It follows the lessons
+# the way a reader does and keeps every run's output (.verify-output), tidied, as an
+# artifact and in the log: that is what a lesson's Output blocks are pasted from.
+name: verify
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "First lesson to run (empty: from 0.1). Earlier lessons' files are applied, not run."
+        required: false
+        default: ""
+      to:
+        description: "Last lesson to apply and run (empty: the last lesson)."
+        required: false
+        default: ""
+      ref:
+        description: "Branch, tag or commit of the lessons (empty: main)."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: the-gray-tutor
+          ref: ${{ inputs.ref }}
+      # the stack sits next door, as lesson 0.2 has the reader put it
+      - uses: actions/checkout@v4
+        with:
+          repository: abutlabs/observability
+          path: observability
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: the-gray-tutor/.nvmrc
+          cache: npm
+          cache-dependency-path: the-gray-tutor/package-lock.json
+      - name: Start the observability stack
+        working-directory: observability
+        run: |
+          ./obs up
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3100/ready >/dev/null && break; sleep 2; done
+          curl -fsS http://127.0.0.1:3100/ready
+      - run: npm ci
+        working-directory: the-gray-tutor
+      - uses: actions/cache@v4
+        with:
+          path: the-gray-tutor/vectors
+          key: vectors-${{ hashFiles('the-gray-tutor/tools/vectors.ts') }}
+      - run: npm run vectors
+        working-directory: the-gray-tutor
+      # a run that starts part-way skips the earlier lessons' `npm install`, so the client's
+      # packages are installed first, from the client as it stands after the last lesson run
+      - name: Install the client's packages for a run that starts part-way
+        if: ${{ inputs.from != '' }}
+        working-directory: the-gray-tutor
+        run: |
+          node tools/compare.ts ${{ inputs.to }} --write --dir .tangled
+          npm install --prefix .tangled --no-audit --no-fund
+      - name: Verify
+        working-directory: the-gray-tutor
+        run: npm run verify -- ${{ inputs.from }} ${{ inputs.to }}
+      - name: Every run's output
+        if: always()
+        working-directory: the-gray-tutor
+        run: |
+          for f in $(find .verify-output -type f | sort -V); do echo "::group::$f"; cat "$f"; echo "::endgroup::"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verify-output
+          path: the-gray-tutor/.verify-output
+          include-hidden-files: true
