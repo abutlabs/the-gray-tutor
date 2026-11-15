@@ -576,4 +576,10 @@ npm run verify
 npm run check
 ```
 
+Away from a machine that can run `verify` (a cloud session has no Node 26, packages,
+vectors or stack), the **verify** workflow runs it on GitHub: push the lesson to a branch,
+then `gh workflow run verify.yml -f ref=<branch> -f from=21.1 -f to=21.1`. Its log and its
+`verify-output` artifact hold every run's output, tidied, to paste into the Output blocks.
+Land the branch on main once the run is green.
+
 Then read the lesson rendered in VS Code's preview and on the website.
