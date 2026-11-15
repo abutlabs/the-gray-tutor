@@ -1,6 +1,7 @@
 // Notes in ink, for a tablet's pen (a BOOX's, an iPad's): the pen writes on the lesson, a
 // finger still scrolls. A short tap of the pen still follows a link or presses a button, and
-// the pen's side button (or its eraser end) rubs ink out. Each stroke is tied to the
+// the pen's side button (or its eraser end), or the eraser button, rubs ink out, and ↶ takes
+// back the last change. Each stroke is tied to the
 // paragraph it was written beside and scaled with the text's column, so it stays beside it
 // when the tablet turns or full screen changes the width. The notes are kept in this
 // browser (IndexedDB), offline; ✎ in the corner lists them, and exports or imports them
@@ -101,6 +102,29 @@ function blockAt(all: HTMLElement[], y: number): number {
 // ── drawing ──────────────────────────────────────────────────────────────────────────
 
 let layer: SVGSVGElement | null = null;
+let history: Stroke[][] = []; // this page's strokes before each change, for ↶
+let eraser = false; // the eraser button is on: the pen rubs out
+
+export const canUndo = () => history.length > 0;
+export const eraserOn = () => eraser;
+export function setEraser(on: boolean): void {
+  eraser = on;
+  window.dispatchEvent(new CustomEvent("ink-change"));
+}
+function remember(): void {
+  if (!page) return;
+  history.push(page.strokes.slice());
+  if (history.length > 100) history.shift();
+}
+
+/** Takes back the last change on this page: a stroke written, rubbed out, or the page cleared. */
+export async function undo(): Promise<void> {
+  const before = history.pop();
+  if (!page || !before) return;
+  page.strokes = before;
+  drawInk();
+  await save();
+}
 let page: PageNotes | null = null;
 let drawn: { stroke: Stroke; points: number[] }[] = []; // each stroke's points on screen now, in the layer's px
 
@@ -161,6 +185,7 @@ export async function showPage(): Promise<void> {
   } catch {
     page = { path, title: "", updated: 0, strokes: [] }; // no storage: ink lasts until the page closes
   }
+  history = [];
   watching?.disconnect();
   const doc = column();
   if (doc) {
@@ -183,6 +208,7 @@ async function save(): Promise<void> {
 
 export async function clearPage(): Promise<void> {
   if (!page) return;
+  remember();
   page.strokes = [];
   drawInk();
   await save();
@@ -192,7 +218,7 @@ export const pageHasInk = () => Boolean(page?.strokes.length);
 
 // ── the pen ──────────────────────────────────────────────────────────────────────────
 
-type Pen = { id: number; erase: boolean; x: number; y: number; t: number; moved: boolean; points: number[]; live?: SVGPathElement };
+type Pen = { id: number; erase: boolean; erased?: boolean; x: number; y: number; t: number; moved: boolean; points: number[]; live?: SVGPathElement };
 let pen: Pen | null = null;
 
 /** What the pen should work as normal on: controls, and the widgets' own drawing areas. */
@@ -204,7 +230,7 @@ function start(e: PointerEvent): void {
   // anywhere on the lesson, its margins too, but not on the menus or a control
   const area = document.querySelector(".VPDoc");
   if (!column() || !target || !area?.contains(target) || target.closest(NATIVE)) return;
-  pen = { id: e.pointerId, erase: Boolean(e.buttons & 32 || e.buttons & 2), x: e.clientX, y: e.clientY, t: e.timeStamp, moved: false, points: [] };
+  pen = { id: e.pointerId, erase: eraser || Boolean(e.buttons & 32 || e.buttons & 2), x: e.clientX, y: e.clientY, t: e.timeStamp, moved: false, points: [] };
   e.preventDefault();
   if (pen.erase) eraseAt(e.clientX, e.clientY);
   else addPoint(e.clientX, e.clientY);
@@ -257,6 +283,7 @@ function end(e: PointerEvent): void {
   const b = blockAt(all, box.top + done.points[1]);
   const top = all[b] ? all[b].getBoundingClientRect().top - box.top : 0;
   const p = done.points.map((v, i) => (i % 2 ? Math.round((v - top) * 10) / 10 : v));
+  remember();
   page.strokes.push({ b, k: all[b] ? blockKey(all[b]) : "", w: Math.round(box.width), p });
   drawInk();
   void save();
@@ -273,6 +300,7 @@ function eraseAt(x: number, y: number): void {
   });
   if (!hit.length) return;
   const gone = new Set(hit.map((h) => h.stroke));
+  if (!pen?.erased) { remember(); if (pen) pen.erased = true; } // one ↶ takes back a whole rub
   page.strokes = page.strokes.filter((s) => !gone.has(s));
   drawInk();
 }

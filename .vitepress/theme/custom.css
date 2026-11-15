@@ -526,3 +526,6 @@ html.reading .contents-search {
   font-size: 15px;
 }
 .notes-actions button:disabled { opacity: 0.4; }
+/* ⌫ while the eraser is on: filled, so it's plain the pen is rubbing out */
+.read-toggle.erasing { background: var(--vp-c-text-1); color: var(--vp-c-bg); opacity: 1; }
+.read-toggle:disabled { opacity: 0.35; }
