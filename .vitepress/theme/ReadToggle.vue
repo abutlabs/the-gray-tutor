@@ -1,16 +1,18 @@
 <!-- Reading mode's buttons (reading.ts), in the corner of every page, still there once the
      top bar has gone: ↶ and ⌫ undo and erase pen notes once a page has some (ink.ts), ✎ lists
      them (NotesPanel.vue), ⤢ goes full screen, and in full screen ☰ opens the contents over the
-     page and ⤡ brings the menus back. Beside them, while the app saves the site for reading
+     page and ⤡ brings the menus back. ☾ / ☀ switch dark and light (the top bar's switch is gone
+     in full screen, and an e-reader may have no system dark mode to follow). Beside them, while the app saves the site for reading
      with no network (public/sw.js), how far it has got, and then that it's done. -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { useRoute } from "vitepress";
+import { useData, useRoute } from "vitepress";
 import { revealActiveLesson } from "./keys.ts";
 import NotesPanel from "./NotesPanel.vue";
 import { canUndo, eraserOn, pageHasInk, setEraser, undo } from "./ink.ts";
 import { contentsOpen, type OfflineStatus, readingOn, setContents, setReading } from "./reading.ts";
 
+const { isDark } = useData(); // VitePress keeps the choice (localStorage) for every page
 const on = ref(false);
 const contents = ref(false);
 const note = ref("");
@@ -77,6 +79,13 @@ onUnmounted(() => {
       <button class="read-toggle" :class="{ erasing }" type="button" :aria-pressed="erasing" :title="erasing ? 'Eraser on: tap to write again' : 'Eraser: the pen rubs notes out'" @click="setEraser(!erasing)"
       >⌫<span class="visually-hidden">Eraser</span></button>
     </template>
+    <button
+      class="read-toggle"
+      type="button"
+      :aria-pressed="isDark"
+      :title="isDark ? 'Light mode' : 'Dark mode'"
+      @click="isDark = !isDark"
+    >{{ isDark ? "☀" : "☾" }}<span class="visually-hidden">{{ isDark ? "Light mode" : "Dark mode" }}</span></button>
     <button class="read-toggle" type="button" title="Your notes" @click="notes?.show()"
     >✎<span class="visually-hidden">Your notes</span></button>
     <button
