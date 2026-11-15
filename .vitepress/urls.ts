@@ -153,6 +153,8 @@ export const PUBLISHED: string[] = [
   "20-facing-the-fuzzer/02-a-target",
   "20-facing-the-fuzzer/03-a-session",
   "20-facing-the-fuzzer/04-ready-to-be-fuzzed",
+  "21-a-node/",
+  "21-a-node/01-the-block-tree",
   "19-block-import/",
   "glossary",
   "symbols",

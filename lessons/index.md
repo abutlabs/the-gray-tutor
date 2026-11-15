@@ -246,16 +246,21 @@ This tutorial is built with reference to [Lasair](https://github.com/abutlabs/la
 - [20.3 A session](./20-facing-the-fuzzer/03-a-session.md)
 - [20.4 Ready to be fuzzed](./20-facing-the-fuzzer/04-ready-to-be-fuzzed.md)
 
+**[Part 21 · A node](./21-a-node/index.md)**
+
+- [21.1 The block tree](./21-a-node/01-the-block-tree.md)
+
 <a id="still-to-be-written"></a>
 
 ## After M1
 
-Every part is written. The road ends at a block importer, JAM's first milestone. A
-client that runs a real network goes further:
+The parts up to [Part 20](./20-facing-the-fuzzer/index.md) end at a block importer, JAM's
+first milestone. A client that runs a real
+network goes further:
 
 - the edge cases in [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md),
   each with the case that needs it;
-- speed, which M3 and M4 measure;
-- making blocks rather than only importing them, with networking, which M2 asks for.
+- making blocks rather than only importing them, with networking, which M2 asks for;
+- speed, which M3 and M4 measure.
 
-Those are for another tutorial.
+[Part 21](./21-a-node/index.md) begins the road to M2, and is being written.

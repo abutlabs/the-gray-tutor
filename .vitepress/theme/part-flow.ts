@@ -142,6 +142,7 @@ export const LESSON_PATHS: Record<string, string> = {
   "20.2": "20-facing-the-fuzzer/02-a-target",
   "20.3": "20-facing-the-fuzzer/03-a-session",
   "20.4": "20-facing-the-fuzzer/04-ready-to-be-fuzzed",
+  "21.1": "21-a-node/01-the-block-tree",
 };
 
 /** A Part's folder, from its lessons' paths: 12 → "12-guarantees". */
@@ -1421,6 +1422,40 @@ export const FLOWS: Flow[] = [
         says: "Packaged the way the official fuzzer starts targets: a Docker image, set up by environment variables.",
         example: "JAM_FUZZ=1 JAM_FUZZ_SPEC=tiny",
         lessons: ["20.4"],
+      },
+    },
+  },
+  {
+    part: 21,
+    rows: [["arrives"], ["onto"], ["tree"], ["tips"]],
+    walk: ["arrives", "onto", "tree", "tips"],
+    cards: {
+      arrives: {
+        kind: "step",
+        name: "A block arrives",
+        says: "Another validator made a block and sent it. It names the block it was built on by that block's hash.",
+        lessons: [],
+        elsewhere: "Other validators make the blocks: here they come from the official traces, and from the network in a later Part.",
+      },
+      onto: {
+        kind: "step",
+        name: "Import it onto its parent",
+        says: "Find the state after the block's parent, and import the block onto that state. A block whose parent hasn't come is an orphan, and waits.",
+        example: "unknown_parent",
+        lessons: ["21.1"],
+      },
+      tree: {
+        kind: "thing",
+        name: "The block tree",
+        says: "Every block imported, under its hash, tied to its parent, with the state after it. Two blocks on one parent are a fork, and the tree holds both.",
+        example: "two traces share block 1 and part at block 2",
+        lessons: ["21.1"],
+      },
+      tips: {
+        kind: "thing",
+        name: "The tips",
+        says: "The blocks nothing is built on yet: the places the chain could grow next.",
+        lessons: ["21.1"],
       },
     },
   },

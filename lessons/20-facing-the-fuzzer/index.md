@@ -4,7 +4,7 @@
 that sends them blocks nobody wrote a test for, and this part gets your client ready to
 face it.
 
-This is the last part. By the end of it your client speaks the fuzzer's protocol, keeps
+This is the last part of M1. By the end of it your client speaks the fuzzer's protocol, keeps
 its states, and starts the way the official fuzzer starts its targets.
 
 ## The big picture

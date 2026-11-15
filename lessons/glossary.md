@@ -945,6 +945,29 @@ from its arguments. *Example:* `JAM_FUZZ_SPEC=tiny`. ([20.4](./20-facing-the-fuz
 **Docker image.** A program packaged with everything it needs to run, from the operating
 system up. *Example:* `node:26.11.1-bookworm-slim`. ([20.4](./20-facing-the-fuzzer/04-ready-to-be-fuzzed.md))
 
+## Running a node
+
+**JAM node.** A client that stays running: it keeps the blocks it has imported, follows
+the chain as it grows, and later makes blocks of its own. *Example:* PolkaJam, or your
+client from [Part 21](./21-a-node/index.md) on. ([21.1](./21-a-node/01-the-block-tree.md))
+
+**Block tree.** Every block a node has imported, each tied to its parent by the parent's
+hash, with the state after it. *Example:* genesis, block 1, then two blocks at slot 2.
+([21.1](./21-a-node/01-the-block-tree.md))
+
+**Fork.** Two valid blocks built on the same parent: the chain has two possible futures
+until the network settles on one. *Example:* the `fallback` and `storage` traces part at
+block 2. ([21.1](./21-a-node/01-the-block-tree.md))
+
+**Tip.** A block in the tree with no child yet: a place the chain could grow next.
+*Example:* a tree with one fork has two tips. ([21.1](./21-a-node/01-the-block-tree.md))
+
+**Orphan.** A block whose parent a node doesn't have, so there is no state to import it
+onto. *Example:* block 3, when block 2 never came. ([21.1](./21-a-node/01-the-block-tree.md))
+
+**Ancestors.** 𝐀. A block, its parent, its parent's parent, and so on back to genesis.
+*Example:* block 3′, block 2′, block 1, genesis. ([21.1](./21-a-node/01-the-block-tree.md))
+
 ## The PVM
 
 **PVM.** The Polkadot Virtual Machine: a small, made-up computer, based on RISC-V, that

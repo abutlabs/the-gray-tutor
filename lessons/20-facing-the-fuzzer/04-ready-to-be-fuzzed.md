@@ -436,3 +436,5 @@ promised a program that answers "valid, and here is the new state" or "invalid, 
 It's yours.
 
 **Say it out loud.** A clean session means the same state root on every block tried. It doesn't prove the rules right, or anything beyond importing blocks.
+
+Next: [Part 21 · A node](../21-a-node/index.md), where the client starts to keep a chain.

@@ -143,6 +143,7 @@ import PeerInfo from "./PeerInfo.vue";
 import TargetStates from "./TargetStates.vue";
 import AnchorWindow from "./AnchorWindow.vue";
 import SessionPlay from "./SessionPlay.vue";
+import BlockTree from "./BlockTree.vue";
 import TicketsPreimages from "./TicketsPreimages.vue";
 import AssuranceParcel from "./AssuranceParcel.vue";
 import GuaranteeParcel from "./GuaranteeParcel.vue";
@@ -287,6 +288,7 @@ export default {
     app.component("TargetStates", TargetStates); // 20.2
     app.component("AnchorWindow", AnchorWindow); // 20.2
     app.component("SessionPlay", SessionPlay); // 20.3
+    app.component("BlockTree", BlockTree); // 21.1
     app.component("TicketsPreimages", TicketsPreimages); // 4.1
     app.component("AssuranceParcel", AssuranceParcel); // 4.2
     app.component("GuaranteeParcel", GuaranteeParcel); // 4.3
