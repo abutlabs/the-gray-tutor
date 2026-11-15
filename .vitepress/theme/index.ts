@@ -12,6 +12,7 @@ import { fitFormulas, listenForFormulas } from "./fit-formulas.ts";
 import CodeToggle from "./CodeToggle.vue";
 import ReadToggle from "./ReadToggle.vue";
 import { listenForReadKey, openSearch, registerServiceWorker } from "./reading.ts";
+import { listenForPen, showPage } from "./ink.ts";
 import BitPlaces from "./BitPlaces.vue";
 import CompactNatural from "./CompactNatural.vue";
 import TwoBytes from "./TwoBytes.vue";
@@ -329,6 +330,7 @@ export default {
     listenForFormulas();
     listenForResize();
     listenForReadKey();
+    listenForPen();
     router.onAfterRouteChange = () => { revealActiveLesson(); };
   },
   setup() {
@@ -340,9 +342,11 @@ export default {
       fitFormulas();
       // only on the built site, where the files it keeps have settled names
       if (import.meta.env.PROD) registerServiceWorker(import.meta.env.BASE_URL);
+      void showPage(); // the pen's notes on this page (ink.ts)
     });
     // after each new page is in the DOM
     watch(() => route.path, () => {
+      void showPage();
       makePicturesFocusable();
       placeSideArrows();
       fitFormulas();

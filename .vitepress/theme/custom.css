@@ -492,3 +492,37 @@ html.reading .contents-search {
   line-height: 20px;
 }
 @media print { .read-buttons, .offline-note, .contents-backdrop { display: none; } }
+
+/* The pen's notes (ink.ts): ink over the lesson, black, never in the way of a tap */
+.ink-layer { position: absolute; z-index: 30; overflow: visible; pointer-events: none; }
+.ink-layer path { fill: none; stroke: var(--vp-c-text-1); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+@media print { .ink-layer { display: none; } }
+
+/* Your notes (NotesPanel.vue) */
+.notes-panel {
+  width: min(560px, 92vw);
+  max-height: 86vh;
+  padding: 20px 24px 22px;
+  border: 2px solid var(--vp-c-text-1);
+  border-radius: 12px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+}
+.notes-panel::backdrop { background: rgba(0, 0, 0, 0.25); }
+.notes-panel h2 { margin: 0 0 8px; font-size: 22px; font-weight: 600; }
+.notes-where, .notes-none, .notes-message { margin: 0 0 12px; font-size: 15px; line-height: 1.5; color: var(--vp-c-text-2); }
+.notes-message { color: var(--vp-c-text-1); }
+.notes-list { margin: 0 0 12px; padding: 0; list-style: none; }
+.notes-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 0; border-top: 1px solid var(--vp-c-divider); font-size: 16px; }
+.notes-list a { color: var(--vp-c-text-1); font-weight: 500; text-decoration: underline; }
+.notes-list span { color: var(--vp-c-text-2); font-size: 14px; }
+.notes-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.notes-actions button {
+  padding: 8px 14px;
+  border: 2px solid var(--vp-c-text-1);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 15px;
+}
+.notes-actions button:disabled { opacity: 0.4; }
