@@ -142,27 +142,6 @@ test("an orphan and a refused block change nothing; the same block twice is one 
 });
 ```
 
-**Run, expect it to fail**
-
-```sh
-npm test
-```
-
-```text
-...
-Error [ERR_MODULE_NOT_FOUND]: Cannot find module '…/client/src/chain.ts' imported from …/client/test/chain.test.ts
-...
-✖ test/chain.test.ts (207.660262ms)
-ℹ tests 654
-ℹ suites 0
-ℹ pass 653
-ℹ fail 1
-...
-```
-
-Red for the right reason: there is no `src/chain.ts` yet, so the new test file can't
-load. The 653 tests you had still pass.
-
 ## The code
 
 **New file** `src/chain.ts`
