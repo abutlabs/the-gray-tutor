@@ -18,6 +18,8 @@ import { EPUB_FILE, writeEpub } from "./epub.ts";
 import { execSync } from "node:child_process";
 import { CLIENT_CSS, HEAD as CODE_HEAD, UNLISTED } from "./theme/code-link.ts";
 import { glossaryTerms } from "./glossary.ts";
+import { MANIFEST, writeApp } from "./app.ts";
+import { READ_HEAD } from "./theme/reading-head.ts";
 import { clientBlocks } from "./clients.ts";
 import { BESIDE, cited, grayPaperQuotes, label, SECTIONS, sorted } from "./gray-paper.ts";
 import { unitCodes } from "./units.ts";
@@ -106,6 +108,12 @@ export default defineConfig({
     ["style", {}, CLIENT_CSS],
     // the professor in the browser tab; head links don't get the base added for them
     ["link", { rel: "icon", type: "image/svg+xml", href: `${base}logo.svg` }],
+    // reading mode, from the link or the saved choice, before the page draws (theme/reading.ts);
+    // and what makes the site an app a tablet can install (app.ts)
+    ["script", {}, READ_HEAD],
+    ["link", { rel: "manifest", href: `${base}${MANIFEST}` }],
+    ["link", { rel: "apple-touch-icon", href: `${base}icons/icon-192.png` }],
+    ["meta", { name: "theme-color", content: "#ffffff" }],
   ],
   // $$ ... $$ is a Gray Paper formula, drawn as math when the site is built (MathJax, to
   // SVG: no script in the reader's browser, and print.html gets it too)
@@ -122,6 +130,7 @@ export default defineConfig({
   buildEnd: async (site) => {
     writeRedirects(site.outDir, site.site.base);
     writePrintPage(site.outDir, site.site.base, printPages);
+    writeApp(site.outDir, site.site.base, join(site.srcDir, "public", "logo.svg"));
     // the same pages as an e-book, the concepts edition, for an e-reader (epub.ts): only
     // when asked (npm run epub), so a release carries it, not every build
     if (process.env.EPUB) writeEpub(site.outDir, site.site.base, printPages);

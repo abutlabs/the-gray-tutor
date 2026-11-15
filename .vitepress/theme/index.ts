@@ -10,6 +10,8 @@ import { listenForEyeTaps } from "./eye.ts";
 import { listenForGlossTaps } from "./gray-paper.ts";
 import { fitFormulas, listenForFormulas } from "./fit-formulas.ts";
 import CodeToggle from "./CodeToggle.vue";
+import ReadToggle from "./ReadToggle.vue";
+import { listenForReadKey, registerServiceWorker } from "./reading.ts";
 import BitPlaces from "./BitPlaces.vue";
 import CompactNatural from "./CompactNatural.vue";
 import TwoBytes from "./TwoBytes.vue";
@@ -165,6 +167,8 @@ export default {
       "nav-bar-content-after": () => h(CodeToggle),
       "nav-screen-content-after": () => h(CodeToggle, { screen: true }),
       "doc-before": () => h(GrayPaperRefs),
+      // the reading-mode switch, in the corner of every page (reading.ts)
+      "layout-bottom": () => h(ReadToggle),
     }),
   enhanceApp({ app, router }) {
     // the lessons' widgets, placed in a lesson as <HexByte /> and so on (WRITING.md, Interactive)
@@ -322,6 +326,7 @@ export default {
     listenForZoom();
     listenForFormulas();
     listenForResize();
+    listenForReadKey();
     router.onAfterRouteChange = () => { revealActiveLesson(); };
   },
   setup() {
@@ -331,6 +336,10 @@ export default {
       makePicturesFocusable();
       placeSideArrows();
       fitFormulas();
+      // only on the built site, where the files it keeps have settled names
+      if (import.meta.env.PROD) registerServiceWorker(import.meta.env.BASE_URL);
+      // the text's width changes when the menus come and go
+      window.addEventListener("reading-change", () => { placeSideArrows(); fitFormulas(); });
     });
     // after each new page is in the DOM
     watch(() => route.path, () => {

@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # the site's zip, on the site-latest release
   pages: write
   id-token: write
 
@@ -37,6 +37,17 @@ jobs:
         run: npm run epub
         env:
           SITE_BASE: /the-gray-tutor/
+      # the same site as one zip, for reading it served from the tablet itself
+      # (tools/boox/gray-tutor.sh): on a release that each push replaces
+      - name: Publish the site as a zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (cd .vitepress/dist && zip -qr "$OLDPWD/site.zip" .)
+          gh release view site-latest >/dev/null 2>&1 || gh release create site-latest \
+            --title "The Gray Tutor: the website, newest" \
+            --notes "The built website as a zip, replaced on every push to main. tools/boox/gray-tutor.sh serves it on a tablet." --latest=false
+          gh release upload site-latest site.zip --clobber
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -377,3 +377,59 @@ html.other-client .vp-doc p.snippet-label:not(.client-code > *) a { pointer-even
 .vp-doc .gray-paper mjx-container .gp-sym { cursor: help; pointer-events: bounding-box; }
 .vp-doc .gray-paper mjx-container .gp-sym:hover { fill: var(--vp-c-brand-1); }
 .vp-doc .gray-paper details.gp-key > summary { cursor: pointer; color: var(--vp-c-text-2); font-size: 0.85em; margin: -0.2rem 0 0.6rem; }
+
+/* Reading mode (reading.ts), for a tablet or an e-ink screen, upright or on its side: no
+   sidebar, top bar, phone bar or "On this page" column; the lesson fills the screen in larger
+   type, held to a line length that stays easy to read on a wide screen; nothing animates. */
+html.reading { --vp-nav-height: 0px; --vp-layout-top-height: 0px; }
+html.reading .VPNav,
+html.reading .VPLocalNav,
+html.reading .VPSidebar,
+html.reading .VPBackdrop,
+html.reading .VPDoc .aside,
+html.reading .VPFooter { display: none !important; }
+html.reading .VPContent,
+html.reading .VPContent.has-sidebar { padding-top: 0 !important; padding-left: 0 !important; }
+html.reading .VPDoc,
+html.reading .VPDoc.has-aside { padding: 28px clamp(16px, 4vw, 56px) 64px !important; }
+html.reading .VPDoc .container,
+html.reading .VPDoc .content,
+html.reading .VPDoc .content-container,
+html.reading .VPDoc.has-aside .content-container { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+html.reading .vp-doc {
+  /* 18px on a phone, about 22px upright on the tablet, 24px on its side */
+  font-size: clamp(18px, 0.9vw + 11px, 24px);
+  max-width: 48em;
+  margin: 0 auto;
+}
+html.reading .vp-doc p,
+html.reading .vp-doc li { font-size: 1em; line-height: 1.65; }
+html.reading .vp-doc h1 { font-size: 1.9em; line-height: 1.25; }
+html.reading .vp-doc h2 { font-size: 1.45em; line-height: 1.3; }
+html.reading .vp-doc h3 { font-size: 1.2em; line-height: 1.35; }
+html.reading .vp-doc blockquote p,
+html.reading .vp-doc table { font-size: 0.95em; }
+html.reading .vp-doc div[class*="language-"] code { font-size: 0.8em; }
+html.reading .VPDoc .pager-link { padding: 16px 20px; }
+html.reading *,
+html.reading *::before,
+html.reading *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+
+/* The switch (ReadToggle.vue): a big round target in the corner, black on white for e-ink */
+.read-toggle {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--vp-c-text-1);
+  border-radius: 50%;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 24px;
+  line-height: 1;
+  opacity: 0.85;
+}
+.read-toggle:hover, .read-toggle:focus-visible { opacity: 1; }
+@media print { .read-toggle { display: none; } }
