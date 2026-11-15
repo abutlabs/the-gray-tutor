@@ -22,7 +22,6 @@ export function manifest(base: string): object {
     start_url: `${base}?read`,
     scope: base,
     display: "standalone",
-    orientation: "any",
     background_color: "#ffffff",
     theme_color: "#ffffff",
     icons: SIZES.flatMap((size) => [

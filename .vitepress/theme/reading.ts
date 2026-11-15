@@ -12,6 +12,7 @@ export function readingOn(): boolean {
 
 export function setReading(on: boolean): void {
   document.documentElement.classList.toggle(READ_CLASS, on);
+  document.documentElement.classList.remove(CONTENTS_CLASS);
   try {
     localStorage.setItem(READ_KEY, on ? "on" : "off");
   } catch {} // no storage (a private window): it lasts until the page is closed
@@ -21,10 +22,30 @@ export function setReading(on: boolean): void {
   window.dispatchEvent(new Event("resize"));
 }
 
+export const CONTENTS_CLASS = "reading-contents";
+
+/** The contents, in reading mode: the sidebar's list of lessons, over the page, until a
+ *  lesson is chosen or the page behind is tapped. */
+export function contentsOpen(): boolean {
+  return document.documentElement.classList.contains(CONTENTS_CLASS);
+}
+
+export function setContents(open: boolean): void {
+  document.documentElement.classList.toggle(CONTENTS_CLASS, open);
+  window.dispatchEvent(new CustomEvent("reading-change"));
+}
+
+/** Opens the site's search box, as Ctrl K does (its button is in the hidden top bar). */
+export function openSearch(): void {
+  setContents(false);
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", code: "KeyK", ctrlKey: true, bubbles: true }));
+}
+
 /** R switches reading mode, unless the key is someone else's (typing, a shortcut). */
 export function listenForReadKey(): void {
   window.addEventListener("keydown", (e) => {
     const target = e.target instanceof Element ? e.target : null;
+    if (e.key === "Escape" && contentsOpen()) return setContents(false);
     if (e.key !== "r" || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     if (target?.closest("input, textarea, select, [contenteditable], dialog")) return;
     setReading(!readingOn());

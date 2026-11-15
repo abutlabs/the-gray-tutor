@@ -11,7 +11,7 @@ import { listenForGlossTaps } from "./gray-paper.ts";
 import { fitFormulas, listenForFormulas } from "./fit-formulas.ts";
 import CodeToggle from "./CodeToggle.vue";
 import ReadToggle from "./ReadToggle.vue";
-import { listenForReadKey, registerServiceWorker } from "./reading.ts";
+import { listenForReadKey, openSearch, registerServiceWorker } from "./reading.ts";
 import BitPlaces from "./BitPlaces.vue";
 import CompactNatural from "./CompactNatural.vue";
 import TwoBytes from "./TwoBytes.vue";
@@ -169,6 +169,8 @@ export default {
       "doc-before": () => h(GrayPaperRefs),
       // the reading-mode switch, in the corner of every page (reading.ts)
       "layout-bottom": () => h(ReadToggle),
+      // search, at the top of the contents in full screen, where the top bar's box is hidden
+      "sidebar-nav-before": () => h("button", { class: "contents-search", type: "button", onClick: openSearch }, "⌕  Search"),
     }),
   enhanceApp({ app, router }) {
     // the lessons' widgets, placed in a lesson as <HexByte /> and so on (WRITING.md, Interactive)

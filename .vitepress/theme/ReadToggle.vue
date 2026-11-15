@@ -1,16 +1,20 @@
-<!-- The reading-mode switch (reading.ts): a round button in the corner, on every page, so it
-     is still there to tap once the top bar has gone. Beside it, while the app saves the site
-     for reading with no network (public/sw.js), how far it has got, and then that it's done. -->
+<!-- Reading mode's buttons (reading.ts), in the corner of every page, still there once the
+     top bar has gone: ⤢ goes full screen, and in full screen ☰ opens the contents over the
+     page and ⤡ brings the menus back. Beside them, while the app saves the site for reading
+     with no network (public/sw.js), how far it has got, and then that it's done. -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
-import { type OfflineStatus, readingOn, setReading } from "./reading.ts";
+import { onMounted, onUnmounted, ref, watch } from "vue";
+import { useRoute } from "vitepress";
+import { revealActiveLesson } from "./keys.ts";
+import { contentsOpen, type OfflineStatus, readingOn, setContents, setReading } from "./reading.ts";
 
 const on = ref(false);
+const contents = ref(false);
 const note = ref("");
 let hide: ReturnType<typeof setTimeout> | undefined;
 let saving = false;
 
-const sync = () => { on.value = readingOn(); };
+const sync = () => { on.value = readingOn(); contents.value = contentsOpen(); };
 function status(e: Event) {
   const { offline, done = 0, total = 0 } = (e as CustomEvent<OfflineStatus>).detail ?? {};
   clearTimeout(hide);
@@ -28,6 +32,14 @@ function status(e: Event) {
     hide = setTimeout(() => { note.value = ""; }, 8000);
   }
 }
+function openContents() {
+  setContents(true);
+  revealActiveLesson();
+}
+// a lesson chosen from the contents: the page that opens is the one to read
+const route = useRoute();
+watch(() => route.path, () => { if (contentsOpen()) setContents(false); });
+
 onMounted(() => {
   sync();
   window.addEventListener("reading-change", sync);
@@ -40,12 +52,23 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <div v-if="contents" class="contents-backdrop" @click="setContents(false)" />
   <p v-if="note" class="offline-note" role="status">{{ note }}</p>
-  <button
-    class="read-toggle"
-    type="button"
-    :aria-pressed="on"
-    :title="on ? 'Show the menus (R)' : 'Reading mode: hide the menus (R)'"
-    @click="setReading(!on)"
-  >{{ on ? "☰" : "⤢" }}<span class="visually-hidden">{{ on ? "Show the menus" : "Reading mode" }}</span></button>
+  <div class="read-buttons">
+    <button
+      v-if="on"
+      class="read-toggle"
+      type="button"
+      :aria-expanded="contents"
+      title="Contents"
+      @click="contents ? setContents(false) : openContents()"
+    >{{ contents ? "✕" : "☰" }}<span class="visually-hidden">{{ contents ? "Close the contents" : "Contents" }}</span></button>
+    <button
+      class="read-toggle"
+      type="button"
+      :aria-pressed="on"
+      :title="on ? 'Leave full screen: show the menus (R)' : 'Full screen: hide the menus (R)'"
+      @click="setReading(!on)"
+    >{{ on ? "⤡" : "⤢" }}<span class="visually-hidden">{{ on ? "Leave full screen" : "Full screen" }}</span></button>
+  </div>
 </template>
