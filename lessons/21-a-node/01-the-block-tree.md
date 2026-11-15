@@ -150,11 +150,18 @@ npm test
 
 ```text
 ...
-✖ test/chain.test.ts
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '…/client/src/chain.ts' imported from …/client/test/chain.test.ts
+...
+✖ test/chain.test.ts (207.660262ms)
+ℹ tests 654
+ℹ suites 0
+ℹ pass 653
+ℹ fail 1
 ...
 ```
 
-There is no `src/chain.ts` yet.
+Red for the right reason: there is no `src/chain.ts` yet, so the new test file can't
+load. The 653 tests you had still pass.
 
 ## The code
 
@@ -266,11 +273,16 @@ npm run typecheck
 
 ```text
 ...
-✔ a chain: five blocks, each on the one before; one tip; its ancestors back to genesis (1ms)
-✔ a fork: two traces part at block 2; two tips, each with its own state (1ms)
-✔ an orphan and a refused block change nothing; the same block twice is one block (1ms)
+✔ a chain: five blocks, each on the one before; one tip; its ancestors back to genesis (182.57792ms)
+✔ a fork: two traces part at block 2; two tips, each with its own state (151.553153ms)
+✔ an orphan and a refused block change nothing; the same block twice is one block (30.878082ms)
 ...
+ℹ tests 656
+ℹ suites 0
+ℹ pass 656
 ℹ fail 0
+...
+reported 656 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=test-1794783103831
 ...
 ```
 
