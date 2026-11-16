@@ -25,8 +25,8 @@ A block is thrown out for one of three reasons:
 - **It doesn't follow the final block.** A [*final block*](../glossary.md#final-block) is
   one the validators have voted never to undo. Anything not built on it is dead.
 - **Somebody sealed twice.** Two valid blocks in one slot are an
-  [*equivocation*](../glossary.md#equivocation). Every block built on either of them is
-  out, until one of the two is final.
+  [*equivocation*](../glossary.md#equivocation). Both blocks are out, and so is every
+  block built on either, until one of the two is final.
 - **It isn't audited.** The work in it hasn't been checked yet.
 
 Of the blocks that survive, the [*best block*](../glossary.md#best-block) is the one with
@@ -35,9 +35,10 @@ that fits Safrole's design ([Part 8](../08-safrole/index.md)): a ticket's winner
 secret until their slot comes, and a fallback slot's author is known to everyone from the
 start of the epoch.
 
-Your fork is an equivocation: two blocks at slot 2, sealed by the same author. So neither side is a
-candidate, and the best block is block 1. By the end of this lesson your client works
-that out.
+Your fork is an equivocation: two blocks at slot 2, sealed by the same author. So neither
+side is a candidate. That leaves genesis and block 1, and block 1 is best. The next author
+builds on block 1, and both slot-2 blocks are left behind unless the validators make one
+of them final. By the end of this lesson your client works that out.
 
 ## What the Gray Paper says
 
@@ -50,7 +51,9 @@ that out.
    it yet. Until it does, every block it has imported counts as audited.
 3. **(19.3) Nobody sealed twice.** There are no two headers A and B where: A is not B,
    they have the same slot, A is one of the best block's ancestors, and A is not one of
-   the final block's. B can be any valid block the node has seen.
+   the final block's. A block counts among its own ancestors (5.3), so A can be the
+   candidate itself. B can be any valid block the node has seen. The rule asks only for
+   the same slot, not the same author.
 4. **(19.4) The most tickets.** m is the sum of 𝐓 over the best block's ancestors, where
    𝐓 is 1 for a [*ticket-sealed block*](../glossary.md#ticket-sealed-block) and 0 for a
    fallback one ([lesson 8.9](../08-safrole/09-seals.md)). The best block is the
@@ -60,6 +63,10 @@ Read (19.3)'s last condition again: A is *not* an ancestor of the final block. O
 side of an equivocation is final, the rule stops applying to it, and the chain can grow
 again. Try it [at the top](#try-it): make block 2′ final.
 
+The paper doesn't say what (19.3) is for. What it does is plain to see: two nodes that
+received the slot-2 blocks in opposite orders still agree on what to build on, because
+neither block is a candidate for either of them.
+
 Two things the paper leaves open, and what your client does:
 
 - **Who says a block is final?** [*GRANDPA*](../glossary.md#grandpa), the validators'
@@ -67,7 +74,8 @@ Two things the paper leaves open, and what your client does:
   hash and something else sets it. It starts at the block the node started from.
 - **A tie on m.** In a fallback epoch every block has 𝐓 = 0, so every candidate has the
   same m. Your client then takes the candidate with the most ancestors, and after that
-  the lower hash. That is our choice, not the paper's.
+  the lower hash. That is our choice, not the paper's. It is why block 1 beats genesis
+  above: both have m = 0, and block 1 has two ancestors to genesis's one.
 
 ## The tests
 
@@ -307,12 +315,17 @@ npm run typecheck
 
 ```text
 ...
-✔ one line of blocks: every block is a candidate, and the best is the tip (1ms)
-✔ an equivocation: two blocks at slot 2; neither side is a candidate; block 1 is best (1ms)
-✔ finality settles it: with block 2′ final, the best block is the one built on it (1ms)
-✔ m counts ticket-sealed ancestors: the safrole trace's blocks 48, 49 and 50 (1ms)
+✔ one line of blocks: every block is a candidate, and the best is the tip (98.824717ms)
+✔ an equivocation: two blocks at slot 2; neither side is a candidate; block 1 is best (90.010752ms)
+✔ finality settles it: with block 2′ final, the best block is the one built on it (58.157704ms)
+✔ m counts ticket-sealed ancestors: the safrole trace's blocks 48, 49 and 50 (1405.67323ms)
 ...
+ℹ tests 660
+ℹ suites 0
+ℹ pass 660
 ℹ fail 0
+...
+reported 660 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=test-1794823507478
 ...
 ```
 
