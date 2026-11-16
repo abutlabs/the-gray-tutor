@@ -145,6 +145,7 @@ import AnchorWindow from "./AnchorWindow.vue";
 import SessionPlay from "./SessionPlay.vue";
 import BlockTree from "./BlockTree.vue";
 import BestBlock from "./BestBlock.vue";
+import SlotClock from "./SlotClock.vue";
 import TicketsPreimages from "./TicketsPreimages.vue";
 import AssuranceParcel from "./AssuranceParcel.vue";
 import GuaranteeParcel from "./GuaranteeParcel.vue";
@@ -291,6 +292,7 @@ export default {
     app.component("SessionPlay", SessionPlay); // 20.3
     app.component("BlockTree", BlockTree); // 21.1
     app.component("BestBlock", BestBlock); // 21.2
+    app.component("SlotClock", SlotClock); // 21.3
     app.component("TicketsPreimages", TicketsPreimages); // 4.1
     app.component("AssuranceParcel", AssuranceParcel); // 4.2
     app.component("GuaranteeParcel", GuaranteeParcel); // 4.3

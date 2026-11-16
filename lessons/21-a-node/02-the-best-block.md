@@ -386,4 +386,4 @@ Your node can say which of its blocks is best: `acceptable` for (19.1) and (19.3
 sealed it, and the tree knows which block is final. On the real fork, the answer is block
 1, until one side is final.
 
-Next, the clock: a block is made in a slot, and a node has to know which slot it is.
+Next, [the clock](./03-the-slot-clock.md): a block is made in a slot, and a node has to know which slot it is.

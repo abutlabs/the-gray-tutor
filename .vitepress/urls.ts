@@ -156,6 +156,7 @@ export const PUBLISHED: string[] = [
   "21-a-node/",
   "21-a-node/01-the-block-tree",
   "21-a-node/02-the-best-block",
+  "21-a-node/03-the-slot-clock",
   "19-block-import/",
   "glossary",
   "symbols",

@@ -4,9 +4,9 @@
 imported as a tree, and imports each new block onto the right one.
 
 This part begins the road to M2, JAM's second milestone: a client that makes blocks, not
-only checks them. It is being written. [21.1](./01-the-block-tree.md) and
-[21.2](./02-the-best-block.md) are here; the slot clock and the program that stays up
-follow.
+only checks them. It is being written. [21.1](./01-the-block-tree.md),
+[21.2](./02-the-best-block.md) and [21.3](./03-the-slot-clock.md) are here; the program
+that stays up follows.
 
 ## The big picture
 
@@ -31,6 +31,7 @@ on neither until one is final.
 | --- | --- | --- |
 | What must a node keep, when two blocks can share a parent? | [21.1](./01-the-block-tree.md) | 6 min |
 | Of all the blocks it holds, which does a node build on? | [21.2](./02-the-best-block.md) | 7 min |
+| When may a block be imported? | [21.3](./03-the-slot-clock.md) | 5 min |
 
 It assumes a client that refuses bad input instead of crashing on it: the list in
 [HARDENING.md](https://github.com/abutlabs/the-gray-tutor/blob/main/HARDENING.md), which
@@ -57,3 +58,4 @@ this part starts from; [How to read it](../index.md#how-to-read-it) says more.
 
 - [21.1 The block tree](./01-the-block-tree.md)
 - [21.2 The best block](./02-the-best-block.md)
+- [21.3 The slot clock](./03-the-slot-clock.md)

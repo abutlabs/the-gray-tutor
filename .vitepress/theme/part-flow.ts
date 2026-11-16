@@ -144,6 +144,7 @@ export const LESSON_PATHS: Record<string, string> = {
   "20.4": "20-facing-the-fuzzer/04-ready-to-be-fuzzed",
   "21.1": "21-a-node/01-the-block-tree",
   "21.2": "21-a-node/02-the-best-block",
+  "21.3": "21-a-node/03-the-slot-clock",
 };
 
 /** A Part's folder, from its lessons' paths: 12 → "12-guarantees". */
@@ -1428,8 +1429,8 @@ export const FLOWS: Flow[] = [
   },
   {
     part: 21,
-    rows: [["arrives"], ["onto"], ["tree"], ["tips", "final"], ["choose"], ["best"]],
-    walk: ["arrives", "onto", "tree", "tips", "final", "choose", "best"],
+    rows: [["arrives"], ["clock"], ["onto"], ["tree"], ["tips", "final"], ["choose"], ["best"]],
+    walk: ["arrives", "clock", "onto", "tree", "tips", "final", "choose", "best"],
     cards: {
       arrives: {
         kind: "step",
@@ -1437,6 +1438,13 @@ export const FLOWS: Flow[] = [
         says: "Another validator made a block and sent it. It names the block it was built on by that block's hash.",
         lessons: [],
         elsewhere: "Other validators make the blocks: here they come from the official traces, and from the network in a later Part.",
+      },
+      clock: {
+        kind: "step",
+        name: "Has its slot begun?",
+        says: "A block is not valid before its slot's first second. An early block is held, and let in when the clock reaches its slot.",
+        example: "slot 3 begins at second 18",
+        lessons: ["21.3"],
       },
       onto: {
         kind: "step",
