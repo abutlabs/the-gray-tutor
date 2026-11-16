@@ -212,7 +212,17 @@ export function admitEarly(config: Config, chain: Chain, now: Date): Kept[] {
 This is H_T · P ≤ 𝒯, turned round. `slotAt(now)` is the slot the clock is in. A block for
 that slot or an earlier one has begun. A block for a later one hasn't.
 
-The check sits in front of `addBlock`, not inside `importBlock`. The rules you built for
+```ts
+  for (const block of due.sort((a, b) => a.header.slot - b.header.slot)) {
+```
+
+Why lowest slot first? A parent's slot is always lower than its child's: that is the
+first half of (5.8). So sorting by slot puts every parent in before its child. Let block 3
+in before block 2 and it is an orphan ([lesson 21.1](./01-the-block-tree.md)): its parent
+isn't in the tree, so it is dropped, and a good block is lost.
+
+The check sits in front of `addBlock`, which puts a block in the tree, and not inside
+`importBlock`, which `addBlock` calls. The rules you built for
 the importer stay a function of a state and a block, with the same answer whenever you
 ask. Time is the node's business.
 
@@ -225,11 +235,16 @@ npm run typecheck
 
 ```text
 ...
-✔ a slot's start: slot 5 begins 30 seconds in, and slotStart undoes slotAt (1ms)
-✔ a block from the future is held, then let in when its slot begins (1ms)
-✔ held blocks join in slot order, whatever order they came in (1ms)
+✔ a slot's start: slot 5 begins 30 seconds in, and slotStart undoes slotAt (1.141804ms)
+✔ a block from the future is held, then let in when its slot begins (49.486712ms)
+✔ held blocks join in slot order, whatever order they came in (37.17742ms)
 ...
+ℹ tests 663
+ℹ suites 0
+ℹ pass 663
 ℹ fail 0
+...
+reported 663 tests to Grafana: http://127.0.0.1:3300/d/the-gray-tutor?var-client=you&var-run_id=test-1794824933151
 ...
 ```
 
