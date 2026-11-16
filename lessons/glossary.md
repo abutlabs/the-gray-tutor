@@ -965,6 +965,21 @@ block 2. ([21.1](./21-a-node/01-the-block-tree.md))
 **Orphan.** A block whose parent a node doesn't have, so there is no state to import it
 onto. *Example:* block 3, when block 2 never came. ([21.1](./21-a-node/01-the-block-tree.md))
 
+**Best block.** B♭. Of the blocks a node holds, the one to build on and to vote for: it
+follows the final block, has no equivocation behind it, and has the most ticket-sealed
+ancestors. *Example:* block 1, when two blocks share slot 2.
+([21.2](./21-a-node/02-the-best-block.md))
+
+**Final block.** B♮. A block the validators have voted never to undo, and every block
+before it. *Example:* the block a node starts from. ([21.2](./21-a-node/02-the-best-block.md))
+
+**Equivocation.** Two different valid blocks for the same slot. *Example:* the `fallback` and `storage` traces' blocks at slot 2.
+([21.2](./21-a-node/02-the-best-block.md))
+
+**GRANDPA.** The protocol by which validators vote blocks final. *Example:* a vote names
+the best block's header and the state root after it.
+([21.2](./21-a-node/02-the-best-block.md))
+
 **Ancestors.** 𝐀. A block, its parent, its parent's parent, and so on back to genesis.
 *Example:* block 3′, block 2′, block 1, genesis. ([21.1](./21-a-node/01-the-block-tree.md))
 

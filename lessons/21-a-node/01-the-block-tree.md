@@ -40,7 +40,8 @@ The tree is three lines of §5, *The Header*, quoted in
 
 1. **Every block names its parent.** A header carries H_P, the hash of its parent's
    header: [(5.2)](../05-hashing-and-signatures/01-hashes.md#eq-5-2). Only the genesis
-   header has none.
+   header has none. The slot plays no part in it: a block may come several slots after
+   its parent, and still names it by hash.
 2. **The ancestors.** A block's [*ancestors*](../glossary.md#ancestors), 𝐀, are the block,
    its parent, its parent's parent, and so on back:
    [(5.3)](../05-hashing-and-signatures/01-hashes.md#eq-5-3).
@@ -53,7 +54,8 @@ The paper never says "tree". It doesn't have to. Nothing in (5.2) stops two head
 naming the same parent, and (5.3) follows parents only, so each tip has its own line of
 ancestors. Try it on [the tree at the top](#try-it): tap block 3, then block 3′.
 
-Which tip a node should build on is §19's question. It comes next.
+Which tip a node should build on is §19's question, and
+[lesson 21.2](./02-the-best-block.md)'s.
 
 ## The tests
 
@@ -71,6 +73,7 @@ import { fromHex } from "../src/bytes.ts";
 import type { Chain } from "../src/chain.ts";
 import { addBlock, ancestors, startChain } from "../src/chain.ts";
 import { TINY } from "../src/config.ts";
+import { importBlock } from "../src/import.ts";
 import { stateRoot } from "../src/trie.ts";
 import { vectorJson } from "./vectors.ts";
 
@@ -125,6 +128,10 @@ test("a fork: two traces part at block 2; two tips, each with its own state", ()
   assert.ok(!("error" in third));
   assert.equal(third.parent, busy.hash); // it grows one branch, and leaves the other
   assert.deepEqual([...chain.tips].sort(), [quiet.hash, third.hash].sort());
+  // the same block on the other branch's state: valid, and refused
+  const { block } = traceBlock("storage", 3);
+  const wrong = importBlock(TINY, quiet.entries, block, quiet.ancestry);
+  assert.deepEqual(wrong, { error: "bad_parent" });
 });
 
 test("an orphan and a refused block change nothing; the same block twice is one block", () => {
@@ -234,6 +241,16 @@ block's state, and `importBlock` does what it has always done. A fork needs no c
 own: two blocks that name one parent are each imported onto that parent's state, and each
 gets a state of its own.
 
+What if the node kept one state, the newest, as your importer did? The last line of the
+fork test tries it. `storage`'s block 3 is valid, but it was built on `storage`'s block 2.
+Imported onto the state after `fallback`'s block 2, it is refused with `bad_parent`: the
+newest block that state knows is not the one the header names
+([lesson 19.4](../19-block-import/04-importing-a-block.md)). A node with one state throws
+away every block from the other side of a fork, and can never follow it.
+
+An orphan is simply dropped here. On a network, a node asks a peer for the missing parent
+and tries again.
+
 ```ts
   chain.tips.delete(parent.hash); // the parent has a child now
   chain.tips.add(kept.hash);
@@ -322,4 +339,4 @@ A block tree: every block under its hash, tied to its parent, with the state aft
 its own ancestry; the tips; and each block's line of ancestors. It imports a block onto
 whichever state the block names, and it holds a real fork from the official traces.
 
-Next, the question the tree raises: of several tips, which one does a node build on?
+Next, the question the tree raises: of several tips, which one does a node build on? [The best block](./02-the-best-block.md) answers it.

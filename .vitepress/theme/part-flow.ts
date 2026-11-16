@@ -143,6 +143,7 @@ export const LESSON_PATHS: Record<string, string> = {
   "20.3": "20-facing-the-fuzzer/03-a-session",
   "20.4": "20-facing-the-fuzzer/04-ready-to-be-fuzzed",
   "21.1": "21-a-node/01-the-block-tree",
+  "21.2": "21-a-node/02-the-best-block",
 };
 
 /** A Part's folder, from its lessons' paths: 12 → "12-guarantees". */
@@ -1427,8 +1428,8 @@ export const FLOWS: Flow[] = [
   },
   {
     part: 21,
-    rows: [["arrives"], ["onto"], ["tree"], ["tips"]],
-    walk: ["arrives", "onto", "tree", "tips"],
+    rows: [["arrives"], ["onto"], ["tree"], ["tips", "final"], ["choose"], ["best"]],
+    walk: ["arrives", "onto", "tree", "tips", "final", "choose", "best"],
     cards: {
       arrives: {
         kind: "step",
@@ -1456,6 +1457,26 @@ export const FLOWS: Flow[] = [
         name: "The tips",
         says: "The blocks nothing is built on yet: the places the chain could grow next.",
         lessons: ["21.1"],
+      },
+      final: {
+        kind: "thing",
+        name: "The final block",
+        says: "The newest block the validators have voted never to undo. Your client is told which it is: the voting is GRANDPA, and comes later.",
+        lessons: ["21.2"],
+      },
+      choose: {
+        kind: "step",
+        name: "Rule blocks out, then count tickets",
+        says: "A candidate follows the final block and has no two blocks in one slot behind it. Of the candidates, the one with the most ticket-sealed ancestors wins.",
+        example: "(19.1), (19.3), (19.4)",
+        lessons: ["21.2"],
+      },
+      best: {
+        kind: "thing",
+        name: "The best block",
+        says: "The block to build on, and to vote for. It need not be a tip: after an equivocation it is the last block before the two.",
+        example: "block 1, when two blocks share slot 2",
+        lessons: ["21.2"],
       },
     },
   },

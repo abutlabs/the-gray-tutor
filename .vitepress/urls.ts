@@ -155,6 +155,7 @@ export const PUBLISHED: string[] = [
   "20-facing-the-fuzzer/04-ready-to-be-fuzzed",
   "21-a-node/",
   "21-a-node/01-the-block-tree",
+  "21-a-node/02-the-best-block",
   "19-block-import/",
   "glossary",
   "symbols",

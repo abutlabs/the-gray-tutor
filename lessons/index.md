@@ -249,6 +249,7 @@ This tutorial is built with reference to [Lasair](https://github.com/abutlabs/la
 **[Part 21 · A node](./21-a-node/index.md)**
 
 - [21.1 The block tree](./21-a-node/01-the-block-tree.md)
+- [21.2 The best block](./21-a-node/02-the-best-block.md)
 
 <a id="still-to-be-written"></a>
 
